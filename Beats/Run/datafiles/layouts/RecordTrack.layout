@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout >
+    <Window Type="DefaultWindow" Name="RecordTrackPage" >
+        <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
+        <Window Type="TaharezLook/HorizontalScrollbar" Name="RecordTrackPage_AudioPlayBar" >
+            <Property Name="PageSize" Value="0" />
+            <Property Name="StepSize" Value="1" />
+            <Property Name="OverlapSize" Value="0" />
+            <Property Name="DocumentSize" Value="1" />
+            <Property Name="ScrollPosition" Value="0" />
+            <Property Name="UnifiedAreaRect" Value="{{0.0452416,0},{0.0574334,0},{0.526574,0},{0.307433,0}}" />
+        </Window>
+        <Window Type="TaharezLook/Button" Name="RecordTrackPage_PlayBtn" >
+            <Property Name="Text" Value="Play" />
+            <Property Name="UnifiedAreaRect" Value="{{0.0913617,0},{0.342253,0},{0.173719,0},{0.460798,0}}" />
+        </Window>
+        <Window Type="TaharezLook/Button" Name="RecordTrackPage_PauseBtn" >
+            <Property Name="Text" Value="Pause" />
+            <Property Name="UnifiedAreaRect" Value="{{0.253148,0},{0.342097,0},{0.341069,0},{0.468465,0}}" />
+        </Window>
+        <Window Type="TaharezLook/Button" Name="RecordTrackPage_StopBtn" >
+            <Property Name="Text" Value="Stop" />
+            <Property Name="UnifiedAreaRect" Value="{{0.398243,0},{0.346635,0},{0.490849,0},{0.466745,0}}" />
+        </Window>
+        <Window Type="TaharezLook/Button" Name="RecordTrackPage_ExitBtn" >
+            <Property Name="Text" Value="Exit" />
+            <Property Name="UnifiedAreaRect" Value="{{0.568228,0},{0.104538,0},{0.674744,0},{0.243427,0}}" />
+        </Window>
+        <Window Type="TaharezLook/Button" Name="RecordTrackPage_AddBeatBtn" >
+            <Property Name="Text" Value="Add   Beat" />
+            <Property Name="UnifiedAreaRect" Value="{{0.166032,0},{0.544131,0},{0.416032,0},{0.794132,0}}" />
+        </Window>
+        <Window Type="TaharezLook/Listbox" Name="RecordTrackPage_BeatsList" >
+            <Property Name="UnifiedAreaRect" Value="{{0.511274,0},{0.340532,0},{0.761274,0},{0.78302,0}}" />
+        </Window>
+    </Window>
+</GUILayout>

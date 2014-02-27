@@ -1,0 +1,93 @@
+<?xml version="1.0" ?>
+<Root>
+    <Components>
+        <Component GUID="0x2aa103fd" Name="CSwitchState">
+            <Instance Id="1276" PosX="0" PosY="4">
+                <Dependency VariableName="m_pNewState">
+                    <DependencyNode Id="1275" Guid="0xddacdc2a" />
+                </Dependency>
+            </Instance>
+        </Component>
+        <Component GUID="0x4e1bca9b" Name="CWait">
+            <Instance Id="1307" PosX="-26" PosY="-6">
+                <VariableNode Type="2" Variable="m_fMinTime" DefaultValue="0.000000" Value="5.000000" />
+                <VariableNode Type="2" Variable="m_fMaxTime" DefaultValue="0.000000" Value="0.000000" />
+            </Instance>
+        </Component>
+        <Component GUID="0xd4acdfa0" Name="CIdleState">
+            <Instance Id="1072" PosX="-37" PosY="4">
+                <VariableNode Type="13" Variable="m_type" DefaultValue="1" Value="1" />
+                <Dependency VariableName="m_pOnLoopAction">
+                    <DependencyNode Id="1146" Guid="0xffdccacb" />
+                </Dependency>
+            </Instance>
+        </Component>
+        <Component GUID="0xddacdc2a" Name="CReturnState">
+            <Instance Id="1275" PosX="-37" PosY="-6">
+                <VariableNode Type="13" Variable="m_type" DefaultValue="3" Value="3" />
+                <VariableNode Type="1" Variable="m_bEnableInvicinbleOnEnter" DefaultValue="True" Value="True" />
+                <VariableNode Type="1" Variable="m_bDisableInvicinbleOnLeave" DefaultValue="True" Value="True" />
+                <VariableNode Type="1" Variable="m_bAutoRecoverHP" DefaultValue="True" Value="True" />
+                <VariableNode Type="2" Variable="m_fForceQuitTime" DefaultValue="0.000000" Value="0.000000" />
+                <Dependency VariableName="m_pOnEnterAction">
+                    <DependencyNode Id="1307" Guid="0x4e1bca9b" />
+                </Dependency>
+                <Dependency VariableName="m_pOnLoopAction">
+                    <DependencyNode Id="1277" Guid="0xffdccacb" />
+                </Dependency>
+            </Instance>
+        </Component>
+        <Component GUID="0xf4a1daab" Name="CAIManager">
+            <Instance Id="1126" PosX="-49" PosY="4">
+                <VariableNode Type="6" Variable="m_szName" DefaultValue="" Value="NPC_tiaozhantai_zhaohuan001" />
+                <VariableNode Type="2" Variable="m_fUpdateInterval" DefaultValue="0.000000" Value="0.000000" />
+                <Dependency VariableName="m_pInitState">
+                    <DependencyNode Id="1072" Guid="0xd4acdfa0" />
+                </Dependency>
+                <Dependency VariableName="m_states">
+                    <DependencyNode Id="1072" Guid="0xd4acdfa0" />
+                    <DependencyNode Id="1275" Guid="0xddacdc2a" />
+                </Dependency>
+            </Instance>
+        </Component>
+        <Component GUID="0xfddbbac7" Name="CCastSkill">
+            <Instance Id="1136" PosX="-12" PosY="4">
+                <VariableNode Type="1" Variable="m_bUseSkillInTable" DefaultValue="False" Value="False" />
+                <VariableNode Type="1" Variable="m_bAutoMoveToTarget" DefaultValue="True" Value="False" />
+                <VariableNode Type="6" Variable="m_skillID" DefaultValue="" Value="0B2D56274763454A34AF509D74DFED91" />
+                <Dependency VariableName="m_pNextAction">
+                    <DependencyNode Id="1276" Guid="0x2aa103fd" />
+                </Dependency>
+            </Instance>
+        </Component>
+        <Component GUID="0xffdccacb" Name="CMoveToPos">
+            <Instance Id="1146" PosX="-24" PosY="4">
+                <VariableNode Type="1" Variable="m_bWalkOrRun" DefaultValue="True" Value="False" />
+                <VariableNode Type="1" Variable="m_bUsePathFinding" DefaultValue="True" Value="True" />
+                <VariableNode Type="1" Variable="m_bSuspendAIInMove" DefaultValue="True" Value="False" />
+                <VariableNode Type="2" Variable="m_fMoveSpeedFactor" DefaultValue="1.000000" Value="1.000000" />
+                <VariableNode Type="2" Variable="m_fRandomMoveMinRadius" DefaultValue="0.000000" Value="0.000000" />
+                <VariableNode Type="2" Variable="m_fRandomMoveMaxRadius" DefaultValue="0.000000" Value="0.000000" />
+                <VariableNode Type="2" Variable="m_fArrivalDeltaDistance" DefaultValue="0.000000" Value="0.300000" />
+                <VariableNode Type="6" Variable="dataStr" DefaultValue="" Value="100.480@49.541@477.229@0" />
+                <VariableNode Type="8" Variable="m_TrackIDList" DefaultValue="Empty" Value="Empty" />
+                <VariableNode Type="13" Variable="m_moveType" DefaultValue="2" Value="10" />
+                <Dependency VariableName="m_pArrivalAction">
+                    <DependencyNode Id="1136" Guid="0xfddbbac7" />
+                </Dependency>
+            </Instance>
+            <Instance Id="1277" PosX="-11" PosY="-10">
+                <VariableNode Type="1" Variable="m_bWalkOrRun" DefaultValue="True" Value="False" />
+                <VariableNode Type="1" Variable="m_bUsePathFinding" DefaultValue="True" Value="True" />
+                <VariableNode Type="1" Variable="m_bSuspendAIInMove" DefaultValue="True" Value="True" />
+                <VariableNode Type="2" Variable="m_fMoveSpeedFactor" DefaultValue="1.000000" Value="1.000000" />
+                <VariableNode Type="2" Variable="m_fRandomMoveMinRadius" DefaultValue="0.000000" Value="0.000000" />
+                <VariableNode Type="2" Variable="m_fRandomMoveMaxRadius" DefaultValue="0.000000" Value="0.000000" />
+                <VariableNode Type="2" Variable="m_fArrivalDeltaDistance" DefaultValue="0.000000" Value="0.200000" />
+                <VariableNode Type="6" Variable="dataStr" DefaultValue="" Value="" />
+                <VariableNode Type="8" Variable="m_TrackIDList" DefaultValue="Empty" Value="Empty" />
+                <VariableNode Type="13" Variable="m_moveType" DefaultValue="2" Value="0" />
+            </Instance>
+        </Component>
+    </Components>
+</Root>

@@ -1,0 +1,54 @@
+<?xml version="1.0" ?>
+<Root>
+    <Components>
+        <Component GUID="0xd4acdfa0" Name="CIdleState">
+            <Instance Id="714" PosX="-26" PosY="18">
+                <VariableNode Type="13" Variable="m_type" DefaultValue="1" Value="1" />
+                <Dependency VariableName="m_pOnLoopAction">
+                    <DependencyNode Id="716" Guid="0xfdcbba97" />
+                </Dependency>
+            </Instance>
+        </Component>
+        <Component GUID="0xf4a1daab" Name="CAIManager">
+            <Instance Id="715" PosX="-39" PosY="13">
+                <VariableNode Type="6" Variable="m_szName" DefaultValue="" Value="NPC_Animal" />
+                <VariableNode Type="2" Variable="m_fUpdateInterval" DefaultValue="0.000000" Value="0.000000" />
+                <Dependency VariableName="m_pInitState">
+                    <DependencyNode Id="714" Guid="0xd4acdfa0" />
+                </Dependency>
+                <Dependency VariableName="m_states">
+                    <DependencyNode Id="714" Guid="0xd4acdfa0" />
+                </Dependency>
+            </Instance>
+        </Component>
+        <Component GUID="0xfdcbba97" Name="CProbabilityAction">
+            <Instance Id="716" PosX="-10" PosY="17">
+                <VariableNode Type="1" Variable="m_bRandomForEachAction" DefaultValue="False" Value="False" />
+                <VariableNode Type="1" Variable="m_bUseWeightCalc" DefaultValue="False" Value="False" />
+                <VariableNode Type="8" Variable="m_probabilityTable" DefaultValue="Empty" Value="1xePT_Float">
+                    <VariableNode Type="2" Variable="Child_0" DefaultValue="0.000000" Value="0.500000" />
+                </VariableNode>
+                <Dependency VariableName="m_pNextAction">
+                    <DependencyNode Id="717" Guid="0xffdccacb" />
+                </Dependency>
+                <Dependency VariableName="m_actionTable">
+                    <DependencyNode Id="717" Guid="0xffdccacb" />
+                </Dependency>
+            </Instance>
+        </Component>
+        <Component GUID="0xffdccacb" Name="CMoveToPos">
+            <Instance Id="717" PosX="3" PosY="14">
+                <VariableNode Type="1" Variable="m_bWalkOrRun" DefaultValue="True" Value="True" />
+                <VariableNode Type="1" Variable="m_bUsePathFinding" DefaultValue="True" Value="True" />
+                <VariableNode Type="1" Variable="m_bSuspendAIInMove" DefaultValue="True" Value="True" />
+                <VariableNode Type="2" Variable="m_fMoveSpeedFactor" DefaultValue="1.000000" Value="1.000000" />
+                <VariableNode Type="2" Variable="m_fRandomMoveMinRadius" DefaultValue="0.000000" Value="0.000000" />
+                <VariableNode Type="2" Variable="m_fRandomMoveMaxRadius" DefaultValue="0.000000" Value="5.000000" />
+                <VariableNode Type="2" Variable="m_fArrivalDeltaDistance" DefaultValue="0.000000" Value="0.000000" />
+                <VariableNode Type="6" Variable="dataStr" DefaultValue="" Value="" />
+                <VariableNode Type="8" Variable="m_TrackIDList" DefaultValue="Empty" Value="Empty" />
+                <VariableNode Type="13" Variable="m_moveType" DefaultValue="2" Value="0" />
+            </Instance>
+        </Component>
+    </Components>
+</Root>

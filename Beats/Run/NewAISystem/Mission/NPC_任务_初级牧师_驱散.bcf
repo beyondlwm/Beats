@@ -1,0 +1,32 @@
+<?xml version="1.0" ?>
+<Root>
+    <Components>
+        <Component GUID="0xd4acdfa0" Name="CIdleState">
+            <Instance Id="1390" PosX="-37" PosY="4">
+                <VariableNode Type="13" Variable="m_type" DefaultValue="1" Value="1" />
+                <Dependency VariableName="m_pOnLoopAction">
+                    <DependencyNode Id="1394" Guid="0xfddbbac7" />
+                </Dependency>
+            </Instance>
+        </Component>
+        <Component GUID="0xf4a1daab" Name="CAIManager">
+            <Instance Id="1392" PosX="-50" PosY="4">
+                <VariableNode Type="6" Variable="m_szName" DefaultValue="" Value="NPC_NewVillage_Mission_MoYaDi" />
+                <VariableNode Type="2" Variable="m_fUpdateInterval" DefaultValue="0.000000" Value="0.000000" />
+                <Dependency VariableName="m_pInitState">
+                    <DependencyNode Id="1390" Guid="0xd4acdfa0" />
+                </Dependency>
+                <Dependency VariableName="m_states">
+                    <DependencyNode Id="1390" Guid="0xd4acdfa0" />
+                </Dependency>
+            </Instance>
+        </Component>
+        <Component GUID="0xfddbbac7" Name="CCastSkill">
+            <Instance Id="1394" PosX="-26" PosY="4">
+                <VariableNode Type="1" Variable="m_bUseSkillInTable" DefaultValue="True" Value="False" />
+                <VariableNode Type="1" Variable="m_bAutoMoveToTarget" DefaultValue="True" Value="False" />
+                <VariableNode Type="6" Variable="m_skillID" DefaultValue="0" Value="B702670443F2BBB5865612976BFAB4E4" />
+            </Instance>
+        </Component>
+    </Components>
+</Root>

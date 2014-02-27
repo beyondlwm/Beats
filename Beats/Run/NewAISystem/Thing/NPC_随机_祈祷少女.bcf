@@ -1,0 +1,57 @@
+<?xml version="1.0" ?>
+<Root>
+    <Components>
+        <Component GUID="0x2dd0baca" Name="CCastSkillList">
+            <Instance Id="805" PosX="-3" PosY="5">
+                <VariableNode Type="1" Variable="m_bRandomForEachSkill" DefaultValue="False" Value="False" />
+                <VariableNode Type="1" Variable="m_bUseWeightCalc" DefaultValue="True" Value="False" />
+                <VariableNode Type="8" Variable="m_skillList" DefaultValue="Empty" Value="3xePT_Ptr">
+                    <VariableNode Type="10" Variable="Child_0" DefaultValue="" Value="+CSkillProbabilityData@0x3d70b0cc">
+                        <VariableNode Type="2" Variable="m_fProbability" DefaultValue="0.000000" Value="0.000100" />
+                        <VariableNode Type="10" Variable="m_pCastSkill" DefaultValue="CCastSkill@0xfddbbac7" Value="+CCastSkill@0xfddbbac7">
+                            <VariableNode Type="1" Variable="m_bUseSkillInTable" DefaultValue="True" Value="False" />
+                            <VariableNode Type="1" Variable="m_bAutoMoveToTarget" DefaultValue="True" Value="True" />
+                            <VariableNode Type="6" Variable="m_skillID" DefaultValue="0" Value="3BB4C5054B2E7E1CABA788B067443079" />
+                        </VariableNode>
+                    </VariableNode>
+                    <VariableNode Type="10" Variable="Child_1" DefaultValue="" Value="+CSkillProbabilityData@0x3d70b0cc">
+                        <VariableNode Type="2" Variable="m_fProbability" DefaultValue="0.000000" Value="0.000100" />
+                        <VariableNode Type="10" Variable="m_pCastSkill" DefaultValue="CCastSkill@0xfddbbac7" Value="+CCastSkill@0xfddbbac7">
+                            <VariableNode Type="1" Variable="m_bUseSkillInTable" DefaultValue="True" Value="False" />
+                            <VariableNode Type="1" Variable="m_bAutoMoveToTarget" DefaultValue="True" Value="True" />
+                            <VariableNode Type="6" Variable="m_skillID" DefaultValue="0" Value="18E7E3DE4FE2B4CCDC0EE2A6D04381A3" />
+                        </VariableNode>
+                    </VariableNode>
+                    <VariableNode Type="10" Variable="Child_2" DefaultValue="" Value="+CSkillProbabilityData@0x3d70b0cc">
+                        <VariableNode Type="2" Variable="m_fProbability" DefaultValue="0.000000" Value="0.000100" />
+                        <VariableNode Type="10" Variable="m_pCastSkill" DefaultValue="CCastSkill@0xfddbbac7" Value="+CCastSkill@0xfddbbac7">
+                            <VariableNode Type="1" Variable="m_bUseSkillInTable" DefaultValue="True" Value="False" />
+                            <VariableNode Type="1" Variable="m_bAutoMoveToTarget" DefaultValue="True" Value="True" />
+                            <VariableNode Type="6" Variable="m_skillID" DefaultValue="0" Value="359AFCCA42E24C038DB907B1AA6B5B2F" />
+                        </VariableNode>
+                    </VariableNode>
+                </VariableNode>
+            </Instance>
+        </Component>
+        <Component GUID="0xd4acdfa0" Name="CIdleState">
+            <Instance Id="806" PosX="-15" PosY="6">
+                <VariableNode Type="13" Variable="m_type" DefaultValue="1" Value="1" />
+                <Dependency VariableName="m_pOnLoopAction">
+                    <DependencyNode Id="805" Guid="0x2dd0baca" />
+                </Dependency>
+            </Instance>
+        </Component>
+        <Component GUID="0xf4a1daab" Name="CAIManager">
+            <Instance Id="807" PosX="-28" PosY="6">
+                <VariableNode Type="6" Variable="m_szName" DefaultValue="" Value="NPC_NewVillage_Thing_Villager_QiDaoShaoNv" />
+                <VariableNode Type="2" Variable="m_fUpdateInterval" DefaultValue="0.000000" Value="0.000000" />
+                <Dependency VariableName="m_pInitState">
+                    <DependencyNode Id="806" Guid="0xd4acdfa0" />
+                </Dependency>
+                <Dependency VariableName="m_states">
+                    <DependencyNode Id="806" Guid="0xd4acdfa0" />
+                </Dependency>
+            </Instance>
+        </Component>
+    </Components>
+</Root>

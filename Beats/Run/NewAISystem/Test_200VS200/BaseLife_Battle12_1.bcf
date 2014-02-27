@@ -1,0 +1,112 @@
+<?xml version="1.0" ?>
+<Root>
+    <Components>
+        <Component GUID="0x14acb2ad" Name="CBattleState">
+            <Instance Id="1034" PosX="-24" PosY="-1">
+                <VariableNode Type="13" Variable="m_type" DefaultValue="4" Value="4" />
+                <VariableNode Type="1" Variable="m_bAutoSwitchToReturnState" DefaultValue="True" Value="True" />
+                <VariableNode Type="2" Variable="m_fMaxDistanceFromBornPos" DefaultValue="45.000000" Value="-1.000000" />
+                <VariableNode Type="2" Variable="m_fMaxDistanceFromEnterBattlePos" DefaultValue="50.000000" Value="-1.000000" />
+                <VariableNode Type="10" Variable="m_pUpdateTargetStrategy" DefaultValue="CSearchObj@0x3feefac0" Value="+CSearchObj@0x3feefac0">
+                    <VariableNode Type="1" Variable="m_bAutoAttack" DefaultValue="True" Value="True" />
+                    <VariableNode Type="2" Variable="m_fSearchTop" DefaultValue="15.000000" Value="15.000000" />
+                    <VariableNode Type="2" Variable="m_fSearchButtom" DefaultValue="15.000000" Value="15.000000" />
+                    <VariableNode Type="13" Variable="m_searchType" DefaultValue="0" Value="0" />
+                    <VariableNode Type="8" Variable="m_distanceCondition" DefaultValue="Empty" Value="Empty" />
+                </VariableNode>
+                <Dependency VariableName="m_pOnLoopAction">
+                    <DependencyNode Id="1036" Guid="0x2dd0baca" />
+                </Dependency>
+            </Instance>
+        </Component>
+        <Component GUID="0x2aa103fd" Name="CSwitchState">
+            <Instance Id="1035" PosX="2" PosY="12">
+                <Dependency VariableName="m_pNewState">
+                    <DependencyNode Id="1034" Guid="0x14acb2ad" />
+                </Dependency>
+            </Instance>
+        </Component>
+        <Component GUID="0x2dd0baca" Name="CCastSkillList">
+            <Instance Id="1036" PosX="-12" PosY="-2">
+                <VariableNode Type="1" Variable="m_bRandomForEachSkill" DefaultValue="False" Value="False" />
+                <VariableNode Type="1" Variable="m_bUseWeightCalc" DefaultValue="True" Value="True" />
+                <VariableNode Type="8" Variable="m_skillList" DefaultValue="Empty" Value="3xePT_Ptr">
+                    <VariableNode Type="10" Variable="Child_0" DefaultValue="" Value="+">
+                        <VariableNode Type="2" Variable="m_fProbability" DefaultValue="0.000000" Value="0.500000" />
+                        <VariableNode Type="10" Variable="m_pCastSkill" DefaultValue="CCastSkill@0xfddbbac7" Value="+CCastSkill@0xfddbbac7">
+                            <VariableNode Type="1" Variable="m_bUseSkillInTable" DefaultValue="False" Value="False" />
+                            <VariableNode Type="1" Variable="m_bAutoMoveToTarget" DefaultValue="True" Value="True" />
+                            <VariableNode Type="6" Variable="m_skillID" DefaultValue="" Value="E7FA016841990A73D02A01B99D4D8352" />
+                        </VariableNode>
+                    </VariableNode>
+                    <VariableNode Type="10" Variable="Child_1" DefaultValue="" Value="+">
+                        <VariableNode Type="2" Variable="m_fProbability" DefaultValue="0.000000" Value="0.300000" />
+                        <VariableNode Type="10" Variable="m_pCastSkill" DefaultValue="CCastSkill@0xfddbbac7" Value="+CCastSkill@0xfddbbac7">
+                            <VariableNode Type="1" Variable="m_bUseSkillInTable" DefaultValue="False" Value="False" />
+                            <VariableNode Type="1" Variable="m_bAutoMoveToTarget" DefaultValue="True" Value="True" />
+                            <VariableNode Type="6" Variable="m_skillID" DefaultValue="" Value="FDF1B1AE495CF8C6EAE8C79EC5D58DC3" />
+                        </VariableNode>
+                    </VariableNode>
+                    <VariableNode Type="10" Variable="Child_2" DefaultValue="" Value="+">
+                        <VariableNode Type="2" Variable="m_fProbability" DefaultValue="0.000000" Value="0.200000" />
+                        <VariableNode Type="10" Variable="m_pCastSkill" DefaultValue="CCastSkill@0xfddbbac7" Value="+CCastSkill@0xfddbbac7">
+                            <VariableNode Type="1" Variable="m_bUseSkillInTable" DefaultValue="False" Value="False" />
+                            <VariableNode Type="1" Variable="m_bAutoMoveToTarget" DefaultValue="True" Value="True" />
+                            <VariableNode Type="6" Variable="m_skillID" DefaultValue="" Value="F1BB96584D10761C306BA582551CE5B6" />
+                        </VariableNode>
+                    </VariableNode>
+                </VariableNode>
+            </Instance>
+        </Component>
+        <Component GUID="0x3feefac0" Name="CSearchObj">
+            <Instance Id="1037" PosX="-12" PosY="11">
+                <VariableNode Type="1" Variable="m_bAutoAttack" DefaultValue="True" Value="True" />
+                <VariableNode Type="2" Variable="m_fSearchTop" DefaultValue="15.000000" Value="15.000000" />
+                <VariableNode Type="2" Variable="m_fSearchButtom" DefaultValue="15.000000" Value="15.000000" />
+                <VariableNode Type="13" Variable="m_searchType" DefaultValue="0" Value="1" />
+                <VariableNode Type="8" Variable="m_distanceCondition" DefaultValue="Empty" Value="Empty" />
+                <Dependency VariableName="m_pSuccessAction">
+                    <DependencyNode Id="1035" Guid="0x2aa103fd" />
+                </Dependency>
+                <Dependency VariableName="m_pFailedAction">
+                    <DependencyNode Id="1040" Guid="0xffdccacb" />
+                </Dependency>
+            </Instance>
+        </Component>
+        <Component GUID="0xd4acdfa0" Name="CIdleState">
+            <Instance Id="1038" PosX="-25" PosY="10">
+                <VariableNode Type="13" Variable="m_type" DefaultValue="1" Value="1" />
+                <Dependency VariableName="m_pOnLoopAction">
+                    <DependencyNode Id="1037" Guid="0x3feefac0" />
+                </Dependency>
+            </Instance>
+        </Component>
+        <Component GUID="0xf4a1daab" Name="CAIManager">
+            <Instance Id="1039" PosX="-35" PosY="5">
+                <VariableNode Type="6" Variable="m_szName" DefaultValue="" Value="BaseLife_Battle12_1" />
+                <VariableNode Type="2" Variable="m_fUpdateInterval" DefaultValue="0.000000" Value="0.000000" />
+                <Dependency VariableName="m_pInitState">
+                    <DependencyNode Id="1038" Guid="0xd4acdfa0" />
+                </Dependency>
+                <Dependency VariableName="m_states">
+                    <DependencyNode Id="1038" Guid="0xd4acdfa0" />
+                    <DependencyNode Id="1034" Guid="0x14acb2ad" />
+                </Dependency>
+            </Instance>
+        </Component>
+        <Component GUID="0xffdccacb" Name="CMoveToPos">
+            <Instance Id="1040" PosX="2" PosY="6">
+                <VariableNode Type="1" Variable="m_bWalkOrRun" DefaultValue="True" Value="False" />
+                <VariableNode Type="1" Variable="m_bUsePathFinding" DefaultValue="True" Value="True" />
+                <VariableNode Type="1" Variable="m_bSuspendAIInMove" DefaultValue="True" Value="False" />
+                <VariableNode Type="2" Variable="m_fMoveSpeedFactor" DefaultValue="1.000000" Value="1.000000" />
+                <VariableNode Type="2" Variable="m_fRandomMoveMinRadius" DefaultValue="0.000000" Value="1.500000" />
+                <VariableNode Type="2" Variable="m_fRandomMoveMaxRadius" DefaultValue="0.000000" Value="2.000000" />
+                <VariableNode Type="2" Variable="m_fArrivalDeltaDistance" DefaultValue="0.000000" Value="0.500000" />
+                <VariableNode Type="6" Variable="dataStr" DefaultValue="" Value="ECC57D60450A9C6505B2C999E9043090" />
+                <VariableNode Type="8" Variable="m_TrackIDList" DefaultValue="Empty" Value="Empty" />
+                <VariableNode Type="13" Variable="m_moveType" DefaultValue="2" Value="7" />
+            </Instance>
+        </Component>
+    </Components>
+</Root>

@@ -1,0 +1,433 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Sound">
+      <UniqueIdentifier>{8e04601f-7da7-404a-9a20-656167227cd9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Sound\SoundObject">
+      <UniqueIdentifier>{8bc671b1-df80-42b2-9808-a3db434edfc7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Sound\MP3Lib">
+      <UniqueIdentifier>{4450166b-1174-4f86-aa63-9354549d8737}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Function">
+      <UniqueIdentifier>{812912cd-fdb3-47bc-a212-64eb2faf25ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Function\Signal">
+      <UniqueIdentifier>{e707bc4c-7ec1-4894-a919-977ec3d0328f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Control">
+      <UniqueIdentifier>{0337ff65-9dfa-43b3-b2e5-ebf64258657e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Control\Keyboard">
+      <UniqueIdentifier>{ac1b8802-d3ae-4751-8e97-e02f95a08b30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Control\Mouse">
+      <UniqueIdentifier>{74a4cf32-5497-4213-a4a7-e2bdbef38eb6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UI">
+      <UniqueIdentifier>{cca76acb-54c2-4240-871a-6cbc687bd506}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UI\UISystem">
+      <UniqueIdentifier>{6f7c7794-66b4-4800-8789-9977cd8f0831}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Render">
+      <UniqueIdentifier>{5c5bc3db-d97d-499a-9e23-c0dcc7b49af3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Render\Particle">
+      <UniqueIdentifier>{ad6a0097-f7ee-49e3-90be-3803c6ea83ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Render\Particle\Emitter">
+      <UniqueIdentifier>{d040ac1b-d610-44fc-b580-8fb71778020c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Render\Camera">
+      <UniqueIdentifier>{9919a6bc-eebd-4f27-9fa9-af9e12536044}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Render\RenderCache">
+      <UniqueIdentifier>{e1fe5f6a-e9e2-4fd7-b2ed-154cb104c572}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Render\Shader">
+      <UniqueIdentifier>{b91d45bf-d916-4cad-986e-aa8d7be9a0b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Game">
+      <UniqueIdentifier>{33a0d07b-963b-4826-848d-b0be2fe805de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Game\Object">
+      <UniqueIdentifier>{dae85643-4173-4b9d-8874-5e157d195ab3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Game\Object\GameObject">
+      <UniqueIdentifier>{4e8be669-7e45-4b31-8c74-1e4d993d7825}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Game\UIPage">
+      <UniqueIdentifier>{1d849d22-0bae-419c-b0b3-98ab8b128326}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Game\Tasks">
+      <UniqueIdentifier>{66f27389-31b7-457e-bd0c-dc56d005697d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\AI">
+      <UniqueIdentifier>{f7376295-f418-48cc-bbe6-2de28aff2361}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Physics">
+      <UniqueIdentifier>{e6304345-6fed-4997-97bd-7dd8eabe350f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Beats.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\DebugTool\DebugTool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Initializer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Sound\SoundManager.cpp">
+      <Filter>Source Files\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Sound\SoundObject\DSMP3Object.cpp">
+      <Filter>Source Files\Sound\SoundObject</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Sound\SoundObject\DSoundObject.cpp">
+      <Filter>Source Files\Sound\SoundObject</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Sound\SoundObject\DSWaveObject.cpp">
+      <Filter>Source Files\Sound\SoundObject</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Control\InputManager.cpp">
+      <Filter>Source Files\Control</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Control\Keyboard.cpp">
+      <Filter>Source Files\Control\Keyboard</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Control\Mouse.cpp">
+      <Filter>Source Files\Control\Mouse</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\UI\UIFactory.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\UI\UIManager.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\UI\UIPageBase.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\UI\UISystem\CEGUISystemImpl.cpp">
+      <Filter>Source Files\UI\UISystem</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\UI\UISystem\UISystemBase.cpp">
+      <Filter>Source Files\UI\UISystem</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\RenderManager.cpp">
+      <Filter>Source Files\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\RenderUnit.cpp">
+      <Filter>Source Files\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\Particle\Particle.cpp">
+      <Filter>Source Files\Render\Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\Particle\ParticleManager.cpp">
+      <Filter>Source Files\Render\Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\Particle\Emitter.cpp">
+      <Filter>Source Files\Render\Particle\Emitter</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\Camera\Camera.cpp">
+      <Filter>Source Files\Render\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\RenderCache\LineListCache.cpp">
+      <Filter>Source Files\Render\RenderCache</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\RenderCache\QuadCache.cpp">
+      <Filter>Source Files\Render\RenderCache</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\RenderCache\RenderCacheBase.cpp">
+      <Filter>Source Files\Render\RenderCache</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\Shader\PixelShader.cpp">
+      <Filter>Source Files\Render\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\Shader\ShaderBase.cpp">
+      <Filter>Source Files\Render\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\Shader\ShaderManager.cpp">
+      <Filter>Source Files\Render\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\Shader\VertexShader.cpp">
+      <Filter>Source Files\Render\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Game\Game.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Game\Object\BaseObject.cpp">
+      <Filter>Source Files\Game\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Game\Object\ObjectManager.cpp">
+      <Filter>Source Files\Game\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Game\Object\GameObject\Beat.cpp">
+      <Filter>Source Files\Game\Object\GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Game\UIPage\PlayTrackPage.cpp">
+      <Filter>Source Files\Game\UIPage</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Game\UIPage\RecordTrackPage.cpp">
+      <Filter>Source Files\Game\UIPage</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Game\UIPage\TitlePage.cpp">
+      <Filter>Source Files\Game\UIPage</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Game\Tasks\PlayTrack.cpp">
+      <Filter>Source Files\Game\Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Game\Tasks\RecordTrack.cpp">
+      <Filter>Source Files\Game\Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Game\Tasks\TaskBase.cpp">
+      <Filter>Source Files\Game\Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Game\Tasks\TitleTask.cpp">
+      <Filter>Source Files\Game\Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Physics\PhysicsController.cpp">
+      <Filter>Source Files\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Physics\PhysicsElement.cpp">
+      <Filter>Source Files\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Physics\PhysicsManager.cpp">
+      <Filter>Source Files\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="SourceCode\DebugTool\DebugTool.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Initializer.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PublicDef.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Sound\SoundManager.h">
+      <Filter>Source Files\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Sound\SoundObject\DSMP3Object.h">
+      <Filter>Source Files\Sound\SoundObject</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Sound\SoundObject\DSoundObject.h">
+      <Filter>Source Files\Sound\SoundObject</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Sound\SoundObject\DSWaveObject.h">
+      <Filter>Source Files\Sound\SoundObject</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Sound\MP3Lib\mpg123.h">
+      <Filter>Source Files\Sound\MP3Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Function\Bind.h">
+      <Filter>Source Files\Function</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Function\Bind.hpp">
+      <Filter>Source Files\Function</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Function\Function.h">
+      <Filter>Source Files\Function</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Function\FunctionImpl.h">
+      <Filter>Source Files\Function</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Function\FunctionImpl.hpp">
+      <Filter>Source Files\Function</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Function\FunctionTraits.h">
+      <Filter>Source Files\Function</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Function\FunctionTraits.hpp">
+      <Filter>Source Files\Function</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Function\ParamMacro.h">
+      <Filter>Source Files\Function</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Function\Signal\Signal.h">
+      <Filter>Source Files\Function\Signal</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Function\Signal\Signal.hpp">
+      <Filter>Source Files\Function\Signal</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Control\InputManager.h">
+      <Filter>Source Files\Control</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Control\InputPublicDef.h">
+      <Filter>Source Files\Control</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Control\Keyboard.h">
+      <Filter>Source Files\Control\Keyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Control\KeyboardDef.h">
+      <Filter>Source Files\Control\Keyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Control\Mouse.h">
+      <Filter>Source Files\Control\Mouse</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Control\MousePublicDef.h">
+      <Filter>Source Files\Control\Mouse</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\UI\UIFactory.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\UI\UIManager.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\UI\UIPageBase.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\UI\UIPublicDef.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\UI\UISystem\CEGUISystemImpl.h">
+      <Filter>Source Files\UI\UISystem</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\UI\UISystem\UISystemBase.h">
+      <Filter>Source Files\UI\UISystem</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\RenderManager.h">
+      <Filter>Source Files\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\RenderPublicDef.h">
+      <Filter>Source Files\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\RenderUnit.h">
+      <Filter>Source Files\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\Particle\Particle.h">
+      <Filter>Source Files\Render\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\Particle\ParticleDef.h">
+      <Filter>Source Files\Render\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\Particle\ParticleManager.h">
+      <Filter>Source Files\Render\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\Particle\Emitter.h">
+      <Filter>Source Files\Render\Particle\Emitter</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\Camera\Camera.h">
+      <Filter>Source Files\Render\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\RenderCache\LineListCache.h">
+      <Filter>Source Files\Render\RenderCache</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\RenderCache\QuadCache.h">
+      <Filter>Source Files\Render\RenderCache</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\RenderCache\RenderCacheBase.h">
+      <Filter>Source Files\Render\RenderCache</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\Shader\PixelShader.h">
+      <Filter>Source Files\Render\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\Shader\ShaderBase.h">
+      <Filter>Source Files\Render\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\Shader\ShaderManager.h">
+      <Filter>Source Files\Render\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\Shader\VertexShader.h">
+      <Filter>Source Files\Render\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Game\Game.h">
+      <Filter>Source Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Game\Object\BaseObject.h">
+      <Filter>Source Files\Game\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Game\Object\GameObjectDef.h">
+      <Filter>Source Files\Game\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Game\Object\ObjectManager.h">
+      <Filter>Source Files\Game\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Game\Object\GameObject\Beat.h">
+      <Filter>Source Files\Game\Object\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Game\UIPage\PlayTrackPage.h">
+      <Filter>Source Files\Game\UIPage</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Game\UIPage\RecordTrackPage.h">
+      <Filter>Source Files\Game\UIPage</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Game\UIPage\TitlePage.h">
+      <Filter>Source Files\Game\UIPage</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Game\Tasks\PlayTrack.h">
+      <Filter>Source Files\Game\Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Game\Tasks\RecordTrack.h">
+      <Filter>Source Files\Game\Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Game\Tasks\TaskBase.h">
+      <Filter>Source Files\Game\Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Game\Tasks\TaskDef.h">
+      <Filter>Source Files\Game\Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Game\Tasks\TitleTask.h">
+      <Filter>Source Files\Game\Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\AI\FSM.h">
+      <Filter>Source Files\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\AI\FSM.hpp">
+      <Filter>Source Files\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Physics\PhysicsController.h">
+      <Filter>Source Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Physics\PhysicsElement.h">
+      <Filter>Source Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Physics\PhysicsManager.h">
+      <Filter>Source Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Beats.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Beats.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="small.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Beats.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+</Project>

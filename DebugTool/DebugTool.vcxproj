@@ -1,0 +1,206 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{80FB03B7-9364-472A-88C4-25D4D8554EBD}</ProjectGuid>
+    <RootNamespace>DebugTool</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>11.0.50727.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)Beats\Run\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <ExtensionsToDeleteOnClean>*.obj%3b*.ilk%3b*.tlb%3b*.tli%3b*.tlh%3b*.tmp%3b.rsp%3b*.pgc%3b*.pgd%3b$(TargetPath)</ExtensionsToDeleteOnClean>
+    <LinkIncremental>true</LinkIncremental>
+    <GenerateManifest>true</GenerateManifest>
+    <EmbedManifest>false</EmbedManifest>
+    <TargetName>$(ProjectName)_d</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)Beats\Run\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+    <TargetName>$(ProjectName)_r</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\Beats\lib\wxWidgets-2.9.3\include\msvc;..\Vld\include;..\windebuggingtool\inc;..\Beats\lib\wxWidgets-2.9.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;DEBUGTOOL_EXPORTS;_CRT_SECURE_NO_WARNINGS;LWM_WXWIDGETS_HACK;_CRT_SECURE_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>wxmsw29ud_core.lib;wxbase29ud.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;winmm.lib;comctl32.lib;rpcrt4.lib;wsock32.lib;wininet.lib;dbghelp.lib;d3dx9.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)$(ProjectName)_d.dll</OutputFile>
+      <AdditionalLibraryDirectories>..\Beats\Run;..\windebuggingtool\lib\i386;..\Beats\lib\wxWidgets-2.9.3\lib\vc_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention />
+      <ImportLibrary>..\Beats\Run\DebugTool_d.lib</ImportLibrary>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\Beats\lib\wxWidgets-2.9.3\include\msvc;..\windebuggingtool\inc;..\Beats\lib\wxWidgets-2.9.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;DEBUGTOOL_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS;LWM_WXWIDGETS_HACK;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>wxmsw29u_core.lib;wxbase29u.lib;wxtiff.lib;wxjpeg.lib;wxpng.lib;wxzlib.lib;wxregexu.lib;wxexpat.lib;winmm.lib;comctl32.lib;rpcrt4.lib;wsock32.lib;wininet.lib;dbghelp.lib;d3dx9.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\windebuggingtool\lib\i386;..\Beats\lib\wxWidgets-2.9.3\lib\vc_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention />
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="BDTWxApp.h" />
+    <ClInclude Include="BDTWxFrame.h" />
+    <ClInclude Include="BeatsDebugTool.h" />
+    <ClInclude Include="RightsDlg.h" />
+    <ClInclude Include="StartUpFrame.h" />
+    <ClInclude Include="PerformDetector\PerformDetector.h" />
+    <ClInclude Include="PerformDetector\PerformDetectorDef.h" />
+    <ClInclude Include="MemoryDetector\MemoryDetector.h" />
+    <ClInclude Include="MemoryDetector\MemoryDetectorDef.h" />
+    <ClInclude Include="SystemDetector\SystemDetector.h" />
+    <ClInclude Include="SystemDetector\SystemDetectorDef.h" />
+    <ClInclude Include="WmiDetector\WmiDetector.h" />
+    <ClInclude Include="DXVerDetector\DXVerDetector.h" />
+    <ClInclude Include="ComponentSystem\ComponentGraphics_DX.h" />
+    <ClInclude Include="ComponentSystem\ComponentRenderWindow.h" />
+    <ClInclude Include="ComponentSystem\UnitTest.h" />
+    <ClInclude Include="ComponentSystem\PtrEditor\wxPtrButtonEditor.h" />
+    <ClInclude Include="ComponentSystem\wxWidgetsProperty\BoolPropertyDescription.h" />
+    <ClInclude Include="ComponentSystem\wxWidgetsProperty\DoublePropertyDescription.h" />
+    <ClInclude Include="ComponentSystem\wxWidgetsProperty\EnumPropertyDescription.h" />
+    <ClInclude Include="ComponentSystem\wxWidgetsProperty\FloatPropertyDescription.h" />
+    <ClInclude Include="ComponentSystem\wxWidgetsProperty\IntPropertyDescription.h" />
+    <ClInclude Include="ComponentSystem\wxWidgetsProperty\ListPropertyDescriptionEx.h" />
+    <ClInclude Include="ComponentSystem\wxWidgetsProperty\PropertyTrigger.h" />
+    <ClInclude Include="ComponentSystem\wxWidgetsProperty\PtrPropertyDescription.h" />
+    <ClInclude Include="ComponentSystem\wxWidgetsProperty\StringPropertyDescription.h" />
+    <ClInclude Include="ComponentSystem\wxWidgetsProperty\UIntPropertyDescription.h" />
+    <ClInclude Include="ComponentSystem\wxWidgetsProperty\wxWidgetsPropertyBase.h" />
+    <ClInclude Include="InfoSystem\InfoPagePanel.h" />
+    <ClInclude Include="InfoSystem\LogListCtrl.h" />
+    <ClInclude Include="Spy\SpyUserPanel.h" />
+    <ClInclude Include="Spy\VirtualFileCtrl.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resource\BeatsLogo.JPG" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="DebugTool.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="BDTWxApp.cpp" />
+    <ClCompile Include="BDTWxFrame.cpp" />
+    <ClCompile Include="BeatsDebugTool.cpp" />
+    <ClCompile Include="ComponentsPage.cpp" />
+    <ClCompile Include="DebugTool.cpp" />
+    <ClCompile Include="InfoSystemPage.cpp" />
+    <ClCompile Include="MemoryPage.cpp" />
+    <ClCompile Include="PerformancePage.cpp" />
+    <ClCompile Include="RightsDlg.cpp" />
+    <ClCompile Include="SpyPage.cpp" />
+    <ClCompile Include="StartUpFrame.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="SystemInfoPage.cpp" />
+    <ClCompile Include="PerformDetector\PerformDetector.cpp" />
+    <ClCompile Include="MemoryDetector\MemoryDetector.cpp" />
+    <ClCompile Include="SystemDetector\SystemDetector.cpp" />
+    <ClCompile Include="WmiDetector\WmiDetector.cpp" />
+    <ClCompile Include="DXVerDetector\DXVerDetector.cpp" />
+    <ClCompile Include="ComponentSystem\ComponentGraphics_DX.cpp" />
+    <ClCompile Include="ComponentSystem\ComponentRenderWindow.cpp" />
+    <ClCompile Include="ComponentSystem\UnitTest.cpp" />
+    <ClCompile Include="ComponentSystem\PtrEditor\wxPtrButtonEditor.cpp" />
+    <ClCompile Include="ComponentSystem\wxWidgetsProperty\BoolPropertyDescription.cpp" />
+    <ClCompile Include="ComponentSystem\wxWidgetsProperty\DoublePropertyDescription.cpp" />
+    <ClCompile Include="ComponentSystem\wxWidgetsProperty\EnumPropertyDescription.cpp" />
+    <ClCompile Include="ComponentSystem\wxWidgetsProperty\FloatPropertyDescription.cpp" />
+    <ClCompile Include="ComponentSystem\wxWidgetsProperty\IntPropertyDescription.cpp" />
+    <ClCompile Include="ComponentSystem\wxWidgetsProperty\ListPropertyDescriptionEx.cpp" />
+    <ClCompile Include="ComponentSystem\wxWidgetsProperty\PropertyTrigger.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
+    </ClCompile>
+    <ClCompile Include="ComponentSystem\wxWidgetsProperty\PtrPropertyDescription.cpp" />
+    <ClCompile Include="ComponentSystem\wxWidgetsProperty\StringPropertyDescription.cpp" />
+    <ClCompile Include="ComponentSystem\wxWidgetsProperty\UIntPropertyDescription.cpp" />
+    <ClCompile Include="ComponentSystem\wxWidgetsProperty\wxWidgetsPropertyBase.cpp" />
+    <ClCompile Include="InfoSystem\InfoPagePanel.cpp" />
+    <ClCompile Include="InfoSystem\LogListCtrl.cpp" />
+    <ClCompile Include="Spy\SpyUserPanel.cpp" />
+    <ClCompile Include="Spy\VirtualFileCtrl.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Components\Components.vcxproj">
+      <Project>{76da9627-5c15-4c56-b18b-e0bac35227c2}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\Utility\Utility.vcxproj">
+      <Project>{48a78754-df9e-4aaf-b95a-1ff9b3b51705}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

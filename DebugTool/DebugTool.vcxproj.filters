@@ -1,0 +1,274 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files\PerformDetector">
+      <UniqueIdentifier>{3fb9bb98-85c5-4b66-9ff3-d010e848aed3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\MemoryDetector">
+      <UniqueIdentifier>{f5986408-d97c-481a-a1db-450f293154f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\SystemDetector">
+      <UniqueIdentifier>{bbcf7e3f-c2f0-4987-ba23-51c2f0590e7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\WmiDetector">
+      <UniqueIdentifier>{9a4b0d79-0c30-450f-8d46-657f84146f8b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\DXVerDetector">
+      <UniqueIdentifier>{2a7e218b-2bae-4506-bb4a-a340dcb43f49}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ComponentSystem">
+      <UniqueIdentifier>{34ba3471-1509-4ea1-bfb7-c20b969f4a39}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ComponentSystem\PtrEditor">
+      <UniqueIdentifier>{1b6faa0d-e0f3-4b22-bc81-4da9d8db4a0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ComponentSystem\WxwidgetsProperty">
+      <UniqueIdentifier>{bb819af5-29df-45a3-9407-515e02735da4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\InfoSystem">
+      <UniqueIdentifier>{9787983b-2f4f-4bd8-9b9e-888f0a5f6269}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Spy">
+      <UniqueIdentifier>{b49e66ff-ee4c-4ec6-865a-5a66a96bb8ef}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BDTWxApp.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BDTWxFrame.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BeatsDebugTool.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RightsDlg.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StartUpFrame.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PerformDetector\PerformDetector.h">
+      <Filter>Source Files\PerformDetector</Filter>
+    </ClInclude>
+    <ClInclude Include="PerformDetector\PerformDetectorDef.h">
+      <Filter>Source Files\PerformDetector</Filter>
+    </ClInclude>
+    <ClInclude Include="MemoryDetector\MemoryDetector.h">
+      <Filter>Source Files\MemoryDetector</Filter>
+    </ClInclude>
+    <ClInclude Include="MemoryDetector\MemoryDetectorDef.h">
+      <Filter>Source Files\MemoryDetector</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemDetector\SystemDetector.h">
+      <Filter>Source Files\SystemDetector</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemDetector\SystemDetectorDef.h">
+      <Filter>Source Files\SystemDetector</Filter>
+    </ClInclude>
+    <ClInclude Include="WmiDetector\WmiDetector.h">
+      <Filter>Source Files\WmiDetector</Filter>
+    </ClInclude>
+    <ClInclude Include="DXVerDetector\DXVerDetector.h">
+      <Filter>Source Files\DXVerDetector</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentSystem\ComponentGraphics_DX.h">
+      <Filter>Source Files\ComponentSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentSystem\ComponentRenderWindow.h">
+      <Filter>Source Files\ComponentSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentSystem\UnitTest.h">
+      <Filter>Source Files\ComponentSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentSystem\PtrEditor\wxPtrButtonEditor.h">
+      <Filter>Source Files\ComponentSystem\PtrEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentSystem\wxWidgetsProperty\BoolPropertyDescription.h">
+      <Filter>Source Files\ComponentSystem\WxwidgetsProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentSystem\wxWidgetsProperty\DoublePropertyDescription.h">
+      <Filter>Source Files\ComponentSystem\WxwidgetsProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentSystem\wxWidgetsProperty\EnumPropertyDescription.h">
+      <Filter>Source Files\ComponentSystem\WxwidgetsProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentSystem\wxWidgetsProperty\FloatPropertyDescription.h">
+      <Filter>Source Files\ComponentSystem\WxwidgetsProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentSystem\wxWidgetsProperty\IntPropertyDescription.h">
+      <Filter>Source Files\ComponentSystem\WxwidgetsProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentSystem\wxWidgetsProperty\ListPropertyDescriptionEx.h">
+      <Filter>Source Files\ComponentSystem\WxwidgetsProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentSystem\wxWidgetsProperty\PropertyTrigger.h">
+      <Filter>Source Files\ComponentSystem\WxwidgetsProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentSystem\wxWidgetsProperty\PtrPropertyDescription.h">
+      <Filter>Source Files\ComponentSystem\WxwidgetsProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentSystem\wxWidgetsProperty\StringPropertyDescription.h">
+      <Filter>Source Files\ComponentSystem\WxwidgetsProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentSystem\wxWidgetsProperty\UIntPropertyDescription.h">
+      <Filter>Source Files\ComponentSystem\WxwidgetsProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentSystem\wxWidgetsProperty\wxWidgetsPropertyBase.h">
+      <Filter>Source Files\ComponentSystem\WxwidgetsProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="InfoSystem\InfoPagePanel.h">
+      <Filter>Source Files\InfoSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="InfoSystem\LogListCtrl.h">
+      <Filter>Source Files\InfoSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Spy\SpyUserPanel.h">
+      <Filter>Source Files\Spy</Filter>
+    </ClInclude>
+    <ClInclude Include="Spy\VirtualFileCtrl.h">
+      <Filter>Source Files\Spy</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resource\BeatsLogo.JPG">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="DebugTool.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="BDTWxApp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BDTWxFrame.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BeatsDebugTool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentsPage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugTool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="InfoSystemPage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MemoryPage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PerformancePage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RightsDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SpyPage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StartUpFrame.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SystemInfoPage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PerformDetector\PerformDetector.cpp">
+      <Filter>Source Files\PerformDetector</Filter>
+    </ClCompile>
+    <ClCompile Include="MemoryDetector\MemoryDetector.cpp">
+      <Filter>Source Files\MemoryDetector</Filter>
+    </ClCompile>
+    <ClCompile Include="SystemDetector\SystemDetector.cpp">
+      <Filter>Source Files\SystemDetector</Filter>
+    </ClCompile>
+    <ClCompile Include="WmiDetector\WmiDetector.cpp">
+      <Filter>Source Files\WmiDetector</Filter>
+    </ClCompile>
+    <ClCompile Include="DXVerDetector\DXVerDetector.cpp">
+      <Filter>Source Files\DXVerDetector</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentSystem\ComponentGraphics_DX.cpp">
+      <Filter>Source Files\ComponentSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentSystem\ComponentRenderWindow.cpp">
+      <Filter>Source Files\ComponentSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentSystem\UnitTest.cpp">
+      <Filter>Source Files\ComponentSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentSystem\PtrEditor\wxPtrButtonEditor.cpp">
+      <Filter>Source Files\ComponentSystem\PtrEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentSystem\wxWidgetsProperty\BoolPropertyDescription.cpp">
+      <Filter>Source Files\ComponentSystem\WxwidgetsProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentSystem\wxWidgetsProperty\DoublePropertyDescription.cpp">
+      <Filter>Source Files\ComponentSystem\WxwidgetsProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentSystem\wxWidgetsProperty\EnumPropertyDescription.cpp">
+      <Filter>Source Files\ComponentSystem\WxwidgetsProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentSystem\wxWidgetsProperty\FloatPropertyDescription.cpp">
+      <Filter>Source Files\ComponentSystem\WxwidgetsProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentSystem\wxWidgetsProperty\IntPropertyDescription.cpp">
+      <Filter>Source Files\ComponentSystem\WxwidgetsProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentSystem\wxWidgetsProperty\ListPropertyDescriptionEx.cpp">
+      <Filter>Source Files\ComponentSystem\WxwidgetsProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentSystem\wxWidgetsProperty\PropertyTrigger.cpp">
+      <Filter>Source Files\ComponentSystem\WxwidgetsProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentSystem\wxWidgetsProperty\PtrPropertyDescription.cpp">
+      <Filter>Source Files\ComponentSystem\WxwidgetsProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentSystem\wxWidgetsProperty\StringPropertyDescription.cpp">
+      <Filter>Source Files\ComponentSystem\WxwidgetsProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentSystem\wxWidgetsProperty\UIntPropertyDescription.cpp">
+      <Filter>Source Files\ComponentSystem\WxwidgetsProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentSystem\wxWidgetsProperty\wxWidgetsPropertyBase.cpp">
+      <Filter>Source Files\ComponentSystem\WxwidgetsProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="InfoSystem\InfoPagePanel.cpp">
+      <Filter>Source Files\InfoSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="InfoSystem\LogListCtrl.cpp">
+      <Filter>Source Files\InfoSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Spy\SpyUserPanel.cpp">
+      <Filter>Source Files\Spy</Filter>
+    </ClCompile>
+    <ClCompile Include="Spy\VirtualFileCtrl.cpp">
+      <Filter>Source Files\Spy</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

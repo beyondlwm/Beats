@@ -1,0 +1,247 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{0FC53F2C-A873-4F4E-9C15-CD49BA34D75C}</ProjectGuid>
+    <RootNamespace>Beats</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <CLRSupport>false</CLRSupport>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>11.0.50727.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)Beats\Run\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+    <GenerateManifest>false</GenerateManifest>
+    <EmbedManifest>false</EmbedManifest>
+    <TargetName>$(ProjectName)_d</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)Beats\Run\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>$(ProjectName)_r</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>Lib\cegui\include;..\windebuggingtool\inc;..\vld\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>dxerr.lib;d3d9.lib;d3dx9.lib;libmpg123d.lib;dsound.lib;dxguid.lib;dinput8.lib;winmm.lib;dbghelp.lib;CEGUIBase_d.lib;CEGUIDirect3D9Renderer_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\windebuggingtool\lib\i386;Lib\vld;Lib\Sound;Lib\cegui;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AssemblyDebug>true</AssemblyDebug>
+      <SubSystem>Windows</SubSystem>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention />
+      <TargetMachine>MachineX86</TargetMachine>
+      <AllowIsolation>true</AllowIsolation>
+    </Link>
+    <Manifest>
+      <VerboseOutput>false</VerboseOutput>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>Lib\cegui\include;..\windebuggingtool\inc;..\vld\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>libmpg123.lib;dsound.lib;dxguid.lib;dinput8.lib;d3d9.lib;d3dx9.lib;winmm.lib;CEGUIBase.lib;CEGUIDirect3D9Renderer.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\windebuggingtool\lib\i386;Lib\vld;Lib\Sound;Lib\cegui;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention />
+      <TargetMachine>MachineX86</TargetMachine>
+      <AllowIsolation>true</AllowIsolation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="Beats.cpp" />
+    <ClCompile Include="SourceCode\DebugTool\DebugTool.cpp" />
+    <ClCompile Include="SourceCode\Initializer.cpp" />
+    <ClCompile Include="SourceCode\Sound\SoundManager.cpp" />
+    <ClCompile Include="SourceCode\Sound\SoundObject\DSMP3Object.cpp" />
+    <ClCompile Include="SourceCode\Sound\SoundObject\DSoundObject.cpp" />
+    <ClCompile Include="SourceCode\Sound\SoundObject\DSWaveObject.cpp" />
+    <ClCompile Include="SourceCode\Control\InputManager.cpp" />
+    <ClCompile Include="SourceCode\Control\Keyboard.cpp" />
+    <ClCompile Include="SourceCode\Control\Mouse.cpp" />
+    <ClCompile Include="SourceCode\UI\UIFactory.cpp" />
+    <ClCompile Include="SourceCode\UI\UIManager.cpp" />
+    <ClCompile Include="SourceCode\UI\UIPageBase.cpp" />
+    <ClCompile Include="SourceCode\UI\UISystem\CEGUISystemImpl.cpp" />
+    <ClCompile Include="SourceCode\UI\UISystem\UISystemBase.cpp" />
+    <ClCompile Include="SourceCode\Render\RenderManager.cpp" />
+    <ClCompile Include="SourceCode\Render\RenderUnit.cpp" />
+    <ClCompile Include="SourceCode\Render\Particle\Particle.cpp" />
+    <ClCompile Include="SourceCode\Render\Particle\ParticleManager.cpp" />
+    <ClCompile Include="SourceCode\Render\Particle\Emitter.cpp" />
+    <ClCompile Include="SourceCode\Render\Camera\Camera.cpp" />
+    <ClCompile Include="SourceCode\Render\RenderCache\LineListCache.cpp" />
+    <ClCompile Include="SourceCode\Render\RenderCache\QuadCache.cpp" />
+    <ClCompile Include="SourceCode\Render\RenderCache\RenderCacheBase.cpp" />
+    <ClCompile Include="SourceCode\Render\Shader\PixelShader.cpp" />
+    <ClCompile Include="SourceCode\Render\Shader\ShaderBase.cpp" />
+    <ClCompile Include="SourceCode\Render\Shader\ShaderManager.cpp" />
+    <ClCompile Include="SourceCode\Render\Shader\VertexShader.cpp" />
+    <ClCompile Include="SourceCode\Game\Game.cpp" />
+    <ClCompile Include="SourceCode\Game\Object\BaseObject.cpp" />
+    <ClCompile Include="SourceCode\Game\Object\ObjectManager.cpp" />
+    <ClCompile Include="SourceCode\Game\Object\GameObject\Beat.cpp" />
+    <ClCompile Include="SourceCode\Game\UIPage\PlayTrackPage.cpp" />
+    <ClCompile Include="SourceCode\Game\UIPage\RecordTrackPage.cpp" />
+    <ClCompile Include="SourceCode\Game\UIPage\TitlePage.cpp" />
+    <ClCompile Include="SourceCode\Game\Tasks\PlayTrack.cpp" />
+    <ClCompile Include="SourceCode\Game\Tasks\RecordTrack.cpp" />
+    <ClCompile Include="SourceCode\Game\Tasks\TaskBase.cpp" />
+    <ClCompile Include="SourceCode\Game\Tasks\TitleTask.cpp" />
+    <ClCompile Include="SourceCode\Physics\PhysicsController.cpp" />
+    <ClCompile Include="SourceCode\Physics\PhysicsElement.cpp" />
+    <ClCompile Include="SourceCode\Physics\PhysicsManager.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="SourceCode\DebugTool\DebugTool.h" />
+    <ClInclude Include="SourceCode\Initializer.h" />
+    <ClInclude Include="PublicDef.h" />
+    <ClInclude Include="SourceCode\Sound\SoundManager.h" />
+    <ClInclude Include="SourceCode\Sound\SoundObject\DSMP3Object.h" />
+    <ClInclude Include="SourceCode\Sound\SoundObject\DSoundObject.h" />
+    <ClInclude Include="SourceCode\Sound\SoundObject\DSWaveObject.h" />
+    <ClInclude Include="SourceCode\Sound\MP3Lib\mpg123.h" />
+    <ClInclude Include="SourceCode\Function\Bind.h" />
+    <ClInclude Include="SourceCode\Function\Bind.hpp" />
+    <ClInclude Include="SourceCode\Function\Function.h" />
+    <ClInclude Include="SourceCode\Function\FunctionImpl.h" />
+    <ClInclude Include="SourceCode\Function\FunctionImpl.hpp" />
+    <ClInclude Include="SourceCode\Function\FunctionTraits.h" />
+    <ClInclude Include="SourceCode\Function\FunctionTraits.hpp" />
+    <ClInclude Include="SourceCode\Function\ParamMacro.h" />
+    <ClInclude Include="SourceCode\Function\Signal\Signal.h" />
+    <ClInclude Include="SourceCode\Function\Signal\Signal.hpp" />
+    <ClInclude Include="SourceCode\Control\InputManager.h" />
+    <ClInclude Include="SourceCode\Control\InputPublicDef.h" />
+    <ClInclude Include="SourceCode\Control\Keyboard.h" />
+    <ClInclude Include="SourceCode\Control\KeyboardDef.h" />
+    <ClInclude Include="SourceCode\Control\Mouse.h" />
+    <ClInclude Include="SourceCode\Control\MousePublicDef.h" />
+    <ClInclude Include="SourceCode\UI\UIFactory.h" />
+    <ClInclude Include="SourceCode\UI\UIManager.h" />
+    <ClInclude Include="SourceCode\UI\UIPageBase.h" />
+    <ClInclude Include="SourceCode\UI\UIPublicDef.h" />
+    <ClInclude Include="SourceCode\UI\UISystem\CEGUISystemImpl.h" />
+    <ClInclude Include="SourceCode\UI\UISystem\UISystemBase.h" />
+    <ClInclude Include="SourceCode\Render\RenderManager.h" />
+    <ClInclude Include="SourceCode\Render\RenderPublicDef.h" />
+    <ClInclude Include="SourceCode\Render\RenderUnit.h" />
+    <ClInclude Include="SourceCode\Render\Particle\Particle.h" />
+    <ClInclude Include="SourceCode\Render\Particle\ParticleDef.h" />
+    <ClInclude Include="SourceCode\Render\Particle\ParticleManager.h" />
+    <ClInclude Include="SourceCode\Render\Particle\Emitter.h" />
+    <ClInclude Include="SourceCode\Render\Camera\Camera.h" />
+    <ClInclude Include="SourceCode\Render\RenderCache\LineListCache.h" />
+    <ClInclude Include="SourceCode\Render\RenderCache\QuadCache.h" />
+    <ClInclude Include="SourceCode\Render\RenderCache\RenderCacheBase.h" />
+    <ClInclude Include="SourceCode\Render\Shader\PixelShader.h" />
+    <ClInclude Include="SourceCode\Render\Shader\ShaderBase.h" />
+    <ClInclude Include="SourceCode\Render\Shader\ShaderManager.h" />
+    <ClInclude Include="SourceCode\Render\Shader\VertexShader.h" />
+    <ClInclude Include="SourceCode\Game\Game.h" />
+    <ClInclude Include="SourceCode\Game\Object\BaseObject.h" />
+    <ClInclude Include="SourceCode\Game\Object\GameObjectDef.h" />
+    <ClInclude Include="SourceCode\Game\Object\ObjectManager.h" />
+    <ClInclude Include="SourceCode\Game\Object\GameObject\Beat.h" />
+    <ClInclude Include="SourceCode\Game\UIPage\PlayTrackPage.h" />
+    <ClInclude Include="SourceCode\Game\UIPage\RecordTrackPage.h" />
+    <ClInclude Include="SourceCode\Game\UIPage\TitlePage.h" />
+    <ClInclude Include="SourceCode\Game\Tasks\PlayTrack.h" />
+    <ClInclude Include="SourceCode\Game\Tasks\RecordTrack.h" />
+    <ClInclude Include="SourceCode\Game\Tasks\TaskBase.h" />
+    <ClInclude Include="SourceCode\Game\Tasks\TaskDef.h" />
+    <ClInclude Include="SourceCode\Game\Tasks\TitleTask.h" />
+    <ClInclude Include="SourceCode\AI\FSM.h" />
+    <ClInclude Include="SourceCode\AI\FSM.hpp" />
+    <ClInclude Include="SourceCode\Physics\PhysicsController.h" />
+    <ClInclude Include="SourceCode\Physics\PhysicsElement.h" />
+    <ClInclude Include="SourceCode\Physics\PhysicsManager.h" />
+    <ClInclude Include="Beats.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="stdafx.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Beats.ico" />
+    <Image Include="small.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Beats.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DebugTool\DebugTool.vcxproj">
+      <Project>{80fb03b7-9364-472a-88c4-25d4d8554ebd}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\Utility\Utility.vcxproj">
+      <Project>{48a78754-df9e-4aaf-b95a-1ff9b3b51705}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

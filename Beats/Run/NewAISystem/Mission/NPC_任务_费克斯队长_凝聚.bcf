@@ -1,0 +1,57 @@
+<?xml version="1.0" ?>
+<Root>
+    <Components>
+        <Component GUID="0xd4acdfa0" Name="CIdleState">
+            <Instance Id="1396" PosX="-37" PosY="4">
+                <VariableNode Type="13" Variable="m_type" DefaultValue="1" Value="1" />
+                <Dependency VariableName="m_pOnLoopAction">
+                    <DependencyNode Id="576" Guid="0xfddbbac7" />
+                </Dependency>
+            </Instance>
+        </Component>
+        <Component GUID="0xf4a1daab" Name="CAIManager">
+            <Instance Id="1398" PosX="-51" PosY="4">
+                <VariableNode Type="6" Variable="m_szName" DefaultValue="" Value="NPC_Seventh_Mission_FeiKeSi" />
+                <VariableNode Type="2" Variable="m_fUpdateInterval" DefaultValue="0.000000" Value="0.000000" />
+                <Dependency VariableName="m_pInitState">
+                    <DependencyNode Id="1396" Guid="0xd4acdfa0" />
+                </Dependency>
+                <Dependency VariableName="m_states">
+                    <DependencyNode Id="1396" Guid="0xd4acdfa0" />
+                </Dependency>
+            </Instance>
+        </Component>
+        <Component GUID="0xfddbbac7" Name="CCastSkill">
+            <Instance Id="576" PosX="-27" PosY="4">
+                <VariableNode Type="1" Variable="m_bUseSkillInTable" DefaultValue="False" Value="False" />
+                <VariableNode Type="1" Variable="m_bAutoMoveToTarget" DefaultValue="True" Value="False" />
+                <VariableNode Type="6" Variable="m_skillID" DefaultValue="" Value="C5CC76AA467DDD2407FBD486BE301DB1" />
+                <Dependency VariableName="m_pNextAction">
+                    <DependencyNode Id="1400" Guid="0xffdccacb" />
+                </Dependency>
+            </Instance>
+            <Instance Id="1399" PosX="-8" PosY="4">
+                <VariableNode Type="1" Variable="m_bUseSkillInTable" DefaultValue="False" Value="False" />
+                <VariableNode Type="1" Variable="m_bAutoMoveToTarget" DefaultValue="True" Value="False" />
+                <VariableNode Type="6" Variable="m_skillID" DefaultValue="" Value="942E3E26490127949D1C9B9F02B008A9" />
+            </Instance>
+        </Component>
+        <Component GUID="0xffdccacb" Name="CMoveToPos">
+            <Instance Id="1400" PosX="-18" PosY="4">
+                <VariableNode Type="1" Variable="m_bWalkOrRun" DefaultValue="True" Value="True" />
+                <VariableNode Type="1" Variable="m_bUsePathFinding" DefaultValue="True" Value="True" />
+                <VariableNode Type="1" Variable="m_bSuspendAIInMove" DefaultValue="True" Value="False" />
+                <VariableNode Type="2" Variable="m_fMoveSpeedFactor" DefaultValue="1.000000" Value="1.000000" />
+                <VariableNode Type="2" Variable="m_fRandomMoveMinRadius" DefaultValue="0.000000" Value="0.000000" />
+                <VariableNode Type="2" Variable="m_fRandomMoveMaxRadius" DefaultValue="0.000000" Value="0.000000" />
+                <VariableNode Type="2" Variable="m_fArrivalDeltaDistance" DefaultValue="0.000000" Value="0.300000" />
+                <VariableNode Type="6" Variable="dataStr" DefaultValue="" Value="-4094.597@-71.858@4216.832@0" />
+                <VariableNode Type="8" Variable="m_TrackIDList" DefaultValue="Empty" Value="Empty" />
+                <VariableNode Type="13" Variable="m_moveType" DefaultValue="2" Value="10" />
+                <Dependency VariableName="m_pArrivalAction">
+                    <DependencyNode Id="1399" Guid="0xfddbbac7" />
+                </Dependency>
+            </Instance>
+        </Component>
+    </Components>
+</Root>

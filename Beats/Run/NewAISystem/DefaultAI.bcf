@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+<Root>
+    <Components>
+        <Component GUID="0xd4acdfa0" Name="CIdleState">
+            <Instance Id="649" PosX="-26" PosY="21">
+                <VariableNode Type="13" Variable="m_type" DefaultValue="1" Value="1" />
+            </Instance>
+        </Component>
+        <Component GUID="0xf4a1daab" Name="CAIManager">
+            <Instance Id="648" PosX="-37" PosY="6">
+                <VariableNode Type="6" Variable="m_szName" DefaultValue="" Value="default_ai" />
+                <VariableNode Type="2" Variable="m_fUpdateInterval" DefaultValue="0.000000" Value="0.000000" />
+                <Dependency VariableName="m_pInitState">
+                    <DependencyNode Id="649" Guid="0xd4acdfa0" />
+                </Dependency>
+                <Dependency VariableName="m_states">
+                    <DependencyNode Id="649" Guid="0xd4acdfa0" />
+                </Dependency>
+            </Instance>
+        </Component>
+    </Components>
+</Root>

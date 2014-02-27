@@ -1,0 +1,32 @@
+<?xml version="1.0" ?>
+<Root>
+    <Components>
+        <Component GUID="0xd4acdfa0" Name="CIdleState">
+            <Instance Id="1373" PosX="-17" PosY="11">
+                <VariableNode Type="13" Variable="m_type" DefaultValue="1" Value="1" />
+                <Dependency VariableName="m_pOnEnterAction">
+                    <DependencyNode Id="1374" Guid="0xfddbbac7" />
+                </Dependency>
+            </Instance>
+        </Component>
+        <Component GUID="0xf4a1daab" Name="CAIManager">
+            <Instance Id="1371" PosX="-30" PosY="6">
+                <VariableNode Type="6" Variable="m_szName" DefaultValue="" Value="Henchman_GodShield" />
+                <VariableNode Type="2" Variable="m_fUpdateInterval" DefaultValue="0.000000" Value="0.000000" />
+                <Dependency VariableName="m_pInitState">
+                    <DependencyNode Id="1373" Guid="0xd4acdfa0" />
+                </Dependency>
+                <Dependency VariableName="m_states">
+                    <DependencyNode Id="1373" Guid="0xd4acdfa0" />
+                </Dependency>
+            </Instance>
+        </Component>
+        <Component GUID="0xfddbbac7" Name="CCastSkill">
+            <Instance Id="1374" PosX="-6" PosY="9">
+                <VariableNode Type="1" Variable="m_bUseSkillInTable" DefaultValue="True" Value="False" />
+                <VariableNode Type="1" Variable="m_bAutoMoveToTarget" DefaultValue="True" Value="False" />
+                <VariableNode Type="6" Variable="m_skillID" DefaultValue="0" Value="FD2B93A54D88C207653549A86CF86D37" />
+            </Instance>
+        </Component>
+    </Components>
+</Root>

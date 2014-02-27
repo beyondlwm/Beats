@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="源文件\Property">
+      <UniqueIdentifier>{2c5108b6-d183-4359-8a6d-8632aa37ea80}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Component">
+      <UniqueIdentifier>{aa05a63d-0030-4c24-bd92-c463b0bd5874}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Dependency">
+      <UniqueIdentifier>{39e093c1-24e2-4675-8171-b7e23d849e10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ComponentPublic.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
+    <ClInclude Include="expdef.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Property\PropertyDescriptionBase.h">
+      <Filter>源文件\Property</Filter>
+    </ClInclude>
+    <ClInclude Include="Property\PropertyPublic.h">
+      <Filter>源文件\Property</Filter>
+    </ClInclude>
+    <ClInclude Include="Component\ComponentBase.h">
+      <Filter>源文件\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Component\ComponentEditorProxy.h">
+      <Filter>源文件\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Component\ComponentGraphic.h">
+      <Filter>源文件\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Component\ComponentManager.h">
+      <Filter>源文件\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Component\ComponentProject.h">
+      <Filter>源文件\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Component\ComponentProjectData.h">
+      <Filter>源文件\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="DependencyDescription.h">
+      <Filter>源文件\Dependency</Filter>
+    </ClInclude>
+    <ClInclude Include="DependencyDescriptionLine.h">
+      <Filter>源文件\Dependency</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Components.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Property\PropertyDescriptionBase.cpp">
+      <Filter>源文件\Property</Filter>
+    </ClCompile>
+    <ClCompile Include="Component\ComponentBase.cpp">
+      <Filter>源文件\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Component\ComponentEditorProxy.cpp">
+      <Filter>源文件\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Component\ComponentGraphic.cpp">
+      <Filter>源文件\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Component\ComponentManager.cpp">
+      <Filter>源文件\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Component\ComponentProject.cpp">
+      <Filter>源文件\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Component\ComponentProjectData.cpp">
+      <Filter>源文件\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="DependencyDescription.cpp">
+      <Filter>源文件\Dependency</Filter>
+    </ClCompile>
+    <ClCompile Include="DependencyDescriptionLine.cpp">
+      <Filter>源文件\Dependency</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+</Project>

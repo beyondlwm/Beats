@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout >
+        <Window Type="DefaultWindow" Name="TitlePage" >
+            <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
+            <Window Type="TaharezLook/Button" Name="TitlePage_CreateTrackBtn" >
+                <Property Name="Text" >Create
+a
+Track</Property>
+                <Property Name="UnifiedAreaRect" Value="{{0.114495,0},{0.362441,0},{0.364495,0},{0.612441,0}}" />
+            </Window>
+            <Window Type="TaharezLook/Button" Name="TitlePage_PlayTrackBtn" >
+                <Property Name="Text" >Play
+a
+Track</Property>
+                <Property Name="UnifiedAreaRect" Value="{{0.479502,0},{0.362285,0},{0.729502,0},{0.612284,0}}" />
+            </Window>
+            <Window Type="TaharezLook/ItemListbox" Name="TitlePage_TrackList" >
+                <Property Name="Visible" Value="False" />
+                <Property Name="UnifiedAreaRect" Value="{{0.236603,0},{0.151487,0},{0.671815,0},{0.816197,0}}" />
+            </Window>
+            <Window Type="TaharezLook/Button" Name="TitlePage_BrowseBtn" >
+                <Property Name="Text" Value="Browse" />
+                <Property Name="Visible" Value="False" />
+                <Property Name="UnifiedAreaRect" Value="{{0.181406,0},{0.808607,0},{0.290117,0},{0.934977,0}}" />
+            </Window>
+            <Window Type="TaharezLook/Button" Name="TitlePage_SelectOkBtn" >
+                <Property Name="Text" >OK
+</Property>
+                <Property Name="Visible" Value="False" />
+                <Property Name="UnifiedAreaRect" Value="{{0.326794,0},{0.81158,0},{0.436969,0},{0.933255,0}}" />
+            </Window>
+            <Window Type="TaharezLook/Button" Name="TitlePage_SelectBackBtn" >
+                <Property Name="Text" Value="Back" />
+                <Property Name="Visible" Value="False" />
+                <Property Name="UnifiedAreaRect" Value="{{0.488287,0},{0.800469,0},{0.603587,0},{0.931534,0}}" />
+            </Window>
+			
+			        <Window Type="TaharezLook/Button" Name="TitlePage_SelectAudioFileBtn" >
+            <Property Name="Text" Value="Select MP3" />
+            <Property Name="UnifiedAreaRect" Value="{{0.11369,0},{0.0837837,0},{0.32619,0},{0.212703,0}}" />
+        </Window>
+        <Window Type="TaharezLook/Button" Name="TitlePage_SelectBRFBtn" >
+            <Property Name="Text" Value="Select Beats Record" />
+            <Property Name="UnifiedAreaRect" Value="{{0.104166,0},{0.344324,0},{0.323809,0},{0.492701,0}}" />
+        </Window>
+        <Window Type="TaharezLook/StaticText" Name="TitlePage_AudioFilePathTxt" >
+            <Property Name="UnifiedAreaRect" Value="{{0.349405,0},{0.0929725,0},{0.898809,0},{0.206756,0}}" />
+        </Window>
+        <Window Type="TaharezLook/StaticText" Name="TitlePage_BeatsRecordTxt" >
+            <Property Name="UnifiedAreaRect" Value="{{0.35,0},{0.356216,0},{0.906547,0},{0.493783,0}}" />
+        </Window>
+        <Window Type="TaharezLook/Button" Name="TitlePage_StartBtn" >
+            <Property Name="Text" Value="Start" />
+            <Property Name="UnifiedAreaRect" Value="{{0.330357,0},{0.641081,0},{0.652381,0},{0.891081,0}}" />
+        </Window>
+        <Window Type="TaharezLook/Button" Name="TitlePage_BackBtn" >
+            <Property Name="Text" Value="Back" />
+            <Property Name="UnifiedAreaRect" Value="{{0.789882,0},{0.738918,0},{0.932143,0},{0.873243,0}}" />
+        </Window>
+        </Window>
+</GUILayout>

@@ -1,0 +1,41 @@
+<?xml version="1.0" ?>
+<Root>
+    <Components>
+        <Component GUID="0x4e1bca9b" Name="CWait">
+            <Instance Id="1852" PosX="-24" PosY="5">
+                <VariableNode Type="2" Variable="m_fMinTime" DefaultValue="0.000000" Value="0.000000" />
+                <VariableNode Type="2" Variable="m_fMaxTime" DefaultValue="0.000000" Value="10.000000" />
+            </Instance>
+        </Component>
+        <Component GUID="0xd4acdfa0" Name="CIdleState">
+            <Instance Id="1853" PosX="-35" PosY="4">
+                <VariableNode Type="13" Variable="m_type" DefaultValue="1" Value="1" />
+                <Dependency VariableName="m_pOnEnterAction">
+                    <DependencyNode Id="1852" Guid="0x4e1bca9b" />
+                </Dependency>
+                <Dependency VariableName="m_pOnLoopAction">
+                    <DependencyNode Id="1855" Guid="0xfddbbac7" />
+                </Dependency>
+            </Instance>
+        </Component>
+        <Component GUID="0xf4a1daab" Name="CAIManager">
+            <Instance Id="1854" PosX="-47" PosY="3">
+                <VariableNode Type="6" Variable="m_szName" DefaultValue="" Value="NPC_QunXingYunLuo" />
+                <VariableNode Type="2" Variable="m_fUpdateInterval" DefaultValue="0.000000" Value="0.000000" />
+                <Dependency VariableName="m_pInitState">
+                    <DependencyNode Id="1853" Guid="0xd4acdfa0" />
+                </Dependency>
+                <Dependency VariableName="m_states">
+                    <DependencyNode Id="1853" Guid="0xd4acdfa0" />
+                </Dependency>
+            </Instance>
+        </Component>
+        <Component GUID="0xfddbbac7" Name="CCastSkill">
+            <Instance Id="1855" PosX="-24" PosY="1">
+                <VariableNode Type="1" Variable="m_bUseSkillInTable" DefaultValue="False" Value="False" />
+                <VariableNode Type="1" Variable="m_bAutoMoveToTarget" DefaultValue="True" Value="False" />
+                <VariableNode Type="6" Variable="m_skillID" DefaultValue="" Value="74B5BD3F4BDE12AC9499ED8FFE958065" />
+            </Instance>
+        </Component>
+    </Components>
+</Root>

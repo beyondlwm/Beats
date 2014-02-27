@@ -1,0 +1,263 @@
+#include "stdafx.h"
+#include "Component/ComponentManager.h"
+#include "Component/ComponentEditorProxy.h"
+#include "DependencyDescription.h"
+#include "DependencyDescriptionLine.h"
+#include "../Utility/TinyXML/tinyxml.h"
+#include "../Utility/StringHelper/StringHelper.h"
+
+CDependencyDescription::CDependencyDescription(EDependencyType type, size_t dependencyGuid, CComponentEditorProxy* pOwner, size_t uIndex, bool bIsList)
+: m_type(type)
+, m_uDependencyGuid(dependencyGuid)
+, m_pOwner(pOwner)
+, m_uIndex(uIndex)
+, m_bHideRender(false)
+, m_bIsListType(bIsList)
+{
+    m_pOwner->AddDependencyDescription(this);
+}
+
+CDependencyDescription::~CDependencyDescription()
+{
+    // In CDependencyDescriptionLine's destructor function, it will reduce the number in m_pBeConnectedDependencyLines.
+    while (m_dependencyLine.size() > 0)
+    {
+        CDependencyDescriptionLine* pLine = m_dependencyLine[0];
+        BEATS_SAFE_DELETE(pLine);
+    }
+}
+
+CDependencyDescriptionLine* CDependencyDescription::GetDependencyLine( size_t uIndex /*= 0*/ ) const
+{
+    BEATS_ASSERT(uIndex < m_dependencyLine.size());
+    BEATS_ASSERT(uIndex == 0  || (uIndex > 0 && m_bIsListType), _T("Get denpendency by index %d is only available for list type!"), uIndex);
+    return m_dependencyLine[uIndex];
+}
+
+CDependencyDescriptionLine* CDependencyDescription::SetDependency( size_t uIndex, CComponentEditorProxy* pComponent )
+{
+    CDependencyDescriptionLine* pRet = NULL;
+    BEATS_ASSERT(uIndex < m_dependencyLine.size());
+    BEATS_ASSERT(pComponent != m_pOwner, _T("Component can't depends on itself!"));
+    BEATS_ASSERT(uIndex == 0  || (uIndex > 0 && m_bIsListType), _T("Set denpendency by index %d is only available for list type!"), uIndex);
+    if (pComponent != m_pOwner)
+    {
+        m_dependencyLine[uIndex]->SetConnectComponent(pComponent);
+        pRet = m_dependencyLine[uIndex];
+    }
+    return pRet;
+}
+
+size_t CDependencyDescription::GetDependencyLineCount() const
+{
+    BEATS_ASSERT(m_dependencyLine.size() <= 1 || m_bIsListType);
+    return m_dependencyLine.size();
+}
+
+CDependencyDescriptionLine* CDependencyDescription::AddDependency( CComponentEditorProxy* pComponentInstance )
+{
+    CDependencyDescriptionLine* pRet = NULL;
+
+#ifdef _DEBUG
+    for (size_t i = 0; i < m_dependencyLine.size(); ++i)
+    {
+        BEATS_ASSERT(pComponentInstance == NULL || pComponentInstance != m_dependencyLine[i]->GetConnectedComponent(), _T("The dependency is already in its list!"));
+    }
+#endif
+    BEATS_ASSERT(pComponentInstance != m_pOwner);
+    if (pComponentInstance != m_pOwner)
+    {
+        BEATS_ASSERT(m_dependencyLine.size() == 0 || m_bIsListType);
+        pRet = new CDependencyDescriptionLine(this, m_dependencyLine.size(), pComponentInstance);
+        m_dependencyLine.push_back(pRet);
+    }
+    return pRet;
+}
+
+void CDependencyDescription::RemoveDependencyLine(CDependencyDescriptionLine* pLine)
+{
+    BEATS_ASSERT(pLine->GetOwnerDependency() == this);
+    size_t uPos = pLine->GetIndex();
+    RemoveDependencyByIndex(uPos);
+}
+
+void CDependencyDescription::RemoveDependencyByIndex( size_t uIndex )
+{
+    std::vector<CDependencyDescriptionLine*>::iterator iter = m_dependencyLine.begin();
+    advance(iter, uIndex);
+    BEATS_ASSERT(*iter == m_dependencyLine[uIndex]);
+    m_dependencyLine.erase(iter);
+
+    for (size_t i = uIndex; i < m_dependencyLine.size(); ++i)
+    {
+        m_dependencyLine[i]->SetIndex(i);
+    }
+}
+
+void CDependencyDescription::SaveToXML( TiXmlElement* pParentNode )
+{
+    if (m_dependencyLine.size() == 0)
+    {
+        if (m_type == eDT_Strong && m_pOwner->GetId() != -1)
+        {
+            TCHAR szInfo[10240];
+            _stprintf(szInfo, _T("位于Id:%d的组件%s,强依赖尚未初始化!请检查并修改!"), m_pOwner->GetId(), m_pOwner->GetClassStr());
+            MessageBox(NULL, szInfo, _T("未初始化的强依赖"), MB_OK);
+        }
+    }
+    else
+    {
+        TiXmlElement* pDependencyElement = new TiXmlElement("Dependency");
+        char szVariableName[MAX_PATH];
+        CStringHelper::GetInstance()->ConvertToCHAR(m_variableName.c_str(), szVariableName, MAX_PATH);
+        pDependencyElement->SetAttribute("VariableName", szVariableName);        
+
+        for (size_t i = 0; i < m_dependencyLine.size(); ++i)
+        {
+            TiXmlElement* pDependencyNodeElement = new TiXmlElement("DependencyNode");
+            pDependencyNodeElement->SetAttribute("Id", (int)m_dependencyLine[i]->GetConnectedComponent()->GetId());
+            char szGUIDHexStr[32] = {0};
+            sprintf_s(szGUIDHexStr, "0x%x", m_dependencyLine[i]->GetConnectedComponent()->GetGuid());
+            pDependencyNodeElement->SetAttribute("Guid", szGUIDHexStr);
+            pDependencyElement->LinkEndChild(pDependencyNodeElement);
+        }
+
+        pParentNode->LinkEndChild(pDependencyElement);
+    }
+}
+
+void CDependencyDescription::LoadFromXML( TiXmlElement* pNode )
+{
+    TiXmlElement* pDependencyElement = pNode->FirstChildElement("Dependency");
+    while (pDependencyElement != NULL)
+    {
+        const char* szVariableName = pDependencyElement->Attribute("VariableName");
+        TCHAR szVariableNameTCHAR[MAX_PATH];
+        CStringHelper::GetInstance()->ConvertToTCHAR(szVariableName, szVariableNameTCHAR, MAX_PATH);
+
+        if (_tcscmp(szVariableNameTCHAR, m_variableName.c_str()) != 0)
+        {
+            pDependencyElement = pDependencyElement->NextSiblingElement("Dependency");
+        }
+        else
+        {
+            TiXmlElement* pDependencyNodeElement = pDependencyElement->FirstChildElement("DependencyNode");
+            while (pDependencyNodeElement != NULL)
+            {
+                const char* szGuid = pDependencyNodeElement->Attribute("Guid");
+                char* pEnd = NULL;
+                size_t uGuid = strtoul(szGuid, &pEnd, 16);
+                const char* szId = pDependencyNodeElement->Attribute("Id");
+                size_t uId = (size_t)atoi(szId); 
+
+                CComponentEditorProxy* pComponent = static_cast<CComponentEditorProxy*>(CComponentManager::GetInstance()->GetComponentInstance(uId, uGuid));
+                AddDependency(pComponent);
+                if (pComponent == NULL)
+                {
+                    CComponentManager::GetInstance()->AddDependencyResolver(this, m_dependencyLine.size() - 1, uGuid, uId, NULL, m_bIsListType);
+                }
+                pDependencyNodeElement = pDependencyNodeElement->NextSiblingElement("DependencyNode");
+            }
+            break;
+        }
+    }
+}
+
+void CDependencyDescription::SetOwner( CComponentEditorProxy* pOwner )
+{
+    BEATS_ASSERT(m_pOwner == NULL);
+    m_pOwner = pOwner;
+}
+
+const TCHAR* CDependencyDescription::GetDisplayName()
+{
+    return m_displayName.c_str();
+}
+
+void CDependencyDescription::SetDisplayName( const TCHAR* pszName )
+{
+    m_displayName.assign(pszName);
+}
+
+const TCHAR* CDependencyDescription::GetVariableName()
+{
+    return m_variableName.c_str();
+}
+
+void CDependencyDescription::SetVariableName(const TCHAR* pszName)
+{
+    m_variableName.assign(pszName);
+}
+
+EDependencyType CDependencyDescription::GetType()
+{
+    return m_type;
+}
+
+CComponentEditorProxy* CDependencyDescription::GetOwner()
+{
+    return m_pOwner;
+}
+void CDependencyDescription::Hide()
+{
+    m_bHideRender = true;
+}
+
+void CDependencyDescription::Show()
+{
+    m_bHideRender = false;
+}
+
+bool CDependencyDescription::IsVisible() const
+{
+    return !m_bHideRender;
+}
+
+bool CDependencyDescription::IsListType() const
+{
+    return m_bIsListType;
+}
+
+bool CDependencyDescription::IsInDependency( CComponentEditorProxy* pComponentInstance )
+{
+    bool bRet = false;
+    for (size_t i = 0; i < m_dependencyLine.size(); ++i)
+    {
+        if (m_dependencyLine[i]->GetConnectedComponent() == pComponentInstance)
+        {
+            bRet = true;
+            break;
+        }
+    }
+    return bRet;
+}
+
+bool CDependencyDescription::IsMatch( CComponentEditorProxy* pDependencyComponent )
+{
+    size_t uCurGuid = pDependencyComponent->GetGuid();
+    bool bMatch = uCurGuid == m_uDependencyGuid;
+    if (!bMatch)
+    {
+        std::vector<size_t> result;
+        CComponentManager::GetInstance()->QueryDerivedClass(m_uDependencyGuid, result, true);
+        for (size_t i = 0; i < result.size(); ++i)
+        {
+            if (result[i] == uCurGuid)
+            {
+                bMatch = true;
+                break;
+            }
+        }
+    }
+    return bMatch;
+}
+
+size_t CDependencyDescription::GetDependencyGuid() const
+{
+    return m_uDependencyGuid;
+}
+
+size_t CDependencyDescription::GetIndex() const
+{
+    return m_uIndex;
+}

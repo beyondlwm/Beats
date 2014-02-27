@@ -1,0 +1,207 @@
+<?xml version="1.0" ?>
+<Root>
+    <Directory Name="Boss">
+        <File Path="Boss\BOSS_Level_10_野猪公主.bcf" />
+        <File Path="Boss\BOSS_Level_10_默认BOSS的AI.bcf" />
+        <File Path="Boss\BOSS_Level_20_哥布哥拉斯.bcf" />
+        <File Path="Boss\BOSS_Level_38_黑暗矮人王.bcf" />
+        <File Path="Boss\BOSS_Level_55_刺猬乔托.bcf" />
+        <File Path="Boss\BOSS_Level_60_雷神托尔.bcf" />
+        <File Path="Boss\BOSS_防御型.bcf" />
+        <File Path="Boss\BOSS_攻击型.bcf" />
+        <File Path="Boss\BOSS_群攻型.bcf" />
+        <File Path="Boss\BOSS_生命型.bcf" />
+        <File Path="Boss\BOSS_召唤型.bcf" />
+        <File Path="Boss\BOSS_控制型.bcf" />
+        <File Path="Boss\BOSS_陨石雨.bcf" />
+    </Directory>
+    <Directory Name="Pet">
+        <File Path="Pet\Pet.bcf" />
+        <File Path="Pet\toyPet.bcf" />
+        <File Path="Pet\AssistantPet.bcf" />
+        <File Path="Pet\PetFollow.bcf" />
+    </Directory>
+    <Directory Name="City">
+        <Directory Name="BarizeCity">
+            <Directory Name="Attack">
+                <File Path="City\BarizeCity\Attack\Battle_Vehicle_Level_70_弓弩车.bcf" />
+                <File Path="City\BarizeCity\Attack\Battle_Vehicle_Level_70_投石车.bcf" />
+                <File Path="City\BarizeCity\Attack\Battle_Level_70_野蛮人女兽兵.bcf" />
+                <File Path="City\BarizeCity\Attack\Battle_Level_70_野蛮人兽兵.bcf" />
+                <File Path="City\BarizeCity\Attack\Battle_Level_70_据点野蛮人女兽兵.bcf" />
+                <File Path="City\BarizeCity\Attack\Battle_Level_70_据点野蛮人兽兵.bcf" />
+                <File Path="City\BarizeCity\Attack\NPC_天神祭坛_陨石打击.bcf" />
+            </Directory>
+            <Directory Name="Defence">
+                <File Path="City\BarizeCity\Defence\Battle_Level_70_火炮.bcf" />
+                <File Path="City\BarizeCity\Defence\Battle_Level_70_刀兵.bcf" />
+                <File Path="City\BarizeCity\Defence\Battle_Level_70_城墙守卫.bcf" />
+                <File Path="City\BarizeCity\Defence\Battle_Level_70_卫兵.bcf" />
+                <File Path="City\BarizeCity\Defence\Battle_Level_80_重甲将领.bcf" />
+                <File Path="City\BarizeCity\Defence\Battle_Level_100_伊斯艾尔.bcf" />
+            </Directory>
+        </Directory>
+    </Directory>
+    <Directory Name="Henchman">
+        <File Path="Henchman\召唤骷髅战士.bcf" />
+        <File Path="Henchman\召唤骷髅法师.bcf" />
+        <File Path="Henchman\Flash召唤骷髅法师.bcf" />
+        <File Path="Henchman\召唤泰坦尼斯.bcf" />
+        <File Path="Henchman\Flash召唤初级泰坦尼斯.bcf" />
+        <File Path="Henchman\Flash召唤中级泰坦尼斯.bcf" />
+        <File Path="Henchman\Flash召唤高级泰坦尼斯.bcf" />
+        <File Path="Henchman\Flash召唤顶级泰坦尼斯.bcf" />
+        <File Path="Henchman\战士召唤战神之盾.bcf" />
+        <File Path="Henchman\魔戒陨石打击.bcf" />
+        <File Path="Henchman\魔戒骷髅战士.bcf" />
+        <File Path="Henchman\地狱魔犬.bcf" />
+    </Directory>
+    <Directory Name="CopyScene">
+        <Directory Name="FenLiEr">
+            <Directory Name="Boss">
+                <File Path="CopyScene\Fenlier\Boss\BOSS_Level_35_屠夫.bcf" />
+                <File Path="CopyScene\Fenlier\Boss\BOSS_Level_36_尸王.bcf" />
+                <File Path="CopyScene\Fenlier\Boss\BOSS_Level_36_镇长.bcf" />
+                <File Path="CopyScene\Fenlier\Boss\BOSS_Level_37_芬里尔.bcf" />
+            </Directory>
+            <Directory Name="Monster">
+                <File Path="CopyScene\Fenlier\Monster\NPC_Level_35_袭击者.bcf" />
+                <File Path="CopyScene\Fenlier\Monster\NPC_Level_35_食尸鬼.bcf" />
+                <File Path="CopyScene\Fenlier\Monster\NPC_Level_35_浮肿的僵尸.bcf" />
+                <File Path="CopyScene\Fenlier\Monster\NPC_Level_35_缝合怪.bcf" />
+                <File Path="CopyScene\Fenlier\Monster\NPC_Level_32_迟钝的僵尸.bcf" />
+            </Directory>
+            <File Path="CopyScene\Fenlier\Common_110_walk.bcf" />
+            <File Path="CopyScene\Fenlier\Common_主动_游走全境追击.bcf" />
+        </Directory>
+        <Directory Name="shouhu">
+            <Directory Name="Monster">
+                <File Path="CopyScene\shouhu\Monster\pass_Random01.bcf" />
+            </Directory>
+            <Directory Name="Npc">
+                <File Path="CopyScene\shouhu\Npc\NPC_雅典娜.bcf" />
+                <File Path="CopyScene\shouhu\Npc\NPC_守卫.bcf" />
+                <File Path="CopyScene\shouhu\Npc\NPC_初级烈焰佣兵.bcf" />
+                <File Path="CopyScene\shouhu\Npc\NPC_初级冰霜佣兵.bcf" />
+                <File Path="CopyScene\shouhu\Npc\NPC_初级钢铁佣兵.bcf" />
+                <File Path="CopyScene\shouhu\Npc\NPC_初级毒蛇佣兵.bcf" />
+                <File Path="CopyScene\shouhu\Npc\NPC_中级烈焰佣兵.bcf" />
+                <File Path="CopyScene\shouhu\Npc\NPC_中级冰霜佣兵.bcf" />
+                <File Path="CopyScene\shouhu\Npc\NPC_中级毒蛇佣兵.bcf" />
+                <File Path="CopyScene\shouhu\Npc\NPC_高级冰霜佣兵.bcf" />
+                <File Path="CopyScene\shouhu\Npc\NPC_高级烈焰佣兵.bcf" />
+                <File Path="CopyScene\shouhu\Npc\NPC_高级毒蛇佣兵.bcf" />
+                <File Path="CopyScene\shouhu\Npc\NPC_初级猎狩佣兵.bcf" />
+                <File Path="CopyScene\shouhu\Npc\NPC_中级猎狩佣兵.bcf" />
+                <File Path="CopyScene\shouhu\Npc\NPC_高级猎狩佣兵.bcf" />
+                <File Path="CopyScene\shouhu\Npc\NPC_中级钢铁佣兵.bcf" />
+                <File Path="CopyScene\shouhu\Npc\NPC_高级钢铁佣兵.bcf" />
+                <File Path="CopyScene\shouhu\Npc\NPC_雅典娜_云朵.bcf" />
+                <File Path="CopyScene\shouhu\Npc\召唤_英灵法师BOSS.bcf" />
+                <File Path="CopyScene\shouhu\Npc\召唤_山羊人BOSS.bcf" />
+                <File Path="CopyScene\shouhu\Npc\召唤_海盗BOSS.bcf" />
+                <File Path="CopyScene\shouhu\Npc\召唤_食人魔BOSS.bcf" />
+                <File Path="CopyScene\shouhu\Npc\召唤_野蛮人BOSS.bcf" />
+                <File Path="CopyScene\shouhu\Npc\召唤_蛇人BOSS.bcf" />
+                <File Path="CopyScene\shouhu\Npc\召唤_兽人BOSS.bcf" />
+                <File Path="CopyScene\shouhu\Npc\召唤_呼唤者BOSS.bcf" />
+                <File Path="CopyScene\shouhu\Npc\NPC_猎犬.bcf" />
+            </Directory>
+        </Directory>
+        <Directory Name="Mishitaosheng">
+            <File Path="CopyScene\Mishitaosheng\Monster\NPC_巡逻轨道.bcf" />
+            <File Path="CopyScene\Mishitaosheng\Monster\NPC_守护怪AI.bcf" />
+        </Directory>
+    </Directory>
+    <Directory Name="Monster">
+        <File Path="Monster\NPC_Common_被动_待机.bcf" />
+        <File Path="Monster\NPC_Common_被动_游走.bcf" />
+        <File Path="Monster\NPC_Common_主动_待机.bcf" />
+        <File Path="Monster\NPC_Common_主动_游走.bcf" />
+        <File Path="Pet\小动物.bcf" />
+        <File Path="Monster\NPC_Level_7_陆行鸟王蓝翎.bcf" />
+        <File Path="Monster\NPC_Level_10_巨角雷赛尔.bcf" />
+        <File Path="Monster\NPC_Level_13_巨熊哈曼顿.bcf" />
+        <File Path="Monster\NPC_Level_15_厄瑞斯.bcf" />
+        <File Path="Monster\NPC_Level_16_厄凯特.bcf" />
+        <File Path="Monster\NPC_Level_17_厄雷迪.bcf" />
+        <File Path="Monster\NPC_Level_20_堕落的自然女神.bcf" />
+        <File Path="Monster\NPC_Level_20_钢鬓强盗_手动.bcf" />
+        <File Path="Monster\NPC_Level_8_毒蛛女王.bcf" />
+        <File Path="Monster\NPC_Common_主动_远程_游走.bcf" />
+        <File Path="Monster\NPC_Level_81_流氓.bcf" />
+        <File Path="Monster\NPC_Level_80_侵略者火炮.bcf" />
+        <File Path="Monster\NPC_Elite_通用.bcf" />
+        <File Path="Monster\NPC_Level_22_变异寄居蟹.bcf" />
+        <File Path="Monster\NPC_Level_23_法拉尔.bcf" />
+        <File Path="Monster\NPC_Level_20_特殊的魔法植物.bcf" />
+        <File Path="Monster\NPC_Level_25_入魔的蛮狼血齿.bcf" />
+        <File Path="Monster\NPC_Level_80_空间游荡者.bcf" />
+    </Directory>
+    <Directory Name="Mission">
+        <File Path="Mission\NPC_任务_装金币的宝箱.bcf" />
+        <File Path="Mission\NPC_任务_暗黑乌鸦.bcf" />
+        <File Path="Mission\NPC_任务_狼人菲利斯_召唤.bcf" />
+        <File Path="Mission\NPC_任务_费克斯队长_凝聚.bcf" />
+        <File Path="Mission\NPC_任务_初级牧师_驱散.bcf" />
+        <File Path="Mission\NPC_任务_一路平安.bcf" />
+        <File Path="Mission\NPC_任务_我是伤员.bcf" />
+        <File Path="Mission\NPC_任务_带我回家.bcf" />
+        <File Path="Mission\NPC_任务_高阶黄金骑士塞雷斯.bcf" />
+        <File Path="Mission\NPC_任务_护送紧急物资_碎石营地.bcf" />
+        <File Path="Mission\NPC_任务_护送紧急物资_血晶镇.bcf" />
+        <File Path="Mission\NPC_任务_护送紧急物资_野蛮部落.bcf" />
+        <File Path="Mission\NPC_任务_护送紧急物资_正规军营地.bcf" />
+        <File Path="Mission\NPC_任务_护送紧急物资_黑影镇.bcf" />
+        <File Path="Mission\NPC_任务_费克斯的护卫.bcf" />
+        <File Path="Mission\NPC_任务_环：猜箱子.bcf" />
+        <File Path="Mission\NPC_任务_环：占卜.bcf" />
+    </Directory>
+    <Directory Name="Thing">
+        <File Path="Thing\NPC_随机_辫子小女孩.bcf" />
+        <File Path="Thing\NPC_随机_贵妇人.bcf" />
+        <File Path="Thing\NPC_随机_老妇人.bcf" />
+        <File Path="Thing\NPC_随机_平头小男孩.bcf" />
+        <File Path="Thing\NPC_随机_祈祷少女.bcf" />
+        <File Path="Thing\NPC_随机_红巾男人.bcf" />
+    </Directory>
+    <Directory Name="NPC">
+        <Directory Name="Battle">
+            <File Path="NPC\Battle_Level_13_矮人火枪手.bcf" />
+            <File Path="NPC\Battle_Level_12_矮人战士.bcf" />
+            <File Path="NPC\NPC_守卫.bcf" />
+        </Directory>
+        <File Path="NPC\NPC_杰瑞拉.bcf" />
+        <File Path="NPC\NPC_主城_巡逻NPC.bcf" />
+        <File Path="NPC\NPC_主城_骑兵巡逻NPC.bcf" />
+        <File Path="NPC\NPC_主城_魔龙骑士巡逻NPC.bcf" />
+        <File Path="NPC\NPC_主城_巡逻NPC_跑.bcf" />
+    </Directory>
+    <Directory Name="RandomScene">
+        <File Path="RandomScene\RandomSceneMoveWayPointAI.bcf" />
+    </Directory>
+    <Directory Name="Test_200VS200">
+        <File Path="Test_200VS200\BaseLife_Battle1_1.bcf" />
+        <File Path="Test_200VS200\BaseLife_Battle2_1.bcf" />
+        <File Path="Test_200VS200\BaseLife_Battle3_1.bcf" />
+        <File Path="Test_200VS200\BaseLife_Battle4_1.bcf" />
+        <File Path="Test_200VS200\BaseLife_Battle5_1.bcf" />
+        <File Path="Test_200VS200\BaseLife_Battle6_1.bcf" />
+        <File Path="Test_200VS200\BaseLife_Battle7_1.bcf" />
+        <File Path="Test_200VS200\BaseLife_Battle8_1.bcf" />
+        <File Path="Test_200VS200\BaseLife_Battle9_1.bcf" />
+        <File Path="Test_200VS200\BaseLife_Battle10_1.bcf" />
+        <File Path="Test_200VS200\BaseLife_Battle11_1.bcf" />
+        <File Path="Test_200VS200\BaseLife_Battle12_1.bcf" />
+        <File Path="Test_200VS200\BaseLife_Battle13_1.bcf" />
+        <File Path="Test_200VS200\BaseLife_Battle14_1.bcf" />
+    </Directory>
+    <Directory Name="DemonRing">
+        <File Path="DemonRing\Yinchangzhe.bcf" />
+    </Directory>
+    <Directory Name="CityWarSummon">
+        <File Path="CityWarSummon\SommonAttack01.bcf" />
+    </Directory>
+    <File Path="Vehicle.bcf" />
+    <File Path="DefaultAI.bcf" />
+</Root>

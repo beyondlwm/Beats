@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout >
+    <Window Type="DefaultWindow" Name="PlayTrackPage" >
+        <Property Name="Text" >fenshu
+</Property>
+        <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
+        <Window Type="TaharezLook/StaticText" Name="PlayTrackPage_ScoreText" >
+            <Property Name="FrameEnabled" Value="False" />
+            <Property Name="UnifiedAreaRect" Value="{{0.022619,0},{0.0113513,0},{0.3,0},{0.106757,0}}" />
+            <Property Name="BackgroundEnabled" Value="False" />
+        </Window>
+		
+		<Window Type="TaharezLook/StaticText" Name="PlayTrackPage_ComboCounterText" >
+            <Property Name="FrameEnabled" Value="False" />
+            <Property Name="UnifiedAreaRect" Value="{{0.182619,0},{0.0113513,0},{0.3,0},{0.106757,0}}" />
+            <Property Name="BackgroundEnabled" Value="False" />
+        </Window>
+		
+        <Window Type="TaharezLook/FrameWindow" Name="PlayTrackPage_SystemWindow" >
+            <Property Name="Text" Value="System" />
+            <Property Name="TitlebarFont" Value="DejaVuSans-10" />
+            <Property Name="TitlebarEnabled" Value="True" />
+            <Property Name="UnifiedAreaRect" Value="{{0.327976,0},{0.209189,0},{0.575001,0},{0.812703,0}}" />
+            <Window Type="TaharezLook/Button" Name="PlayTrackPage_ContinueBtn" >
+                <Property Name="Text" Value="Continue" />
+                <Property Name="UnifiedAreaRect" Value="{{0.154217,0},{0.127721,0},{0.813856,0},{0.229042,0}}" />
+            </Window>
+            <Window Type="TaharezLook/Button" Name="PlayTrackPage_ExitBtn" >
+                <Property Name="Text" Value="Exit" />
+                <Property Name="UnifiedAreaRect" Value="{{0.16988,0},{0.689879,0},{0.824699,0},{0.794782,0}}" />
+            </Window>
+            <Window Type="TaharezLook/Button" Name="PlayTrackPage_RestartBtn" >
+                <Property Name="Text" Value="Restart" />
+                <Property Name="UnifiedAreaRect" Value="{{0.166265,0},{0.420331,0},{0.828314,0},{0.528818,0}}" />
+            </Window>
+        </Window>
+    </Window>
+</GUILayout>
