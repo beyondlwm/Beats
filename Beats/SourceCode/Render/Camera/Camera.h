@@ -1,6 +1,6 @@
 #ifndef BEATS_RENDER_CAMERA_CAMERA_H__INCLUDE
 #define BEATS_RENDER_CAMERA_CAMERA_H__INCLUDE
-#include <d3dx9.h>
+
 #include "../../Utility/Math/Vector3.h"
 #include "../../Physics/PhysicsElement.h"
 
