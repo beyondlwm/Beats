@@ -47,6 +47,7 @@ struct SDependencyResolver
 };
 
 typedef CComponentEditorProxy* (*TCreateComponentEditorProxyFunc)(CComponentGraphic* pGraphics, size_t guid, size_t parentGuid, TCHAR* className);
+typedef CComponentGraphic* (*TCreateGraphicFunc)();
 class COMPONENTS_DLL_DECL CComponentManager
 {
     BEATS_DECLARE_SINGLETON(CComponentManager);
@@ -56,7 +57,7 @@ public:
     bool RegisterInstance(CComponentBase* pComponent);
     bool UnregisterInstance(CComponentBase* pComponent);
 
-    void DeserializeTemplateData(const TCHAR* pWorkingPath, TCreateComponentEditorProxyFunc func, CComponentGraphic* pGraphics);
+    void DeserializeTemplateData(const TCHAR* pWorkingPath, TCreateComponentEditorProxyFunc func, TCreateGraphicFunc pGraphicFunc);
     void SerializeTemplateData(CSerializer& serializer);
 
     CComponentBase* GetComponentTemplate(size_t guid) const;
@@ -102,7 +103,7 @@ public:
     void ResetComponentContainer();
 private:
     void LoadTemplateDataFromXML(const TCHAR* pWorkingPath);
-    void LoadTemplateDataFromSerializer(CSerializer& serializer, TCreateComponentEditorProxyFunc func, CComponentGraphic* pGraphics);
+    void LoadTemplateDataFromSerializer(CSerializer& serializer, TCreateComponentEditorProxyFunc func, TCreateGraphicFunc pGraphicFunc);
     void ResolveDependency();
 
 private:

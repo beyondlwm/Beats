@@ -106,6 +106,7 @@ public:
     CComponentEditorProxy* GetSelectedComponent();
     wxPGEditor* GetPtrEditor();
     void RequestToUpdatePropertyGrid();
+	CComponentRenderWindow* GetComponentRenderWindow() const;
 
     void ActivateFile(const TCHAR* pszFileName);
 

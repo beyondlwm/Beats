@@ -310,10 +310,16 @@ CComponentEditorProxy* CreateComponentProxy(CComponentGraphic* pGraphics, size_t
     return new CComponentEditorProxy(pGraphics, guid, parentGuid, pszClassName);
 }
 
+CComponentGraphic* CreateComponentGraphics()
+{
+	CComponentRenderWindow* pRenderWindow = CBDTWxApp::GetBDTWxApp()->GetMainFrame()->GetComponentRenderWindow();
+	CComponentGraphic_DX* pGraphics = new CComponentGraphic_DX(pRenderWindow->GetRenderDevice(), pRenderWindow->GetRenderFont());
+	return pGraphics;
+}
+
 void CBDTWxFrame::InitComponentsPage()
 {
-    CComponentGraphic_DX* pGraphics = new CComponentGraphic_DX(m_pComponentRenderWindow->GetRenderDevice(), m_pComponentRenderWindow->GetRenderFont());
-    CComponentManager::GetInstance()->DeserializeTemplateData(CBDTWxApp::GetBDTWxApp()->GetWorkingPath().c_str(), CreateComponentProxy, pGraphics);
+    CComponentManager::GetInstance()->DeserializeTemplateData(CBDTWxApp::GetBDTWxApp()->GetWorkingPath().c_str(), CreateComponentProxy, CreateComponentGraphics);
     const std::map<size_t, CComponentBase*>* pComponentsMap = CComponentManager::GetInstance()->GetComponentTemplateMap();
     for (std::map<size_t, CComponentBase*>::const_iterator componentIter = pComponentsMap->begin(); componentIter != pComponentsMap->end(); ++componentIter )
     {
@@ -1211,6 +1217,11 @@ void CBDTWxFrame::RequestToUpdatePropertyGrid( )
     {
         m_bNeedUpdatePropertyGrid = true;
     }
+}
+
+CComponentRenderWindow* CBDTWxFrame::GetComponentRenderWindow() const
+{
+	return m_pComponentRenderWindow;
 }
 
 void CBDTWxFrame::OnComponentPropertyGridIdle( wxIdleEvent& /*event*/ )

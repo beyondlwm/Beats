@@ -114,7 +114,7 @@ void CComponentManager::SerializeTemplateData(CSerializer& serializer)
     serializer.Deserialize(szFilePath);
 }
 
-void CComponentManager::DeserializeTemplateData(const TCHAR* pWorkingPath, TCreateComponentEditorProxyFunc func, CComponentGraphic* pGraphics)
+void CComponentManager::DeserializeTemplateData(const TCHAR* pWorkingPath, TCreateComponentEditorProxyFunc func, TCreateGraphicFunc pGraphicFunc)
 {
     TCHAR szFilePath[MAX_PATH];
     _stprintf(szFilePath, _T("%s\\%s"), pWorkingPath, EXPORT_STRUCTURE_DATA_FILENAME);
@@ -138,7 +138,7 @@ void CComponentManager::DeserializeTemplateData(const TCHAR* pWorkingPath, TCrea
         }
         else
         {
-            LoadTemplateDataFromSerializer(componentsSerializer, func, pGraphics);
+            LoadTemplateDataFromSerializer(componentsSerializer, func, pGraphicFunc);
             // Step 2: Fix the value from XML.
             _stprintf(szFilePath, _T("%s\\%s"), pWorkingPath, EXPORT_STRUCTURE_DATA_PATCH_XMLFILENAME);
             LoadTemplateDataFromXML(szFilePath);
@@ -217,7 +217,7 @@ const std::map<size_t, std::map<size_t, CComponentBase*>*>* CComponentManager::G
     return m_pComponentInstanceMap;
 }
 
-void CComponentManager::LoadTemplateDataFromSerializer(CSerializer& serializer, TCreateComponentEditorProxyFunc func, CComponentGraphic* pGraphics)
+void CComponentManager::LoadTemplateDataFromSerializer(CSerializer& serializer, TCreateComponentEditorProxyFunc func, TCreateGraphicFunc pGraphicFunc)
 {
     size_t version = 0;
     serializer >> version;
@@ -242,7 +242,7 @@ void CComponentManager::LoadTemplateDataFromSerializer(CSerializer& serializer, 
             TCHAR* pStrHolder = NULL;
             TCHAR** ppStrHolder = &pStrHolder;
             serializer.Read(ppStrHolder);
-            CComponentEditorProxy* pComponentEditorProxy = func(pGraphics, guid, parentGuid, pStrHolder);
+            CComponentEditorProxy* pComponentEditorProxy = func(pGraphicFunc(), guid, parentGuid, pStrHolder);
             serializer.Read(ppStrHolder);
             pComponentEditorProxy->SetDisplayName(pStrHolder);
             serializer.Read(ppStrHolder);
