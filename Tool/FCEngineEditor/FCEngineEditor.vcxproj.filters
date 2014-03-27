@@ -1,0 +1,264 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="源文件\wxUIControl">
+      <UniqueIdentifier>{97e55cde-a987-4e12-b3d9-36131364b2fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\wxUIControl\TimeFrameBar">
+      <UniqueIdentifier>{4d42c4c9-ab92-46f3-baee-74fd41734543}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="源文件\wxUIControl\wxProperty">
+      <UniqueIdentifier>{db4225de-db10-4f30-aa2e-036ed5f8916c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\wxUIControl\Splash">
+      <UniqueIdentifier>{b0a542cc-cb07-4eb0-b15d-fa690c347f50}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\ExtraWindow">
+      <UniqueIdentifier>{06f0864f-ad93-4e83-8452-425023fa12e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="头文件\wxUIControl">
+      <UniqueIdentifier>{52800b7c-374c-461f-9d5b-018e80bf32c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\wxUIControl\TimeFrameBar">
+      <UniqueIdentifier>{5f2c7873-6d55-486e-8f26-ec9d6cec3f9d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\wxUIControl\wxProperty">
+      <UniqueIdentifier>{fe381661-14b2-47fb-be88-f8d52008a129}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\wxUIControl\Splash">
+      <UniqueIdentifier>{40812c8b-bc2c-4a26-8de4-a679ba8a4970}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\ExtraWindow">
+      <UniqueIdentifier>{7979e8ed-a8ee-475b-8f8f-76f0f3f54e55}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\wxUIControl\wxWidgetsProperty">
+      <UniqueIdentifier>{0990f8a3-cae1-462f-8b18-eceb6a5863a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\wxUIControl\wxWidgetsProperty">
+      <UniqueIdentifier>{5ae0c3e2-f7ad-4cda-a1a4-2aec9ca93b04}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="FCEngineEditor.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="GLCanvas.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="mainapp.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="timebarcheckrenderer.cpp">
+      <Filter>源文件\wxUIControl\TimeFrameBar</Filter>
+    </ClCompile>
+    <ClCompile Include="timebardataviewctrl.cpp">
+      <Filter>源文件\wxUIControl\TimeFrameBar</Filter>
+    </ClCompile>
+    <ClCompile Include="timebarevent.cpp">
+      <Filter>源文件\wxUIControl\TimeFrameBar</Filter>
+    </ClCompile>
+    <ClCompile Include="timebarframe.cpp">
+      <Filter>源文件\wxUIControl\TimeFrameBar</Filter>
+    </ClCompile>
+    <ClCompile Include="timebaritem.cpp">
+      <Filter>源文件\wxUIControl\TimeFrameBar</Filter>
+    </ClCompile>
+    <ClCompile Include="timebaritemcell.cpp">
+      <Filter>源文件\wxUIControl\TimeFrameBar</Filter>
+    </ClCompile>
+    <ClCompile Include="timebaritemcontainer.cpp">
+      <Filter>源文件\wxUIControl\TimeFrameBar</Filter>
+    </ClCompile>
+    <ClCompile Include="timebarlistmodel.cpp">
+      <Filter>源文件\wxUIControl\TimeFrameBar</Filter>
+    </ClCompile>
+    <ClCompile Include="timebarscale.cpp">
+      <Filter>源文件\wxUIControl\TimeFrameBar</Filter>
+    </ClCompile>
+    <ClCompile Include="SingleTypeChoicePropertyBase.cpp">
+      <Filter>源文件\wxUIControl\wxProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="ConstantCurveProperty.cpp">
+      <Filter>源文件\wxUIControl\wxProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="ConstantCurveEditor.cpp">
+      <Filter>源文件\wxUIControl\wxProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="EngineSplash.cpp">
+      <Filter>源文件\wxUIControl\Splash</Filter>
+    </ClCompile>
+    <ClCompile Include="EnginePropertyGrid.cpp">
+      <Filter>源文件\wxUIControl\wxProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="EngineProperGridManager.cpp">
+      <Filter>源文件\wxUIControl\wxProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="EditAnimationDialog.cpp">
+      <Filter>源文件\ExtraWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="PtrPropertyDescription.cpp">
+      <Filter>源文件\wxUIControl\wxWidgetsProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="StringPropertyDescription.cpp">
+      <Filter>源文件\wxUIControl\wxWidgetsProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="UIntPropertyDescription.cpp">
+      <Filter>源文件\wxUIControl\wxWidgetsProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="wxWidgetsPropertyBase.cpp">
+      <Filter>源文件\wxUIControl\wxWidgetsProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="FloatPropertyDescription.cpp">
+      <Filter>源文件\wxUIControl\wxWidgetsProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="IntPropertyDescription.cpp">
+      <Filter>源文件\wxUIControl\wxWidgetsProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="ListPropertyDescriptionEx.cpp">
+      <Filter>源文件\wxUIControl\wxWidgetsProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="PropertyTrigger.cpp">
+      <Filter>源文件\wxUIControl\wxWidgetsProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="DoublePropertyDescription.cpp">
+      <Filter>源文件\wxUIControl\wxWidgetsProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="EnumPropertyDescription.cpp">
+      <Filter>源文件\wxUIControl\wxWidgetsProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="BoolPropertyDescription.cpp">
+      <Filter>源文件\wxUIControl\wxWidgetsProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="wxPtrButtonEditor.cpp">
+      <Filter>源文件\wxUIControl\wxWidgetsProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentGraphics_GL.cpp">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="PropertyRegister.cpp">
+      <Filter>源文件\wxUIControl\wxWidgetsProperty</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="FCEngineEditor.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="GLCanvas.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="mainapp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="timebarcheckrenderer.h">
+      <Filter>头文件\wxUIControl\TimeFrameBar</Filter>
+    </ClInclude>
+    <ClInclude Include="timebardataviewctrl.h">
+      <Filter>头文件\wxUIControl\TimeFrameBar</Filter>
+    </ClInclude>
+    <ClInclude Include="timebarevent.h">
+      <Filter>头文件\wxUIControl\TimeFrameBar</Filter>
+    </ClInclude>
+    <ClInclude Include="timebarframe.h">
+      <Filter>头文件\wxUIControl\TimeFrameBar</Filter>
+    </ClInclude>
+    <ClInclude Include="timebaritem.h">
+      <Filter>头文件\wxUIControl\TimeFrameBar</Filter>
+    </ClInclude>
+    <ClInclude Include="timebaritemcell.h">
+      <Filter>头文件\wxUIControl\TimeFrameBar</Filter>
+    </ClInclude>
+    <ClInclude Include="timebaritemcontainer.h">
+      <Filter>头文件\wxUIControl\TimeFrameBar</Filter>
+    </ClInclude>
+    <ClInclude Include="timebarlistmodel.h">
+      <Filter>头文件\wxUIControl\TimeFrameBar</Filter>
+    </ClInclude>
+    <ClInclude Include="timebarscale.h">
+      <Filter>头文件\wxUIControl\TimeFrameBar</Filter>
+    </ClInclude>
+    <ClInclude Include="SingleTypeChoicePropertyBase.h">
+      <Filter>头文件\wxUIControl\wxProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="ConstantCurveProperty.h">
+      <Filter>头文件\wxUIControl\wxProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="ConstantCurveEditor.h">
+      <Filter>头文件\wxUIControl\wxProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="EngineSplash.h">
+      <Filter>头文件\wxUIControl\Splash</Filter>
+    </ClInclude>
+    <ClInclude Include="EnginePropertyGrid.h">
+      <Filter>头文件\wxUIControl\wxProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="EngineProperGridManager.h">
+      <Filter>头文件\wxUIControl\wxProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="EditAnimationDialog.h">
+      <Filter>头文件\ExtraWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="wxWidgetsPropertyBase.h">
+      <Filter>头文件\wxUIControl\wxWidgetsProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="BoolPropertyDescription.h">
+      <Filter>头文件\wxUIControl\wxWidgetsProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="DoublePropertyDescription.h">
+      <Filter>头文件\wxUIControl\wxWidgetsProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="EnumPropertyDescription.h">
+      <Filter>头文件\wxUIControl\wxWidgetsProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="FloatPropertyDescription.h">
+      <Filter>头文件\wxUIControl\wxWidgetsProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="IntPropertyDescription.h">
+      <Filter>头文件\wxUIControl\wxWidgetsProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="ListPropertyDescriptionEx.h">
+      <Filter>头文件\wxUIControl\wxWidgetsProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="PropertyTrigger.h">
+      <Filter>头文件\wxUIControl\wxWidgetsProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="PtrPropertyDescription.h">
+      <Filter>头文件\wxUIControl\wxWidgetsProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="StringPropertyDescription.h">
+      <Filter>头文件\wxUIControl\wxWidgetsProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="UIntPropertyDescription.h">
+      <Filter>头文件\wxUIControl\wxWidgetsProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="wxPtrButtonEditor.h">
+      <Filter>头文件\wxUIControl\wxWidgetsProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentGraphics_GL.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+</Project>

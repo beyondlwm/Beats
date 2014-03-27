@@ -1,0 +1,462 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="源文件\Render">
+      <UniqueIdentifier>{50bff830-25c9-421f-a963-b5df74794efd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="头文件\Utility">
+      <UniqueIdentifier>{6044d03a-cdff-4e70-8ce0-b5107c90a4cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Utility\BeatsUtility">
+      <UniqueIdentifier>{012578ac-325b-4b88-8a6c-61aefc5a7943}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Utility\BeatsUtility\ComponentSystem">
+      <UniqueIdentifier>{515cc762-496e-4b7f-927a-67b00cc1144a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Utility\BeatsUtility\ComponentSystem\Component">
+      <UniqueIdentifier>{9b289b7e-8104-4996-8d2d-a497f8a9eb2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Utility\BeatsUtility\ComponentSystem\Dependency">
+      <UniqueIdentifier>{e3707fa2-3bf8-4ae1-ad29-503a70d8e2db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Utility\BeatsUtility\ComponentSystem\Property">
+      <UniqueIdentifier>{cc7f3dd3-b834-4970-ac9d-b2c06062dcaa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Utility\TinyXML">
+      <UniqueIdentifier>{4609e2d1-2c2b-4560-b20f-34c94000a0c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Render">
+      <UniqueIdentifier>{7264d63b-d370-47b7-a942-71a8bf57812d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="头文件\Resource">
+      <UniqueIdentifier>{91411219-7b3e-4ff5-bd59-5ebdf887ba33}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Resource">
+      <UniqueIdentifier>{c488a50b-a6d7-487a-9d31-12f775611c27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Spline">
+      <UniqueIdentifier>{385776e3-5478-460b-80d2-b4d73eda2165}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Spline">
+      <UniqueIdentifier>{a00c6ff4-9ad8-4a28-b372-7c18ba6cdb95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\GUI">
+      <UniqueIdentifier>{7d842cc3-e402-4438-90da-6cee7615c1eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\GUI">
+      <UniqueIdentifier>{47173181-d23b-454c-9e10-4c341c847f46}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\GUI\Window">
+      <UniqueIdentifier>{b035404c-0abd-43da-b088-68e4c6940a43}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\GUI\Window">
+      <UniqueIdentifier>{0f2d17f8-4ec0-4bdf-ba1e-a187b3513bbd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\GUI\Behavior">
+      <UniqueIdentifier>{32978904-7d47-4f38-be16-3e006e591567}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\GUI\Behavior">
+      <UniqueIdentifier>{ebb058fb-cd7a-4fa7-abc4-888141512dc2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\GUI\Layout">
+      <UniqueIdentifier>{5705a038-a4db-406a-ab4b-072b495fef2d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\GUI\Layout">
+      <UniqueIdentifier>{7adb4e27-3b55-438d-8d0e-a05d118443ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\GUI\Script">
+      <UniqueIdentifier>{57278be3-b861-4031-9150-71ec65b5bc7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\GUI\Script">
+      <UniqueIdentifier>{1e0c86a9-7261-4549-82a7-d0f0230aabad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\GUI\Animation">
+      <UniqueIdentifier>{077dcaeb-6514-4e10-a62f-1281742a27b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\GUI\Animation">
+      <UniqueIdentifier>{a1e1a569-4852-4535-9b45-6402f53e6d47}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\GUI\Renderer">
+      <UniqueIdentifier>{0e929830-6fad-439c-8806-4f70c6980171}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\GUI\Renderer">
+      <UniqueIdentifier>{67c23d93-6978-4b07-b09a-17f406772772}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Event">
+      <UniqueIdentifier>{16295d61-7267-48ba-a968-6dccb95f8ea5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Event">
+      <UniqueIdentifier>{c72aef7c-bd69-4ee8-8103-24d165d38001}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\GUI\Event">
+      <UniqueIdentifier>{8869baba-51f4-4399-8d02-a22ed2dcdfda}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\GUI\Event">
+      <UniqueIdentifier>{1e3885c6-1fb0-4257-9bc4-a8d714ea32a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\AI">
+      <UniqueIdentifier>{980b8f2f-54d5-4fe6-a2d1-d9ff6a059ca3}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\RenderManager.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\Texture.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\Skeleton.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\Skin.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Resource\Resource.cpp">
+      <Filter>源文件\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Resource\ResourceManager.cpp">
+      <Filter>源文件\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\SkeletonBone.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\Animation.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\AnimationController.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\ShaderProgram.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\Model.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\RenderObject.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\GameObject.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\GameObjectManager.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\RenderObjectManager.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\TextureFormatConverter.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\AnimationManager.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\Sprite.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\Camera.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\SpriteFrame.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\SpriteFrameBatch.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\Geometry.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\SpriteFrameBatchManager.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\SpriteAnimation.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\SpriteAnimationController.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\CurveRenderer.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Spline\Curve.cpp">
+      <Filter>源文件\Spline</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Spline\Spline.cpp">
+      <Filter>源文件\Spline</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\Window\Window.cpp">
+      <Filter>源文件\GUI\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\System.cpp">
+      <Filter>源文件\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Event\EventDispatcher.cpp">
+      <Filter>源文件\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\Renderer\RendererBase.cpp">
+      <Filter>源文件\GUI\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\Behavior\BehaviorBase.cpp">
+      <Filter>源文件\GUI\Behavior</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\TextureFrag.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\Renderer.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\Material.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\RenderState.cpp">
+      <Filter>头文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\ComponentRegister.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Utility\BeatsUtility\EnumStrGenerator.h">
+      <Filter>头文件\Utility\BeatsUtility</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Utility\BeatsUtility\FileFilter.h">
+      <Filter>头文件\Utility\BeatsUtility</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Utility\BeatsUtility\IdManager.h">
+      <Filter>头文件\Utility\BeatsUtility</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Utility\BeatsUtility\md5.h">
+      <Filter>头文件\Utility\BeatsUtility</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Utility\BeatsUtility\Serializer.h">
+      <Filter>头文件\Utility\BeatsUtility</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Utility\BeatsUtility\Serializer.hpp">
+      <Filter>头文件\Utility\BeatsUtility</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Utility\BeatsUtility\SharePtr.h">
+      <Filter>头文件\Utility\BeatsUtility</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Utility\BeatsUtility\StringHelper.h">
+      <Filter>头文件\Utility\BeatsUtility</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Utility\BeatsUtility\UtilityManager.h">
+      <Filter>头文件\Utility\BeatsUtility</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Utility\BeatsUtility\ComponentSystem\ComponentPublic.h">
+      <Filter>头文件\Utility\BeatsUtility\ComponentSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Utility\BeatsUtility\ComponentSystem\Component\ComponentBase.h">
+      <Filter>头文件\Utility\BeatsUtility\ComponentSystem\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Utility\BeatsUtility\ComponentSystem\Component\ComponentEditorProxy.h">
+      <Filter>头文件\Utility\BeatsUtility\ComponentSystem\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Utility\BeatsUtility\ComponentSystem\Component\ComponentGraphic.h">
+      <Filter>头文件\Utility\BeatsUtility\ComponentSystem\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Utility\BeatsUtility\ComponentSystem\Component\ComponentManager.h">
+      <Filter>头文件\Utility\BeatsUtility\ComponentSystem\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Utility\BeatsUtility\ComponentSystem\Component\ComponentProject.h">
+      <Filter>头文件\Utility\BeatsUtility\ComponentSystem\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Utility\BeatsUtility\ComponentSystem\Component\ComponentProjectData.h">
+      <Filter>头文件\Utility\BeatsUtility\ComponentSystem\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Utility\BeatsUtility\ComponentSystem\Dependency\DependencyDescription.h">
+      <Filter>头文件\Utility\BeatsUtility\ComponentSystem\Dependency</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Utility\BeatsUtility\ComponentSystem\Dependency\DependencyDescriptionLine.h">
+      <Filter>头文件\Utility\BeatsUtility\ComponentSystem\Dependency</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Utility\BeatsUtility\ComponentSystem\Property\PropertyDescriptionBase.h">
+      <Filter>头文件\Utility\BeatsUtility\ComponentSystem\Property</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Utility\BeatsUtility\ComponentSystem\Property\PropertyPublic.h">
+      <Filter>头文件\Utility\BeatsUtility\ComponentSystem\Property</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Utility\TinyXML\tinystr.h">
+      <Filter>头文件\Utility\TinyXML</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Utility\TinyXML\tinyxml.h">
+      <Filter>头文件\Utility\TinyXML</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\RenderManager.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\Texture.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\Skeleton.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\Skin.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Resource\Resource.h">
+      <Filter>头文件\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Resource\ResourceManager.h">
+      <Filter>头文件\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Resource\ResourcePublic.h">
+      <Filter>头文件\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\RenderPublic.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\SkeletonBone.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Utility\BeatsUtility\MathPublic.h">
+      <Filter>头文件\Utility\BeatsUtility</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\Animation.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\AnimationController.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\BaseAnimationController.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\ShaderProgram.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\Model.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\RenderObject.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\GameObject.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\GameObjectManager.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\RenderObjectManager.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\TextureFormatConverter.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\AnimationManager.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\Sprite.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\Geometry.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\CommonTypes.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\Camera.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\SpriteFrame.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\SpriteFrameBatch.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\SpriteFrameBatchManager.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\SpriteAnimation.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\SpriteAnimationController.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\CurveRenderer.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Spline\Curve.h">
+      <Filter>头文件\Spline</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Spline\Spline.h">
+      <Filter>头文件\Spline</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos2d-x-3.0beta2\cocos\math\kazmath\include\kazmath\mat4.h">
+      <Filter>头文件\Utility\BeatsUtility</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\PublicDef.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Window\Window.h">
+      <Filter>头文件\GUI\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\System.h">
+      <Filter>头文件\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Behavior\BehaviorDefs.h">
+      <Filter>头文件\GUI\Behavior</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Renderer\RendererDefs.h">
+      <Filter>头文件\GUI\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Event\EventDispatcher.h">
+      <Filter>头文件\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Renderer\RendererBase.h">
+      <Filter>头文件\GUI\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Behavior\BehaviorBase.h">
+      <Filter>头文件\GUI\Behavior</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Event\EventType.h">
+      <Filter>头文件\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\GUIEventType.h">
+      <Filter>头文件\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Event\MouseEvent.h">
+      <Filter>头文件\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Event\KeyboardEvent.h">
+      <Filter>头文件\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Event\WindowEvent.h">
+      <Filter>头文件\GUI\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Event\EventBase.h">
+      <Filter>头文件\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\Renderer.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\Material.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\RenderState.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+</Project>
