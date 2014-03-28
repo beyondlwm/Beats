@@ -11,7 +11,10 @@
 #include "Animation.h"
 #include "Resource/ResourceManager.h"
 #include "Renderer.h"
+#include "Material.h"
 #include "RenderState.h"
+#include "RenderStateParam.h"
+#include "Shader.h"
 
 #define MAKEFOURCC(ch0, ch1, ch2, ch3)                              \
                 ((DWORD)(BYTE)(ch0) | ((DWORD)(BYTE)(ch1) << 8) |   \
@@ -20,22 +23,39 @@
 CModel::CModel()
     : m_pAnimationController(CAnimationManager::GetInstance()->CreateSkelAnimationController())
     , m_bRenderSkeleton(true)
+    , m_pStateParam(NULL)
 {
-
 }
 
 CModel::CModel(CSerializer& serializer)
     : super(serializer)
     , m_pAnimationController(CAnimationManager::GetInstance()->CreateSkelAnimationController())
     , m_bRenderSkeleton(true)
+    , m_pStateParam(NULL)
 {
     DECLARE_PROPERTY(serializer, m_bRenderSkeleton, true, 0xFFFFFFFF, _T("äÖÈ¾¹Ç÷À"), NULL, _T("ÊÇ·ñäÖÈ¾¹Ç÷À"), NULL);
-    DECLARE_PROPERTY(serializer, m_pSkeleton, true, 0xFFFFFFFF, _T("¹Ç÷À"), NULL, _T("¹Ç÷À"), NULL)
+    DECLARE_PROPERTY(serializer, m_pSkeleton, true, 0xFFFFFFFF, _T("¹Ç÷À"), NULL, _T("¹Ç÷À"), NULL);
+    DECLARE_PROPERTY(serializer, m_pStateParam, true, 0xFFFFFFFF, _T("²âÊÔ¸¸Àà"), NULL, _T("²âÊÔ¸¸Àà"), NULL)
+
 }
 
 CModel::~CModel()
 {
-    CAnimationManager::GetInstance()->DeleteController(m_pAnimationController);    
+    CAnimationManager::GetInstance()->DeleteController(m_pAnimationController);
+}
+
+bool CModel::Init()
+{
+#ifdef SW_SKEL_ANIM
+    SharePtr<CShader> pVS = CResourceManager::GetInstance()->GetResource<CShader>(_T("PointTexShader.vs"), false);
+    SharePtr<CShader> pPS = CResourceManager::GetInstance()->GetResource<CShader>(_T("PointTexShader.ps"), false);
+#else
+    SharePtr<CShader> pVS = CResourceManager::GetInstance()->GetResource<CShader>(_T("SkinShader.vs"), false);
+    SharePtr<CShader> pPS = CResourceManager::GetInstance()->GetResource<CShader>(_T("SkinShader.ps"), false);
+#endif
+
+    m_pSkinProgram = CRenderManager::GetInstance()->GetShaderProgram(pVS->ID(), pPS->ID());
+    return true;
 }
 
 void CModel::PlayAnimationById( long id, float fBlendTime, bool bLoop )
@@ -67,14 +87,7 @@ void CModel::PreRender()
 {
     CRenderManager* pRenderMgr = CRenderManager::GetInstance();
     CRenderer* pRenderer = CRenderer::GetInstance();
-
-#ifdef SW_SKEL_ANIM
-    TString path = _T("..\\SourceCode\\Shader\\vs_pt.txt@..\\SourceCode\\Shader\\fs_t.txt");
-#else
-    TString path = _T("..\\SourceCode\\Shader\\vs_anim.txt@..\\SourceCode\\Shader\\fs_anim.txt");
-#endif
-    SharePtr<CShaderProgram> pSkinProgram = CResourceManager::GetInstance()->GetResource<CShaderProgram>(path, false);
-    pRenderer->UseProgram(pSkinProgram->ID());
+    pRenderer->UseProgram(m_pSkinProgram->ID());
     FC_CHECK_GL_ERROR_DEBUG();
 
     if (m_pSkin && m_pSkin->IsLoaded())
@@ -99,8 +112,7 @@ void CModel::PreRender()
                 {
                     ESkeletonBoneType boneType = item.first;
                     char uniformName[32];
-                    sprintf_s(uniformName, "%s[%d]", 
-                        COMMON_UNIFORM_NAMES[UNIFORM_BONE_MATRICES], boneType);
+                    sprintf_s(uniformName, "%s[%d]", COMMON_UNIFORM_NAMES[UNIFORM_BONE_MATRICES], boneType);
                     GLuint location = pRenderer->GetUniformLocation(curProgram, uniformName);
                     pRenderer->SetUniformMatrix4fv(location, (const GLfloat *)item.second.mat, 1);
                 }

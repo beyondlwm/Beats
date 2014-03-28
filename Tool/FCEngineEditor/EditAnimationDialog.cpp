@@ -90,19 +90,14 @@ END_EVENT_TABLE()
     pTimeBarPanelTopSizer->Add(pCheckBox, 0, wxALIGN_RIGHT|wxALL, 0);
 
 
-
     m_pAnimitionListBox = new wxListBox(m_pTopRight, ID_LISTBOX_ANIMATION);
     m_pSkeletonListBox = new wxListBox(m_pTopRight, ID_LISTBOX_SKELETON, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE);
     m_pSkinListBox = new wxListBox(m_pTopRight, ID_LISTBOX_SKIN);
     m_pSkeletonChoice = new wxChoice(m_pTopRight, ID_CHOICE_SKELETON);
 
-    m_AnimationPath = _T("..\\Resource\\Animation");
-    m_SkeletonPath = _T("..\\Resource\\Skeleton");
-    m_SkinPath = _T("..\\Resource\\Skin");
-    GetResourceList(m_AnimationPath);
-    GetResourceList(m_SkeletonPath);
-    GetResourceList(m_SkinPath);
-    m_pModel = CRenderObjectManager::GetInstance()->CreateModel();
+    GetResourceList(CResourcePathManager::GetInstance()->GetResourcePath(eRPT_Animation));
+    GetResourceList(CResourcePathManager::GetInstance()->GetResourcePath(eRPT_Skeleton));
+    GetResourceList(CResourcePathManager::GetInstance()->GetResourcePath(eRPT_Skin));
 
     m_pTopRight->SetSizer(pTopRightSizer);
 
@@ -187,7 +182,7 @@ void EditAnimationDialog::OnSelectFile(wxCommandEvent& event)
     if (event.GetId() == ID_BUTTON_SELECTANIDIR)
     {
         m_pAnimitionListBox->Clear();
-        GetResourceList(m_AnimationPath);
+        GetResourceList(CResourcePathManager::GetInstance()->GetResourcePath(eRPT_Animation));
     }
     else if (event.GetId() == ID_BUTTON_SELECTSKEDIR)
     {
@@ -195,12 +190,12 @@ void EditAnimationDialog::OnSelectFile(wxCommandEvent& event)
         SetAllSkeletonAndBoneVisible();
         m_pSkeletonListBox->Clear();
         m_pSkeletonChoice->Clear();
-        GetResourceList(m_SkeletonPath);
+        GetResourceList(CResourcePathManager::GetInstance()->GetResourcePath(eRPT_Skeleton));
     }
     else if (event.GetId() == ID_BUTTON_SELECTSKIDIR)
     {
         m_pSkinListBox->Clear();
-        GetResourceList(m_SkinPath);
+        GetResourceList(CResourcePathManager::GetInstance()->GetResourcePath(eRPT_Skin));
     }
 }
 
@@ -231,7 +226,7 @@ void EditAnimationDialog::OnPlayAnimation( wxCommandEvent& /*event*/ )
 
     if (bIsOK)
     {
-        m_pModel->PlayAnimationById(0, 0, m_bIsLoop);
+        ((GLAnimationCanvas*)m_pTopLeft)->GetModel()->PlayAnimationById(0, 0, m_bIsLoop);
     }
     else
     {
@@ -241,40 +236,40 @@ void EditAnimationDialog::OnPlayAnimation( wxCommandEvent& /*event*/ )
 
 void EditAnimationDialog::OnPauseAnimation( wxCommandEvent& /*event*/ )
 {
-    if (m_pModel->GetAnimationController()->IsPlaying())
+    if (((GLAnimationCanvas*)m_pTopLeft)->GetModel()->GetAnimationController()->IsPlaying())
     {
-        m_pModel->GetAnimationController()->Pause();
+        ((GLAnimationCanvas*)m_pTopLeft)->GetModel()->GetAnimationController()->Pause();
     }
     else
     {
-        m_pModel->GetAnimationController()->Resume();
+        ((GLAnimationCanvas*)m_pTopLeft)->GetModel()->GetAnimationController()->Resume();
     }
 }
 
 void EditAnimationDialog::OnStopAnimation( wxCommandEvent& /*event*/ )
 {
-    m_pModel->GetAnimationController()->Stop();
+    ((GLAnimationCanvas*)m_pTopLeft)->GetModel()->GetAnimationController()->Stop();
     m_pTimeBar->SetCurrentCursor(0);
 }
 
 void EditAnimationDialog::OnAnimationListBox( wxCommandEvent& event )
 {
-    wxString filename = event.GetString();
-    wxString filepath = m_AnimationPath + _T("\\") + filename;
+    TString strFileName = event.GetString();
     wxString logMessage;
-    m_pAnimation = CResourceManager::GetInstance()->GetResource<CAnimation>(filepath.wc_str(), false);
+    m_pAnimation = CResourceManager::GetInstance()->GetResource<CAnimation>(strFileName, false);
     if (m_pAnimation)
     {
-        m_pModel->SetAnimaton(m_pAnimation);
+        ((GLAnimationCanvas*)m_pTopLeft)->GetModel()->SetAnimaton(m_pAnimation);
         m_pAnimationCheckBox->SetValue(true);
-        logMessage = filename + _T(" load success");
+        logMessage = strFileName;
+        logMessage.append(_T(" load success"));
         m_bAnimation = true;
         ShowAnima();
     }
     else
     {
         m_pAnimationCheckBox->SetValue(false);
-        logMessage = WARNING + filename + _T(" load failed");
+        logMessage = WARNING + strFileName + _T(" load failed");
     }
     wxLogMessage(logMessage);
 }
@@ -293,15 +288,14 @@ void EditAnimationDialog::OnSkeletonChoice( wxCommandEvent& event )
         SetAllSkeletonAndBoneVisible();
     }
     m_skeletonBoneType.clear();
-    wxString filename = event.GetString();
-    wxString filepath = m_SkeletonPath + _T("\\") + filename;
+    TString strFileName = event.GetString();
     wxString logMessage;
-    m_pSkeleton = CResourceManager::GetInstance()->GetResource<CSkeleton>(filepath.wc_str(), false);
+    m_pSkeleton = CResourceManager::GetInstance()->GetResource<CSkeleton>(strFileName, false);
     if (m_pSkeleton)
     {
-        m_pModel->SetSkeleton(m_pSkeleton);
+        ((GLAnimationCanvas*)m_pTopLeft)->GetModel()->SetSkeleton(m_pSkeleton);
         m_pSkeletonCheckBox->SetValue(true);
-        logMessage = filename + _T(" load success");
+        logMessage = strFileName + _T(" load success");
         m_bSkeleton = true;
         ShowAnima();
         for (auto iter = m_pSkeleton->GetBoneMap().begin(); iter != m_pSkeleton->GetBoneMap().end(); iter++)
@@ -316,26 +310,24 @@ void EditAnimationDialog::OnSkeletonChoice( wxCommandEvent& event )
     else
     {
         m_pSkeletonCheckBox->SetValue(false);
-        logMessage = WARNING + filename + _T(" load failed");
+        logMessage = WARNING + strFileName + _T(" load failed");
     }
     wxLogMessage(logMessage);
 }
 
 void EditAnimationDialog::OnSkinListBox( wxCommandEvent& event )
 {
-    wxString filename = event.GetString();
-    wxString filepath = m_SkinPath + _T("\\") + filename;
+    TString strFileName = event.GetString();
     wxString logMessage;
-    m_pSkin = CResourceManager::GetInstance()->GetResource<CSkin>(filepath.wc_str(), false);
+    m_pSkin = CResourceManager::GetInstance()->GetResource<CSkin>(strFileName, false);
     if (m_pSkin)
     {
-        m_pModel->SetSkin(m_pSkin);
+        ((GLAnimationCanvas*)m_pTopLeft)->GetModel()->SetSkin(m_pSkin);
         m_pSkinCheckBox->SetValue(true);
-        logMessage = filename + _T(" load success");
+        logMessage = strFileName + _T(" load success");
 
-        wxString filepath = _T(".\\TestTexture.tga");
-        SharePtr<CTexture> pTestTexture = CResourceManager::GetInstance()->GetResource<CTexture>(filepath.wc_str(), false);
-        m_pModel->AddTexture(pTestTexture);
+        SharePtr<CTexture> pTestTexture = CResourceManager::GetInstance()->GetResource<CTexture>(_T("TestTexture.tga"), false);
+        ((GLAnimationCanvas*)m_pTopLeft)->GetModel()->AddTexture(pTestTexture);
 
         m_bSkin = true;
         ShowAnima();
@@ -343,7 +335,7 @@ void EditAnimationDialog::OnSkinListBox( wxCommandEvent& event )
     else
     {
         m_pSkinCheckBox->SetValue(false);
-        logMessage = WARNING + filename + _T(" load failed");
+        logMessage = WARNING + strFileName + _T(" load failed");
     }
     wxLogMessage(logMessage);
 }
@@ -386,14 +378,9 @@ void EditAnimationDialog::ShowAnima()
     if (m_bAnimation && m_bSkeleton && m_bSkin)
     {
         InitTimeBar();
-        m_pModel->PlayAnimationById(0, 0, true);
-        m_pModel->GetAnimationController()->Stop();
+        ((GLAnimationCanvas*)m_pTopLeft)->GetModel()->PlayAnimationById(0, 0, true);
+        ((GLAnimationCanvas*)m_pTopLeft)->GetModel()->GetAnimationController()->Stop();
     }
-}
-
-CModel* EditAnimationDialog::GetModel()
-{
-    return m_pModel;
 }
 
 TimeBarFrame* EditAnimationDialog::GetTimeBar()
@@ -479,4 +466,9 @@ void EditAnimationDialog::DelListboxSelect()
     {
         m_pSkeletonListBox->Deselect(i);
     }
+}
+
+wxWindow* EditAnimationDialog::GetCanvas() const
+{
+    return m_pTopLeft;
 }

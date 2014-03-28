@@ -9,6 +9,7 @@
 #include "Utility/BeatsUtility/SharePtr.h"
 #include "EditAnimationDialog.h"
 #include "Render/AnimationController.h"
+#include "GLCanvas.h"
 
 #define BUTTONSIZE 24
 #define SASHPOSITION 130
@@ -224,7 +225,7 @@ void TimeBarFrame::SetCursorPositionX(int pos)
     {
         if (iIndex < pDialog->GetAnimation()->GetFrameCount())
         {
-            pDialog->GetModel()->GetAnimationController()->GoToFrame(iIndex);
+            ((GLAnimationCanvas*)pDialog->GetCanvas())->GetModel()->GetAnimationController()->GoToFrame(iIndex);
         }
     }
     m_pScalebar->Refresh(false);

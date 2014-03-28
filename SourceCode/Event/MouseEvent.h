@@ -1,13 +1,13 @@
 #ifndef EVENT_MOUSE_EVENT_H__INCLUDE
 #define EVENT_MOUSE_EVENT_H__INCLUDE
 
-#include "Event/EventBase.h"
+#include "Event/BaseEvent.h"
 
-class MouseEvent : public EventBase
+class MouseEvent : public BaseEvent
 {
 public:
     MouseEvent(int type, int button, char buttonState, kmScalar x = 0.f, kmScalar y = 0.f)
-        : EventBase(type)
+        : BaseEvent(type)
         , _button(button)
         , _buttonState(buttonState)
         , _x(x)

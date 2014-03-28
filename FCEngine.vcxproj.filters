@@ -207,9 +207,6 @@
     <ClCompile Include="SourceCode\Event\EventDispatcher.cpp">
       <Filter>源文件\Event</Filter>
     </ClCompile>
-    <ClCompile Include="SourceCode\GUI\Renderer\RendererBase.cpp">
-      <Filter>源文件\GUI\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="SourceCode\GUI\Behavior\BehaviorBase.cpp">
       <Filter>源文件\GUI\Behavior</Filter>
     </ClCompile>
@@ -227,6 +224,39 @@
     </ClCompile>
     <ClCompile Include="SourceCode\ComponentRegister.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Resource\ResourcePathManager.cpp">
+      <Filter>源文件\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\Window\Button.cpp">
+      <Filter>源文件\GUI\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\WindowManager.cpp">
+      <Filter>源文件\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\Renderer\ButtonRenderer.cpp">
+      <Filter>源文件\GUI\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\Renderer\BaseRenderer.cpp">
+      <Filter>源文件\GUI\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\Layout\BaseLayout.cpp">
+      <Filter>源文件\GUI\Layout</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\Layout\GridLayout.cpp">
+      <Filter>源文件\GUI\Layout</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\Layout\HScrollLayout.cpp">
+      <Filter>源文件\GUI\Layout</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\Layout\ScrollLayout.cpp">
+      <Filter>源文件\GUI\Layout</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\Layout\VScrollLayout.cpp">
+      <Filter>源文件\GUI\Layout</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\Shader.cpp">
+      <Filter>源文件\Render</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -422,9 +452,6 @@
     <ClInclude Include="SourceCode\Event\EventDispatcher.h">
       <Filter>头文件\Event</Filter>
     </ClInclude>
-    <ClInclude Include="SourceCode\GUI\Renderer\RendererBase.h">
-      <Filter>头文件\GUI\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="SourceCode\GUI\Behavior\BehaviorBase.h">
       <Filter>头文件\GUI\Behavior</Filter>
     </ClInclude>
@@ -443,9 +470,6 @@
     <ClInclude Include="SourceCode\GUI\Event\WindowEvent.h">
       <Filter>头文件\GUI\Event</Filter>
     </ClInclude>
-    <ClInclude Include="SourceCode\Event\EventBase.h">
-      <Filter>头文件\Event</Filter>
-    </ClInclude>
     <ClInclude Include="SourceCode\Render\Renderer.h">
       <Filter>头文件\Render</Filter>
     </ClInclude>
@@ -453,6 +477,45 @@
       <Filter>头文件\Render</Filter>
     </ClInclude>
     <ClInclude Include="SourceCode\Render\RenderState.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\RenderStateParam.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Resource\ResourcePathManager.h">
+      <Filter>头文件\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\WindowManager.h">
+      <Filter>头文件\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Window\Button.h">
+      <Filter>头文件\GUI\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Renderer\ButtonRenderer.h">
+      <Filter>头文件\GUI\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Renderer\BaseRenderer.h">
+      <Filter>头文件\GUI\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Event\BaseEvent.h">
+      <Filter>头文件\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Layout\BaseLayout.h">
+      <Filter>头文件\GUI\Layout</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Layout\GridLayout.h">
+      <Filter>头文件\GUI\Layout</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Layout\HScrollLayout.h">
+      <Filter>头文件\GUI\Layout</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Layout\ScrollLayout.h">
+      <Filter>头文件\GUI\Layout</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Layout\VScrollLayout.h">
+      <Filter>头文件\GUI\Layout</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\Shader.h">
       <Filter>头文件\Render</Filter>
     </ClInclude>
   </ItemGroup>

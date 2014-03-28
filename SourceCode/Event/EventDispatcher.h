@@ -2,25 +2,25 @@
 #define EVENT_EVENT_DISPATCHER_H__INCLUDE
 
 //forward declaration
-class EventBase;
+class BaseEvent;
 
 class EventDispatcher
 {
-    //type definition
+	//type definition
 public:
-    typedef std::function<void(EventBase *)> EventHandler;
-    typedef std::vector<EventHandler> EventHandlerList;
-    typedef std::map<int, EventHandlerList> EventHandlerMap;
+	typedef std::function<void(BaseEvent *)> EventHandler;
+	typedef std::vector<EventHandler> EventHandlerList;
+	typedef std::map<int, EventHandlerList> EventHandlerMap;
 
 public:
-    EventDispatcher();
-    virtual ~EventDispatcher();
+	EventDispatcher();
+	virtual ~EventDispatcher();
 
-    virtual void SubscribeEvent(int type, EventHandler handler);
-    virtual void DispatchEvent(EventBase *event) const;
+	virtual void SubscribeEvent(int type, EventHandler handler);
+	virtual void DispatchEvent(BaseEvent *event);
 
 protected:
-    EventHandlerMap _handlers;
+	EventHandlerMap _handlers;
 };
 
 #endif

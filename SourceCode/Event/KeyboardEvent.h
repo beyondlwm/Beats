@@ -1,13 +1,13 @@
 #ifndef EVENT_KEYBOARD_EVENT_H__INCLUDE
 #define EVENT_KEYBOARD_EVENT_H__INCLUDE
 
-#include "Event/EventBase.h"
+#include "Event/BaseEvent.h"
 
-class KeyboardEvent : public EventBase
+class KeyboardEvent : public BaseEvent
 {
 public:
     KeyboardEvent(int type, int key, int mods = 0)
-        : EventBase(type)
+        : BaseEvent(type)
         , _key(key)
         , _mods(mods)
     {}

@@ -30,6 +30,7 @@ CRenderObjectManager::~CRenderObjectManager()
 CModel *CRenderObjectManager::CreateModel()
 {
     CModel *model = new CModel;
+    model->Init();
     m_renderObjects3D.push_back(model);
     return model;
 }

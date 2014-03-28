@@ -162,11 +162,6 @@ bool CSkin::Unload()
     return bRet;
 }
 
-EResourceType CSkin::GetType()
-{
-    return eRT_Skin;
-}
-
 GLuint CSkin::GetVAO() const
 {
     return m_uVAO;

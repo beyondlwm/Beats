@@ -15,7 +15,7 @@ public:
 
 private:
     std::map<GLuint, CSpriteFrameBatch *> m_batches;
-    SharePtr<CShaderProgram> m_program;
+    CShaderProgram* m_pProgram;
 };
 
 #endif

@@ -86,11 +86,6 @@ bool CSkeleton::Unload()
     return bRet;
 }
 
-EResourceType CSkeleton::GetType()
-{
-    return eRT_Skeleton;
-}
-
 std::map<ESkeletonBoneType, SharePtr<CSkeletonBone>>& CSkeleton::GetBoneMap()
 {
     return m_bonesMap;

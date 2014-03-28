@@ -8,8 +8,10 @@
 #include "Utility/BeatsUtility/ComponentSystem/Component/ComponentManager.h"
 #include "Utility/BeatsUtility/ComponentSystem/Component/ComponentGraphic.h"
 #include "ComponentGraphics_GL.h"
+#include "resource/ResourcePathManager.h"
 
 EnginePropertyGirdManager::EnginePropertyGirdManager()
+    : m_bNeedUpdatePropertyGrid(false)
 {
     
 }
@@ -21,6 +23,7 @@ EnginePropertyGirdManager::~EnginePropertyGirdManager()
 wxPropertyGrid* EnginePropertyGirdManager::CreatePropertyGrid() const
 {
     EnginePropertyGrid* pGrid = new EnginePropertyGrid();
+    pGrid->ShowScrollbars(wxSHOW_SB_DEFAULT, wxSHOW_SB_ALWAYS);
     pGrid->SetManager(const_cast<EnginePropertyGirdManager*>(this));
     return pGrid;
 }
@@ -126,9 +129,11 @@ CComponentGraphic* CreateGraphic()
 
 void EnginePropertyGirdManager::InitComponentsPage()
 {
-    CComponentManager::GetInstance()->DeserializeTemplateData(_T("E:\\project\\FCEngine\\FCEngine\\Debug.win32"), CreateComponentProxy, CreateGraphic);
+    const TString& strWorkPath = CResourcePathManager::GetInstance()->GetResourcePath(eRPT_Work);
+    CComponentManager::GetInstance()->DeserializeTemplateData(strWorkPath.c_str(), CreateComponentProxy, CreateGraphic);
     const std::map<size_t, CComponentBase*>* pComponentsMap = CComponentManager::GetInstance()->GetComponentTemplateMap();
-    
-    CComponentEditorProxy* pTemp = (CComponentEditorProxy*)((++pComponentsMap->begin())->second);
+
+    std::map<size_t, CComponentBase*>::const_iterator iter =  pComponentsMap->find(0x1547ABEC);
+    CComponentEditorProxy* pTemp = (CComponentEditorProxy*)iter->second;
     InsertComponentsInPropertyGrid(pTemp);
 }

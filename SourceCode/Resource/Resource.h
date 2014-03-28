@@ -1,6 +1,11 @@
 #ifndef RESOURCE_RESOURCE_H__INCLUDE
 #define RESOURCE_RESOURCE_H__INCLUDE
 
+#define DECLARE_RESOURCE_TYPE(type)\
+    public:\
+    virtual EResourceType GetType(){return type;}\
+    static const EResourceType RESOURCE_TYPE = type;
+
 class CResource
 {
 public:

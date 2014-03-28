@@ -10,6 +10,7 @@
 #include "Resource/ResourceManager.h"
 #include "Spline/Curve.h"
 #include "Render/RenderState.h"
+#include "Render/Shader.h"
 
 #include "renderer.h"
 #include "GUI/System.h"
@@ -51,6 +52,7 @@ CRenderManager::~CRenderManager()
     DeleteUBOList();
 #endif
     BEATS_SAFE_DELETE(m_pCamera);
+    BEATS_SAFE_DELETE_VECTOR(m_shaderProgramPool);
 }
 
 bool CRenderManager::InitializeWithWindow(size_t uWidth, size_t uHeight)
@@ -115,9 +117,14 @@ bool CRenderManager::Initialize()
 
     bRet = bRet && InitGridData() && InitLineBuffer() && InitTriangleBuffer();
     BEATS_ASSERT(bRet, _T("Initialize render manager failed!"));
+
 #ifdef USE_UBO
     InitUBOList();
 #endif
+    SharePtr<CShader> pVS = CResourceManager::GetInstance()->GetResource<CShader>(_T("PointColorShader.vs"), false);
+    SharePtr<CShader> pPS = CResourceManager::GetInstance()->GetResource<CShader>(_T("PointColorShader.ps"), false);
+    m_pLineShaderProgram = GetShaderProgram(pVS->ID(), pPS->ID());
+
     return bRet;
 }
 
@@ -392,14 +399,16 @@ void CRenderManager::onGLFWMouseCallBack(GLFWwindow* window, int button, int act
     int eventType = 0;
     if(action == GLFW_PRESS)
     {
-        eventType = EVENT_MOUSE_PRESS;
+        eventType = EVENT_MOUSE_PRESSED;
     }
     else if(action == GLFW_RELEASE)
     {
-        eventType = EVENT_MOUSE_RELEASE;
+        eventType = EVENT_MOUSE_RELEASED;
     }
 
-    MouseEvent event(eventType, button, 0);
+    MouseEvent event(eventType, button, 0, 
+        (float)pRenderMgr->m_uPressPosX,
+        (float)pRenderMgr->m_uPressPosY);
     FCGUI::System::GetInstance()->InjectMouseEvent(&event);
 }
 
@@ -440,7 +449,7 @@ void CRenderManager::onGLFWMouseMoveCallBack(GLFWwindow* window, double x, doubl
         }
     }
 
-    MouseEvent event(EVENT_MOUSE_MOVE, 0, 0, (float)x, (float)y);
+    MouseEvent event(EVENT_MOUSE_MOVED, 0, 0, (float)x, (float)y);
     FCGUI::System::GetInstance()->InjectMouseEvent(&event);
 }
 
@@ -452,7 +461,7 @@ void CRenderManager::onGLFWMouseScrollCallback(GLFWwindow* window, double x, dou
     float fSpeed =  (float)y * 0.2F;
     pCamera->MoveStraight(-fSpeed);
 
-    MouseEvent event(EVENT_MOUSE_SCROLL, 0, 0, (float)x, (float)y);
+    MouseEvent event(EVENT_MOUSE_SCROLLED, 0, 0, (float)x, (float)y);
     FCGUI::System::GetInstance()->InjectMouseEvent(&event);
 }
 
@@ -489,13 +498,13 @@ void CRenderManager::onGLFWKeyCallback(GLFWwindow* window, int key, int scancode
     switch(action)
     {
     case GLFW_PRESS:
-        eventType = EVENT_KEY_PRESS;
+        eventType = EVENT_KEY_PRESSED;
         break;
     case GLFW_RELEASE:
-        eventType = EVENT_KEY_RELEASE;
+        eventType = EVENT_KEY_RELEASED;
         break;
     case GLFW_REPEAT:
-        eventType = EVENT_KEY_REPEAT;
+        eventType = EVENT_KEY_REPEATED;
         break;
     }
 
@@ -517,6 +526,26 @@ void CRenderManager::onGLFWWindowPosCallback(GLFWwindow* windows, int x, int y)
 void CRenderManager::onGLFWframebuffersize(GLFWwindow* window, int w, int h)
 {
 
+}
+
+CShaderProgram* CRenderManager::GetShaderProgram(GLuint uVertexShader, GLuint uPixelShader)
+{
+    CShaderProgram* pRet = NULL;
+    for (size_t i = 0; i < m_shaderProgramPool.size(); ++i)
+    {
+        CShaderProgram* pProgram = m_shaderProgramPool[i];
+        if (pProgram->GetPixelShader() == uPixelShader && pProgram->GetVertexShader() == uVertexShader)
+        {
+            pRet = pProgram;
+            break;
+        }
+    }
+    if (pRet == NULL)
+    {
+        pRet = new CShaderProgram(uVertexShader, uPixelShader);
+        m_shaderProgramPool.push_back(pRet);
+    }
+    return pRet;
 }
 
 void CRenderManager::ApplyTexture( int index, GLuint texture )
@@ -757,10 +786,7 @@ void CRenderManager::RenderGrid()
     CRenderer* pRenderer = CRenderer::GetInstance();
 
     pRenderer->BindTexture(GL_TEXTURE_2D, 0);
-    static SharePtr<CShaderProgram> shader(
-        CResourceManager::GetInstance()->GetResource<CShaderProgram>(
-        _T("..\\SourceCode\\Shader\\vs.txt@..\\SourceCode\\Shader\\fs.txt"), false));
-    pRenderer->UseProgram(shader->ID());
+    pRenderer->UseProgram(m_pLineShaderProgram->ID());
 
     FC_CHECK_GL_ERROR_DEBUG();
     pRenderer->BindVertexArray(m_uGridVAO);

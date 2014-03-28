@@ -2,6 +2,7 @@
 #define FCENGINEEDITOR_GLCANVAS_H__INCLUDE
 
 #include "wx/glcanvas.h"
+#include "Render/Model.h"
 
 struct Spline;
 
@@ -13,6 +14,8 @@ struct sGLData
     float quat[4];              // orientation of object
     float zoom;                 // field of view in degrees
 };
+
+const static float MOUSESPEED = 10.0f;
 
 class GLAnimationCanvas : public wxGLCanvas
 {
@@ -42,7 +45,7 @@ public:
         const wxString& name = wxT("Animation"));
 
     virtual ~GLAnimationCanvas();
-
+    SharePtr<CModel>& GetModel();
     void LoadDXF(const wxString& filename);
     void SetType(int iType);
 protected:
@@ -70,6 +73,7 @@ private:
     wxPoint         m_DownPosition;
     std::vector<bool> m_KeyStates;
     SharePtr<Spline> m_spline;
+    SharePtr<CModel> m_Model;
     wxGLContext*    m_glRC;
     sGLData         m_gldata;
 

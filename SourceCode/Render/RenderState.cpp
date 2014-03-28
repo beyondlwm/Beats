@@ -93,8 +93,8 @@ GLuint CRenderState::GetCurrentShaderProgram()const
 void CRenderState::Restore()
 {
     CRenderer* pRenderer = CRenderer::GetInstance();
-    pRenderer->DepthMask(m_bDepthMask);
     pRenderer->UseProgram(m_uCurrShaderProgram);
+    pRenderer->DepthMask(m_bDepthMask);
     pRenderer->BlendFunc(m_uBlendSourceFactor, m_uBlendTargetFactor);
     pRenderer->BlendEquation(m_uBlendEquation);
 

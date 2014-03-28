@@ -115,11 +115,6 @@ bool CAnimation::Unload()
     return bRet;
 }
 
-EResourceType CAnimation::GetType()
-{
-    return eRT_Count;
-}
-
 unsigned short CAnimation::GetFrameCount()
 {
     return m_uFrameCount;

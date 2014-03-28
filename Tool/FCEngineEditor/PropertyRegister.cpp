@@ -19,3 +19,4 @@ REGISTER_PROPERTY_DESC(ePT_Bool, CBoolPropertyDescription)
     REGISTER_PROPERTY_DESC(ePT_Ptr, CPtrPropertyDescription)
     REGISTER_PROPERTY_DESC(ePT_List, CListPropertyDescriptionEx)
     REGISTER_PROPERTY_DESC(ePT_Enum, CEnumPropertyDescription)
+

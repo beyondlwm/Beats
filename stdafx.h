@@ -27,6 +27,7 @@
 #include <list>
 #include <map>
 #include <vector>
+#include <set>
 
 #include "PublicDef.h"
 

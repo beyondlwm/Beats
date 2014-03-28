@@ -68,6 +68,28 @@ inline void DeserializeVarialble(T*& value, CSerializer* pSerializer)
 }
 
 template<typename T>
+inline void DeserializeVarialble(SharePtr<T>& value, CSerializer* pSerializer)
+{
+    bool bHasInstance = false;
+    *pSerializer >> bHasInstance;
+    if(bHasInstance)
+    {
+        size_t uDataSize, uGuid, uId, uStartPos;
+        uStartPos = pSerializer->GetReadPos();
+        *pSerializer >> uDataSize;
+        *pSerializer >> uGuid;
+        *pSerializer >> uId;
+        value = dynamic_cast<T*>(CComponentManager::GetInstance()->CreateComponent(uGuid, false, true, 0xFFFFFFFF, false, pSerializer));
+        if ((uStartPos + uDataSize) != pSerializer->GetReadPos())
+        {
+            TCHAR szInfo[256];
+            _stprintf(szInfo, _T("Got an error when creating data for component"));
+            MessageBox(NULL, szInfo, _T("Component Data Not Match!"), MB_OK | MB_ICONERROR);
+        }
+    }
+}
+
+template<typename T>
 inline void DeserializeVarialble(std::vector<T>& value, CSerializer* pSerializer)
 {
     EPropertyType childType;

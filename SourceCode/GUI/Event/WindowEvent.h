@@ -1,28 +1,24 @@
 #ifndef GUI_EVENT_WINDOW_EVENT_H__INCLUDE
 #define GUI_EVENT_WINDOW_EVENT_H__INCLUDE
 
-#include "Event/EventBase.h"
+#include "Event/BaseEvent.h"
 
 namespace FCGUI
 {
     class Window;
 
-    class WindowEvent : public EventBase
-    {
-    public:
-        WindowEvent(int type, Window *window)
-            : EventBase(type)
-            , _window(window)
-        {}
+	class WindowEvent : public BaseEvent
+	{
+	public:
+		WindowEvent(int type)
+			: BaseEvent(type)
+		{}
 
         Window *SourceWindow() const
         {
-            return _window;
+            return static_cast<Window *>(_source);
         }
-
-    private:
-        Window *_window;
-    };
+	};
 }
 
 #endif

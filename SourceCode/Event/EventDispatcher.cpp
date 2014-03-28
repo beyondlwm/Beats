@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "EventDispatcher.h"
-#include "EventBase.h"
+#include "BaseEvent.h"
 
 EventDispatcher::EventDispatcher()
 {
@@ -18,11 +18,12 @@ void EventDispatcher::SubscribeEvent( int type, EventHandler handler )
     handlerList.push_back(handler);
 }
 
-void EventDispatcher::DispatchEvent( EventBase *event ) const
+void EventDispatcher::DispatchEvent( BaseEvent *event )
 {
     auto itr = _handlers.find(event->Type());
     if(itr != _handlers.end())
     {
+        event->SetSource(this);
         const EventHandlerList &handlerList = itr->second;
         for(auto handler : handlerList)
         {

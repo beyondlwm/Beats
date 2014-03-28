@@ -7,12 +7,16 @@
 #include "renderer.h"
 #include "Resource/ResourceManager.h"
 #include "ShaderProgram.h"
+#include "Shader.h"
 
 CSpriteFrameBatchManager *CSpriteFrameBatchManager::m_pInstance = nullptr;
 
 CSpriteFrameBatchManager::CSpriteFrameBatchManager()
 {
-
+    SharePtr<CShader> pVS = CResourceManager::GetInstance()->GetResource<CShader>(_T("PointTexShader.vs"), false);
+    SharePtr<CShader> pPS = CResourceManager::GetInstance()->GetResource<CShader>(_T("PointTexShader.ps"), false);
+    BEATS_ASSERT(pVS && pPS, _T("Load Shader Failed!"));
+    m_pProgram = CRenderManager::GetInstance()->GetShaderProgram(pVS->ID(), pPS->ID());
 }
 
 CSpriteFrameBatchManager::~CSpriteFrameBatchManager()
@@ -25,12 +29,7 @@ CSpriteFrameBatchManager::~CSpriteFrameBatchManager()
 
 void CSpriteFrameBatchManager::Render()
 {
-    if(!m_program)
-    {
-        m_program = CResourceManager::GetInstance()->GetResource<CShaderProgram>(
-            _T("..\\SourceCode\\Shader\\vs_pt.txt@..\\SourceCode\\Shader\\fs_t.txt"), false);
-    }
-    CRenderer::GetInstance()->UseProgram(m_program->ID());
+    CRenderer::GetInstance()->UseProgram(m_pProgram->ID());
     CRenderManager::GetInstance()->SetupVPMatrix(true);
     CRenderer::GetInstance()->DisableGL(GL_DEPTH_TEST);
     CRenderer::GetInstance()->EnableGL(GL_BLEND);

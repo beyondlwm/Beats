@@ -1,7 +1,9 @@
 #include "stdafx.h"
 #include "EnginePropertyGrid.h"
 EnginePropertyGrid::EnginePropertyGrid()
+    : m_pManager(NULL)
 {
+    
 }
 
 EnginePropertyGrid::~EnginePropertyGrid()

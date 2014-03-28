@@ -60,6 +60,8 @@ public:
 
     bool IsLeftMouseDown() { return m_bLeftMouseDown; }
     void GetMousePos(size_t& x, size_t& y) { x = m_uCurMousePosX, y = m_uCurMousePosY; }
+
+    CShaderProgram* GetShaderProgram(GLuint uVertexShader, GLuint uPixelShader);
     
 private:
     bool InitGridData();
@@ -96,10 +98,12 @@ private:
     GLuint m_uLineVBO;
     GLuint m_uTriangleVAO;
     GLuint m_uTriangleVBO;
+    // TODO: Use material to replace it!
+    CShaderProgram* m_pLineShaderProgram;
 
     std::vector<CVertexPC> m_renderLines;
     std::vector<CVertexPC> m_renderTriangles;
-
+    std::vector<CShaderProgram*> m_shaderProgramPool;
 };
 
 #endif

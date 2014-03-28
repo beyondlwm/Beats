@@ -4,10 +4,11 @@
 enum EResourceType
 {
     eRT_Texture,
+    eRT_Animation,
     eRT_Skeleton,
     eRT_Skin,
     eRT_Material,
-    eRT_ShaderProgram,
+    eRT_Shader,
     eRT_SpriteAnimation,
 
     eRT_Count,

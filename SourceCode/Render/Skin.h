@@ -10,13 +10,14 @@ class CSkeleton;
 
 class CSkin : public CResource
 {
+    DECLARE_RESOURCE_TYPE(eRT_Skin)
+
 public:
     CSkin();
     virtual ~CSkin();
 
-    bool Load();
-    bool Unload();
-    virtual EResourceType GetType();
+    virtual bool Load();
+    virtual bool Unload();
 
     GLuint GetVAO() const;
 #ifdef SW_SKEL_ANIM

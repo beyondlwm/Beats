@@ -4,7 +4,9 @@
 #define X_UNNULL_SIZE wxSize(1,0);
 
 ConstantCurveProperty::ConstantCurveProperty(const wxString& label, const wxString& name, double value)
-    : SingleTypeChoicePropertyBase(label, name, value), m_ConstantValue_1(0.0), m_ConstantValue_2(0.0)
+    : SingleTypeChoicePropertyBase(label, name, value)
+    , m_ConstantValue_1(0.0)
+    , m_ConstantValue_2(0.0)
     , m_pConstantProperty1(NULL)
     , m_pConstantProperty2(NULL)
     , m_bChildAppended(false)

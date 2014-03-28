@@ -3,12 +3,16 @@
 
 #include "RenderObject.h"
 #include "Utility/BeatsUtility/ComponentSystem/Component/ComponentBase.h"
+#include "Material.h"
+#include "Utility/BeatsUtility/SharePtr.h"
 
 class CSkeleton;
 class CSkin;
 class CTexture;
 class CAnimationController;
 class CAnimation;
+class CStateParam;
+class CShaderProgram;
 
 class CModel : public CComponentBase, public CRenderObject
 {
@@ -20,6 +24,7 @@ public:
     CModel(CSerializer& serializer);
     virtual ~CModel();
 
+    bool Init();
     void PlayAnimationById(long id, float fBlendTime, bool bLoop);
     void PlayAnimationByName(const char *name, float fBlendTime, bool bLoop);
     void AddTexture(SharePtr<CTexture> pTexture);
@@ -39,7 +44,10 @@ private:
 
 private:
     bool m_bRenderSkeleton;
+    CShaderProgram* m_pSkinProgram;
     CAnimationController* m_pAnimationController;
+    CStateParam* m_pStateParam;
+    SharePtr<CMaterial> m_pMaterial;
     SharePtr<CSkeleton> m_pSkeleton;
     SharePtr<CSkin> m_pSkin;
     std::vector<SharePtr<CTexture> > m_textures;

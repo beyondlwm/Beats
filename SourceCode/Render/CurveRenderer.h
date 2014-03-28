@@ -17,7 +17,7 @@ public:
 
     virtual void PostRender();
 
-    void SetProgram(SharePtr<CShaderProgram> program);
+    void SetProgram(CShaderProgram* program);
 
 private:
     void renderGrid();
@@ -25,7 +25,7 @@ private:
     void renderPoints();
 
 private:
-    SharePtr<CShaderProgram> m_program;
+    CShaderProgram* m_pProgram;
     SharePtr<Spline> m_spline;
     GLuint m_VBOGrid;
     GLuint m_VBOSpline;

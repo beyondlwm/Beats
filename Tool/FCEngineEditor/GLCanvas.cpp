@@ -25,25 +25,25 @@
 #include "Resource/ResourceManager.h"
 
 BEGIN_EVENT_TABLE(GLAnimationCanvas, wxGLCanvas)
-EVT_SIZE(GLAnimationCanvas::OnSize)
-EVT_PAINT(GLAnimationCanvas::OnPaint)
-EVT_KEY_DOWN(GLAnimationCanvas::OnKeyDown)
-EVT_KEY_UP(GLAnimationCanvas::OnKeyUp)
-EVT_MOUSE_EVENTS(GLAnimationCanvas::OnMouse)
-EVT_MOUSE_CAPTURE_LOST(GLAnimationCanvas::MouseCaptureLost)
-EVT_IDLE(GLAnimationCanvas::OnIdle)
-END_EVENT_TABLE()
+    EVT_SIZE(GLAnimationCanvas::OnSize)
+    EVT_PAINT(GLAnimationCanvas::OnPaint)
+    EVT_KEY_DOWN(GLAnimationCanvas::OnKeyDown)
+    EVT_KEY_UP(GLAnimationCanvas::OnKeyUp)
+    EVT_MOUSE_EVENTS(GLAnimationCanvas::OnMouse)
+    EVT_MOUSE_CAPTURE_LOST(GLAnimationCanvas::MouseCaptureLost)
+    EVT_IDLE(GLAnimationCanvas::OnIdle)
+    END_EVENT_TABLE()
 
-GLAnimationCanvas::GLAnimationCanvas(wxWindow *parent, wxWindowID id,
-                           const wxPoint& pos,
-                           const wxSize& size, long style,
-                           const wxString& name)
-             : wxGLCanvas(parent, id, NULL, pos, size,
-                           style | wxFULL_REPAINT_ON_RESIZE, name)
-             , m_iType(0)
-             , m_selectedIndex(0)
-             , m_bLeftDown(false)
-             , m_bRightDown(false)
+    GLAnimationCanvas::GLAnimationCanvas(wxWindow *parent, wxWindowID id,
+    const wxPoint& pos,
+    const wxSize& size, long style,
+    const wxString& name)
+    : wxGLCanvas(parent, id, NULL, pos, size,
+    style | wxFULL_REPAINT_ON_RESIZE, name)
+    , m_iType(0)
+    , m_selectedIndex(0)
+    , m_bLeftDown(false)
+    , m_bRightDown(false)
 {
     for (int i = 0; i < 26; i++)
     {
@@ -74,6 +74,7 @@ void GLAnimationCanvas::ResetProjectionMode()
 void GLAnimationCanvas::InitGL()
 {
     CRenderManager::GetInstance()->Initialize();
+    m_Model = CRenderObjectManager::GetInstance()->CreateModel();
 }
 
 void GLAnimationCanvas::OnPaint( wxPaintEvent& WXUNUSED(event) )
@@ -117,7 +118,7 @@ void GLAnimationCanvas::OnEraseBackground(wxEraseEvent& WXUNUSED(event))
 
 void GLAnimationCanvas::OnMouse(wxMouseEvent& event)
 {
-    
+
     if (m_iType == TYPE_CURVE)
     {
         wxPoint wxpt = event.GetPosition();
@@ -159,7 +160,7 @@ void GLAnimationCanvas::OnMouse(wxMouseEvent& event)
     {
         if(event.ButtonDown(wxMOUSE_BTN_RIGHT))
         {
-            
+            ShowCursor(false);
             m_DownPosition = event.GetPosition();
             SetFocus();
             if (!HasCapture())
@@ -170,6 +171,7 @@ void GLAnimationCanvas::OnMouse(wxMouseEvent& event)
         }
         else if(event.ButtonUp(wxMOUSE_BTN_RIGHT))
         {
+            ShowCursor(true);
             if (HasCapture())
             {
                 ReleaseMouse(); 
@@ -179,6 +181,7 @@ void GLAnimationCanvas::OnMouse(wxMouseEvent& event)
         }
         else if(event.ButtonDown(wxMOUSE_BTN_LEFT))
         {
+            ShowCursor(false);
             m_DownPosition = event.GetPosition();
             SetFocus();
             if (!HasCapture())
@@ -186,11 +189,11 @@ void GLAnimationCanvas::OnMouse(wxMouseEvent& event)
                 CaptureMouse();
             }
             m_bLeftDown = true;
-            
+
         }
         else if(event.ButtonUp(wxMOUSE_BTN_LEFT))
         {
-            
+            ShowCursor(true);
             if (!HasCapture())
             {
                 CaptureMouse();
@@ -200,19 +203,18 @@ void GLAnimationCanvas::OnMouse(wxMouseEvent& event)
         }
         else if(event.Dragging())
         {
+            wxPoint pnt = ClientToScreen(m_DownPosition);
+            SetCursorPos(pnt.x, pnt.y);
             CRenderManager* pRenderMgr = CRenderManager::GetInstance();
             if (m_bRightDown)
             {
-                pRenderMgr->GetCamera()->RotateX((event.GetPosition().x - m_DownPosition.x) / 160.0);
-                pRenderMgr->GetCamera()->RotateY((event.GetPosition().y - m_DownPosition.y) / 160.0);
-                //TODO: Is need to fix the position of mouse cursor in the window
-                //wxPoint pnt = ClientToScreen(m_DownPosition);
-                //SetCursorPos(pnt.x, pnt.y);
+                pRenderMgr->GetCamera()->RotateX((event.GetPosition().x - m_DownPosition.x) * MOUSESPEED);
+                pRenderMgr->GetCamera()->RotateY((event.GetPosition().y - m_DownPosition.y) * MOUSESPEED);
             }
             if (m_bLeftDown)
             {
-                pRenderMgr->GetCamera()->Yaw((event.GetPosition().x - m_DownPosition.x) / 320.0);
-                pRenderMgr->GetCamera()->Pitch((event.GetPosition().y - m_DownPosition.y) / 320.0);
+                pRenderMgr->GetCamera()->Yaw((event.GetPosition().x - m_DownPosition.x) * MOUSESPEED);
+                pRenderMgr->GetCamera()->Pitch((event.GetPosition().y - m_DownPosition.y) * MOUSESPEED);
             }
         }
         else if(event.GetWheelAxis() == wxMOUSE_WHEEL_VERTICAL)
@@ -227,9 +229,9 @@ void GLAnimationCanvas::OnMouse(wxMouseEvent& event)
                 fSpeed *= -1;
                 CRenderManager::GetInstance()->UpdateCamera(fSpeed, MOVESTRAIGHT);
             }
-            
+
         };
-        
+
     }
 }
 
@@ -251,12 +253,11 @@ void GLAnimationCanvas::OnIdle(wxIdleEvent& WXUNUSED(event))
         fFrame = 0.0f;
         UpDateCamera();
         EditAnimationDialog* pDialog = (EditAnimationDialog*)GetParent();
-        if (pDialog->GetModel()->GetAnimationController()->IsPlaying())
+        if (m_Model->GetAnimationController()->IsPlaying())
         {
-            int iCur = pDialog->GetModel()->GetAnimationController()->GetCurrFrame();
+            int iCur = m_Model->GetAnimationController()->GetCurrFrame();
             (pDialog->GetTimeBar())->SetCurrentCursor(iCur);
         }
-
     }
     Refresh(false);
 }
@@ -405,7 +406,7 @@ void GLAnimationCanvas::SetKeyState( int iKeyCode, bool bKey )
     {
         m_KeyStates[iKey] = bKey;
     }
-    
+
 }
 
 void GLAnimationCanvas::ResetKeyStates()
@@ -414,4 +415,9 @@ void GLAnimationCanvas::ResetKeyStates()
     {
         i = false;
     }
+}
+
+SharePtr<CModel>& GLAnimationCanvas::GetModel()
+{
+    return m_Model;
 }

@@ -92,6 +92,38 @@ bool wxPtrButtonEditor::OnEvent( wxPropertyGrid* propGrid,
                 bool bValueChanged = false;
                 if (pButton->GetLabel().CmpNoCase(_T("+")) == 0)
                 {
+                    size_t ptrGuid = pPtrPropertyDescription->GetPtrGuid();
+                    std::vector<size_t> derivedClassGuid;
+                    CComponentManager::GetInstance()->QueryDerivedClass(ptrGuid, derivedClassGuid, true);
+
+                    CComponentBase* pBase = CComponentManager::GetInstance()->GetComponentTemplate(ptrGuid);
+                    wxPGChoices choice;
+                    if (pBase != NULL)
+                    {
+                        choice.Add(pBase->GetClassStr());
+                    }
+                    for (auto i : derivedClassGuid)
+                    {
+                        pBase = CComponentManager::GetInstance()->GetComponentTemplate(i);
+                        choice.Add(pBase->GetClassStr());
+                    }
+                   
+                    wxString s = ::wxGetSingleChoice(wxT("TypeChoice"), wxT("Caption"), choice.GetLabels(), 
+                        NULL, wxDefaultCoord, wxDefaultCoord, 
+                        false, wxCHOICE_WIDTH, wxCHOICE_HEIGHT);
+                    int iType = NULLDATA;
+                    if ( !s.empty() )
+                    {
+                        for (int i = 0; i < (int)choice.GetCount(); i++)
+                        {
+                            if (s == choice.GetLabel(i))
+                            {
+                                iType = i;
+                                break;
+                            }
+                        }
+                    }
+                    //derivedClassGuid[iType];
                     bool bCreateInstance = pPtrPropertyDescription->CreateInstance();
                     BEATS_ASSERT(bCreateInstance);
                     CComponentEditorProxy* pCompBase = static_cast<CComponentEditorProxy*>(pPtrPropertyDescription->GetInstanceComponent());

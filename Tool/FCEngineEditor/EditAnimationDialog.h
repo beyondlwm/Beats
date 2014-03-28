@@ -55,7 +55,7 @@ public:
     void OnSkeletonCheckbox(wxCommandEvent& event);
     void OnSkeletonBoneCheckbox(wxCommandEvent& event);
     void InitTimeBar();
-    CModel* GetModel();
+    wxWindow* GetCanvas() const;
     TimeBarFrame* GetTimeBar();
     SharePtr<CAnimation> GetAnimation();
     bool IsLoadAllAnimationResource();
@@ -79,13 +79,9 @@ private:
     wxChoice*            m_pSkeletonChoice;
     wxButton*            m_pSkeSelectButton;
     wxLog*              m_pLogOld;
-    wxString            m_AnimationPath;
-    wxString            m_SkeletonPath;
-    wxString            m_SkinPath;
     SharePtr<CAnimation>    m_pAnimation;
     SharePtr<CSkin>         m_pSkin;
     SharePtr<CSkeleton>     m_pSkeleton;
-    CModel*                    m_pModel;
     bool                    m_bAnimation;
     bool                    m_bSkeleton;
     bool                    m_bSkin;

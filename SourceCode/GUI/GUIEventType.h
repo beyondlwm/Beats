@@ -3,10 +3,14 @@
 
 #include "Event\EventType.h"
 
-enum GUIEventType
+namespace FCGUI
 {
-    EVENT_GUI_COMMON = EVENT_GUI + (1 << 16),
-    EVENT_GUI_WINDOW = EVENT_GUI + (2 << 16),
-};
+    enum GUIEventType
+    {
+        EVENT_COMMON = EVENT_GUI + (1 << 16),
+        EVENT_WINDOW = EVENT_GUI + (2 << 16),
+        EVENT_BUTTON = EVENT_GUI + (3 << 16),
+    };
+}
 
 #endif

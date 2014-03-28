@@ -13,11 +13,11 @@ typedef struct cocos2d::_MipmapInfo MipmapInfo;
 
 class CTexture : public CResource
 {
+    DECLARE_RESOURCE_TYPE(eRT_Texture)
 public:
     CTexture();
     virtual ~CTexture();
 
-    virtual EResourceType GetType(){return eRT_Texture;}
     virtual bool Load();
     virtual bool Unload();
 

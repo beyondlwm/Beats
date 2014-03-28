@@ -10,6 +10,7 @@
 CPtrPropertyDescription::CPtrPropertyDescription(CSerializer* pSerializer)
 : super(ePT_Ptr)
 , m_uComponentGuid(0)
+, m_uDerivedGuid(0)
 , m_pInstance(NULL)
 , m_bHasInstance(false)
 {
@@ -24,6 +25,7 @@ CPtrPropertyDescription::CPtrPropertyDescription(CSerializer* pSerializer)
 CPtrPropertyDescription::CPtrPropertyDescription(const CPtrPropertyDescription& rRef)
 : super(rRef)
 , m_uComponentGuid(rRef.m_uComponentGuid)
+, m_uDerivedGuid(rRef.m_uDerivedGuid)
 , m_pInstance(NULL)
 , m_bHasInstance(false)
 {
@@ -92,6 +94,16 @@ size_t CPtrPropertyDescription::GetPtrGuid()
     return m_uComponentGuid;
 }
 
+void CPtrPropertyDescription::SetDerivedGuid(size_t uDerivedGuid)
+{
+    m_uDerivedGuid = uDerivedGuid;
+}
+
+size_t CPtrPropertyDescription::GetDerivedGuid() const
+{
+    return m_uDerivedGuid;
+}
+
 CComponentEditorProxy* CPtrPropertyDescription::GetInstanceComponent()
 {
     return m_pInstance;
@@ -102,7 +114,8 @@ bool CPtrPropertyDescription::CreateInstance()
     bool bRet = false;
     if ( m_pInstance == NULL)
     {
-        m_pInstance = static_cast<CComponentEditorProxy*>(CComponentManager::GetInstance()->CreateComponent(m_uComponentGuid, false, true));
+        size_t uInstanceGuid = m_uDerivedGuid == 0 ? m_uComponentGuid : m_uDerivedGuid;
+        m_pInstance = static_cast<CComponentEditorProxy*>(CComponentManager::GetInstance()->CreateComponent(uInstanceGuid, false, true));
         const std::vector<CPropertyDescriptionBase*>* propertyPool = m_pInstance->GetPropertyPool();
         for (size_t i = 0; i < propertyPool->size(); ++i)
         {

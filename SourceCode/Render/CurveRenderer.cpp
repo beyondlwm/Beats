@@ -5,6 +5,7 @@
 #include "RenderManager.h"
 #include "Renderer.h"
 #include "Spline\Curve.h"
+#include "Shader.h"
 
 const CColor CCurveRenderer::GRID_COLOR(0.3f, 0.3f, 0.3f, 0.3f);
 const CColor CCurveRenderer::SPLINE_COLOR(1.0f, 0.f, 0.f, 1.f);
@@ -54,6 +55,11 @@ CCurveRenderer::CCurveRenderer( SharePtr<Spline> spline )
     CRenderer::GetInstance()->BindBuffer(GL_ARRAY_BUFFER, 0);
 
     CRenderer::GetInstance()->GenBuffers(1, &m_VBOPoints);
+
+
+    SharePtr<CShader> pVS = CResourceManager::GetInstance()->GetResource<CShader>(_T("PointColorShader.vs"), false);
+    SharePtr<CShader> pPS = CResourceManager::GetInstance()->GetResource<CShader>(_T("PointColorShader.vs"), false);
+    m_pProgram = CRenderManager::GetInstance()->GetShaderProgram(pVS->ID(), pPS->ID());
 }
 
 CCurveRenderer::~CCurveRenderer()
@@ -62,19 +68,14 @@ CCurveRenderer::~CCurveRenderer()
     CRenderer::GetInstance()->DeleteBuffers(1, &m_VBOSpline);
 }
 
-void CCurveRenderer::SetProgram( SharePtr<CShaderProgram> program )
+void CCurveRenderer::SetProgram( CShaderProgram* program )
 {
-    m_program = program;
+    m_pProgram = program;
 }
 
 void CCurveRenderer::PreRender()
 {
-    if(!m_program)
-    {
-        m_program = CResourceManager::GetInstance()->GetResource<CShaderProgram>(
-            _T("..\\SourceCode\\Shader\\vs.txt@..\\SourceCode\\Shader\\fs.txt"), false);
-    }
-    CRenderer::GetInstance()->UseProgram(m_program->ID());
+    CRenderer::GetInstance()->UseProgram(m_pProgram->ID());
 
     CRenderManager::GetInstance()->SetupVPMatrix(true);
 

@@ -9,6 +9,7 @@ class CSkeleton : public CComponentBase, public CResource
 {
     typedef CComponentBase super;
     DECLARE_REFLECT_GUID(CSkeleton, 0x1147A0EF, CComponentBase)
+    DECLARE_RESOURCE_TYPE(eRT_Skeleton)
 
 public:
     CSkeleton();
@@ -17,7 +18,6 @@ public:
 
     virtual bool Load();
     virtual bool Unload();
-    virtual EResourceType GetType();
 
     SharePtr<CSkeletonBone> GetSkeletonBone(ESkeletonBoneType type) const;
     std::map<ESkeletonBoneType, SharePtr<CSkeletonBone>>& GetBoneMap();

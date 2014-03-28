@@ -7,13 +7,12 @@ struct kmMat4;
 
 class CAnimation : public CResource
 {
+    DECLARE_RESOURCE_TYPE(eRT_Animation)
 public:
     CAnimation();
     virtual ~CAnimation();
     
-    virtual EResourceType GetType();
     virtual bool Load();
-
     virtual bool Unload();
 
     float Duration();
