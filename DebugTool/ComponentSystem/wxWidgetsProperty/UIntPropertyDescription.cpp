@@ -94,11 +94,11 @@ wxPGProperty* CUIntPropertyDescription::CreateWxProperty()
 
 void CUIntPropertyDescription::SetValue( wxVariant& value, bool bSaveValue /*= true*/ )
 {
-    int iNewValue = value.GetULongLong().GetLo();
-    SetValue(&iNewValue, eVT_CurrentValue);
+    size_t uNewValue = value.GetULongLong().GetLo();
+    SetValue(&uNewValue, eVT_CurrentValue);
     if (bSaveValue)
     {
-        SetValue(&iNewValue, eVT_SavedValue);
+        SetValue(&uNewValue, eVT_SavedValue);
     }
 }
 
@@ -122,8 +122,8 @@ CPropertyDescriptionBase* CUIntPropertyDescription::CreateNewInstance()
 
 void CUIntPropertyDescription::GetValueAsChar( EValueType type, char* pOut )
 {
-    size_t iValue = *(size_t*)m_valueArray[type];
-    sprintf(pOut, "%ud", iValue);
+    size_t uValue = *(size_t*)m_valueArray[type];
+    sprintf(pOut, "%ud", uValue);
 }
 
 void CUIntPropertyDescription::Serialize( CSerializer& serializer )
