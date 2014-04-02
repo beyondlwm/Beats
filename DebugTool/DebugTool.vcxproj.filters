@@ -147,6 +147,9 @@
     <ClInclude Include="Spy\VirtualFileCtrl.h">
       <Filter>Source Files\Spy</Filter>
     </ClInclude>
+    <ClInclude Include="ComponentSystem\wxWidgetsProperty\ColorPropertyDescription.h">
+      <Filter>Source Files\ComponentSystem\WxwidgetsProperty</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resource\BeatsLogo.JPG">
@@ -269,6 +272,9 @@
     </ClCompile>
     <ClCompile Include="Spy\VirtualFileCtrl.cpp">
       <Filter>Source Files\Spy</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentSystem\wxWidgetsProperty\ColorPropertyDescription.cpp">
+      <Filter>Source Files\ComponentSystem\WxwidgetsProperty</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

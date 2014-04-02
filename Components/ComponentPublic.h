@@ -115,6 +115,19 @@ inline EPropertyType GetEnumType(classType& value, CSerializer* pSerializer, boo
     return enumType;\
 }
 
+#define REGISTER_PROPERTY_SHAREPTR(classType, enumType)\
+    template<typename T>\
+    inline EPropertyType GetEnumType(classType<T>& /*value*/, CSerializer* pSerializer, bool /*bIgnoreValue*/)\
+{\
+    if (pSerializer != NULL)\
+    {\
+        *pSerializer << (size_t)enumType;\
+        T* tmp;\
+        GetEnumType(tmp, pSerializer, true);\
+    }\
+    return enumType;\
+}
+
 #define REGISTER_PROPERTY_TEMPLATE1(classType, enumType)\
     template<typename T>\
     inline EPropertyType GetEnumType(classType<T>& /*value*/, CSerializer* pSerializer, bool /*bIgnoreValue*/)\
