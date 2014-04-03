@@ -4,7 +4,7 @@
 #include "Property/PropertyPublic.h"
 
 // To comment or un-comment this macro to decide serializer/deseraize.
-//#define EXPORT_TO_EDITOR
+#define EXPORT_TO_EDITOR
 
 #define EXPORT_STRUCTURE_DATA_FILENAME _T("EDS.bin")
 #define EXPORT_STRUCTURE_DATA_PATCH_XMLFILENAME _T("EDSPatch.XML")
@@ -140,6 +140,22 @@ inline EPropertyType GetEnumType(classType& value, CSerializer* pSerializer, boo
     }\
     return enumType;\
 }
+
+#define REGISTER_PROPERTY_TEMPLATE2(classType, enumType)\
+    template<typename T1, typename T2>\
+    inline EPropertyType GetEnumType(classType<T1, T2>& /*value*/, CSerializer* pSerializer, bool /*bIgnoreValue*/)\
+{\
+    if (pSerializer != NULL)\
+{\
+    *pSerializer << (size_t)enumType;\
+    T1 tmp1;\
+    GetEnumType(tmp1, pSerializer, true);\
+    T2 tmp2;\
+    GetEnumType(tmp2, pSerializer, true);\
+}\
+    return enumType;\
+}
+
 
 #define REGISTER_PROPERTY_DESC(enumType, propertyDescriptionType)\
     CPropertyDescriptionBase* CreateProperty_##propertyDescriptionType(CSerializer* serilaizer)\

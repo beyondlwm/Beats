@@ -7,6 +7,7 @@
 #include "../../Utility/Serializer/Serializer.h"
 #include "../wxWidgetsProperty/PtrPropertyDescription.h"
 #include "../wxWidgetsProperty/ListPropertyDescriptionEx.h"
+#include "../wxWidgetsProperty/MapPropertyDescription.h"
 
 IMPLEMENT_DYNAMIC_CLASS(wxPtrButtonEditor, wxPGTextCtrlEditor)
 
@@ -34,7 +35,7 @@ wxPGWindowList wxPtrButtonEditor::CreateControls( wxPropertyGrid* propGrid,
         CPtrPropertyDescription* pPtrProperty = static_cast<CPtrPropertyDescription*>(pPropertyDescription);
         buttons->Add( pPtrProperty->GetInstanceComponent() == NULL ? _T("+") : _T("-"));
     }
-    else if (pPropertyDescription->GetType() == ePT_List)
+    else if (pPropertyDescription->GetType() == ePT_List || pPropertyDescription->GetType() == ePT_Map)
     {
         buttons->Add(_T("+"));
         if (property->GetChildCount() > 0)
@@ -143,6 +144,30 @@ bool wxPtrButtonEditor::OnEvent( wxPropertyGrid* propGrid,
                 property->SetModifiedStatus(pListProperty->GetChildrenCount() > 0);
                 property->RecreateEditor();
             }
+            else if (pPropertyDescription->GetType() == ePT_Map)
+            {
+                CMapPropertyDescription* pMapProperty = static_cast<CMapPropertyDescription*>(pPropertyDescription);
+                if (pButton->GetLabel().CmpNoCase(_T("+")) == 0)
+                {
+                    CPropertyDescriptionBase* pNewChild = pMapProperty->AddMapChild();
+                    if (pNewChild != NULL)
+                    {
+                        std::vector<CPropertyDescriptionBase*> value;
+                        value.push_back(pNewChild);
+                        pMainFrame->InsertInPropertyGrid(value, property);
+                    }
+                }
+                else if (pButton->GetLabel().CmpNoCase(_T("-")) == 0)
+                {
+                    pMapProperty->DeleteAllMapChild();
+                    property->DeleteChildren();
+                }
+                char valueStr[256];
+                pMapProperty->GetValueAsChar(eVT_CurrentValue, valueStr);
+                property->SetValue(valueStr);
+                property->SetModifiedStatus(pMapProperty->GetChildrenCount() > 0);
+                property->RecreateEditor();
+            }
 
             if (pPropertyDescription->GetParent() && pPropertyDescription->GetParent()->GetType() == ePT_List)
             {
@@ -151,6 +176,22 @@ bool wxPtrButtonEditor::OnEvent( wxPropertyGrid* propGrid,
                     CListPropertyDescriptionEx* pParent = static_cast<CListPropertyDescriptionEx*>(pPropertyDescription->GetParent());
                     BEATS_ASSERT(pParent != NULL);
                     pParent->DeleteListChild(pPropertyDescription);
+                    property->SetClientData(NULL);
+                    char valueStr[256];
+                    pParent->GetValueAsChar(eVT_CurrentValue, valueStr);
+                    property->GetParent()->SetValue(valueStr);
+                    //TODO: I can't refresh property here, because we are trying to delete property of which callback we are in.
+                    pMainFrame->RequestToUpdatePropertyGrid();
+                }
+            }
+
+            if (pPropertyDescription->GetParent() && pPropertyDescription->GetParent()->GetType() == ePT_Map)
+            {
+                if (pButton->GetLabel().CmpNoCase(_T("x")) == 0)
+                {
+                    CMapPropertyDescription* pParent = static_cast<CMapPropertyDescription*>(pPropertyDescription->GetParent());
+                    BEATS_ASSERT(pParent != NULL);
+                    pParent->DeleteMapChild(pPropertyDescription);
                     property->SetClientData(NULL);
                     char valueStr[256];
                     pParent->GetValueAsChar(eVT_CurrentValue, valueStr);

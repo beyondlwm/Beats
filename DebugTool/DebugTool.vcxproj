@@ -103,6 +103,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="ComponentSystem\wxWidgetsProperty\ColorPropertyDescription.h" />
+    <ClInclude Include="ComponentSystem\wxWidgetsProperty\MapPropertyDescription.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="BDTWxApp.h" />
@@ -150,6 +151,7 @@
     <ClCompile Include="BeatsDebugTool.cpp" />
     <ClCompile Include="ComponentsPage.cpp" />
     <ClCompile Include="ComponentSystem\wxWidgetsProperty\ColorPropertyDescription.cpp" />
+    <ClCompile Include="ComponentSystem\wxWidgetsProperty\MapPropertyDescription.cpp" />
     <ClCompile Include="DebugTool.cpp" />
     <ClCompile Include="InfoSystemPage.cpp" />
     <ClCompile Include="MemoryPage.cpp" />
