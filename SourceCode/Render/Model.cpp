@@ -13,7 +13,6 @@
 #include "Renderer.h"
 #include "Material.h"
 #include "RenderState.h"
-#include "RenderStateParam.h"
 #include "Shader.h"
 
 #define MAKEFOURCC(ch0, ch1, ch2, ch3)                              \
@@ -23,7 +22,6 @@
 CModel::CModel()
     : m_pAnimationController(CAnimationManager::GetInstance()->CreateSkelAnimationController())
     , m_bRenderSkeleton(true)
-    , m_pStateParam(NULL)
 {
 }
 
@@ -31,12 +29,8 @@ CModel::CModel(CSerializer& serializer)
     : super(serializer)
     , m_pAnimationController(CAnimationManager::GetInstance()->CreateSkelAnimationController())
     , m_bRenderSkeleton(true)
-    , m_pStateParam(NULL)
 {
-    DECLARE_PROPERTY(serializer, m_bRenderSkeleton, true, 0xFFFFFFFF, _T("渲染骨骼"), NULL, _T("是否渲染骨骼"), NULL);
-    DECLARE_PROPERTY(serializer, m_pSkeleton, true, 0xFFFFFFFF, _T("骨骼"), NULL, _T("骨骼"), NULL);
-    DECLARE_PROPERTY(serializer, m_pStateParam, true, 0xFFFFFFFF, _T("测试父类"), NULL, _T("测试父类"), NULL)
-
+    DECLARE_PROPERTY(serializer, m_pMaterial, true, 0xFFFFFFFF, _T("材质"), NULL, _T("材质参数"), NULL);
 }
 
 CModel::~CModel()

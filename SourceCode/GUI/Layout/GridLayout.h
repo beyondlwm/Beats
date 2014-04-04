@@ -13,6 +13,8 @@ namespace FCGUI
     public:
         GridLayout(size_t rowCount, size_t colCount);
 
+        virtual void SetWindow(Window *window) override;
+
         void SetRowCount(size_t rowCount);
         size_t RowCount() const;
         void SetColCount(size_t colCount);
@@ -38,10 +40,13 @@ namespace FCGUI
         virtual bool AddChild(Window *window);
         virtual bool AddChild(Window *window, kmScalar x, kmScalar y);
         virtual bool AddChildToCell(Window *window, size_t row, size_t col);
-        virtual bool RemoveChild(size_t row, size_t col);
+        virtual bool RemoveChild(Window *window);
         Window *GetChild(size_t row, size_t col);
 
         virtual void PerformLayout() override;
+
+    protected:
+        void calcSplitPos();
 
     protected:
         size_t _rowCount;

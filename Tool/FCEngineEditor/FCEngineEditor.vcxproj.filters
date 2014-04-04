@@ -49,6 +49,12 @@
     <Filter Include="源文件\wxUIControl\wxWidgetsProperty">
       <UniqueIdentifier>{5ae0c3e2-f7ad-4cda-a1a4-2aec9ca93b04}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\wxUIControl\wxWidgetsProperty\kmVecProperty">
+      <UniqueIdentifier>{bb0e8ced-cd1e-4c92-a08d-4b8ba8e898ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\wxUIControl\wxWidgetsProperty\kmVecProperty">
+      <UniqueIdentifier>{dccefe95-eb53-49cf-8e1f-5351fb033e2b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FCEngineEditor.cpp">
@@ -129,9 +135,6 @@
     <ClCompile Include="IntPropertyDescription.cpp">
       <Filter>源文件\wxUIControl\wxWidgetsProperty</Filter>
     </ClCompile>
-    <ClCompile Include="ListPropertyDescriptionEx.cpp">
-      <Filter>源文件\wxUIControl\wxWidgetsProperty</Filter>
-    </ClCompile>
     <ClCompile Include="PropertyTrigger.cpp">
       <Filter>源文件\wxUIControl\wxWidgetsProperty</Filter>
     </ClCompile>
@@ -151,6 +154,24 @@
       <Filter>头文件</Filter>
     </ClCompile>
     <ClCompile Include="PropertyRegister.cpp">
+      <Filter>源文件\wxUIControl\wxWidgetsProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="ColorPropertyDescription.cpp">
+      <Filter>源文件\wxUIControl\wxWidgetsProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="ListPropertyDescription.cpp">
+      <Filter>源文件\wxUIControl\wxWidgetsProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="Vec3fPropertyDescription.cpp">
+      <Filter>源文件\wxUIControl\wxWidgetsProperty\kmVecProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="Vec2fPropertyDescription.cpp">
+      <Filter>源文件\wxUIControl\wxWidgetsProperty\kmVecProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="Vec4fPropertyDescription.cpp">
+      <Filter>源文件\wxUIControl\wxWidgetsProperty\kmVecProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="MapPropertyDescription.cpp">
       <Filter>源文件\wxUIControl\wxWidgetsProperty</Filter>
     </ClCompile>
   </ItemGroup>
@@ -236,9 +257,6 @@
     <ClInclude Include="IntPropertyDescription.h">
       <Filter>头文件\wxUIControl\wxWidgetsProperty</Filter>
     </ClInclude>
-    <ClInclude Include="ListPropertyDescriptionEx.h">
-      <Filter>头文件\wxUIControl\wxWidgetsProperty</Filter>
-    </ClInclude>
     <ClInclude Include="PropertyTrigger.h">
       <Filter>头文件\wxUIControl\wxWidgetsProperty</Filter>
     </ClInclude>
@@ -256,6 +274,24 @@
     </ClInclude>
     <ClInclude Include="ComponentGraphics_GL.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ColorPropertyDescription.h">
+      <Filter>头文件\wxUIControl\wxWidgetsProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="ListPropertyDescription.h">
+      <Filter>头文件\wxUIControl\wxWidgetsProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="Vec3fPropertyDescription.h">
+      <Filter>头文件\wxUIControl\wxWidgetsProperty\kmVecProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="Vec2fPropertyDescription.h">
+      <Filter>头文件\wxUIControl\wxWidgetsProperty\kmVecProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="Vec4fPropertyDescription.h">
+      <Filter>头文件\wxUIControl\wxWidgetsProperty\kmVecProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="MapPropertyDescription.h">
+      <Filter>头文件\wxUIControl\wxWidgetsProperty</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

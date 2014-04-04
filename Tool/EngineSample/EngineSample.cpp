@@ -25,6 +25,9 @@
 #include "Render/Skin.h"
 #include "Render/Skeleton.h"
 #include "Render/Animation.h"
+
+#include "ParticlesSystem/ParticleSystemManager.h"
+
 #include <mmsystem.h>
 
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
@@ -49,6 +52,13 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
     hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_ENGINESAMPLE));
 
+    {
+//         SharePtr< FCEngine::ParticleSystemScript > pScript( 
+//             CResourceManager::GetInstance()->GetResource< FCEngine::ParticleSystemScript >(_T("particle.pl"), false));
+//         FCEngine::ParticleSystemManager::GetInstance()->CreateParticleSystem( pScript );
+    }
+
+
     CModel *model = CRenderObjectManager::GetInstance()->CreateModel();
 
     SharePtr<CTexture> pTestTexture( 
@@ -57,20 +67,45 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
     SharePtr<CSkin> pSkin(
         CResourceManager::GetInstance()->GetResource<CSkin>(
-        _T("..\\Resource\\skin\\org.skin"), false));
+        _T("org.skin"), false));
     model->SetSkin(pSkin);
 
     SharePtr<CSkeleton> pSkeleton(
         CResourceManager::GetInstance()->GetResource<CSkeleton>(
-        _T("..\\Resource\\skeleton\\org.ske"), false));
+        _T("org.ske"), false));
     model->SetSkeleton(pSkeleton);
 
     SharePtr<CAnimation> pAnimation(
         CResourceManager::GetInstance()->GetResource<CAnimation>(
-        _T("..\\Resource\\Animation\\org.ani"), false));
+        _T("org.ani"), false));
     model->SetAnimaton(pAnimation);
-
     model->PlayAnimationById(0, 0.f, true);
+	// Main message loop:
+	while (!glfwWindowShouldClose(CRenderManager::GetInstance()->GetMainWindow()))
+	{
+		if (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE))
+		{
+			if (GetMessage(&msg, NULL, 0, 0))
+			{
+				if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+				{
+					TranslateMessage(&msg);
+					DispatchMessage(&msg);
+				} 
+			}
+		}
+		else
+		{
+			static DWORD last = timeGetTime();
+			DWORD curr = timeGetTime();
+			DWORD delta = curr - last;
+			CAnimationManager::GetInstance()->Update((float)delta/1000);
+            //kmMat4 mvp;
+            //FCEngine::ParticleSystemManager::GetInstance()->Update( mvp, (float)delta/1000.0f );
+			CRenderManager::GetInstance()->Render();
+            last = curr;
+		}
+	}
 
     // Main message loop:
     while (!glfwWindowShouldClose(CRenderManager::GetInstance()->GetMainWindow()))
@@ -105,4 +140,5 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
     SymCleanup(GetCurrentProcess());
 #endif
     return (int) msg.wParam;
+
 }

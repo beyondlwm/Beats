@@ -56,6 +56,7 @@ public:
     void BindTexture(GLenum target, GLuint texture);
     void CompressedTexImage2D(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const GLvoid *data);
     void TextureImage2D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels);
+    void TextureSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels);
     void TexParameteri(GLenum target, GLenum pname, GLint param);
     void DelTexture(GLsizei n, GLuint* textures);
 
@@ -67,10 +68,11 @@ public:
 
     void EnableGL(GLenum cap);
     void DisableGL(GLenum cap);
+    bool IsEnable(GLenum cap);
     void BlendFunc(GLenum sfactor, GLenum dfactor);
     void BlendEquation(GLenum func);
+    void BlendColor(GLclampf r, GLclampf g, GLclampf b, GLclampf a);
     void PolygonMode (GLenum face, GLenum mode);
-    void PointSize(GLfloat fSize);
     void ClearBuffer(GLbitfield bit);
     void ClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
     void ClearDepth(GLclampf depth);
@@ -78,6 +80,20 @@ public:
     GLvoid* MapBuffer(GLenum target, GLenum access);
     void UnmapBuffer(GLenum target);
     void DepthMask(bool bWriteable);
+    void EdgeFlag(bool bEdgeFlag);
+    void FrontFace(GLenum frontFace);
+    void CullFace(GLenum cullFace);
+
+    void DepthRange(float fNear, float fFar);
+    void DepthFunc(GLenum depthFunc);
+
+    void StencilFunc(GLenum stencilFunc);
+    void StencilReference(GLint nRef);
+    void StencilValueMask(GLint nValueMask);
+    void ClearStencil(GLint nClearValue);
+    void StencilOp(GLenum fail, GLenum zFail, GLenum zPass);
+
+    void ShadeModel(GLenum shadeModel);
 
     CRenderState* GetCurrentState() const;
 

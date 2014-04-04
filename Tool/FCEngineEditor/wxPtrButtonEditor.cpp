@@ -4,11 +4,12 @@
 #include "Utility/BeatsUtility/ComponentSystem/Component/ComponentEditorProxy.h"
 #include "Utility/BeatsUtility/Serializer.h"
 #include "PtrPropertyDescription.h"
-#include "ListPropertyDescriptionEx.h"
+#include "ListPropertyDescription.h"
+#include "MapPropertyDescription.h"
 #include "FCEngineEditor.h"
 #include "EnginePropertyGrid.h"
 
-IMPLEMENT_DYNAMIC_CLASS(wxPtrButtonEditor, wxPGTextCtrlEditor)
+IMPLEMENT_DYNAMIC_CLASS(wxPtrButtonEditor, wxPGTextCtrlEditor);
 
 wxPtrButtonEditor::wxPtrButtonEditor()
 {
@@ -25,7 +26,6 @@ wxPGWindowList wxPtrButtonEditor::CreateControls( wxPropertyGrid* propGrid,
                                                  const wxPoint& pos,
                                                  const wxSize& sz ) const
 {
-
     wxPGMultiButton* buttons = new wxPGMultiButton( propGrid, sz );
     void* pClientData = property->GetClientData();
     BEATS_ASSERT(pClientData != NULL);
@@ -35,7 +35,7 @@ wxPGWindowList wxPtrButtonEditor::CreateControls( wxPropertyGrid* propGrid,
         CPtrPropertyDescription* pPtrProperty = static_cast<CPtrPropertyDescription*>(pPropertyDescription);
         buttons->Add( pPtrProperty->GetInstanceComponent() == NULL ? _T("+") : _T("-"));
     }
-    else if (pPropertyDescription->GetType() == ePT_List)
+    else if (pPropertyDescription->IsContainerProperty())
     {
         buttons->Add(_T("+"));
         if (property->GetChildCount() > 0)
@@ -43,16 +43,9 @@ wxPGWindowList wxPtrButtonEditor::CreateControls( wxPropertyGrid* propGrid,
             buttons->Add(_T("-"));
         }
     }
-    else if (pPropertyDescription->GetParent() && pPropertyDescription->GetParent()->GetType() == ePT_List)
-    {
-    }
-    else
-    {
-        BEATS_ASSERT(false, _T("Never Reach here!"));
-    }
     CPropertyDescriptionBase* pParent = pPropertyDescription->GetParent();
     // it is a list element.
-    if (pParent && pParent->GetType() == ePT_List)
+    if (pParent && pParent->IsContainerProperty())
     {
         buttons->Add(_T("x"));
     }
@@ -97,42 +90,43 @@ bool wxPtrButtonEditor::OnEvent( wxPropertyGrid* propGrid,
                     CComponentManager::GetInstance()->QueryDerivedClass(ptrGuid, derivedClassGuid, true);
 
                     CComponentBase* pBase = CComponentManager::GetInstance()->GetComponentTemplate(ptrGuid);
-                    wxPGChoices choice;
-                    if (pBase != NULL)
+                    bValueChanged = derivedClassGuid.size() == 0;
+                    if (!bValueChanged)
                     {
-                        choice.Add(pBase->GetClassStr());
-                    }
-                    for (auto i : derivedClassGuid)
-                    {
-                        pBase = CComponentManager::GetInstance()->GetComponentTemplate(i);
-                        choice.Add(pBase->GetClassStr());
-                    }
-                   
-                    wxString s = ::wxGetSingleChoice(wxT("TypeChoice"), wxT("Caption"), choice.GetLabels(), 
-                        NULL, wxDefaultCoord, wxDefaultCoord, 
-                        false, wxCHOICE_WIDTH, wxCHOICE_HEIGHT);
-                    int iType = NULLDATA;
-                    if ( !s.empty() )
-                    {
-                        for (int i = 0; i < (int)choice.GetCount(); i++)
+                        wxPGChoices choice;
+                        if (pBase != NULL)
                         {
-                            if (s == choice.GetLabel(i))
-                            {
-                                iType = i;
-                                break;
-                            }
+                            choice.Add(pBase->GetClassStr(), pBase->GetGuid());
+                        }
+                        for (auto i : derivedClassGuid)
+                        {
+                            pBase = CComponentManager::GetInstance()->GetComponentTemplate(i);
+                            choice.Add(pBase->GetClassStr(), pBase->GetGuid());
+                        }
+                        wxString strSelectItem = ::wxGetSingleChoice(wxT("TypeChoice"), wxT("Caption"), choice.GetLabels(),
+                            NULL, wxDefaultCoord, wxDefaultCoord, false, wxCHOICE_WIDTH, wxCHOICE_HEIGHT);
+                        if ( !strSelectItem.empty() )
+                        {
+                            int nSelectIndex = choice.Index(strSelectItem);
+                            size_t uDerivedGuid = choice.GetValue(nSelectIndex);
+                            pPtrPropertyDescription->SetDerivedGuid(uDerivedGuid);
+                            bValueChanged = true;
                         }
                     }
-                    //derivedClassGuid[iType];
-                    bool bCreateInstance = pPtrPropertyDescription->CreateInstance();
-                    BEATS_ASSERT(bCreateInstance);
-                    CComponentEditorProxy* pCompBase = static_cast<CComponentEditorProxy*>(pPtrPropertyDescription->GetInstanceComponent());
-                    BEATS_ASSERT(pCompBase != NULL);
-                    BEATS_ASSERT(pManager != NULL);
-                    pManager->InsertComponentsInPropertyGrid(pCompBase, property);
-                    buttons->GetButton(0)->SetLabel(_T("-"));
-                    valueStr.insert(0, _T("+"));
-                    bValueChanged = true;
+                    if (bValueChanged)
+                    {
+                        bool bCreateInstance = pPtrPropertyDescription->CreateInstance();
+                        BEATS_ASSERT(bCreateInstance);
+                        CComponentEditorProxy* pCompBase = static_cast<CComponentEditorProxy*>(pPtrPropertyDescription->GetInstanceComponent());
+                        BEATS_ASSERT(pCompBase != NULL);
+                        BEATS_ASSERT(pManager != NULL);
+                        TString* pStrValue = (TString*)pPtrPropertyDescription->GetValue(eVT_CurrentValue);
+                        property->SetValueFromString(pStrValue->c_str());
+                        pManager->RefreshProperty(property);
+                        pManager->InsertComponentsInPropertyGrid(pCompBase, property);
+                        buttons->GetButton(0)->SetLabel(_T("-"));
+                        valueStr.insert(0, _T("+"));
+                    }
                 }
                 else if (pButton->GetLabel().CmpNoCase(_T("-")) == 0)
                 {
@@ -152,12 +146,11 @@ bool wxPtrButtonEditor::OnEvent( wxPropertyGrid* propGrid,
                     propGrid->Refresh();
                 }
             }
-            else if (pPropertyDescription->GetType() == ePT_List)
+            if (pPropertyDescription->IsContainerProperty())
             {
-                CListPropertyDescriptionEx* pListProperty = static_cast<CListPropertyDescriptionEx*>(pPropertyDescription);
                 if (pButton->GetLabel().CmpNoCase(_T("+")) == 0)
                 {
-                    CPropertyDescriptionBase* pNewChild = pListProperty->AddListChild();
+                    CPropertyDescriptionBase* pNewChild = pPropertyDescription->AddChild(NULL);
                     if (pNewChild != NULL)
                     {
                         std::vector<CPropertyDescriptionBase*> value;
@@ -167,30 +160,30 @@ bool wxPtrButtonEditor::OnEvent( wxPropertyGrid* propGrid,
                 }
                 else if (pButton->GetLabel().CmpNoCase(_T("-")) == 0)
                 {
-                    pListProperty->DeleteAllListChild();
+                    pPropertyDescription->DeleteAllChild();
                     property->DeleteChildren();
                 }
                 char valueStr[256];
-                pListProperty->GetValueAsChar(eVT_CurrentValue, valueStr);
+                pPropertyDescription->GetValueAsChar(eVT_CurrentValue, valueStr);
                 property->SetValue(valueStr);
-                property->SetModifiedStatus(pListProperty->GetChildrenCount() > 0);
+                property->SetModifiedStatus(pPropertyDescription->GetChildrenCount() > 0);
                 property->RecreateEditor();
             }
 
-            if (pPropertyDescription->GetParent() && pPropertyDescription->GetParent()->GetType() == ePT_List)
+            if (pButton->GetLabel().CmpNoCase(_T("x")) == 0)
             {
-                if (pButton->GetLabel().CmpNoCase(_T("x")) == 0)
-                {
-                    CListPropertyDescriptionEx* pParent = static_cast<CListPropertyDescriptionEx*>(pPropertyDescription->GetParent());
-                    BEATS_ASSERT(pParent != NULL);
-                    pParent->DeleteListChild(pPropertyDescription);
-                    property->SetClientData(NULL);
-                    char valueStr[256];
-                    pParent->GetValueAsChar(eVT_CurrentValue, valueStr);
-                    property->GetParent()->SetValue(valueStr);
-                    //TODO: I can't refresh property here, because we are trying to delete property of which callback we are in.
-                    pManager->RequestToUpdatePropertyGrid();
-                }
+                BEATS_ASSERT(pPropertyDescription->GetParent() != NULL);
+                CPropertyDescriptionBase* pParent = pPropertyDescription->GetParent();
+                pParent->DeleteChild(pPropertyDescription);
+                // NOTICE: We have deleted this already!
+                pPropertyDescription = NULL;
+
+                property->SetClientData(NULL);
+                char valueStr[256];
+                pParent->GetValueAsChar(eVT_CurrentValue, valueStr);
+                property->GetParent()->SetValue(valueStr);
+                //TODO: I can't refresh property here, because we are trying to delete property of which callback we are in.
+                pManager->RequestToUpdatePropertyGrid();
             }
             return true;
         }

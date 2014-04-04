@@ -22,10 +22,13 @@ public:
     size_t GetFPS() const;
     const kmMat4*GetOneBoneMatrixByTime(float fTime, ESkeletonBoneType boneType) const;
     unsigned short GetFrameCount();
+    void SetCurFrame(size_t curFrame);
+    size_t GetCurFrame() const;
 private:
     unsigned short m_uFrameCount;
     size_t m_uFPS;
     float m_fDuration;
+    size_t m_uCurFrame;
     std::vector<ESkeletonBoneType> m_bones;
     std::vector<std::vector<kmMat4*>> m_posOfFrame; 
 };

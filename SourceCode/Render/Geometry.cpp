@@ -12,8 +12,10 @@ CSize::CSize( float width, float height ):
 
 }
 
-CRect::CRect( float x, float y, float width, float height ):
-    point(x, y), size(width, height)
+CRect::CRect( float x, float y, float width, float height )
 {
-
+    point.x = x;
+    point.y = y;
+    size.x = width;
+    size.y = height;
 }

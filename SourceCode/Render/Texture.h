@@ -7,7 +7,6 @@
 namespace cocos2d
 {
     struct _MipmapInfo;
-    class Size;
 }
 typedef struct cocos2d::_MipmapInfo MipmapInfo;
 
@@ -24,7 +23,8 @@ public:
     GLuint ID() const;
 
     bool InitWithMipmaps(MipmapInfo* mipmaps, int mipmapsNum, PixelFormat pixelFormat, int pixelsWide, int pixelsHigh);
-    bool InitWithData(const void *data, ssize_t dataLen, PixelFormat pixelFormat, int pixelsWide, int pixelsHigh, const cocos2d::Size& contentSize);
+    bool InitWithData(const void *data, ssize_t dataLen, PixelFormat pixelFormat, int pixelsWide, int pixelsHigh);
+    bool UpdateSubImage(GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, const GLvoid *data);
     PixelFormat ConvertDataToFormat(const unsigned char* data, 
                                                         ssize_t dataLen, 
                                                         PixelFormat originFormat,

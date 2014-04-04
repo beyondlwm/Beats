@@ -16,11 +16,19 @@ public:
 	EventDispatcher();
 	virtual ~EventDispatcher();
 
-	virtual void SubscribeEvent(int type, EventHandler handler);
+	virtual void SubscribeEvent(int type, const EventHandler &handler);
+    template <typename MemberFunc, typename ObjectType>
+    void SubscribeEvent(int type, const MemberFunc &func, ObjectType *obj);
 	virtual void DispatchEvent(BaseEvent *event);
 
 protected:
 	EventHandlerMap _handlers;
 };
+
+template <typename MemberFunc, typename ObjectType>
+void EventDispatcher::SubscribeEvent( int type, const MemberFunc &func, ObjectType *obj )
+{
+    SubscribeEvent(type, std::bind1st(std::mem_fn(func), obj));
+}
 
 #endif

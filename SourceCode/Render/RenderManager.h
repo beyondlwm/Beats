@@ -6,12 +6,15 @@ class CCamera;
 class CTexture;
 struct GLFWwindow;
 
-enum
+enum ECameraMoveType
 {
-    NOMOVE,
-    MOVETRANVERSE,
-    MOVESTRAIGHT,
-    MOVEUPDOWN
+    eCMT_NOMOVE = 0,
+    eCMT_TRANVERSE,
+    eCMT_STRAIGHT,
+    eCMT_UPDOWN,
+
+    eCMT_Count,
+    eCMT_Force32Bit = 0xFFFFFFFF
 };
 
 class CRenderManager
@@ -22,6 +25,7 @@ public:
     bool InitializeWithWindow(size_t uWidth, size_t uHeight);
     bool Initialize();
     void SetWindowSize(int m_iWidth, int m_iHeight);
+    void GetWindowSize(int& nWidth, int& nHeight);
     bool InitShaderFile();
 #ifdef USE_UBO
     void InitUBOList();
@@ -30,8 +34,7 @@ public:
     void UpdateUBO(ECommonUniformBlockType type, const GLvoid **data, const GLsizeiptr *size, size_t count);
 #endif
     void UpdateCamera();
-    void UpdateCamera(float fSpeed, int type);
-    void SetFarPane(float fFarPane);
+    void UpdateCamera(const kmVec3& vec3Speed, int type);
     void RenderCoordinate(const kmMat4* pMatrix);
     void RenderLine(const CVertexPC& start,const CVertexPC& end);
     void RenderTriangle(const CVertexPC& pt1, const CVertexPC& pt2, const CVertexPC& pt3);
@@ -41,8 +44,6 @@ public:
     void ApplyTexture( int index, GLuint texture );
 
     bool InitGlew();
-    void SetupVPMatrix(bool proj2D = false);
-    void TransferMVPMatrix();
     void SwapBuffers();
     void Render();
     void SwitchPolygonMode();
@@ -79,14 +80,13 @@ private:
 
     bool m_bIsRenta;
     bool m_bLeftMouseDown;
-    bool m_bRightMouseDown;
     GLFWwindow* m_pMainWindow;
     int m_iWidth;
     int m_iHeight;
     CCamera* m_pCamera;
     GLuint m_uCurrPolygonMode;
-    size_t m_uPressPosX;
-    size_t m_uPressPosY;
+    size_t m_uLastMousePosX;
+    size_t m_uLastMousePosY;
     size_t m_uCurMousePosX;
     size_t m_uCurMousePosY;
     float m_fPressStartYaw;

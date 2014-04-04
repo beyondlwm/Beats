@@ -9,17 +9,24 @@ class CTexture;
 class CTextureFrag
 {
 public:
-	CTextureFrag(SharePtr<CTexture> texture, CPoint origin, CSize size);
+	CTextureFrag(const TString &name, SharePtr<CTexture> texture, kmVec2 origin, kmVec2 size);
+
+    TString Name() const;
 
 	const CQuadT &Quad() const;
 
 	SharePtr<CTexture> Texture() const;
 
+    kmVec2 Origin() const;
+
+    kmVec2 Size() const;
+
 private:
+    TString m_name;
 	CQuadT m_quad;
 	SharePtr<CTexture> m_texture;
-	CPoint m_origin;
-	CSize m_size;
+	kmVec2 m_origin;
+	kmVec2 m_size;
 };
 
 #endif

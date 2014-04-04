@@ -2,9 +2,9 @@
 #define GUI_RENDERER_BUTTON_RENDERER_H__INCLUDE
 
 #include "BaseRenderer.h"
-#include "GUI\Window\Button.h"
+#include "GUI/Window/Button.h"
 
-class CSpriteFrame;
+class CTextureFrag;
 
 namespace FCGUI
 {
@@ -15,14 +15,15 @@ namespace FCGUI
 
         virtual RendererType Type() const override;
 
-        void AddLayer(CSpriteFrame *layer, std::set<Button::State> states);
-        void AddLayer(CSpriteFrame *layer, Button::State state);
+        void AddLayer(CTextureFrag *layer, std::set<Button::State> states);
+        void AddLayer(CTextureFrag *layer, Button::State state);
+		void AddLayer(const TString &textureFragName, Button::State state);
 
     protected:
         virtual void renderLayers( const kmMat4 &parentTransform ) const override;
 
     protected:
-        std::vector<std::set<CSpriteFrame *> > _stateLayers;
+        std::vector<std::set<CTextureFrag *> > _stateLayers;
     };
 }
 

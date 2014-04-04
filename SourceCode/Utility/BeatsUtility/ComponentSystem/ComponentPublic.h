@@ -165,6 +165,21 @@ inline EPropertyType GetEnumType(classType& value, CSerializer* pSerializer, boo
     return enumType;\
 }
 
+#define REGISTER_PROPERTY_TEMPLATE2(classType, enumType)\
+    template<typename T1, typename T2>\
+    inline EPropertyType GetEnumType(classType<T1, T2>& /*value*/, CSerializer* pSerializer, bool /*bIgnoreValue*/)\
+{\
+    if (pSerializer != NULL)\
+{\
+    *pSerializer << (size_t)enumType;\
+    T1 tmp1;\
+    GetEnumType(tmp1, pSerializer, true);\
+    T2 tmp2;\
+    GetEnumType(tmp2, pSerializer, true);\
+}\
+    return enumType;\
+}
+
 #define REGISTER_PROPERTY_DESC(enumType, propertyDescriptionType)\
     CPropertyDescriptionBase* CreateProperty_##propertyDescriptionType(CSerializer* serilaizer)\
     {\
@@ -261,7 +276,7 @@ CPropertyDescriptionBase* GetEnumPropertyDesc(int defaultValue)\
 
 #ifdef EXPORT_TO_EDITOR
 
-#define START_REGISTER_COMPONET\
+#define START_REGISTER_COMPONENT\
     struct SRegisterLauncher\
     {\
         ~SRegisterLauncher()\
@@ -280,7 +295,7 @@ CPropertyDescriptionBase* GetEnumPropertyDesc(int defaultValue)\
             size_t nComponentCounter = 0;\
             serializer << nCurWritePos;
 
-#define END_REGISTER_COMPONET\
+#define END_REGISTER_COMPONENT\
         size_t nNewCurWritePos = serializer.GetWritePos();\
         serializer.SetWritePos(nCurWritePos);\
         serializer << nComponentCounter;\
@@ -328,7 +343,7 @@ CPropertyDescriptionBase* GetEnumPropertyDesc(int defaultValue)\
     }
 #else
 
-#define START_REGISTER_COMPONET\
+#define START_REGISTER_COMPONENT\
     struct SRegisterLauncher\
     {\
     ~SRegisterLauncher()\
@@ -342,7 +357,7 @@ CPropertyDescriptionBase* GetEnumPropertyDesc(int defaultValue)\
         static void Launch()\
         {
 
-#define END_REGISTER_COMPONET\
+#define END_REGISTER_COMPONENT\
             TCHAR szFilePath[MAX_PATH];\
             GetModuleFileName(NULL, szFilePath, MAX_PATH);\
             PathRemoveFileSpec(szFilePath);\
@@ -374,7 +389,13 @@ CPropertyDescriptionBase* GetEnumPropertyDesc(int defaultValue)\
     REGISTER_PROPERTY(size_t, ePT_UInt);
     REGISTER_PROPERTY(TString, ePT_Str);
     REGISTER_PROPERTY(CComponentBase*, ePT_Ptr);
+    REGISTER_PROPERTY(CColor, ePT_Color);
+    REGISTER_PROPERTY(kmVec2, ePT_Vec2F);
+    REGISTER_PROPERTY(kmVec3, ePT_Vec3F);
+    REGISTER_PROPERTY(kmVec4, ePT_Vec4F);
+
     REGISTER_PROPERTY_TEMPLATE1(std::vector, ePT_List);
+    REGISTER_PROPERTY_TEMPLATE2(std::map, ePT_Map);
     REGISTER_PROPERTY_SHAREPTR(SharePtr, ePT_Ptr);
 
 #endif

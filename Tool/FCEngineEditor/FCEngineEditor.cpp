@@ -7,6 +7,8 @@
 #include "ConstantCurveEditor.h"
 #include "EditAnimationDialog.h"
 #include "timebarframe.h"
+#include "Utility/BeatsUtility/ComponentSystem/Component/ComponentManager.h"
+#include "Utility/BeatsUtility/ComponentSystem/Component/ComponentEditorProxy.h"
 
 #define MAINFRAMESIZE wxSize(1024, 800)
 #define MAINFRAMEPOSITION wxPoint(40, 40)
@@ -27,6 +29,7 @@ enum
 BEGIN_EVENT_TABLE(CEditorMainFrame, wxFrame)
 EVT_COMMAND(wxID_ANY, wxEVT_COMMAND_TOOL_CLICKED, CEditorMainFrame::OnAuiButton)
 EVT_MENU(Menu_EditAnimation, CEditorMainFrame::OnEditAnimationMenuItem)
+EVT_TREE_ITEM_ACTIVATED(wxID_ANY, CEditorMainFrame::OnTreeClick)
 END_EVENT_TABLE()
 
 CEditorMainFrame::CEditorMainFrame(const wxString& title) : wxFrame(NULL, wxID_ANY, title, MAINFRAMEPOSITION, MAINFRAMESIZE)
@@ -81,8 +84,10 @@ void CEditorMainFrame::InitCtrls()
     CreateGLCanvas();
     CreateTimeBar();
     CreatePropertyGrid();
+    CreatSplitter();
 
     AddPageToBook();
+    AddTreeItem();
     m_Manager.Update();
 }
 
@@ -138,7 +143,6 @@ void CEditorMainFrame::CreateAuiNoteBook()
 
 void CEditorMainFrame::CreateGLCanvas()
 {
-    //m_pGLCanvas = new GLAnimationCanvas(m_pCenter);
 }
 
 void CEditorMainFrame::CreateTimeBar()
@@ -151,125 +155,42 @@ void CEditorMainFrame::CreatePropertyGrid()
     int style = wxPG_BOLD_MODIFIED | wxPG_SPLITTER_AUTO_CENTER | wxPG_TOOLBAR | wxPG_DESCRIPTION | wxPG_TOOLTIPS;
     int extraStyle = wxPG_EX_MODE_BUTTONS | wxPG_EX_MULTIPLE_SELECTION;
 
-    wxPGEditor* pEditor = wxPropertyGrid::RegisterEditorClass(new ConstantCurveEditor);
     m_pPropGridManager = new EnginePropertyGirdManager();
     m_pPropGridManager->Create(m_pRight, wxID_ANY, wxDefaultPosition, wxSize(100, 100), style );
-    m_pPropGridManager->InitComponentsPage();
     m_propGrid = m_pPropGridManager->GetGrid();
     m_pPropGridManager->SetExtraStyle(extraStyle);
     m_pPropGridManager->SetValidationFailureBehavior( wxPG_VFB_MARK_CELL | wxPG_VFB_SHOW_MESSAGEBOX );
     m_propGrid->SetVerticalSpacing( 2 );
     m_pPropGridManager->AddPage(wxT("page"));
-    wxPropertyGridPage* pPage = m_pPropGridManager->GetPage(0);
-    
-    pPage->Append( new wxPropertyCategory(wxT("Transform"), wxPG_LABEL));
-
-    wxPGProperty* pID = new wxStringProperty(wxT("Position"), wxPG_LABEL, "<composed>");
-    pID->AddPrivateChild(new wxFloatProperty( wxT("X"), wxPG_LABEL, 0.0));
-    pID->AddPrivateChild(new wxFloatProperty( wxT("Y"), wxPG_LABEL, 0.0));
-    pID->AddPrivateChild(new wxFloatProperty( wxT("Z"), wxPG_LABEL, 0.0));
-    pPage->Append(pID);
-
-    pID = new wxStringProperty(wxT("Rotation"), wxPG_LABEL, "<composed>");
-    pID->AddPrivateChild(new wxFloatProperty( wxT("X"), wxPG_LABEL, 0.0));
-    pID->AddPrivateChild(new wxFloatProperty( wxT("Y"), wxPG_LABEL, 0.0));
-    pID->AddPrivateChild(new wxFloatProperty( wxT("Z"), wxPG_LABEL, 0.0));
-    pPage->Append(pID);
-
-    pID = new wxStringProperty(wxT("Scale"), wxPG_LABEL, "<composed>");
-    pID->AppendChild (new wxFloatProperty( wxT("X"), wxPG_LABEL, 0.0));
-    pID->AppendChild (new wxFloatProperty( wxT("Y"), wxPG_LABEL, 0.0));
-    pID->AppendChild (new wxFloatProperty( wxT("Z"), wxPG_LABEL, 0.0));
-    pPage->Append(pID);
-
-    pPage->Append( new wxPropertyCategory(wxT("Particle System Infor"), wxPG_LABEL));
-
-    pID = new wxStringProperty(wxT("Particle System"), wxPG_LABEL);
-    pID->AddPrivateChild(new wxFloatProperty( wxT("Duration"), wxPG_LABEL, 5.0));
-    pID->AddPrivateChild(new wxBoolProperty( wxT("Looping"), wxPG_LABEL, false));
-    pID->AddPrivateChild(new wxBoolProperty( wxT("Prewarm"), wxPG_LABEL, false));
-    pID->AddPrivateChild(new wxFloatProperty( wxT("Start Delay"), wxPG_LABEL, 0));
-    pID->AddPrivateChild(new wxFloatProperty( wxT("Start LifeTime"), wxPG_LABEL, 0));
-    pID->AddPrivateChild(new wxFloatProperty( wxT("Start Speed"), wxPG_LABEL, 0));
-    pID->AddPrivateChild(new wxFloatProperty( wxT("Start Size"), wxPG_LABEL, 0));
-    pID->AddPrivateChild(new wxFloatProperty( wxT("Start Rotation"), wxPG_LABEL, 0));
-    pID->AddPrivateChild(new wxColourProperty( wxT("Start Color"), wxPG_LABEL, wxColour(125, 200, 95, 128)));
-    pID->AddPrivateChild(new wxFloatProperty( wxT("Gravity Multiplier"), wxPG_LABEL, 0));
-    pID->AddPrivateChild(new wxFloatProperty( wxT("Inherit Velocity"), wxPG_LABEL, 0));
-    wxPGChoices Choices;
-    Choices.Add(wxT("World"), PARTICLE_SIMULATION_WORLD);
-    Choices.Add(wxT("Local"), PARTICLE_SIMULATION_LOCAL);
-    pID->AddPrivateChild(new wxEnumProperty( wxT("Simulation Space"), wxPG_LABEL, Choices, PARTICLE_SIMULATION_WORLD));
-    pID->AddPrivateChild(new wxBoolProperty( wxT("Play On Awake"), wxPG_LABEL, false));
-    pID->AddPrivateChild(new wxIntProperty( wxT("Max Particles"), wxPG_LABEL, 1000));
-    pPage->Append(pID);
-    
-    pID = new wxStringProperty(wxT("Emossion"), wxPG_LABEL);
-    pPage->Append(pID);
-    ConstantCurveProperty* pIDt = new ConstantCurveProperty( wxT("Play On Awake"));
-    pIDt->SetEditor(pEditor);
-    pPage->Append(pIDt);
-    wxBitmap myTestBitmap(600, 30, DEFAULT_DEPTH);
-    wxMemoryDC mdc;
-    mdc.SelectObject(myTestBitmap);
-    mdc.Clear();
-    mdc.SetPen(*wxBLACK);
-    mdc.DrawLine(0, 0, 600, 30);
-    mdc.SelectObject(wxNullBitmap);
-    pIDt->SetCurveBitmap( myTestBitmap );
-    
-    wxPGVIterator it;
-    wxPropertyGrid* pg = m_pPropGridManager->GetGrid();
-
-    for ( it = pg->GetVIterator( wxPG_ITERATE_ALL ); !it.AtEnd(); it.Next() )
-    {
-        bool bIsCategory = it.GetProperty()->IsCategory();
-        if (!bIsCategory)
-        {
-            it.GetProperty()->SetExpanded( false );
-        }
-    }
-    pg->RefreshGrid();
+    m_pPropGridManager->InitComponentsPage();
 }
 
 void CEditorMainFrame::CreateTreeCtrl()
 {
-    m_pTreeCtrl1 = new wxTreeCtrl(m_pLeft, wxID_ANY,
-        wxPoint(0,0), wxSize(160,250),
-        wxTR_DEFAULT_STYLE | wxNO_BORDER);
-
     wxImageList* imglist = new wxImageList(16, 16, true, 2);
     imglist->Add(wxArtProvider::GetBitmap(wxART_FOLDER, wxART_OTHER, wxSize(16,16)));
     imglist->Add(wxArtProvider::GetBitmap(wxART_NORMAL_FILE, wxART_OTHER, wxSize(16,16)));
-    m_pTreeCtrl1->AssignImageList(imglist);
+    m_pComponentModelTC = new wxTreeCtrl(m_pLeft, wxID_ANY,
+        wxPoint(0,0), wxSize(160,250),
+        wxTR_DEFAULT_STYLE | wxNO_BORDER);
+    m_pComponentModelTC->AssignImageList(imglist);
+    m_pComponentModelTC->AddRoot(wxT("Components"), 0);
 
-    wxTreeItemId root = m_pTreeCtrl1->AddRoot(wxT("wxAUI Project"), 0);
-    wxArrayTreeItemIds items;
-
-    items.Add(m_pTreeCtrl1->AppendItem(root, wxT("Item 1"), 0));
-    items.Add(m_pTreeCtrl1->AppendItem(root, wxT("Item 2"), 0));
-    items.Add(m_pTreeCtrl1->AppendItem(root, wxT("Item 3"), 0));
-    items.Add(m_pTreeCtrl1->AppendItem(root, wxT("Item 4"), 0));
-    items.Add(m_pTreeCtrl1->AppendItem(root, wxT("Item 5"), 0));
-
-    int i, count;
-    for (i = 0, count = items.Count(); i < count; ++i)
-    {
-        wxTreeItemId id = items.Item(i);
-        m_pTreeCtrl1->AppendItem(id, wxT("Subitem 1"), 1);
-        m_pTreeCtrl1->AppendItem(id, wxT("Subitem 2"), 1);
-        m_pTreeCtrl1->AppendItem(id, wxT("Subitem 3"), 1);
-        m_pTreeCtrl1->AppendItem(id, wxT("Subitem 4"), 1);
-        m_pTreeCtrl1->AppendItem(id, wxT("Subitem 5"), 1);
-    }
-
-    m_pTreeCtrl1->Expand(root);
+    imglist = new wxImageList(16, 16, true, 2);
+    imglist->Add(wxArtProvider::GetBitmap(wxART_FOLDER, wxART_OTHER, wxSize(16,16)));
+    imglist->Add(wxArtProvider::GetBitmap(wxART_NORMAL_FILE, wxART_OTHER, wxSize(16,16)));
+    m_pCurComponentTC = new wxTreeCtrl(m_pLeft, wxID_ANY,
+        wxPoint(0,0), wxSize(160,250),
+        wxTR_DEFAULT_STYLE | wxNO_BORDER);    
+    m_pCurComponentTC->AssignImageList(imglist);
+    m_pCurComponentTC->AddRoot(wxT("Components"), 0);
 }
 
 void CEditorMainFrame::AddPageToBook()
 {
     m_pLeft->Freeze();
-    m_pLeft->AddPage( m_pTreeCtrl1, wxT("wxTextCtrl 1") );
+    m_pLeft->AddPage( m_pComponentModelTC, wxT("Component Model") );
+    m_pLeft->AddPage( m_pCurComponentTC, wxT("Current Conponent") );
     m_pLeft->Thaw();
 
     m_pRight->Freeze();
@@ -282,7 +203,7 @@ void CEditorMainFrame::AddPageToBook()
     m_pBottom->Thaw();
 
     m_pCenter->Freeze();
-    //m_pCenter->AddPage( m_pGLCanvas, wxT("wxTextCtrl 1") );
+    m_pCenter->AddPage( m_pSplitter, wxT("wxTextCtrl 1") );
     m_pCenter->Thaw();
 
     m_Manager.AddPane(m_pLeft, wxAuiPaneInfo().CenterPane().
@@ -325,4 +246,90 @@ void CEditorMainFrame::OnAuiButton(wxCommandEvent& event)
 void CEditorMainFrame::OnEditAnimationMenuItem(wxCommandEvent& /*event*/)
 {
     return;
+}
+
+void CEditorMainFrame::CreatSplitter()
+{
+    m_pSplitter = new wxSplitterWindow(m_pCenter);
+    m_pSplTop = new wxTextCtrl(m_pSplitter,wxID_ANY);
+    m_pSplBottom = new wxTextCtrl(m_pSplitter,wxID_ANY);
+    m_pSplitter->SplitHorizontally(m_pSplTop, m_pSplBottom, 200);
+}
+
+void CEditorMainFrame::AddTreeItem()
+{
+    const std::map<size_t, CComponentBase*>* pComponentsMap = CComponentManager::GetInstance()->GetComponentTemplateMap();
+    for (auto iter : *pComponentsMap)
+    {
+        TString strName = ((CComponentEditorProxy*)iter.second)->GetCatalogName();
+        std::vector<TString> vecName;
+        CStringHelper::GetInstance()->SplitString(strName.c_str(), wxT("\\"), vecName);
+        wxTreeItemId idParant = m_pComponentModelTC->GetRootItem();
+        AddChilditemToItem(idParant, vecName, 0);
+    }
+    m_pComponentModelTC->ExpandAll();
+}
+
+void CEditorMainFrame::AddChilditemToItem( wxTreeItemId& idParent, std::vector<TString>& vecName, size_t iLevel )
+{
+    if (vecName.size() > iLevel)
+    {
+        TString str = vecName[iLevel];
+        wxTreeItemIdValue cookie;
+        wxTreeItemId idChild = m_pComponentModelTC->GetFirstChild(idParent, cookie);
+        wxTreeItemId idLastChild = m_pComponentModelTC->GetLastChild(idParent);
+        if (!idChild.IsOk())
+        {
+            idChild = m_pComponentModelTC->AppendItem(idParent, str, iLevel);
+        }
+        else
+        {
+            while (idChild.IsOk() && str != m_pComponentModelTC->GetItemText(idChild))
+            {
+                if (idLastChild == idChild)
+                {
+                    idChild = m_pComponentModelTC->AppendItem(idParent, str, iLevel);
+                    break;
+                }
+                idChild = m_pComponentModelTC->GetNextChild(idParent, cookie);
+            }
+        }
+        if (idChild.IsOk())
+        {
+            AddChilditemToItem(idChild, vecName, ++iLevel);
+        }
+    }
+}
+
+void CEditorMainFrame::OnTreeClick( wxTreeEvent& event )
+{
+    wxTreeItemId itemId = event.GetItem();
+    wxTreeItemId root = m_pComponentModelTC->GetRootItem();
+    TString strItemName;
+    while (itemId != root)
+    {
+        if (strItemName == "")
+        {
+            strItemName = m_pComponentModelTC->GetItemText(itemId);
+        }
+        else
+        {
+            strItemName = m_pComponentModelTC->GetItemText(itemId) + "\\" + strItemName;
+        }
+        
+        itemId = m_pComponentModelTC->GetItemParent(itemId);
+    }
+
+    const std::map<size_t, CComponentBase*>* pComponentsMap = CComponentManager::GetInstance()->GetComponentTemplateMap();
+    for (auto iter : *pComponentsMap)
+    {
+        TString strName = ((CComponentEditorProxy*)iter.second)->GetCatalogName();
+        if (strName == strItemName)
+        {
+            CComponentEditorProxy* pComProxy = (CComponentEditorProxy*)iter.second;
+            m_pPropGridManager->ClearPage(0);
+            m_pPropGridManager->InsertComponentsInPropertyGrid(pComProxy);
+        }
+    }
+    
 }

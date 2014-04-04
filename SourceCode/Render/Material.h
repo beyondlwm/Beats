@@ -3,8 +3,7 @@
 
 #include "resource/Resource.h"
 #include "render/Texture.h"
-#include "Utility/BeatsUtility/Serializer.h"
-
+#include "Utility/BeatsUtility/ComponentSystem/Component/ComponentBase.h"
 class CRenderState;
 
 enum EShaderUniformType
@@ -42,13 +41,16 @@ struct SShaderUniform
 #endif
 };
 
-class CMaterial : public CResource
+class CMaterial : public CComponentBase, public CResource
 {
+    typedef CComponentBase super;
+    DECLARE_REFLECT_GUID(CMaterial, 0xD507AB1C, CComponentBase)
+    DECLARE_RESOURCE_TYPE(eRT_Material)
 public:
     CMaterial();
+    CMaterial(CSerializer& serializer);
     virtual ~CMaterial();
 
-    virtual EResourceType GetType() override {return eRT_Material;}
     virtual bool Load() override;
     virtual bool Unload() override;
 

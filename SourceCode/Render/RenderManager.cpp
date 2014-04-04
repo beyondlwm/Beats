@@ -18,6 +18,8 @@
 #include "Event/EventType.h"
 #include "Event/KeyboardEvent.h"
 
+#include "ParticlesSystem/ParticleSystemManager.h"
+
 CRenderManager* CRenderManager::m_pInstance = NULL;
 
 CRenderManager::CRenderManager()
@@ -25,12 +27,11 @@ CRenderManager::CRenderManager()
     , m_iWidth(0)
     , m_iHeight(0)
     , m_bIsRenta(false)
-    , m_pCamera(new CCamera)
+    , m_pCamera(NULL)
     , m_bLeftMouseDown(false)
-    , m_bRightMouseDown(false)
     , m_uCurrPolygonMode(GL_FILL)
-    , m_uPressPosX(0)
-    , m_uPressPosY(0)
+    , m_uLastMousePosX(0)
+    , m_uLastMousePosY(0)
     , m_uCurMousePosX(0)
     , m_uCurMousePosY(0)
     , m_uGridVAO(0)
@@ -43,7 +44,7 @@ CRenderManager::CRenderManager()
     , m_fPressStartYaw(0.f)
     , m_fPressStartPitch(0.f)
 {
-
+    m_pCamera = new CCamera;
 }
 
 CRenderManager::~CRenderManager()
@@ -125,6 +126,7 @@ bool CRenderManager::Initialize()
     SharePtr<CShader> pPS = CResourceManager::GetInstance()->GetResource<CShader>(_T("PointColorShader.ps"), false);
     m_pLineShaderProgram = GetShaderProgram(pVS->ID(), pPS->ID());
 
+    m_pCamera->SetAspect((float)m_iWidth / m_iHeight);
     return bRet;
 }
 
@@ -132,6 +134,12 @@ void CRenderManager::SetWindowSize(int width, int height)
 {
     m_iWidth = width;
     m_iHeight = height;
+}
+
+void CRenderManager::GetWindowSize(int& nWidth, int& nHeight)
+{
+    nWidth = m_iWidth;
+    nHeight = m_iHeight;
 }
 
 bool CRenderManager::InitShaderFile()
@@ -269,45 +277,6 @@ bool CRenderManager::InitGlew()
     BEATS_ASSERT(bFrameBufferSupport,  _T("No OpenGL framebuffer support. Please upgrade the driver of your video card."));
     return bRet && bFrameBufferSupport;
 }
-static float fSpeed = 0.05f;
-static float fFrame = 0.0f;
-
-void CRenderManager::SetupVPMatrix(bool proj2D)
-{
-    BEATS_ASSERT(m_iWidth > 0 && m_iHeight > 0);
-    fFrame = fFrame + 0.016f;
-    if ( fFrame > 0.1f )
-    {
-        fFrame = 0.0f;
-        CRenderManager::GetInstance()->UpdateCamera();
-    }
-    kmMat4 matrixProj;
-
-    kmGLMatrixMode(KM_GL_PROJECTION);
-    kmGLLoadIdentity();
-
-    if(proj2D)
-    {
-        kmMat4OrthographicProjection(&matrixProj, 
-            0.0f, static_cast<kmScalar>(m_iWidth),
-            static_cast<kmScalar>(m_iHeight), 0.0f,
-            -1000.1f, 10000.0f);
-    }
-    else
-    {
-        kmMat4PerspectiveProjection(&matrixProj, 60, (float)m_iWidth/m_iHeight, 0.1f, 1000.0f);
-    }
-
-    kmGLMultMatrix(&matrixProj);
-
-    kmGLMatrixMode(KM_GL_MODELVIEW);
-    kmGLLoadIdentity();
-    if(!proj2D)
-    {
-        m_pCamera->Update();
-    }
-    TransferMVPMatrix();
-}
 
 void CRenderManager::Render()
 {
@@ -318,18 +287,21 @@ void CRenderManager::Render()
     pRenderer->ClearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);    
     pRenderer->EnableGL(GL_DEPTH_TEST);
     pRenderer->EnableGL(GL_CULL_FACE);
-
     CSpriteFrameBatchManager::GetInstance()->Clear();
     // 3D rendering
     CRenderObjectManager::GetInstance()->Render();
-    SetupVPMatrix(false);
-    SetFarPane(25.f);
+    float fOldFar = m_pCamera->GetFar();
+    m_pCamera->SetFar(25.f);
     RenderGrid();
+    m_pCamera->SetFar(fOldFar);
+
     RenderLineImpl();
     RenderTriangleImpl();
 
-    // 2D rendering
-    CSpriteFrameBatchManager::GetInstance()->Render();
+    FCEngine::ParticleSystemManager::GetInstance()->Render( );
+
+	// 2D rendering
+	CSpriteFrameBatchManager::GetInstance()->Render();
 
     // GUI rendering
     CSpriteFrameBatchManager::GetInstance()->Clear();
@@ -349,7 +321,6 @@ void CRenderManager::SwitchPolygonMode()
     {
         ++m_uCurrPolygonMode;
     }
-    CRenderer::GetInstance()->PointSize(5.0F);
     CRenderer::GetInstance()->PolygonMode(GL_FRONT_AND_BACK, m_uCurrPolygonMode);
 }
 
@@ -373,8 +344,6 @@ void CRenderManager::onGLFWMouseCallBack(GLFWwindow* window, int button, int act
     {
         if (action == GLFW_PRESS)
         {
-            pRenderMgr->m_uPressPosX = pRenderMgr->m_uCurMousePosX;
-            pRenderMgr->m_uPressPosY = pRenderMgr->m_uCurMousePosY;
             pRenderMgr->m_bLeftMouseDown = true;
         }
         else if(action == GLFW_RELEASE)
@@ -382,20 +351,6 @@ void CRenderManager::onGLFWMouseCallBack(GLFWwindow* window, int button, int act
             pRenderMgr->m_bLeftMouseDown = false;
         }
     }
-    else if (button == GLFW_MOUSE_BUTTON_RIGHT)
-    {
-        if (action == GLFW_PRESS)
-        {
-            pRenderMgr->m_bRightMouseDown = true;
-            pRenderMgr->m_uPressPosX = pRenderMgr->m_uCurMousePosX;
-            pRenderMgr->m_uPressPosY = pRenderMgr->m_uCurMousePosY;
-        }
-        else if (action == GLFW_RELEASE)
-        {
-            pRenderMgr->m_bRightMouseDown = false;
-        }
-    }
-
     int eventType = 0;
     if(action == GLFW_PRESS)
     {
@@ -407,8 +362,8 @@ void CRenderManager::onGLFWMouseCallBack(GLFWwindow* window, int button, int act
     }
 
     MouseEvent event(eventType, button, 0, 
-        (float)pRenderMgr->m_uPressPosX,
-        (float)pRenderMgr->m_uPressPosY);
+        (float)pRenderMgr->m_uCurMousePosX,
+        (float)pRenderMgr->m_uCurMousePosY);
     FCGUI::System::GetInstance()->InjectMouseEvent(&event);
 }
 
@@ -423,34 +378,25 @@ void CRenderManager::onGLFWMouseMoveCallBack(GLFWwindow* window, double x, doubl
 
     if(x < width  && x > 0 && y < height && y > 0)
     {
-        if (pRenderMgr->m_bRightMouseDown)
-        {
-            CCamera* pCamera = pRenderMgr->GetCamera();
-            int iDeltaX = pRenderMgr->m_uCurMousePosX - pRenderMgr->m_uPressPosX;
-            int iDeltaY = pRenderMgr->m_uCurMousePosY - pRenderMgr->m_uPressPosY;
-
-            float fYawValue = -(float)iDeltaX / pRenderMgr->m_iWidth * 5.0F;
-            pCamera->RotateX(fYawValue);
-
-            float fPitchValue = (float)iDeltaY / pRenderMgr->m_iHeight * 5.0F;
-            pCamera->RotateY( fPitchValue);
-        }
         if (pRenderMgr->m_bLeftMouseDown)
         {
             CCamera* pCamera = pRenderMgr->GetCamera();
-            int iDeltaX = pRenderMgr->m_uCurMousePosX - pRenderMgr->m_uPressPosX;
-            int iDeltaY = pRenderMgr->m_uCurMousePosY - pRenderMgr->m_uPressPosY;
+            int iDeltaX = pRenderMgr->m_uLastMousePosX - pRenderMgr->m_uCurMousePosX;
+            int iDeltaY = pRenderMgr->m_uLastMousePosY - pRenderMgr->m_uCurMousePosY;
 
-            float fYawValue = (float)iDeltaX / pRenderMgr->m_iWidth * 5.0F;
+            float fYawValue = (float)iDeltaX / pRenderMgr->m_iWidth;
             pCamera->Yaw(fYawValue);
 
-            float fPitchValue = (float)iDeltaY / pRenderMgr->m_iHeight * 5.0F;
+            float fPitchValue = (float)iDeltaY / pRenderMgr->m_iHeight;
             pCamera->Pitch( fPitchValue);
         }
     }
 
     MouseEvent event(EVENT_MOUSE_MOVED, 0, 0, (float)x, (float)y);
     FCGUI::System::GetInstance()->InjectMouseEvent(&event);
+
+    pRenderMgr->m_uLastMousePosX = (size_t)x;
+    pRenderMgr->m_uLastMousePosY = (size_t)y;
 }
 
 void CRenderManager::onGLFWMouseScrollCallback(GLFWwindow* window, double x, double y)
@@ -458,8 +404,8 @@ void CRenderManager::onGLFWMouseScrollCallback(GLFWwindow* window, double x, dou
     CRenderManager* pRenderMgr = CRenderManager::GetInstance();
     CCamera*  pCamera =  pRenderMgr->GetCamera();
 
-    float fSpeed =  (float)y * 0.2F;
-    pCamera->MoveStraight(-fSpeed);
+    float fSpeed = (float)y * 0.2F;
+    pCamera->Translate(0, 0, -fSpeed);
 
     MouseEvent event(EVENT_MOUSE_SCROLLED, 0, 0, (float)x, (float)y);
     FCGUI::System::GetInstance()->InjectMouseEvent(&event);
@@ -576,115 +522,90 @@ CCamera* CRenderManager::GetCamera() const
 
 void CRenderManager::UpdateCamera()
 {
-    float fSpeed = 0;
-    int type = NOMOVE;
+    kmVec3 vec3Speed;
+    kmVec3Fill(&vec3Speed, 1.0f, 1.0f, 1.0f);
     if ( glfwGetKey(CRenderManager::GetInstance()->GetMainWindow(),GLFW_KEY_LEFT_SHIFT) || glfwGetKey(CRenderManager::GetInstance()->GetMainWindow(),GLFW_KEY_RIGHT_SHIFT) )
     {
-        fSpeed = 5.0F * 0.016F;
+        kmVec3Scale(&vec3Speed, &vec3Speed, 5.0F * 0.016F);
     }
     else
     {
-        fSpeed = 1.0F * 0.016F;
+        kmVec3Scale(&vec3Speed, &vec3Speed, 1.0F * 0.016F);
+    }
+    int type = eCMT_NOMOVE;
+
+    bool bPressA = glfwGetKey(CRenderManager::GetInstance()->GetMainWindow(),GLFW_KEY_A) != 0;
+    bool bPressD = glfwGetKey(CRenderManager::GetInstance()->GetMainWindow(),GLFW_KEY_D) != 0;
+    if ( bPressA || bPressD )
+    {
+        type |= (1 << eCMT_TRANVERSE);
+        if (bPressA)
+        {
+            vec3Speed.x *= -1;
+        }
+    }
+    bool bPressW = glfwGetKey(CRenderManager::GetInstance()->GetMainWindow(),GLFW_KEY_W) != 0;
+    bool bPressS = glfwGetKey(CRenderManager::GetInstance()->GetMainWindow(),GLFW_KEY_S) != 0;
+
+    if ( bPressW || bPressS )
+    {
+        type |= (1 << eCMT_STRAIGHT);
+        if (bPressW)
+        {
+            vec3Speed.z *= -1;
+        }
+    }
+    bool bPressUp = glfwGetKey(CRenderManager::GetInstance()->GetMainWindow(),GLFW_KEY_UP) != 0;
+    bool bPressDown = glfwGetKey(CRenderManager::GetInstance()->GetMainWindow(),GLFW_KEY_DOWN) != 0;
+
+    if ( bPressUp || bPressDown )
+    {
+        type |= (1 << eCMT_UPDOWN);
+        if (bPressDown)
+        {
+            vec3Speed.y *= -1;
+        }
     }
 
-    if ( glfwGetKey(CRenderManager::GetInstance()->GetMainWindow(),GLFW_KEY_A) )
+    if (type != eCMT_NOMOVE)
     {
-        type = MOVETRANVERSE;
+        CRenderManager::GetInstance()->UpdateCamera(vec3Speed, type);
     }
-    if ( glfwGetKey(CRenderManager::GetInstance()->GetMainWindow(),GLFW_KEY_D) )
-    {
-        type = MOVETRANVERSE;
-        fSpeed *= -1;
-    } 
-    if ( glfwGetKey(CRenderManager::GetInstance()->GetMainWindow(),GLFW_KEY_W) )
-    {
-        type = MOVESTRAIGHT;
-        fSpeed *= -1;
-    }
-    if ( glfwGetKey(CRenderManager::GetInstance()->GetMainWindow(),GLFW_KEY_S) )
-    {
-        type = MOVESTRAIGHT;
-    }
-    if ( glfwGetKey(CRenderManager::GetInstance()->GetMainWindow(),GLFW_KEY_UP) )
-    {
-        type = MOVEUPDOWN;
-        
-    }
-    if ( glfwGetKey(CRenderManager::GetInstance()->GetMainWindow(),GLFW_KEY_DOWN))
-    {
-        type = MOVEUPDOWN;
-        fSpeed *= -1;
-    }
-
-    CRenderManager::GetInstance()->UpdateCamera(fSpeed, type);
 }
 
-void CRenderManager::UpdateCamera(float fSpeed, int type)
+void CRenderManager::UpdateCamera(const kmVec3& vec3Speed, int type)
 {
-
     CCamera* pCamera = CRenderManager::GetInstance()->GetCamera();
-    switch (type)
+    kmMat4 cameraMat;
+    pCamera->GetMatrix(cameraMat);
+    kmMat4Inverse(&cameraMat, &cameraMat);
+    kmVec3 vec3Translation;
+    kmVec3Zero(&vec3Translation);
+    if ((type & (1 << eCMT_TRANVERSE)) != 0)
     {
-    case MOVETRANVERSE:
-        pCamera->MoveTransverse(fSpeed);
-        break;
-    case MOVESTRAIGHT:
-        pCamera->MoveStraight(fSpeed);
-        break;
-    case MOVEUPDOWN:
-        pCamera->MoveUpDown(fSpeed);
-        break;
-    default:
-        break;
+        kmVec3 tmpTranslation;
+        kmMat4GetRightVec3(&tmpTranslation, &cameraMat);
+        kmVec3Scale(&tmpTranslation, &tmpTranslation, vec3Speed.x);
+        tmpTranslation.y = 0;
+        kmVec3Add(&vec3Translation, &vec3Translation, &tmpTranslation);
     }
-}
-
-void CRenderManager::SetFarPane(float fFarPane)
-{
-    //Reset the far plane.
-    kmMat4 matrixProj;
-    kmGLMatrixMode(KM_GL_PROJECTION);
-    kmGLLoadIdentity();
-    kmMat4PerspectiveProjection(&matrixProj, 60, (float)m_iWidth/m_iHeight, 0.1f, fFarPane);
-    kmGLMultMatrix(&matrixProj);
-
-    TransferMVPMatrix();
-}
-
-void CRenderManager::TransferMVPMatrix()
-{
-    kmMat4 projection;
-    kmMat4 viewMatrix;
-    kmGLGetMatrix(KM_GL_PROJECTION, &projection);
-    kmGLGetMatrix(KM_GL_MODELVIEW, &viewMatrix);
-    kmMat4 vpmatrix;
-    kmMat4Multiply(&vpmatrix, &projection, &viewMatrix);
-    kmMat4 modelmatrix;
-    kmMat4Identity(&modelmatrix);
-
-#ifdef USE_UBO
-    const GLvoid *matrices[4] = {
-        vpmatrix.mat,
-        modelmatrix.mat,
-        viewMatrix.mat,
-        projection.mat,
-    };
-    GLsizeiptr sizes[4] = {
-        sizeof(kmMat4),
-        sizeof(kmMat4),
-        sizeof(kmMat4),
-        sizeof(kmMat4),
-    };
-
-    UpdateUBO(UNIFORM_BLOCK_MVP_MATRIX, matrices, sizes, 4);
-#else
-    GLuint uCurrentShader = CRenderer::GetInstance()->GetCurrentState()->GetCurrentShaderProgram();
-    if(uCurrentShader != 0)
-    {  
-        GLint MVPLocation = CRenderer::GetInstance()->GetUniformLocation(uCurrentShader, COMMON_UNIFORM_NAMES[UNIFORM_MVP_MATRIX]);
-        CRenderer::GetInstance()->SetUniformMatrix4fv(MVPLocation, (const float*)vpmatrix.mat, 1);
+    if ((type & (1 << eCMT_STRAIGHT)) != 0)
+    {
+        kmVec3 tmpTranslation;
+        kmMat4GetForwardVec3(&tmpTranslation, &cameraMat);
+        kmVec3Scale(&tmpTranslation, &tmpTranslation, vec3Speed.z);
+        kmVec3Add(&vec3Translation, &vec3Translation, &tmpTranslation);
     }
-#endif
+    if ((type & (1 << eCMT_UPDOWN)) != 0)
+    {
+        kmVec3 tmpTranslation;
+        kmMat4GetUpVec3(&tmpTranslation, &cameraMat);
+        kmVec3Scale(&tmpTranslation, &tmpTranslation, vec3Speed.y);
+        tmpTranslation.x = 0;
+        tmpTranslation.z = 0;
+        kmVec3Add(&vec3Translation, &vec3Translation, &tmpTranslation);
+    }
+    pCamera->Translate(vec3Translation.x, vec3Translation.y, vec3Translation.z);
 }
 
 bool CRenderManager::InitGridData()
@@ -844,6 +765,7 @@ void CRenderManager::RenderCoordinate(const kmMat4* pMatrix)
     kmMat4GetUpVec3(&upVec, pMatrix);
     kmMat4GetRightVec3(&rightVec, pMatrix);
     kmMat4GetForwardVec3(&forwardVec, pMatrix);
+    kmVec3Scale(&forwardVec, &forwardVec, -1);
 
     float fPosW = (*pMatrix).mat[15];
     kmVec3 pos;
@@ -892,4 +814,3 @@ void CRenderManager::RenderTriangle( const CVertexPC& pt1, const CVertexPC& pt2,
     m_renderTriangles.push_back(pt2);
     m_renderTriangles.push_back(pt3);
 }
-

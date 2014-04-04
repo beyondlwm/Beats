@@ -30,8 +30,6 @@ namespace FCGUI
 		void postRender();
 
 	private:
-		Window *_rootWindow;
-
 		kmVec2 _resolution;
 	};
 }

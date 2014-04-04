@@ -6,7 +6,7 @@ CAnimation::CAnimation()
     : m_uFrameCount(0)
     , m_uFPS(0)
     , m_fDuration(0.0F)
-
+    , m_uCurFrame(0)
 {
 
 }
@@ -36,6 +36,7 @@ const std::vector<kmMat4*>& CAnimation::GetBoneMatrixByFrame( size_t uFrame ) co
 const std::vector<kmMat4*>& CAnimation::GetBoneMatrixByTime( float playtime ) const
 {
     size_t currFrame = static_cast<size_t>(playtime * m_uFPS);
+    currFrame %= m_uFrameCount;
     return GetBoneMatrixByFrame(currFrame);
 }
 
@@ -118,4 +119,14 @@ bool CAnimation::Unload()
 unsigned short CAnimation::GetFrameCount()
 {
     return m_uFrameCount;
+}
+
+void CAnimation::SetCurFrame(size_t curFrame)
+{
+   m_uCurFrame = curFrame;
+}
+
+size_t CAnimation::GetCurFrame() const
+{
+    return m_uCurFrame;
 }

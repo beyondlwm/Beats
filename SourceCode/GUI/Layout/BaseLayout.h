@@ -11,7 +11,7 @@ namespace FCGUI
     public:
         BaseLayout();
 
-        void SetWindow(Window *window);
+        virtual void SetWindow(Window *window);
 
         bool Invalidated() const;
 

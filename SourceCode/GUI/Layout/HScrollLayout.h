@@ -10,12 +10,10 @@ namespace FCGUI
     public:
         HScrollLayout(size_t rowCount = 1);
 
-        void SetColumnWidth(kmScalar colWidth);
-
         virtual void PerformLayout() override;
 
-    protected:
-        kmScalar _colWidth;
+        virtual bool AddChild( Window *window, kmScalar x, kmScalar y ) override;
+
     };
 }
 

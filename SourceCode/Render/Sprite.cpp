@@ -15,10 +15,18 @@ CSprite::CSprite():
 
 }
 
-CSprite::CSprite(SharePtr<CTexture> texture, const CRect &rect, const CSize &size):
-    m_animController(nullptr)
+CSprite::CSprite(CTextureFrag *textureFrag)
+    : m_animController(nullptr)
 {
-    m_frame = new CSpriteFrame(texture, rect, size, CPoint());
+    m_frame = new CSpriteFrame(textureFrag);
+}
+
+CSprite::CSprite(const TString &textureFragName, const kmVec2 &size)
+    : m_animController(nullptr)
+{
+    kmVec2 point;
+    kmVec2Fill(&point, 0.f, 0.f);
+    m_frame = new CSpriteFrame(textureFragName, size, point);
 }
 
 CSprite::~CSprite()

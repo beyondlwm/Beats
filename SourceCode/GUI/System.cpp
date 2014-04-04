@@ -5,6 +5,7 @@
 #include "Render/RenderManager.h"
 #include "Event/MouseEvent.h"
 #include "WindowManager.h"
+#include "Render/Camera.h"
 
 using namespace FCGUI;
 
@@ -26,7 +27,7 @@ void System::Update(float deltaTime)
 
 void System::preRender()
 {
-	CRenderManager::GetInstance()->SetupVPMatrix(true);
+	CRenderManager::GetInstance()->GetCamera()->ApplyCameraChange(true);
 }
 
 void System::Render()

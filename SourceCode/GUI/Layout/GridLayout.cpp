@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "GridLayout.h"
 #include "GUI/Window/Window.h"
+#include "GUI/Event/WindowEvent.h"
 
 using namespace FCGUI;
 
@@ -19,6 +20,15 @@ GridLayout::GridLayout( size_t rowCount, size_t colCount )
     _children.resize(rowCount*colCount);
     _everyRowHeight.resize(rowCount);
     _everyColWidth.resize(colCount);
+}
+
+void GridLayout::SetWindow(Window *window)
+{
+    BaseLayout::SetWindow(window);
+    window->SubscribeEvent(Window::EVENT_CHILD_REMOVE, [this](BaseEvent *event) {
+        WindowEvent *wndEvt = static_cast<WindowEvent *>(event);
+        this->RemoveChild(wndEvt->OperandWindow());
+    });
 }
 
 void GridLayout::SetRowCount( size_t rowCount )
@@ -201,12 +211,9 @@ bool GridLayout::AddChild( Window *window, kmScalar x, kmScalar y )
     BEATS_ASSERT(_window, _T("You must set this layout to a window first"));
     BEATS_ASSERT(_window->GetChild(window->Name()), 
         _T("window:%s must be the child of window:%s"), window->Name().c_str(), _window->Name().c_str());
-    
-    kmVec3 pos;
-    kmVec3Fill(&pos, x, y, 0.f);
-    _window->Localize(pos);
-    x = pos.x;
-    y = pos.y;
+
+    if(Invalidated())
+        PerformLayout();
     
     kmVec2 realAnchor = _window->RealAnchor();
     x += realAnchor.x;
@@ -236,7 +243,7 @@ bool GridLayout::AddChild( Window *window, kmScalar x, kmScalar y )
         }
     }
 
-	return row >= 0 && col >= 0 && AddChildToCell(window, row, col);
+	return row >= 0 && col >= 0 ? AddChildToCell(window, row, col) : AddChild(window);
 }
 
 bool GridLayout::AddChildToCell( Window *window, size_t row, size_t col)
@@ -245,24 +252,18 @@ bool GridLayout::AddChildToCell( Window *window, size_t row, size_t col)
     BEATS_ASSERT(_window->GetChild(window->Name()), 
         _T("window:%s must be the child of window:%s"), window->Name().c_str(), _window->Name().c_str());
    
-    if(row >= _rowCount)
+    if(row < _rowCount && col < _colCount)
     {
-        return false;
-    }
-    if(col >= _colCount)
-    {
-        return false;
-    }
-
-    size_t index = row*_colCount+col;
-    if(_children[index])    //already has item
-    {
-        return false;
+        size_t index = row*_colCount+col;
+        if(!_children[index])    //already has item
+        {
+            _children[index] = window;
+            invalidate();
+            return true;
+        }
     }
 
-    _children[index] = window;
-    invalidate();
-    return true;
+    return false;
 }
 
 Window *GridLayout::GetChild( size_t row, size_t col )
@@ -272,16 +273,18 @@ Window *GridLayout::GetChild( size_t row, size_t col )
     return _children[row*_colCount+col];
 }
 
-bool GridLayout::RemoveChild( size_t row, size_t col )
+bool GridLayout::RemoveChild( Window *window )
 {
-    BEATS_ASSERT(_window, _T("You must set this layout to a window first"));
-    BEATS_ASSERT(row < _rowCount && col < _colCount);
-
-    _children[row*_colCount+col] = nullptr;
-    return true;
+    auto itr = std::find(_children.begin(), _children.end(), window);
+    if(itr != _children.end())
+    {
+        *itr = nullptr;
+        return true;
+    }
+    return false;
 }
 
-void GridLayout::PerformLayout()
+void GridLayout::calcSplitPos()
 {
     kmScalar spaceWidth = _leftMargin + _rightMargin + _hGap * (_colCount - 1);
     kmScalar averageWidth = (_window->RealSize().x - spaceWidth) / _colCount;
@@ -375,6 +378,11 @@ void GridLayout::PerformLayout()
         x += width + _hGap;
         xPercent += widthPercent;
     }
+}
+
+void GridLayout::PerformLayout()
+{
+    calcSplitPos();
 
     //set position and size of child window
     for(size_t row = 0; row < _rowCount; ++row)

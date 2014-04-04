@@ -2,6 +2,7 @@
 #include "renderer.h"
 #include "RenderManager.h"
 #include "RenderState.h"
+#include "Camera.h"
 
 CRenderer* CRenderer::m_pInstance = NULL;
 
@@ -27,8 +28,7 @@ void CRenderer::UseProgram(GLuint uProgram)
         m_pCurrState->SetCurrentShaderProgram(uProgram);
         glUseProgram(uProgram);
     }
-
-    CRenderManager::GetInstance()->TransferMVPMatrix();
+    CRenderManager::GetInstance()->GetCamera()->ApplyCameraChange(false);
 }
 
 GLuint CRenderer::CreateShader(GLenum type)
@@ -241,6 +241,11 @@ void CRenderer::TextureImage2D(GLenum target, GLint level, GLint internalformat,
     glTexImage2D(target, level, internalformat, width, height, border, format, type, pixels);
 }
 
+void CRenderer::TextureSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels)
+{
+    glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, pixels);
+}
+
 void CRenderer::TexParameteri(GLenum target, GLenum pname, GLint param)
 {
     glTexParameteri(target, pname, param);
@@ -289,6 +294,11 @@ void CRenderer::DisableGL(GLenum cap)
     }
 }
 
+bool CRenderer::IsEnable(GLenum cap)
+{
+    return glIsEnabled(cap) == GL_TRUE;
+}
+
 void CRenderer::BlendFunc(GLenum sfactor, GLenum dfactor)
 {
     bool bChanged = false;
@@ -317,14 +327,14 @@ void CRenderer::BlendEquation(GLenum func)
     }
 }
 
+void CRenderer::BlendColor(GLclampf r, GLclampf g, GLclampf b, GLclampf a)
+{
+    glBlendColor(r, g, b, a);
+}
+
 void CRenderer::PolygonMode (GLenum face, GLenum mode)
 {
     glPolygonMode(face, mode);
-}
-
-void CRenderer::PointSize(GLfloat fSize)
-{
-    glPointSize(fSize);
 }
 
 void CRenderer::ClearBuffer(GLbitfield bit )
@@ -364,6 +374,109 @@ void CRenderer::DepthMask(bool bWriteable)
     {
         glDepthMask(bWriteable);
         m_pCurrState->SetDepthMask(bWriteable);
+    }
+}
+
+void CRenderer::EdgeFlag(bool bEdgeFlag)
+{
+    if (m_pCurrState->GetEdgetFlag() != bEdgeFlag)
+    {
+        glEdgeFlag(bEdgeFlag);
+        m_pCurrState->SetEdgeFlag(bEdgeFlag);
+    }
+}
+
+void CRenderer::FrontFace(GLenum frontFace)
+{
+    if (m_pCurrState->GetFrontFace() != frontFace)
+    {
+        glFrontFace(frontFace);
+        m_pCurrState->SetFrontFace(frontFace);
+    }
+}
+
+void CRenderer::CullFace(GLenum cullFace)
+{
+    if (m_pCurrState->GetCullFace() != cullFace)
+    {
+        glCullFace(cullFace);
+        m_pCurrState->SetCullFace(cullFace);
+    }
+}
+
+void CRenderer::DepthRange(float fNear, float fFar)
+{
+    bool bChanged = false;
+    if (!BEATS_FLOAT_EQUAL(m_pCurrState->GetDepthFar(), fFar))
+    {
+        m_pCurrState->SetDepthFar(fFar);
+        bChanged = true;
+    }
+    if (!BEATS_FLOAT_EQUAL(m_pCurrState->GetDepthNear(), fNear))
+    {
+        m_pCurrState->SetDepthNear(fNear);
+        bChanged = true;
+    }
+    if (bChanged)
+    {
+        glDepthRange(fNear, fFar);
+    }
+}
+
+void CRenderer::DepthFunc(GLenum depthFunc)
+{
+    if(m_pCurrState->GetDepthFunc() != depthFunc)
+    {
+        glDepthFunc(depthFunc);
+        m_pCurrState->SetDepthFunc(depthFunc);
+    }
+}
+
+void CRenderer::StencilFunc(GLenum stencilFunc)
+{
+    if(m_pCurrState->GetStencilFunc() != stencilFunc)
+    {
+        glStencilFunc(stencilFunc, m_pCurrState->GetStencilReference(), m_pCurrState->GetStencilValueMask());
+        m_pCurrState->SetStencilFunc(stencilFunc);
+    }
+}
+
+void CRenderer::StencilReference(GLint nRef)
+{
+    if (m_pCurrState->GetStencilReference() != nRef)
+    {
+        m_pCurrState->SetStencilReference(nRef);
+    }
+}
+
+void CRenderer::StencilValueMask(GLint nValueMask)
+{
+    if (m_pCurrState->GetStencilValueMask() != nValueMask)
+    {
+        m_pCurrState->SetStencilValueMask(nValueMask);
+    }
+}
+
+void CRenderer::ClearStencil(GLint nClearValue)
+{
+    if (m_pCurrState->GetClearStencil() != nClearValue)
+    {
+        glClearStencil(nClearValue);
+        m_pCurrState->SetClearStencil(nClearValue);
+    }
+}
+
+void CRenderer::StencilOp(GLenum fail, GLenum zFail, GLenum zPass)
+{
+    glStencilOp(fail, zFail, zPass);
+}
+
+void CRenderer::ShadeModel(GLenum shadeModel)
+{
+    if (m_pCurrState->GetShadeModel() != shadeModel)
+    {
+        glShadeModel(shadeModel);
+        m_pCurrState->SetShadeModel(shadeModel);
     }
 }
 

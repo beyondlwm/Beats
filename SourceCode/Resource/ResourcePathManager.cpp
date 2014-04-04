@@ -61,6 +61,9 @@ EResourcePathType CResourcePathManager::GetResourcePathType(EResourceType type) 
     case eRT_Animation:
         ret = eRPT_Animation;
         break;
+    case eRT_ParticleScript:
+        ret = eRPT_Particle;
+        break;
 
     default:
         break;

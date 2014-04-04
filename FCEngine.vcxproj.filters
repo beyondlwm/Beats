@@ -106,8 +106,35 @@
     <Filter Include="源文件\GUI\Event">
       <UniqueIdentifier>{1e3885c6-1fb0-4257-9bc4-a8d714ea32a9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="头文件\AI">
-      <UniqueIdentifier>{980b8f2f-54d5-4fe6-a2d1-d9ff6a059ca3}</UniqueIdentifier>
+    <Filter Include="头文件\ParticleSystem">
+      <UniqueIdentifier>{23b839c0-8635-4413-bbd5-6042b30d7ad5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\ParticleSystem">
+      <UniqueIdentifier>{16326e25-28be-4399-a5ca-a4547d05cb85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Render\RenderStateParam">
+      <UniqueIdentifier>{83e291bf-e75c-42ca-b6cb-0c1787484663}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Render\RenderStateParam">
+      <UniqueIdentifier>{ab9bd287-b043-404e-aeac-7d196b21554f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\ParticleSystem\ParticleAnimation">
+      <UniqueIdentifier>{12043939-2fce-4ed3-8db1-097e4bf99246}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\ParticleSystem\ParticleAnimation">
+      <UniqueIdentifier>{b5f883a0-afa9-4a28-8d3c-2131988da0a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\ParticleSystem\EmitterEntity">
+      <UniqueIdentifier>{b6adecdf-5ec8-4129-b0f6-b8f8a9b5b64b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\ParticleSystem\EmitterEntity">
+      <UniqueIdentifier>{d3d59f31-56d5-4a8a-9899-c80605de9b02}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\GUI\Font">
+      <UniqueIdentifier>{3ab33f95-b8c7-43b5-b39b-82b1021b947e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\GUI\Font">
+      <UniqueIdentifier>{64fe2023-e2a4-4d26-9cf6-26c5e548073b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -219,9 +246,6 @@
     <ClCompile Include="SourceCode\Render\Material.cpp">
       <Filter>源文件\Render</Filter>
     </ClCompile>
-    <ClCompile Include="SourceCode\Render\RenderState.cpp">
-      <Filter>头文件\Render</Filter>
-    </ClCompile>
     <ClCompile Include="SourceCode\ComponentRegister.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -257,6 +281,102 @@
     </ClCompile>
     <ClCompile Include="SourceCode\Render\Shader.cpp">
       <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\ParticlesSystem\Emitter.cpp">
+      <Filter>源文件\ParticleSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\ParticlesSystem\Particle.cpp">
+      <Filter>源文件\ParticleSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\ParticlesSystem\ParticleAnimationBase.cpp">
+      <Filter>源文件\ParticleSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\ParticlesSystem\ParticleSystem.cpp">
+      <Filter>源文件\ParticleSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\ParticlesSystem\ParticleSystemManager.cpp">
+      <Filter>源文件\ParticleSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\ParticlesSystem\ParticleSystemScript.cpp">
+      <Filter>源文件\ParticleSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\RenderStateParam\BlendEquationRenderStateParam.cpp">
+      <Filter>源文件\Render\RenderStateParam</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\RenderStateParam\BlendRenderStateParam.cpp">
+      <Filter>源文件\Render\RenderStateParam</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\RenderStateParam\BoolRenderStateParam.cpp">
+      <Filter>源文件\Render\RenderStateParam</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\RenderStateParam\ClockWiseRenderStateParam.cpp">
+      <Filter>源文件\Render\RenderStateParam</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\RenderStateParam\CullModeRenderStateParam.cpp">
+      <Filter>源文件\Render\RenderStateParam</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\RenderStateParam\FloatRenderStateParam.cpp">
+      <Filter>源文件\Render\RenderStateParam</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\RenderStateParam\FunctionRenderStateParam.cpp">
+      <Filter>源文件\Render\RenderStateParam</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\RenderStateParam\IntRenderStateParam.cpp">
+      <Filter>源文件\Render\RenderStateParam</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\RenderStateParam\PolygonModeRenderStateParam.cpp">
+      <Filter>源文件\Render\RenderStateParam</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\RenderStateParam\RenderStateParamBase.cpp">
+      <Filter>源文件\Render\RenderStateParam</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\RenderStateParam\ShadeModeRenderStateParam.cpp">
+      <Filter>源文件\Render\RenderStateParam</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\RenderStateParam\StencilRenderStateParam.cpp">
+      <Filter>源文件\Render\RenderStateParam</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\RenderStateParam\UintRenderStateParam.cpp">
+      <Filter>源文件\Render\RenderStateParam</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\TextureFragManager.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\ParticlesSystem\BallParticleEmitterEntity.cpp">
+      <Filter>源文件\ParticleSystem\EmitterEntity</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\ParticlesSystem\BoxParticleEmitterEntity.cpp">
+      <Filter>源文件\ParticleSystem\EmitterEntity</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\ParticlesSystem\ConeParticleEmitterEntity.cpp">
+      <Filter>源文件\ParticleSystem\EmitterEntity</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\ParticlesSystem\PointParticleEmitterEntity.cpp">
+      <Filter>源文件\ParticleSystem\EmitterEntity</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\ParticlesSystem\ParticleEmitterEntity.cpp">
+      <Filter>源文件\ParticleSystem\EmitterEntity</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\ParticlesSystem\ColorParticleAnimation.cpp">
+      <Filter>源文件\ParticleSystem\ParticleAnimation</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\ParticlesSystem\ScaleParticleAnimation.cpp">
+      <Filter>源文件\ParticleSystem\ParticleAnimation</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\ParticlesSystem\RotateParticleAnimation.cpp">
+      <Filter>源文件\ParticleSystem\ParticleAnimation</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\ParticlesSystem\ParticleProperty.cpp">
+      <Filter>源文件\ParticleSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\RenderState.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\Font\FontFace.cpp">
+      <Filter>源文件\GUI\Font</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\Font\FontManager.cpp">
+      <Filter>源文件\GUI\Font</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -479,9 +599,6 @@
     <ClInclude Include="SourceCode\Render\RenderState.h">
       <Filter>头文件\Render</Filter>
     </ClInclude>
-    <ClInclude Include="SourceCode\Render\RenderStateParam.h">
-      <Filter>头文件\Render</Filter>
-    </ClInclude>
     <ClInclude Include="SourceCode\Resource\ResourcePathManager.h">
       <Filter>头文件\Resource</Filter>
     </ClInclude>
@@ -517,6 +634,102 @@
     </ClInclude>
     <ClInclude Include="SourceCode\Render\Shader.h">
       <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\ParticlesSystem\Particle.h">
+      <Filter>头文件\ParticleSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\ParticlesSystem\ParticleSystem.h">
+      <Filter>头文件\ParticleSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\ParticlesSystem\ParticleSystemManager.h">
+      <Filter>头文件\ParticleSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\ParticlesSystem\ParticleSystemScript.h">
+      <Filter>头文件\ParticleSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\ParticlesSystem\Emitter.h">
+      <Filter>头文件\ParticleSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\RenderStateParam\BoolRenderStateParam.h">
+      <Filter>头文件\Render\RenderStateParam</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\RenderStateParam\RenderStateParamBase.h">
+      <Filter>头文件\Render\RenderStateParam</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\RenderStateParam\UintRenderStateParam.h">
+      <Filter>头文件\Render\RenderStateParam</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\RenderStateParam\IntRenderStateParam.h">
+      <Filter>头文件\Render\RenderStateParam</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\RenderStateParam\FloatRenderStateParam.h">
+      <Filter>头文件\Render\RenderStateParam</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\RenderStateParam\FunctionRenderStateParam.h">
+      <Filter>头文件\Render\RenderStateParam</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\RenderStateParam\BlendRenderStateParam.h">
+      <Filter>头文件\Render\RenderStateParam</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\RenderStateParam\BlendEquationRenderStateParam.h">
+      <Filter>头文件\Render\RenderStateParam</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\RenderStateParam\CullModeRenderStateParam.h">
+      <Filter>头文件\Render\RenderStateParam</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\RenderStateParam\ClockWiseRenderStateParam.h">
+      <Filter>头文件\Render\RenderStateParam</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\RenderStateParam\PolygonModeRenderStateParam.h">
+      <Filter>头文件\Render\RenderStateParam</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\RenderStateParam\ShadeModeRenderStateParam.h">
+      <Filter>头文件\Render\RenderStateParam</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\RenderStateParam\StencilRenderStateParam.h">
+      <Filter>头文件\Render\RenderStateParam</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\TextureFragManager.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\TextureFrag.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\ParticlesSystem\ConeParticleEmitterEntity.h">
+      <Filter>头文件\ParticleSystem\EmitterEntity</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\ParticlesSystem\BoxParticleEmitterEntity.h">
+      <Filter>头文件\ParticleSystem\EmitterEntity</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\ParticlesSystem\BallParticleEmitterEntity.h">
+      <Filter>头文件\ParticleSystem\EmitterEntity</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\ParticlesSystem\PointParticleEmitterEntity.h">
+      <Filter>头文件\ParticleSystem\EmitterEntity</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\ParticlesSystem\ParticleEmitterEntity.h">
+      <Filter>头文件\ParticleSystem\EmitterEntity</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\ParticlesSystem\ColorParticleAnimation.h">
+      <Filter>头文件\ParticleSystem\ParticleAnimation</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\ParticlesSystem\RotateParticleAnimation.h">
+      <Filter>头文件\ParticleSystem\ParticleAnimation</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\ParticlesSystem\ScaleParticleAnimation.h">
+      <Filter>头文件\ParticleSystem\ParticleAnimation</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\ParticlesSystem\ParticleAnimationBase.h">
+      <Filter>头文件\ParticleSystem\ParticleAnimation</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\ParticlesSystem\ParticleProperty.h">
+      <Filter>头文件\ParticleSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Font\FontFace.h">
+      <Filter>头文件\GUI\Font</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Font\FontManager.h">
+      <Filter>头文件\GUI\Font</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

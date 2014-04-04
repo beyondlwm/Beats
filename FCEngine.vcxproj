@@ -147,7 +147,7 @@
       <TreatWarningAsError>true</TreatWarningAsError>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <DisableSpecificWarnings>4100;4127;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>..\cocos2d-x-3.0beta2\cocos\2d\platform\;..\cocos2d-x-3.0beta2\cocos\2d\platform\win32\;..\cocos2d-x-3.0beta2\cocos\2d;..\cocos2d-x-3.0beta2\cocos\;..\cocos2d-x-3.0beta2\cocos\base;..\cocos2d-x-3.0beta2\external\glfw3\include\win32\;..\cocos2d-x-3.0beta2\external\win32-specific\gles\include\OGLES;Lib\;Lib\zlib\;Lib\boost\;SourceCode\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\cocos2d-x-3.0beta2\cocos\2d\platform\;..\cocos2d-x-3.0beta2\cocos\2d\platform\win32\;..\cocos2d-x-3.0beta2\cocos\2d;..\cocos2d-x-3.0beta2\cocos\;..\cocos2d-x-3.0beta2\cocos\base;..\cocos2d-x-3.0beta2\external\glfw3\include\win32\;..\cocos2d-x-3.0beta2\external\freetype2\include\win32;..\cocos2d-x-3.0beta2\external\win32-specific\gles\include\OGLES;Lib\;Lib\zlib\;Lib\boost\;SourceCode\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Lib>
       <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
@@ -258,6 +258,8 @@
     <ClCompile Include="SourceCode\ComponentRegister.cpp" />
     <ClCompile Include="SourceCode\Event\EventDispatcher.cpp" />
     <ClCompile Include="SourceCode\GUI\Behavior\BehaviorBase.cpp" />
+    <ClCompile Include="SourceCode\GUI\Font\FontFace.cpp" />
+    <ClCompile Include="SourceCode\GUI\Font\FontManager.cpp" />
     <ClCompile Include="SourceCode\GUI\Layout\BaseLayout.cpp" />
     <ClCompile Include="SourceCode\GUI\Layout\GridLayout.cpp" />
     <ClCompile Include="SourceCode\GUI\Layout\HScrollLayout.cpp" />
@@ -269,6 +271,21 @@
     <ClCompile Include="SourceCode\GUI\WindowManager.cpp" />
     <ClCompile Include="SourceCode\GUI\Window\Button.cpp" />
     <ClCompile Include="SourceCode\GUI\Window\Window.cpp" />
+    <ClCompile Include="SourceCode\ParticlesSystem\BallParticleEmitterEntity.cpp" />
+    <ClCompile Include="SourceCode\ParticlesSystem\BoxParticleEmitterEntity.cpp" />
+    <ClCompile Include="SourceCode\ParticlesSystem\ColorParticleAnimation.cpp" />
+    <ClCompile Include="SourceCode\ParticlesSystem\ConeParticleEmitterEntity.cpp" />
+    <ClCompile Include="SourceCode\ParticlesSystem\Emitter.cpp" />
+    <ClCompile Include="SourceCode\ParticlesSystem\Particle.cpp" />
+    <ClCompile Include="SourceCode\ParticlesSystem\ParticleAnimationBase.cpp" />
+    <ClCompile Include="SourceCode\ParticlesSystem\ParticleEmitterEntity.cpp" />
+    <ClCompile Include="SourceCode\ParticlesSystem\ParticleProperty.cpp" />
+    <ClCompile Include="SourceCode\ParticlesSystem\ParticleSystem.cpp" />
+    <ClCompile Include="SourceCode\ParticlesSystem\ParticleSystemManager.cpp" />
+    <ClCompile Include="SourceCode\ParticlesSystem\ParticleSystemScript.cpp" />
+    <ClCompile Include="SourceCode\ParticlesSystem\PointParticleEmitterEntity.cpp" />
+    <ClCompile Include="SourceCode\ParticlesSystem\RotateParticleAnimation.cpp" />
+    <ClCompile Include="SourceCode\ParticlesSystem\ScaleParticleAnimation.cpp" />
     <ClCompile Include="SourceCode\Render\Animation.cpp" />
     <ClCompile Include="SourceCode\Render\AnimationController.cpp" />
     <ClCompile Include="SourceCode\Render\AnimationManager.cpp" />
@@ -283,6 +300,19 @@
     <ClCompile Include="SourceCode\Render\RenderObject.cpp" />
     <ClCompile Include="SourceCode\Render\RenderObjectManager.cpp" />
     <ClCompile Include="SourceCode\Render\RenderState.cpp" />
+    <ClCompile Include="SourceCode\Render\RenderStateParam\BlendEquationRenderStateParam.cpp" />
+    <ClCompile Include="SourceCode\Render\RenderStateParam\BlendRenderStateParam.cpp" />
+    <ClCompile Include="SourceCode\Render\RenderStateParam\BoolRenderStateParam.cpp" />
+    <ClCompile Include="SourceCode\Render\RenderStateParam\ClockWiseRenderStateParam.cpp" />
+    <ClCompile Include="SourceCode\Render\RenderStateParam\CullModeRenderStateParam.cpp" />
+    <ClCompile Include="SourceCode\Render\RenderStateParam\FloatRenderStateParam.cpp" />
+    <ClCompile Include="SourceCode\Render\RenderStateParam\FunctionRenderStateParam.cpp" />
+    <ClCompile Include="SourceCode\Render\RenderStateParam\IntRenderStateParam.cpp" />
+    <ClCompile Include="SourceCode\Render\RenderStateParam\PolygonModeRenderStateParam.cpp" />
+    <ClCompile Include="SourceCode\Render\RenderStateParam\RenderStateParamBase.cpp" />
+    <ClCompile Include="SourceCode\Render\RenderStateParam\ShadeModeRenderStateParam.cpp" />
+    <ClCompile Include="SourceCode\Render\RenderStateParam\StencilRenderStateParam.cpp" />
+    <ClCompile Include="SourceCode\Render\RenderStateParam\UintRenderStateParam.cpp" />
     <ClCompile Include="SourceCode\Render\Shader.cpp" />
     <ClCompile Include="SourceCode\Render\ShaderProgram.cpp" />
     <ClCompile Include="SourceCode\Render\Skeleton.cpp" />
@@ -297,6 +327,7 @@
     <ClCompile Include="SourceCode\Render\Texture.cpp" />
     <ClCompile Include="SourceCode\Render\TextureFormatConverter.cpp" />
     <ClCompile Include="SourceCode\Render\TextureFrag.cpp" />
+    <ClCompile Include="SourceCode\Render\TextureFragManager.cpp" />
     <ClCompile Include="SourceCode\Resource\Resource.cpp" />
     <ClCompile Include="SourceCode\Resource\ResourceManager.cpp" />
     <ClCompile Include="SourceCode\Resource\ResourcePathManager.cpp" />
@@ -324,6 +355,8 @@
     <ClInclude Include="SourceCode\GUI\Behavior\BehaviorBase.h" />
     <ClInclude Include="SourceCode\GUI\Behavior\BehaviorDefs.h" />
     <ClInclude Include="SourceCode\GUI\Event\WindowEvent.h" />
+    <ClInclude Include="SourceCode\GUI\Font\FontFace.h" />
+    <ClInclude Include="SourceCode\GUI\Font\FontManager.h" />
     <ClInclude Include="SourceCode\GUI\GUIEventType.h" />
     <ClInclude Include="SourceCode\GUI\Layout\BaseLayout.h" />
     <ClInclude Include="SourceCode\GUI\Layout\GridLayout.h" />
@@ -337,6 +370,21 @@
     <ClInclude Include="SourceCode\GUI\WindowManager.h" />
     <ClInclude Include="SourceCode\GUI\Window\Button.h" />
     <ClInclude Include="SourceCode\GUI\Window\Window.h" />
+    <ClInclude Include="SourceCode\ParticlesSystem\BallParticleEmitterEntity.h" />
+    <ClInclude Include="SourceCode\ParticlesSystem\BoxParticleEmitterEntity.h" />
+    <ClInclude Include="SourceCode\ParticlesSystem\ColorParticleAnimation.h" />
+    <ClInclude Include="SourceCode\ParticlesSystem\ConeParticleEmitterEntity.h" />
+    <ClInclude Include="SourceCode\ParticlesSystem\Emitter.h" />
+    <ClInclude Include="SourceCode\ParticlesSystem\Particle.h" />
+    <ClInclude Include="SourceCode\ParticlesSystem\ParticleAnimationBase.h" />
+    <ClInclude Include="SourceCode\ParticlesSystem\ParticleEmitterEntity.h" />
+    <ClInclude Include="SourceCode\ParticlesSystem\ParticleProperty.h" />
+    <ClInclude Include="SourceCode\ParticlesSystem\ParticleSystem.h" />
+    <ClInclude Include="SourceCode\ParticlesSystem\ParticleSystemManager.h" />
+    <ClInclude Include="SourceCode\ParticlesSystem\ParticleSystemScript.h" />
+    <ClInclude Include="SourceCode\ParticlesSystem\PointParticleEmitterEntity.h" />
+    <ClInclude Include="SourceCode\ParticlesSystem\RotateParticleAnimation.h" />
+    <ClInclude Include="SourceCode\ParticlesSystem\ScaleParticleAnimation.h" />
     <ClInclude Include="SourceCode\PublicDef.h" />
     <ClInclude Include="SourceCode\Render\Animation.h" />
     <ClInclude Include="SourceCode\Render\AnimationController.h" />
@@ -355,8 +403,20 @@
     <ClInclude Include="SourceCode\Render\RenderObjectManager.h" />
     <ClInclude Include="SourceCode\Render\RenderPublic.h" />
     <ClInclude Include="SourceCode\Render\RenderState.h" />
+    <ClInclude Include="SourceCode\Render\RenderStateParam\BlendEquationRenderStateParam.h" />
+    <ClInclude Include="SourceCode\Render\RenderStateParam\BlendRenderStateParam.h" />
+    <ClInclude Include="SourceCode\Render\RenderStateParam\BoolRenderStateParam.h" />
+    <ClInclude Include="SourceCode\Render\RenderStateParam\ClockWiseRenderStateParam.h" />
+    <ClInclude Include="SourceCode\Render\RenderStateParam\CullModeRenderStateParam.h" />
+    <ClInclude Include="SourceCode\Render\RenderStateParam\FloatRenderStateParam.h" />
+    <ClInclude Include="SourceCode\Render\RenderStateParam\FunctionRenderStateParam.h" />
+    <ClInclude Include="SourceCode\Render\RenderStateParam\IntRenderStateParam.h" />
+    <ClInclude Include="SourceCode\Render\RenderStateParam\PolygonModeRenderStateParam.h" />
+    <ClInclude Include="SourceCode\Render\RenderStateParam\RenderStateParamBase.h" />
+    <ClInclude Include="SourceCode\Render\RenderStateParam\ShadeModeRenderStateParam.h" />
+    <ClInclude Include="SourceCode\Render\RenderStateParam\StencilRenderStateParam.h" />
+    <ClInclude Include="SourceCode\Render\RenderStateParam\UintRenderStateParam.h" />
     <ClInclude Include="SourceCode\Render\Shader.h" />
-    <ClInclude Include="SourceCode\Render\RenderStateParam.h" />
     <ClInclude Include="SourceCode\Render\ShaderProgram.h" />
     <ClInclude Include="SourceCode\Render\Skeleton.h" />
     <ClInclude Include="SourceCode\Render\SkeletonBone.h" />
@@ -369,6 +429,8 @@
     <ClInclude Include="SourceCode\Render\SpriteFrameBatchManager.h" />
     <ClInclude Include="SourceCode\Render\Texture.h" />
     <ClInclude Include="SourceCode\Render\TextureFormatConverter.h" />
+    <ClInclude Include="SourceCode\Render\TextureFrag.h" />
+    <ClInclude Include="SourceCode\Render\TextureFragManager.h" />
     <ClInclude Include="SourceCode\Resource\Resource.h" />
     <ClInclude Include="SourceCode\Resource\ResourceManager.h" />
     <ClInclude Include="SourceCode\Resource\ResourcePathManager.h" />

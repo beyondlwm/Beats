@@ -14,7 +14,7 @@ class CRenderObjectManager
     BEATS_DECLARE_SINGLETON(CRenderObjectManager);
 public:
     CModel *CreateModel();
-    CSprite *CreateSprite(SharePtr<CTexture> texture, const CRect &rect, const CSize &size);
+    CSprite *CreateSprite(const TString &textureFragName, const kmVec2 &size);
     CCurveRenderer *CreateCurve(SharePtr<Spline> spline);
     void Render();
 

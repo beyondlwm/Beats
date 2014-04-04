@@ -7,7 +7,7 @@
 #include "EngineProperGridManager.h"
 #include "GLCanvas.h"
 
-
+class wxSplitterWindow;
 class TimeBarFrame;
 class CEditorMainFrame : public wxFrame
 {
@@ -33,25 +33,30 @@ public:
     void CreateGLCanvas();
     void CreateTimeBar();
     void CreatePropertyGrid();
+    void CreatSplitter();
     void AddPageToBook();
-
+    void AddTreeItem();
     void OnAuiButton(wxCommandEvent& event);
     void OnEditAnimationMenuItem(wxCommandEvent& event);
-
+    void OnTreeClick(wxTreeEvent& event);
     void GetEditAnimationDialog();
 private:
+    void AddChilditemToItem(wxTreeItemId& idParent, std::vector<TString>& vecName, size_t iLevel);
 
     wxAuiNotebook*      m_pLeft;
     wxAuiNotebook*      m_pRight;
     wxAuiNotebook*      m_pBottom;
     wxAuiNotebook*      m_pCenter;
-    wxTreeCtrl*         m_pTreeCtrl1;
+    wxTreeCtrl*         m_pComponentModelTC;
+    wxTreeCtrl*         m_pCurComponentTC;
     wxAuiManager        m_Manager;
     GLAnimationCanvas*  m_pGLCanvas;
     TimeBarFrame*       m_pTimeBar;
     EnginePropertyGirdManager* m_pPropGridManager;
     wxPropertyGrid*     m_propGrid;
     wxDialog*           m_pWEditAnimation;
+    wxSplitterWindow*   m_pSplitter;
+    wxWindow            *m_pSplTop, *m_pSplBottom;
 DECLARE_EVENT_TABLE();
 };
 

@@ -9,12 +9,13 @@ class CTextureFrag;
 class CSpriteFrame
 {
 public:
-    CSpriteFrame(SharePtr<CTexture> texture, const CRect &rect);
-    CSpriteFrame(SharePtr<CTexture> texture, const CRect &rect, const CSize &size, const CPoint &origin);
+    CSpriteFrame(CTextureFrag *textureFrag);
+    CSpriteFrame(const TString &textureFragName);
+    CSpriteFrame(const TString &textureFragName, const kmVec2 &size, const kmVec2 &origin);
     ~CSpriteFrame();
 
     void SetQuad(const CQuadP &quad);
-    void SetOriginSize(const CPoint &origin, const CSize &size);
+    void SetOriginSize(const kmVec2 &origin, const kmVec2 &size);
 
     const CQuadP &QuadP() const;
     const CQuadT &QuadT() const;

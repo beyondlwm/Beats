@@ -9,13 +9,6 @@ namespace FCGUI
     {
     public:
         VScrollLayout(size_t colCount = 1);
-
-        void SetRowHeight(kmScalar rowHeight);
-
-        virtual void PerformLayout() override;
-
-    protected:
-        kmScalar _rowHeight;
     };
 }
 

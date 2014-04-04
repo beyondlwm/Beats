@@ -12,13 +12,9 @@ namespace FCGUI
 
         virtual bool AddChild( Window *window ) override;
 
-        virtual bool AddChild( Window *window, kmScalar x, kmScalar y ) override;
-
         virtual bool AddChildToCell( Window *window, size_t row, size_t col ) override;
 
-        virtual bool RemoveChild( size_t row, size_t col ) override;
-
-        virtual void PerformLayout() override = 0;
+        virtual bool RemoveChild( Window *window );
 
     protected:
         kmScalar _colWidth;

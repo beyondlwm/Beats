@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ButtonRenderer.h"
-#include "Render\SpriteFrameBatchManager.h"
+#include "Render/SpriteFrameBatchManager.h"
+#include "Render/TextureFragManager.h"
 
 using namespace FCGUI;
 
@@ -14,7 +15,7 @@ RendererType ButtonRenderer::Type() const
     return RENDERER_BUTTON;
 }
 
-void ButtonRenderer::AddLayer(CSpriteFrame *layer, std::set<Button::State> states)
+void ButtonRenderer::AddLayer(CTextureFrag *layer, std::set<Button::State> states)
 {
     BaseRenderer::AddLayer(layer);
     for(auto state : states)
@@ -23,10 +24,18 @@ void ButtonRenderer::AddLayer(CSpriteFrame *layer, std::set<Button::State> state
     }
 }
 
-void ButtonRenderer::AddLayer(CSpriteFrame *layer, Button::State state)
+void ButtonRenderer::AddLayer(CTextureFrag *layer, Button::State state)
 {
     BaseRenderer::AddLayer(layer);
     _stateLayers[state].insert(layer);
+}
+
+void ButtonRenderer::AddLayer(const TString &textureFragName, Button::State state)
+{
+    CTextureFrag *frag = CTextureFragManager::GetInstance()->GetTextureFrag(textureFragName);
+    BEATS_ASSERT(frag);
+    BaseRenderer::AddLayer(frag);
+    _stateLayers[state].insert(frag);
 }
 
 void ButtonRenderer::renderLayers( const kmMat4 &parentTransform ) const
@@ -37,6 +46,6 @@ void ButtonRenderer::renderLayers( const kmMat4 &parentTransform ) const
         layers = &_stateLayers[Button::STATE_NORMAL];
     for(auto layer : *layers)
     {
-        CSpriteFrameBatchManager::GetInstance()->AddSpriteFrame(layer, parentTransform);
+        CSpriteFrameBatchManager::GetInstance()->AddQuad(_quad, layer, parentTransform);
     }
 }

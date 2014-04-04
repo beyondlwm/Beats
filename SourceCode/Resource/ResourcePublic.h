@@ -10,6 +10,7 @@ enum EResourceType
     eRT_Material,
     eRT_Shader,
     eRT_SpriteAnimation,
+    eRT_ParticleScript,
 
     eRT_Count,
     eRT_Force32Bit = 0xFFFFFFFF

@@ -10,15 +10,37 @@
 
 using namespace FCGUI;
 
+Window::Window()
+{
+    Init();
+}
+
 Window::Window(const TString &name)
     : _name(name)
 {
     Init();
 }
 
+Window::Window(CSerializer& serializer)
+	: super(serializer)
+{
+    Init();
+    DECLARE_PROPERTY(serializer, _name, true, 0xFFFFFFFF, _T("名称"), NULL, NULL, NULL);
+    DECLARE_PROPERTY(serializer, _pos, true, 0xFFFFFFFF, _T("位置"), NULL, NULL, NULL);
+    DECLARE_PROPERTY(serializer, _percentPos, true, 0xFFFFFFFF, _T("位置百分比"), NULL, NULL, NULL);
+    DECLARE_PROPERTY(serializer, _size, true, 0xFFFFFFFF, _T("尺寸"), NULL, NULL, NULL);
+    DECLARE_PROPERTY(serializer, _percentSize, true, 0xFFFFFFFF, _T("尺寸百分比"), NULL, NULL, NULL);
+    DECLARE_PROPERTY(serializer, _rotation, true, 0xFFFFFFFF, _T("旋转"), NULL, NULL, NULL);
+    DECLARE_PROPERTY(serializer, _scale, true, 0xFFFFFFFF, _T("缩放"), NULL, NULL, NULL);
+    DECLARE_PROPERTY(serializer, _visible, true, 0xFFFFFFFF, _T("可见"), NULL, NULL, NULL);
+    DECLARE_PROPERTY(serializer, _anchor, true, 0xFFFFFFFF, _T("锚点"), NULL, NULL, NULL);
+}
+
 Window::~Window()
 {
-    BEATS_SAFE_DELETE(_behavior);
+    if(this == WindowManager::GetInstance()->FocusedWindow())
+        WindowManager::GetInstance()->SetFocusedWindow(nullptr);
+
     BEATS_SAFE_DELETE(_renderer);
 
     for(auto child : _children)
@@ -30,15 +52,14 @@ Window::~Window()
 void Window::Init()
 {
     _parent = nullptr;
-    _behavior = nullptr;
     _renderer = nullptr;
     _layout = nullptr;
 
 	kmVec2Fill(&_pos, 0.f, 0.f);
-	kmVec2Fill(&_posPercent, 0.f, 0.f);
+	kmVec2Fill(&_percentPos, 0.f, 0.f);
 	kmVec2Fill(&_realPos, 0.f, 0.f);
 	kmVec2Fill(&_size, 0.f, 0.f);
-	kmVec2Fill(&_sizePercent, 0.f, 0.f);
+	kmVec2Fill(&_percentSize, 0.f, 0.f);
 	kmVec2Fill(&_realSize, 0.f, 0.f);
 	kmVec2Fill(&_anchor, 0.f, 0.f);
 	_rotation = 0.f;
@@ -50,28 +71,18 @@ void Window::SetPosSize(kmScalar x, kmScalar y, kmScalar xPercent, kmScalar yPer
     kmScalar width, kmScalar height, kmScalar widthPercent, kmScalar heightPercent)
 {
     SetPos(x, y);
-    SetPosPercent(xPercent, yPercent);
+    SetPercentPos(xPercent, yPercent);
     SetSize(width, height);
-    SetSizePercent(widthPercent, heightPercent);
+    SetPercentSize(widthPercent, heightPercent);
 }
 
 void Window::SetArea(kmScalar left, kmScalar top, kmScalar leftPercent, kmScalar topPercent, 
     kmScalar right, kmScalar bottom, kmScalar rightPercent, kmScalar bottomPercent)
 {
     SetPos(left, top);
-    SetPosPercent(leftPercent, topPercent);
+    SetPercentPos(leftPercent, topPercent);
     SetSize(right - left, bottom - top);
-    SetSizePercent(rightPercent - leftPercent, bottomPercent - topPercent);
-}
-
-void Window::SetBehavior(BehaviorBase *behavior)
-{
-    _behavior = behavior;
-}
-
-BehaviorBase *Window::Behavior() const
-{
-	return _behavior;
+    SetPercentSize(rightPercent - leftPercent, bottomPercent - topPercent);
 }
 
 void Window::SetRenderer(BaseRenderer *renderer)
@@ -123,21 +134,21 @@ kmVec2 Window::Pos() const
 	return _pos;
 }
 
-void Window::SetPosPercent( kmScalar x, kmScalar y )
+void Window::SetPercentPos( kmScalar x, kmScalar y )
 {
-    _posPercent.x = x;
-    _posPercent.y = y;
+    _percentPos.x = x;
+    _percentPos.y = y;
     calcRealPos();
 }
 
-void Window::SetPosPercent( kmVec2 posPercent )
+void Window::SetPercentPos( kmVec2 posPercent )
 {
-    SetPosPercent(posPercent.x, posPercent.y);
+    SetPercentPos(posPercent.x, posPercent.y);
 }
 
-kmVec2 Window::PosPercent() const
+kmVec2 Window::PercentPos() const
 {
-	return _posPercent;
+	return _percentPos;
 }
 
 void Window::calcRealPos()
@@ -152,8 +163,8 @@ void Window::calcRealPos()
         kmVec2 parentAnchor;
         parentAnchor.x = parentSize.x * _parent->Anchor().x;
         parentAnchor.y = parentSize.y * _parent->Anchor().y;
-        _realPos.x = parentSize.x * _posPercent.x + _pos.x - parentAnchor.x;
-        _realPos.y = parentSize.y * _posPercent.y + _pos.y - parentAnchor.y;
+        _realPos.x = parentSize.x * _percentPos.x + _pos.x - parentAnchor.x;
+        _realPos.y = parentSize.y * _percentPos.y + _pos.y - parentAnchor.y;
     }
 
     calcTransform();
@@ -184,21 +195,21 @@ kmVec2 Window::Size() const
 	return _size;
 }
 
-void Window::SetSizePercent( kmScalar width, kmScalar height )
+void Window::SetPercentSize( kmScalar width, kmScalar height )
 {
-    _sizePercent.x = width;
-    _sizePercent.y = height;
+    _percentSize.x = width;
+    _percentSize.y = height;
     calcRealSize();
 }
 
-void Window::SetSizePercent( kmVec2 sizePercent )
+void Window::SetPercentSize( kmVec2 sizePercent )
 {
-    SetSizePercent(sizePercent.x, sizePercent.y);
+    SetPercentSize(sizePercent.x, sizePercent.y);
 }
 
-kmVec2 Window::SizePercent() const
+kmVec2 Window::PercentSize() const
 {
-	return _sizePercent;
+	return _percentSize;
 }
 
 void Window::calcRealSize()
@@ -210,8 +221,8 @@ void Window::calcRealSize()
     else
     {
         kmVec2 parentSize = _parent->RealSize();
-        _realSize.x = parentSize.x * _sizePercent.x + _size.x;
-        _realSize.y = parentSize.y * _sizePercent.y + _size.y;
+        _realSize.x = parentSize.x * _percentSize.x + _size.x;
+        _realSize.y = parentSize.y * _percentSize.y + _size.y;
     }
 
 	WindowEvent event(EVENT_SIZED);
@@ -219,7 +230,7 @@ void Window::calcRealSize()
 
     for(auto child : _children)
     {
-        child.second->OnParentSized();
+        child.second->onParentSized();
     }
 }
 
@@ -337,21 +348,67 @@ void Window::Localize(kmVec3 &pos) const
     kmVec3Transform(&pos, &pos, &inverseMat);
 }
 
-bool Window::HitTest(kmScalar x, kmScalar y) const
+void Window::Localize(kmScalar &x, kmScalar &y) const
 {
-    kmVec3 anchorPos;
-    anchorPos.x = _realSize.x * _anchor.x;
-    anchorPos.y = _realSize.y * _anchor.y;
-    anchorPos.z = 0.f;
-
     kmVec3 hitPos;
     kmVec3Fill(&hitPos, x, y, 0.f);
     Localize(hitPos);
-    
-    return (hitPos.x >  -anchorPos.x)
-        && (hitPos.x <  -anchorPos.x + _realSize.x)
-        && (hitPos.y >  -anchorPos.y)
-        && (hitPos.y <  -anchorPos.y + _realSize.y);
+    x = hitPos.x;
+    y = hitPos.y;
+}
+
+Window::HitTestResult Window::HitTest(kmScalar x, kmScalar y, bool localized) const
+{
+    static const kmScalar DEVIATION = 5.f;
+
+    kmVec2 realAnchor = RealAnchor();
+
+    if(!localized)
+        Localize(x, y);
+
+    kmScalar toLeft = x - (-realAnchor.x);
+    kmScalar toRight = (-realAnchor.x + _realSize.x) - x;
+    kmScalar toTop = y - (-realAnchor.y);
+    kmScalar toBottom = (-realAnchor.y + _realSize.y) - y;
+
+    HitTestResult result = HIT_NONE;
+    if(toLeft >= 0.f && toRight >= 0.f && toTop >= 0.f && toBottom >= 0.f)
+    {
+        result = HIT_CONTENT;
+        if(toLeft <= DEVIATION)
+        {
+            if(toTop <= DEVIATION)
+            {
+                result = HIT_TOP_LEFT;
+            }
+            else if(toBottom <= DEVIATION)
+            {
+                result = HIT_BOTTOM_LEFT;
+            }
+        }
+        else if(toRight <= DEVIATION)
+        {
+            if(toTop <= DEVIATION)
+            {
+                result = HIT_TOP_RIGHT;
+            }
+            else if(toBottom <= DEVIATION)
+            {
+                result = HIT_BOTTOM_RIGHT;
+            }
+            else if(abs(toBottom - toTop) <= DEVIATION*2)
+            {
+                result = HIT_ROTATION_HANDLE;
+            }
+        }
+        else if(abs(toLeft - realAnchor.x) <= DEVIATION*2 
+            &&  abs(toTop - realAnchor.y) <= DEVIATION*2)
+        {
+            result = HIT_ANCHOR;
+        }
+    }
+
+    return result;
 }
 
 void Window::Show()
@@ -374,7 +431,7 @@ bool Window::Visible()
 	return _visible;
 }
 
-void Window::OnParentSized()
+void Window::onParentSized()
 {
 	calcRealPos();
 	calcRealSize();
@@ -411,11 +468,20 @@ bool Window::OnMouseEvent( MouseEvent *event )
 
 void Window::Update(float deltaTime)
 {
+    //destroy recycled children
+    for(auto child : _recycled)
+    {
+        BEATS_SAFE_DELETE(child);
+    }
+    _recycled.clear();
+
+    //perform layout if nesessary
     if(_layout && _layout->Invalidated())
     {
         _layout->PerformLayout();
     }
-
+    
+    //update children
     for(auto child : _children)
     {
         child.second->Update(deltaTime);
@@ -433,6 +499,11 @@ void Window::SetParent( Window *parent )
 	calcRealSize();
 }
 
+Window *Window::Parent() const
+{
+    return _parent;
+}
+
 void Window::AddChild( Window *window )
 {
 	BEATS_ASSERT(window);
@@ -440,6 +511,9 @@ void Window::AddChild( Window *window )
 
 	_children[window->Name()] = window;
 	window->SetParent(this);
+
+    WindowEvent event(EVENT_CHILD_ADDED, window);
+    DispatchEvent(&event);
 }
 
 void Window::RemoveChild( Window *window )
@@ -453,25 +527,42 @@ void Window::RemoveChild( const TString &name )
 	auto itr = _children.find(name);
 	if(itr != _children.end())
 	{
+        WindowEvent event(EVENT_CHILD_REMOVE, itr->second);
+        DispatchEvent(&event);
+
 		_children.erase(itr);
 	}
 }
 
-void Window::DestroyChild(Window *window)
+void Window::DestroyChild(Window *window, bool delay)
 {
 	if(window)
 	{
-		DestroyChild(window->Name());
+        DestroyChild(window->Name(), delay);
 	}
 }
 
-void Window::DestroyChild(const TString &name)
+void Window::DestroyChild(const TString &name, bool delay)
 {
 	auto itr = _children.find(name);	
 	if(itr != _children.end())
 	{
-		delete itr->second;
-		_children.erase(itr);
+        WindowEvent event(EVENT_CHILD_REMOVE, itr->second);
+        DispatchEvent(&event);
+
+        if(itr->second == WindowManager::GetInstance()->FocusedWindow())
+            WindowManager::GetInstance()->SetFocusedWindow(nullptr);
+
+        if(delay)
+        {
+            _recycled.push_back(itr->second);
+            _children.erase(itr);
+        }
+        else
+        {
+            BEATS_SAFE_DELETE(itr->second);
+            _children.erase(itr);
+        }
 	}
 }
 
@@ -496,4 +587,14 @@ Window *Window::GetChild( const TString &name, bool recursively ) const
 		}
 	}
 	return pRet;
+}
+
+const Window::WindowVisitor &Window::Traverse( const WindowVisitor &visitor )
+{
+    for(auto child : _children)
+    {
+        if(visitor(child.second))
+            break;
+    }
+    return visitor;
 }

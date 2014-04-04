@@ -20,8 +20,8 @@ public:
 class CRect
 {
 public:
-    CPoint point;
-    CSize size;
+    kmVec2 point;
+    kmVec2 size;
 
     CRect(float x = 0.f, float y = 0.f, float width = 0.f, float height = 0.f);
 };

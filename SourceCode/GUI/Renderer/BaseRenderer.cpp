@@ -1,9 +1,11 @@
 #include "stdafx.h"
 #include "BaseRenderer.h"
 #include "GUI/Window/Window.h"
-#include "Render/SpriteFrame.h"
+#include "Render/TextureFrag.h"
+#include "Render/Texture.h"
 #include "Render/SpriteFrameBatchManager.h"
 #include "GUI/Event/WindowEvent.h"
+#include "Render/TextureFragManager.h"
 
 using namespace FCGUI;
 
@@ -14,10 +16,6 @@ BaseRenderer::BaseRenderer()
 
 BaseRenderer::~BaseRenderer()
 {
-	for(auto layer : _layers)
-	{
-		delete layer;
-	}
 }
 
 void BaseRenderer::SetWindow(Window *window)
@@ -54,7 +52,7 @@ void BaseRenderer::renderLayers(const kmMat4 &worldTransform) const
 {
 	for(auto layer : _layers)
 	{
-		CSpriteFrameBatchManager::GetInstance()->AddSpriteFrame(layer, worldTransform);
+		CSpriteFrameBatchManager::GetInstance()->AddQuad(_quad, layer, worldTransform);
 	}
 }
 
@@ -62,27 +60,26 @@ void BaseRenderer::renderChildren(const kmMat4 &parentTransform) const
 {
     BEATS_ASSERT(_window);
 
-	_window->Traverse([&](Window *window){
+	_window->Traverse([&parentTransform](Window *window){
 		BaseRenderer *renderer = window->Renderer();
 		if(renderer)
 		{
 			renderer->Render(parentTransform);
 		}
+        return false;
 	});	
 }
 
-void BaseRenderer::AddLayer(CSpriteFrame *layer)
+void BaseRenderer::AddLayer(CTextureFrag *layer)
 {
 	_layers.push_back(layer);
+}
 
-    if(_window)
-    {
-        kmScalar anchorX = _window->RealSize().x * _window->Anchor().x;
-        kmScalar anchorY = _window->RealSize().y * _window->Anchor().y;
-
-        layer->SetOriginSize(CPoint(anchorX, anchorY), 
-            CSize(_window->RealSize().x, _window->RealSize().y));
-    }
+void BaseRenderer::AddLayer(const TString &textureFragName)
+{
+    CTextureFrag *frag = CTextureFragManager::GetInstance()->GetTextureFrag(textureFragName);
+    BEATS_ASSERT(frag);
+    _layers.push_back(frag);
 }
 
 void BaseRenderer::onWindowEvent(BaseEvent *event)
@@ -106,8 +103,13 @@ void BaseRenderer::setVertices(const Window *window)
     kmScalar anchorX = window->RealSize().x * window->Anchor().x;
     kmScalar anchorY = window->RealSize().y * window->Anchor().y;
 
-	for(auto layer : _layers)
-	{
-		layer->SetOriginSize(CPoint(anchorX, anchorY), CSize(window->RealSize().x, window->RealSize().y));
-	}
+    //set vertex
+    _quad.tl.x = 0 - anchorX;
+    _quad.tl.y = 0 - anchorY;
+    _quad.tr.x = window->RealSize().x - anchorX;
+    _quad.tr.y = _quad.tl.y;
+    _quad.bl.x = _quad.tl.x;
+    _quad.bl.y = window->RealSize().y - anchorY;
+    _quad.br.x = _quad.tr.x;
+    _quad.br.y = _quad.bl.y;
 }

@@ -6,6 +6,7 @@
 #include "Geometry.h"
 
 class CTexture;
+class CTextureFrag;
 class CSpriteFrame;
 class CSpriteAnimation;
 class CSpriteAnimationController;
@@ -14,7 +15,8 @@ class CSprite : public CRenderObject
 {
 public:
     CSprite();
-    CSprite(SharePtr<CTexture> texture, const CRect &rect, const CSize &size);
+    CSprite(CTextureFrag *textureFrag);
+    CSprite(const TString &textureFragName, const kmVec2 &size);
     ~CSprite();
 
     virtual void PreRender() override;

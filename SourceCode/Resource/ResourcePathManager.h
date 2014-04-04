@@ -13,6 +13,7 @@ enum EResourcePathType
     eRPT_Skeleton,
     eRPT_Material,
     eRPT_Texture,
+    eRPT_Particle,
 
     eRPT_Count,
 };
@@ -29,6 +30,7 @@ static const TCHAR* pszResourcePathName[] =
     _T("Resource/Skeleton"),
     _T("Resource/Material"),
     _T("Resource/Texture"),
+    _T("Resource/Particle"),
 };
 
 class CResourcePathManager

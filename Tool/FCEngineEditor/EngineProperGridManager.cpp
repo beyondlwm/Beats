@@ -10,6 +10,11 @@
 #include "ComponentGraphics_GL.h"
 #include "resource/ResourcePathManager.h"
 
+
+BEGIN_EVENT_TABLE(EnginePropertyGirdManager, wxPropertyGridManager)
+    EVT_PG_CHANGED(wxID_ANY, EnginePropertyGirdManager::OnComponentPropertyChanged)
+    END_EVENT_TABLE()
+
 EnginePropertyGirdManager::EnginePropertyGirdManager()
     : m_bNeedUpdatePropertyGrid(false)
 {
@@ -62,7 +67,7 @@ void EnginePropertyGirdManager::InsertInPropertyGrid( const std::vector<CPropert
 
         pPGProperty->SetName(pPropertyBase->GetBasicInfo().m_variableName);
         pPGProperty->SetLabel(pPropertyBase->GetBasicInfo().m_displayName);
-        pPGProperty->ChangeFlag(wxPG_PROP_READONLY, !pPropertyBase->GetBasicInfo().m_bEditable || pPropertyBase->GetType() == ePT_Ptr);
+        pPGProperty->ChangeFlag(wxPG_PROP_READONLY, !pPropertyBase->GetBasicInfo().m_bEditable || pPropertyBase->GetType() == ePT_Ptr || pPropertyBase->GetType() == ePT_List || pPropertyBase->GetType() == ePT_Vec3F);
         pPGProperty->SetHelpString(pPropertyBase->GetBasicInfo().m_tip);
         GetGrid()->GetState()->DoInsert(pParent, -1, pPGProperty);
         // This function can only be called after property be inserted to grid, or it will crash. It's a wxwidgets rule.
@@ -131,9 +136,46 @@ void EnginePropertyGirdManager::InitComponentsPage()
 {
     const TString& strWorkPath = CResourcePathManager::GetInstance()->GetResourcePath(eRPT_Work);
     CComponentManager::GetInstance()->DeserializeTemplateData(strWorkPath.c_str(), CreateComponentProxy, CreateGraphic);
-    const std::map<size_t, CComponentBase*>* pComponentsMap = CComponentManager::GetInstance()->GetComponentTemplateMap();
+}
 
-    std::map<size_t, CComponentBase*>::const_iterator iter =  pComponentsMap->find(0x1547ABEC);
-    CComponentEditorProxy* pTemp = (CComponentEditorProxy*)iter->second;
-    InsertComponentsInPropertyGrid(pTemp);
+void EnginePropertyGirdManager::OnComponentPropertyChanged( wxPropertyGridEvent& event )
+{
+    wxPGProperty* pProperty = event.GetProperty();
+    OnComponentPropertyChangedImpl(pProperty);
+    event.Skip();
+}
+
+void EnginePropertyGirdManager::OnComponentPropertyChangedImpl(wxPGProperty* pProperty)
+{
+    void* pClientData = pProperty->GetClientData();
+    if (pClientData != NULL)
+    {
+        CWxwidgetsPropertyBase* pPropertyBase = static_cast<CWxwidgetsPropertyBase*>(pClientData);
+        BEATS_ASSERT(pPropertyBase != NULL);
+        wxVariant var = pProperty->GetValue();
+        pPropertyBase->SetValue(var, false);
+        wxPGProperty* pCurProperty = pProperty;
+        while (pCurProperty != NULL)
+        {
+            void* pCurClientData = pCurProperty->GetClientData();
+            if (pCurClientData == NULL)
+            {
+                break;
+            }
+            CWxwidgetsPropertyBase* pCurPropertyBase = static_cast<CWxwidgetsPropertyBase*>(pCurClientData);
+            bool bModified = !pCurPropertyBase->IsDataSame(true);
+            pCurProperty->SetModifiedStatus(bModified);
+            // HACK: I don't know how to update those property which needs to be update when its child is changed.
+            if (pCurPropertyBase->GetType() == ePT_Vec2F || pCurPropertyBase->GetType() == ePT_Vec3F || pCurPropertyBase->GetType() == ePT_Vec4F)
+            {
+                char tmp[128];
+                pCurPropertyBase->GetValueAsChar(eVT_CurrentValue, tmp);
+                pCurProperty->SetValue(tmp);
+            }
+            pCurProperty = pCurProperty->GetParent();
+        }
+        UpdatePropertyVisiblity(pPropertyBase);
+        pProperty->RefreshEditor();
+        Refresh();
+    }
 }

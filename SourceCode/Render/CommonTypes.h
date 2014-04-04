@@ -70,6 +70,18 @@ public:
     }
 };
 
+class CVertexPTC
+{
+public:
+    kmVec3 position;
+    CColor color;
+    CTex tex;
+    CVertexPTC()
+    {
+        kmVec3Fill(&position, 0.f, 0.f, 0.f);
+    }
+};
+
 class CVertexPTB
 {
 public:
@@ -104,6 +116,15 @@ public:
             bl,    //bottom left
             tr,    //top right
             br;    //bottom right
+};
+
+class CQuadPTC
+{
+public:
+    CVertexPTC tl,
+               bl,
+               tr,
+               br;
 };
 
 class CQuadP

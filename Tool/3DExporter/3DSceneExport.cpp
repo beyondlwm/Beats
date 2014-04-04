@@ -27,7 +27,7 @@ int C3DSceneExport::ExtCount()
 
 const TCHAR* C3DSceneExport::Ext( int /*n*/ )
 {
-	return _T("MX");
+	return _T("max");
 }
 
 const TCHAR* C3DSceneExport::LongDesc()
@@ -83,8 +83,9 @@ BOOL C3DSceneExport::SupportsOptions( int /*ext*/, DWORD /*options*/ )
 	return FALSE;
 }
 
-int C3DSceneExport::DoExport( const TCHAR* /*pszName*/, ExpInterface* /*pExpInterface*/, Interface* /*pInterface*/, BOOL/* bSuppressPrompts = FALSE*/, DWORD/* options = 0*/)
+int C3DSceneExport::DoExport( const TCHAR* pszName, ExpInterface* /*pExpInterface*/, Interface* /*pInterface*/, BOOL/* bSuppressPrompts = FALSE*/, DWORD/* options = 0*/)
 {
+    m_pDataExporter->SetExportFileName(pszName);
 	m_pDataExporter->ExportScene();
 	return TRUE;
 }

@@ -34,13 +34,16 @@ BEGIN_EVENT_TABLE(GLAnimationCanvas, wxGLCanvas)
     EVT_IDLE(GLAnimationCanvas::OnIdle)
     END_EVENT_TABLE()
 
-    GLAnimationCanvas::GLAnimationCanvas(wxWindow *parent, wxWindowID id,
+    GLAnimationCanvas::GLAnimationCanvas(
+    wxWindow *parent, 
+    ECanvasType eType, 
+    wxWindowID id,
     const wxPoint& pos,
     const wxSize& size, long style,
     const wxString& name)
     : wxGLCanvas(parent, id, NULL, pos, size,
     style | wxFULL_REPAINT_ON_RESIZE, name)
-    , m_iType(0)
+    , m_iType(eType)
     , m_selectedIndex(0)
     , m_bLeftDown(false)
     , m_bRightDown(false)
@@ -50,12 +53,12 @@ BEGIN_EVENT_TABLE(GLAnimationCanvas, wxGLCanvas)
         m_KeyStates.push_back(*new bool(false));
     }
 
-    m_glRC = new wxGLContext(this);
+    m_pGLRC = new wxGLContext(this);
 }
 
 GLAnimationCanvas::~GLAnimationCanvas()
 {
-    delete m_glRC;
+    BEATS_SAFE_DELETE(m_pGLRC);
 }
 
 void GLAnimationCanvas::ResetProjectionMode()
@@ -63,7 +66,7 @@ void GLAnimationCanvas::ResetProjectionMode()
     if ( !IsShownOnScreen() )
         return;
 
-    SetCurrent(*m_glRC);
+    SetCurrent(*m_pGLRC);
 
     int w, h;
     GetClientSize(&w, &h);
@@ -82,7 +85,7 @@ void GLAnimationCanvas::OnPaint( wxPaintEvent& WXUNUSED(event) )
     // must always be here
     wxPaintDC dc(this);
 
-    SetCurrent(*m_glRC);
+    SetCurrent(*m_pGLRC);
 
     // Initialize OpenGL
     if (!m_gldata.initialized)
@@ -118,7 +121,6 @@ void GLAnimationCanvas::OnEraseBackground(wxEraseEvent& WXUNUSED(event))
 
 void GLAnimationCanvas::OnMouse(wxMouseEvent& event)
 {
-
     if (m_iType == TYPE_CURVE)
     {
         wxPoint wxpt = event.GetPosition();
@@ -161,7 +163,6 @@ void GLAnimationCanvas::OnMouse(wxMouseEvent& event)
         if(event.ButtonDown(wxMOUSE_BTN_RIGHT))
         {
             ShowCursor(false);
-            m_DownPosition = event.GetPosition();
             SetFocus();
             if (!HasCapture())
             {
@@ -182,14 +183,12 @@ void GLAnimationCanvas::OnMouse(wxMouseEvent& event)
         else if(event.ButtonDown(wxMOUSE_BTN_LEFT))
         {
             ShowCursor(false);
-            m_DownPosition = event.GetPosition();
             SetFocus();
             if (!HasCapture())
             {
                 CaptureMouse();
             }
             m_bLeftDown = true;
-
         }
         else if(event.ButtonUp(wxMOUSE_BTN_LEFT))
         {
@@ -203,35 +202,34 @@ void GLAnimationCanvas::OnMouse(wxMouseEvent& event)
         }
         else if(event.Dragging())
         {
-            wxPoint pnt = ClientToScreen(m_DownPosition);
+            wxPoint curPos = event.GetPosition();
+            wxPoint pnt = ClientToScreen(curPos);
             SetCursorPos(pnt.x, pnt.y);
             CRenderManager* pRenderMgr = CRenderManager::GetInstance();
             if (m_bRightDown)
             {
-                pRenderMgr->GetCamera()->RotateX((event.GetPosition().x - m_DownPosition.x) * MOUSESPEED);
-                pRenderMgr->GetCamera()->RotateY((event.GetPosition().y - m_DownPosition.y) * MOUSESPEED);
-            }
-            if (m_bLeftDown)
-            {
-                pRenderMgr->GetCamera()->Yaw((event.GetPosition().x - m_DownPosition.x) * MOUSESPEED);
-                pRenderMgr->GetCamera()->Pitch((event.GetPosition().y - m_DownPosition.y) * MOUSESPEED);
+                int nDeltaX = curPos.x - m_lastPosition.x;
+                int nDeltaY = curPos.y - m_lastPosition.y;
+                wxSize clientSize = GetClientSize();
+                pRenderMgr->GetCamera()->Yaw((float)nDeltaX / clientSize.x);
+                pRenderMgr->GetCamera()->Pitch((float)nDeltaY / clientSize.y);
             }
         }
         else if(event.GetWheelAxis() == wxMOUSE_WHEEL_VERTICAL)
         {
-            float fSpeed = SHIFTWHEELSPEED;
+            kmVec3 vec3Speed;
+            kmVec3Fill(&vec3Speed, SHIFTWHEELSPEED, SHIFTWHEELSPEED, SHIFTWHEELSPEED);
             if (event.GetWheelRotation() > 0)
             {
-                CRenderManager::GetInstance()->UpdateCamera(fSpeed, MOVESTRAIGHT);
+                CRenderManager::GetInstance()->UpdateCamera(vec3Speed, (1 << eCMT_STRAIGHT));
             }
             else if (event.GetWheelRotation() < 0)
             {
-                fSpeed *= -1;
-                CRenderManager::GetInstance()->UpdateCamera(fSpeed, MOVESTRAIGHT);
+                kmVec3Scale(&vec3Speed, &vec3Speed, -1.0f);
+                CRenderManager::GetInstance()->UpdateCamera(vec3Speed, (1 << eCMT_STRAIGHT));
             }
-
-        };
-
+        }
+        m_lastPosition = event.GetPosition();
     }
 }
 
@@ -262,7 +260,7 @@ void GLAnimationCanvas::OnIdle(wxIdleEvent& WXUNUSED(event))
     Refresh(false);
 }
 
-void GLAnimationCanvas::SetType( int iType )
+void GLAnimationCanvas::SetType( ECanvasType iType )
 {
     m_iType = iType;
 }
@@ -324,49 +322,54 @@ bool GLAnimationCanvas::GetKeyState( int iKey )
 
 void GLAnimationCanvas::UpDateCamera()
 {
-    kmVec3 translateDis;
-    kmVec3Fill(&translateDis, 0, 0, 0);
-
-    float fSpeed = 0;
-    int type = 0;
+    kmVec3 vec3Speed;
+    kmVec3Fill(&vec3Speed, 1.0f, 1.0f, 1.0f);
     if ( GetKeyState(KEY_SHIFT) )
     {
-        fSpeed = SHIFTWHEELSPEED;
+        kmVec3Scale(&vec3Speed, &vec3Speed, 5.0F * 0.016F);
     }
     else
     {
-        fSpeed = WHEELSPEED;
+        kmVec3Scale(&vec3Speed, &vec3Speed, 1.0F * 0.016F);
+    }
+    int type = eCMT_NOMOVE;
+
+    bool bPressA = GetKeyState(KEY_A);
+    bool bPressD = GetKeyState(KEY_D);
+    if ( bPressA || bPressD )
+    {
+        type |= (1 << eCMT_TRANVERSE);
+        if (bPressA)
+        {
+            vec3Speed.x *= -1;
+        }
+    }
+    bool bPressW = GetKeyState(KEY_W);
+    bool bPressS = GetKeyState(KEY_S);
+
+    if ( bPressW || bPressS )
+    {
+        type |= (1 << eCMT_STRAIGHT);
+        if (bPressW)
+        {
+            vec3Speed.z *= -1;
+        }
+    }
+    bool bPressUp = GetKeyState(KEY_Q);
+    bool bPressDown = GetKeyState(KEY_Z);
+
+    if ( bPressUp || bPressDown )
+    {
+        type |= (1 << eCMT_UPDOWN);
+        if (bPressDown)
+        {
+            vec3Speed.y *= -1;
+        }
     }
 
-    if ( GetKeyState(KEY_A) )
+    if (type != eCMT_NOMOVE)
     {
-        type = MOVETRANVERSE;
-        CRenderManager::GetInstance()->UpdateCamera(fSpeed* -1, type);
-    }
-    if ( GetKeyState(KEY_D) )
-    {
-        type = MOVETRANVERSE;
-        CRenderManager::GetInstance()->UpdateCamera(fSpeed , type);
-    } 
-    if ( GetKeyState(KEY_W) )
-    {
-        type = MOVESTRAIGHT;
-        CRenderManager::GetInstance()->UpdateCamera(fSpeed* -1, type);
-    }
-    if ( GetKeyState(KEY_S) )
-    {
-        type = MOVESTRAIGHT;
-        CRenderManager::GetInstance()->UpdateCamera(fSpeed , type);
-    }
-    if (GetKeyState(KEY_Q))
-    {
-        type = MOVEUPDOWN;
-        CRenderManager::GetInstance()->UpdateCamera(fSpeed, type);
-    }
-    if (GetKeyState(KEY_Z))
-    {
-        type = MOVEUPDOWN;
-        CRenderManager::GetInstance()->UpdateCamera(fSpeed * -1, type);
+        CRenderManager::GetInstance()->UpdateCamera(vec3Speed, type);
     }
 }
 

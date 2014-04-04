@@ -3,12 +3,31 @@
 #include "IGame\IGame.h"
 #include "IGame\IGameModifier.h"
 #include "impexp.h"
+#include "decomp.h"
+
+struct stKeyValue 
+{
+    INT m_nKeyTime;
+    std::string m_strKeyName;
+};
+
+struct SWeightData
+{
+    bool operator < (const SWeightData& ref)
+    {
+        return fWeight < ref.fWeight;
+    }
+    ESkeletonBoneType type;
+    float fWeight;
+};
 
 class CDataExporter
 {
 public:
 	CDataExporter();
 	virtual ~CDataExporter();
+
+    void    SetExportFileName(std::string fileName);
 
 	void    ExportScene();
 
@@ -18,15 +37,22 @@ public:
     BOOL	ExportAnimationNode(IGameNode* pNode, CSerializer& serializer);
 
 	void    ExportMesh();
-	BOOL    ExportMeshNode(IGameNode* pNode);
-	void	ExportSkinnedMesh(IGameNode* pNode);
+    void    GetSkinInfo();
+	void	ExportSkinnedMesh();
 
 	void	ExportAnimation();
+    void    InitAminiationSegment();
 
     void    InitNodeBones();
     void    InitFrameInfo();
 
 private:
+
+    void    GetMaterialInfo(IGameNode* pNode);
+
+    std::string   m_strFileName;
+    std::string   m_strFilePath;
+
     IGameScene* m_pIGameScene;
 
     int     m_nBoneCount;
@@ -34,6 +60,17 @@ private:
     int     m_nEndFrame;
     size_t  m_uFPS;
     Tab<IGameNode*> m_listBones;
+
+    std::vector<stKeyValue> m_vKeys;
+
+    std::vector<Point3> m_vecPos;
+    std::vector<Point3> m_vecUV;
+    std::vector<SWeightData> m_vecWeightData;
+
+    std::vector<std::string> m_vMaterialName;
+    size_t  m_uMeshCount;
+    std::vector<int>  m_vMeshVCount;
+    std::vector<int>  m_vMeshMeterialCnt;
 };
 
 

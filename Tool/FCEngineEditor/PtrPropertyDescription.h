@@ -35,6 +35,9 @@ public:
     virtual void Initialize();
 
 private:
+    void UpdateDisplayString(size_t uComponentId);
+
+private:
     size_t m_uDerivedGuid;
     size_t m_uComponentGuid;
     CComponentEditorProxy* m_pInstance;

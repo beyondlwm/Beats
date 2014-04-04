@@ -2,10 +2,18 @@
 #include "Material.h"
 #include "RenderManager.h"
 #include "RenderState.h"
+#include "Utility/BeatsUtility/Serializer.h"
 
 CMaterial::CMaterial()
+    : m_pRenderState(NULL)
 {
-    m_pRenderState = new CRenderState;
+}
+
+CMaterial::CMaterial(CSerializer& serializer)
+    : super(serializer)
+    , m_pRenderState(NULL)
+{
+    DECLARE_PROPERTY(serializer, m_pRenderState, true, 0xFFFFFFFF, _T("äÖÈ¾×´Ì¬"), NULL, NULL, NULL);
 }
 
 CMaterial::~CMaterial()

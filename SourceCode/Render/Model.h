@@ -11,7 +11,6 @@ class CSkin;
 class CTexture;
 class CAnimationController;
 class CAnimation;
-class CStateParam;
 class CShaderProgram;
 
 class CModel : public CComponentBase, public CRenderObject
@@ -46,7 +45,6 @@ private:
     bool m_bRenderSkeleton;
     CShaderProgram* m_pSkinProgram;
     CAnimationController* m_pAnimationController;
-    CStateParam* m_pStateParam;
     SharePtr<CMaterial> m_pMaterial;
     SharePtr<CSkeleton> m_pSkeleton;
     SharePtr<CSkin> m_pSkin;

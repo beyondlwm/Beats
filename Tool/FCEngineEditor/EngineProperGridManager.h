@@ -19,10 +19,15 @@ public:
     void UpdatePropertyVisiblity(CWxwidgetsPropertyBase* pPropertyBase);
     void RequestToUpdatePropertyGrid( );
     void InitComponentsPage();
+    void OnComponentPropertyChanged(wxPropertyGridEvent& event);
+    void OnComponentPropertyChangedImpl(wxPGProperty* pProperty);
     wxPGProperty* GetPGPropertyByBase(CPropertyDescriptionBase* pBase);
 
 private:
+//#error No place handle this flag, check BEATS::void CBDTWxFrame::OnComponentPropertyGridIdle( wxIdleEvent& /*event*/ )
     bool m_bNeedUpdatePropertyGrid;
+
+DECLARE_EVENT_TABLE()
 };
 
 #endif

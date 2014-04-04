@@ -15,13 +15,11 @@ struct sGLData
     float zoom;                 // field of view in degrees
 };
 
-const static float MOUSESPEED = 10.0f;
-
 class GLAnimationCanvas : public wxGLCanvas
 {
     
 public:
-    enum
+    enum ECanvasType
     {
         TYPE_ANIMATION,
         TYPE_CURVE
@@ -39,7 +37,7 @@ public:
         KEY_CTRL
     };
 
-    GLAnimationCanvas(wxWindow *parent, wxWindowID id = wxID_ANY,
+    GLAnimationCanvas(wxWindow *parent, ECanvasType eType = TYPE_ANIMATION, wxWindowID id = wxID_ANY,
         const wxPoint& pos = wxDefaultPosition,
         const wxSize& size = wxDefaultSize, long style = 0,
         const wxString& name = wxT("Animation"));
@@ -47,7 +45,7 @@ public:
     virtual ~GLAnimationCanvas();
     SharePtr<CModel>& GetModel();
     void LoadDXF(const wxString& filename);
-    void SetType(int iType);
+    void SetType(ECanvasType iType);
 protected:
     void OnPaint(wxPaintEvent& event);
     void OnSize(wxSizeEvent& event);
@@ -66,15 +64,15 @@ private:
     void ResetProjectionMode();
 
     
-    int             m_iType;
+    ECanvasType     m_iType;
     int             m_selectedIndex;
     bool            m_bLeftDown;
     bool            m_bRightDown;
-    wxPoint         m_DownPosition;
+    wxPoint         m_lastPosition;
     std::vector<bool> m_KeyStates;
     SharePtr<Spline> m_spline;
     SharePtr<CModel> m_Model;
-    wxGLContext*    m_glRC;
+    wxGLContext*    m_pGLRC;
     sGLData         m_gldata;
 
     wxDECLARE_NO_COPY_CLASS(GLAnimationCanvas);

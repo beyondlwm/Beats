@@ -22,6 +22,8 @@
 #include "CCConsole.h"
 #include "CCGeometry.h" //TODO: For to use some basic data type, such as "Size" "Rect"
 #include "ccUtils.h"
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
 //STL headers
 #include <list>

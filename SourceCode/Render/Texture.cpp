@@ -107,7 +107,6 @@ bool CTexture::Load()
 #endif
 
         unsigned char*   tempData = pImage->getData();
-        cocos2d::Size imageSize = cocos2d::Size((float)imageWidth, (float)imageHeight);
         PixelFormat pixelFormat = PixelFormat::NONE;
         PixelFormat renderFormat = (PixelFormat)pImage->getRenderFormat();
         size_t tempDataLen = pImage->getDataLen();
@@ -122,7 +121,7 @@ bool CTexture::Load()
         else if (pImage->isCompressed())
         {
             BEATS_WARNING(format == PixelFormat::NONE, _T("cocos2d: WARNING: This image is compressed and we cann't convert it for now"));
-            InitWithData(tempData, tempDataLen, (PixelFormat)pImage->getRenderFormat(), imageWidth, imageHeight, imageSize);
+            InitWithData(tempData, tempDataLen, (PixelFormat)pImage->getRenderFormat(), imageWidth, imageHeight);
             bRet = true;
         }
         else
@@ -131,7 +130,7 @@ bool CTexture::Load()
             unsigned char* outTempData = nullptr;
             ssize_t outTempDataLen = 0;
             pixelFormat = ConvertDataToFormat(tempData, tempDataLen, renderFormat, pixelFormat, &outTempData, &outTempDataLen);
-            InitWithData(outTempData, outTempDataLen, pixelFormat, imageWidth, imageHeight, imageSize);
+            InitWithData(outTempData, outTempDataLen, pixelFormat, imageWidth, imageHeight);
             if (outTempData != nullptr && outTempData != tempData)
             {
                 BEATS_SAFE_DELETE_ARRAY(outTempData);
@@ -252,8 +251,7 @@ bool CTexture::InitWithMipmaps( MipmapInfo* mipmaps, int mipmapsNum, PixelFormat
 
                 BEATS_ASSERT(!(i > 0 && (width != height || cocos2d::ccNextPOT(width) != width )), 
                                     _T("cocos2d: CTexture. WARNING. Mipmap level %u is not squared. Texture won't render correctly. width=%d != height=%d"), i, width, height);
-                bRet = glGetError() ==GL_NO_ERROR;
-                BEATS_ASSERT(bRet, _T("cocos2d: CTexture: Error uploading compressed texture level: %u . glError: 0x%04X"), i, glGetError());
+                FC_CHECK_GL_ERROR_DEBUG();
 
                 width = MAX(width >> 1, 1);
                 height = MAX(height >> 1, 1);
@@ -270,7 +268,7 @@ bool CTexture::InitWithMipmaps( MipmapInfo* mipmaps, int mipmapsNum, PixelFormat
     return bRet;
 }
 
-bool CTexture::InitWithData(const void *data, ssize_t dataLen, PixelFormat pixelFormat, int pixelsWide, int pixelsHigh, const cocos2d::Size& contentSize)
+bool CTexture::InitWithData(const void *data, ssize_t dataLen, PixelFormat pixelFormat, int pixelsWide, int pixelsHigh)
 {
     CCASSERT(dataLen>0 && pixelsWide>0 && pixelsHigh>0, "Invalid size");
 
@@ -279,6 +277,16 @@ bool CTexture::InitWithData(const void *data, ssize_t dataLen, PixelFormat pixel
     mipmap.address = (unsigned char*)data;
     mipmap.len = static_cast<int>(dataLen);
     return InitWithMipmaps(&mipmap, 1, pixelFormat, pixelsWide, pixelsHigh);
+}
+
+bool CTexture::UpdateSubImage( GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, const GLvoid *data )
+{
+    const PixelFormatInfo& info = _pixelFormatInfoTables.at(m_pixelFormat);
+    CRenderer* pRenderer = CRenderer::GetInstance();
+    pRenderer->BindTexture(GL_TEXTURE_2D, m_uId);
+    pRenderer->TextureSubImage2D(GL_TEXTURE_2D, 0, xoffset, yoffset, width, height, info.format, info.type, data);
+    pRenderer->BindTexture(GL_TEXTURE_2D, 0);
+    return true;
 }
 
 PixelFormat CTexture::ConvertDataToFormat(const unsigned char* data, ssize_t dataLen, PixelFormat originFormat, PixelFormat format, unsigned char** outData, ssize_t* outDataLen)

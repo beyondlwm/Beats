@@ -8,6 +8,7 @@
 #include "math/kazmath/include/kazmath/mat4.h"
 #include "math/kazmath/include/kazmath/vec3.h"
 #include "math/kazmath/include/kazmath/vec4.h"
+#include "math/kazmath/include/kazmath/vec2.h"
 #include "Utility/BeatsUtility/mathpublic.h"
 #include "CommonTypes.h"
 

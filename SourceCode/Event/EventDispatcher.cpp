@@ -12,10 +12,9 @@ EventDispatcher::~EventDispatcher()
 
 }
 
-void EventDispatcher::SubscribeEvent( int type, EventHandler handler )
+void EventDispatcher::SubscribeEvent( int type, const EventHandler &handler )
 {
-    EventHandlerList &handlerList = _handlers[type];
-    handlerList.push_back(handler);
+    _handlers[type].push_back(handler);
 }
 
 void EventDispatcher::DispatchEvent( BaseEvent *event )
@@ -24,11 +23,11 @@ void EventDispatcher::DispatchEvent( BaseEvent *event )
     if(itr != _handlers.end())
     {
         event->SetSource(this);
-        const EventHandlerList &handlerList = itr->second;
-        for(auto handler : handlerList)
+        for(auto handler : itr->second)
         {
             handler(event);
+            if(event->Stopped())
+                break;
         }
     }
 }
-

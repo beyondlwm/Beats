@@ -1,42 +1,43 @@
 #ifndef RENDER_CAMERA_H__INCLUDE
 #define RENDER_CAMERA_H__INCLUDE
 
-class CCamera  
+class CCamera
 {  
 public:  
-    CCamera();  
+    CCamera();
     ~CCamera();
 
-    void  SetCamera(kmVec3 eyes,kmVec3 look,kmVec3 up);  
-    void  Roll(float angle);  
-    void  Pitch(float angle);  
-    void  Yaw(float angle);  
-    void  Slide(float du, float dv, float dn);  
-    double GetDist();  
-    void  SetShape(float viewAngle,float aspect,float Near,float Far); 
-    void MoveStraight(float fSpeed);
-    void MoveTransverse(float fSpeed);
-    void MoveUpDown(float fSpeed);
+    void  SetCamera(const kmVec3& eyes,const kmVec3& look,const kmVec3& up);
+    void  Roll(float angle);
+    void  Pitch(float angle);
+    void  Yaw(float angle);
+    void  Translate(float x, float y, float z);
 
-    float GetPitch() const;
-    float GetYaw() const;
-    float GetRoll() const;
+    void SetNear(float fZNear);
+    void SetFar(float fZFar);
+    void SetFOV(float fFOV);
+    void SetAspect(float fAspect);
+
+    float GetNear() const;
+    float GetFar() const;
+    float GetFOV() const;
+    float GetAspect() const;
+
     void SetViewPos(float x, float y, float z);
-    void Update();
 
-    void RotateX(float angle);
-    void RotateY(float angle);
+    const void GetMatrix(kmMat4& mat) const;
 
-private:  
-    kmVec3         m_eye,m_look,m_up;  
-    kmVec3         m_u,m_v,m_n;  
-    float          m_viewAngle, m_aspect, m_nearDist, m_farDist;  
-    
-    float          m_fPitch;
-    float          m_fYaw;
-    float          m_fRoll;
+    void ApplyCameraChange(bool bProj2D = false);
 
-    kmMat4 m_mat;
+private:
+    float m_fRotateSpeed;
+    float m_fZNear;
+    float m_fZFar;
+    float m_fFOV;
+    float m_fAspect;
+    kmVec3 m_vec3Eye;
+    kmVec3 m_vec3LookAt;
+    kmVec3 m_vec3Up;
 };
  
 #endif

@@ -54,7 +54,6 @@ END_EVENT_TABLE()
     wxBoxSizer* pTopRightBottomBottomSizer = new wxBoxSizer(wxHORIZONTAL);
 
     m_pTopLeft = new GLAnimationCanvas(this);
-    ((GLAnimationCanvas*)m_pTopLeft)->SetType(GLAnimationCanvas::TYPE_ANIMATION);
     m_pTopRight = new wxPanel(this);
     wxPanel* pLogPanel = new wxPanel(this);
     wxPanel* pTimeBarPanel = new wxPanel(this);
@@ -379,7 +378,6 @@ void EditAnimationDialog::ShowAnima()
     {
         InitTimeBar();
         ((GLAnimationCanvas*)m_pTopLeft)->GetModel()->PlayAnimationById(0, 0, true);
-        ((GLAnimationCanvas*)m_pTopLeft)->GetModel()->GetAnimationController()->Stop();
     }
 }
 

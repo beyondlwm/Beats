@@ -114,7 +114,7 @@ bool CFloatPropertyDescription::IsDataSame( bool bWithDefaultOrXML )
 void CFloatPropertyDescription::GetValueAsChar( EValueType type, char* pOut )
 {
     float* pValue = (float*)m_valueArray[type];
-    sprintf(pOut, "%f", *pValue);
+    sprintf(pOut, "%g", *pValue);
 }
 
 CPropertyDescriptionBase* CFloatPropertyDescription::CreateNewInstance()

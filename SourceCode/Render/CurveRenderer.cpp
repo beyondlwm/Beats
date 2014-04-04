@@ -6,6 +6,7 @@
 #include "Renderer.h"
 #include "Spline\Curve.h"
 #include "Shader.h"
+#include "Camera.h"
 
 const CColor CCurveRenderer::GRID_COLOR(0.3f, 0.3f, 0.3f, 0.3f);
 const CColor CCurveRenderer::SPLINE_COLOR(1.0f, 0.f, 0.f, 1.f);
@@ -77,7 +78,7 @@ void CCurveRenderer::PreRender()
 {
     CRenderer::GetInstance()->UseProgram(m_pProgram->ID());
 
-    CRenderManager::GetInstance()->SetupVPMatrix(true);
+    CRenderManager::GetInstance()->GetCamera()->ApplyCameraChange(true);
 
     glPointSize(4.0f);
     CRenderer::GetInstance()->DisableGL(GL_DEPTH_TEST);

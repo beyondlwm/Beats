@@ -17,6 +17,9 @@ enum EPropertyType
     ePT_Color,
     ePT_File,
     ePT_Enum,
+    ePT_Vec2F,
+    ePT_Vec3F,
+    ePT_Vec4F,
 
     ePT_Count,
     ePT_ForceTo32Bit = 0xFFFFFFFF
@@ -39,6 +42,9 @@ const static TCHAR* szPropertyTypeStr[] =
     _T("ePT_Color"),
     _T("ePT_File"),
     _T("ePT_Enum"),
+    _T("ePT_Vec2F"),
+    _T("ePT_Vec3F"),
+    _T("ePT_Vec4F"),
 
     _T("ePT_Count"),
     _T("ePT_ForceTo32Bit")

@@ -1,15 +1,15 @@
 #include "stdafx.h"
 #include "Camera.h"
 #include "RenderManager.h"
+#include "Renderer.h"
+#include "RenderState.h"
 
 CCamera::CCamera()
-    :m_viewAngle(0.f)
-    , m_aspect(0.f)
-    , m_nearDist(0.f)
-    , m_farDist(0.f)
-    , m_fPitch(0.f)
-    , m_fYaw(0.f)
-    , m_fRoll(0.f)
+    : m_fRotateSpeed(2.5f)
+    , m_fZNear(0.1f)
+    , m_fZFar(1000.f)
+    , m_fFOV(51.8f)
+    , m_fAspect(0.0)
 {
     kmVec3 eye, look, up;
     kmVec3Fill(&eye,0.0F, 0.5F, 10.0F);
@@ -22,174 +22,184 @@ CCamera::~CCamera()
 
 }
 
-void  CCamera::SetCamera(kmVec3 eye,kmVec3 look,kmVec3 up)
+void CCamera::SetCamera(const kmVec3& eyes,const kmVec3& look,const kmVec3& up)
 {
-    kmVec3Fill(&m_eye, eye.x, eye.y, eye.z);
-    kmVec3Fill(&m_look,look.x, look.y, look.z);
-    kmVec3Fill(&m_up,up.x, up.y, up.z);
-    kmVec3 vecup;
-    kmVec3Fill(&vecup,up.x - eye.x,up.y - eye.y,up.z - eye.z);
-
-    kmVec3Fill(&m_n,eye.x - look.x, eye.y - look.y, eye.z - look.z);
-
-    kmVec3 cross1;
-    kmVec3Cross(&cross1,&vecup, &m_n);
-    kmVec3Fill(&m_u,cross1.x, cross1.y, cross1.z);
-
-    kmVec3 cross2;
-    kmVec3Cross(&cross2, &m_n, &m_u);
-    kmVec3Fill(&m_v,cross2.x, cross2.y, cross2.z);
-
-    kmVec3Normalize(&m_u, &m_u);
-    kmVec3Normalize(&m_v, &m_v);
-    kmVec3Normalize(&m_n, &m_n);
-
-    Update();
-
+    kmVec3Assign(& m_vec3Eye, &eyes);
+    kmVec3Assign(& m_vec3LookAt, &look);
+    kmVec3Assign(& m_vec3Up, &up);
+    ApplyCameraChange();
 }
+
 void  CCamera::Roll(float angle)
 {
-    m_fRoll = angle;
-    float cosTheta = cos(angle * MATH_PI / 180);  
-    float sinnTheta = sin(angle * MATH_PI / 180); 
+    if (!BEATS_FLOAT_EQUAL(angle, 0))
+    {
+        kmVec3 vec3Straight;
+        kmVec3Subtract(&vec3Straight, &m_vec3LookAt, &m_vec3Eye);
+        kmMat4 rotationMat;
+        kmMat4RotationAxisAngle(&rotationMat, &vec3Straight, angle * m_fRotateSpeed);
+        kmVec3Transform(&m_vec3Up, &m_vec3Up, &rotationMat);
 
-    kmVec3 srcu;
-    kmVec3Assign(&srcu,&m_u);
-
-    kmVec3 srcv;
-    kmVec3Assign(&srcv,&m_v);;  
-
-    kmVec3Fill(&m_u,cosTheta * srcu.x - sinnTheta * srcv.x, cosTheta * srcu.y - sinnTheta * srcv.y, cosTheta * srcu.z - sinnTheta * srcv.z);
-    kmVec3Fill(&m_v,sinnTheta * srcu.x + cosTheta * srcv.x, sinnTheta * srcu.y + cosTheta * srcv.y, sinnTheta * srcu.z + cosTheta * srcv.z);
-
+        ApplyCameraChange();
+    }
 }
 void  CCamera::Pitch(float angle)
 {
-    m_fPitch = angle;
-    float cosTheta=cos(angle * MATH_PI / 180);  
-    float sinTheta=sin(angle * MATH_PI / 180);  
+    if (!BEATS_FLOAT_EQUAL(angle, 0))
+    {
+        kmVec3 vec3Straight;
+        kmVec3Subtract(&vec3Straight, &m_vec3LookAt, &m_vec3Eye);
+        kmVec3 vec3RightDirection;
+        kmVec3Cross(&vec3RightDirection, &vec3Straight, &m_vec3Up);
+        kmMat4 rotationMat;
+        kmMat4RotationAxisAngle(&rotationMat, &vec3RightDirection, angle * m_fRotateSpeed);
+        kmVec3Transform(&vec3Straight, &vec3Straight, &rotationMat);
+        kmVec3Add(&m_vec3LookAt, &m_vec3Eye, &vec3Straight);
 
-    kmVec3 srcv;
-    kmVec3Assign(&srcv,&m_v);
-    kmVec3 srcn;
-    kmVec3Assign(&srcn,&m_n);
-
-    m_v.x = cosTheta * srcv.x - sinTheta * srcn.x;  
-    m_v.y = cosTheta * srcv.y - sinTheta * srcn.y;  
-    m_v.z = cosTheta * srcv.z - sinTheta * srcn.z;  
-
-    m_n.x = sinTheta * srcv.x + cosTheta * srcn.x;  
-    m_n.y = sinTheta * srcv.y + cosTheta * srcn.y;  
-    m_n.z = sinTheta * srcv.z + cosTheta * srcn.z;
+        ApplyCameraChange();
+    }
 }
 void  CCamera::Yaw(float angle)
 {
-    m_fYaw = angle;
-    float cosTheta=cos(angle * MATH_PI / 180);  
-    float sinTheta=sin(angle * MATH_PI / 180); 
+    if (!BEATS_FLOAT_EQUAL(angle, 0))
+    {
+        kmMat4 rotationMat;
+        kmMat4RotationAxisAngle(&rotationMat, &m_vec3Up, angle * m_fRotateSpeed);
+        kmVec3 vec3Offset;
+        kmVec3Subtract(&vec3Offset, &m_vec3LookAt, &m_vec3Eye);
 
-    kmVec3 srcn, srcv, srcu;
-    kmVec3Assign(&srcn,&m_n);
-    kmVec3Assign(&srcv,&m_v);
-    kmVec3Assign(&srcu,&m_u);
+        kmVec3Transform(&vec3Offset, &vec3Offset, &rotationMat);
+        kmVec3Add(&m_vec3LookAt, &m_vec3Eye, &vec3Offset);
 
-    m_n.z = cosTheta * srcn.z + sinTheta * srcn.x;
-    m_n.x = cosTheta * srcn.x - sinTheta * srcn.z;
+        ApplyCameraChange();
+    }
+}
 
-    m_v.z = cosTheta * srcv.z + sinTheta * srcv.x;
-    m_v.x = cosTheta * srcv.x - sinTheta * srcv.z;
+void  CCamera::Translate(float x, float y, float z)
+{
+    m_vec3Eye.x += x;
+    m_vec3Eye.y += y;
+    m_vec3Eye.z += z;
+    m_vec3LookAt.x += x;
+    m_vec3LookAt.y += y;
+    m_vec3LookAt.z += z;
+}
 
-    m_u.z = cosTheta * srcu.z + sinTheta * srcu.x;
-    m_u.x = cosTheta * srcu.x - sinTheta * srcu.z;
-}
-void  CCamera::Slide(float du, float dv, float dn)
+void CCamera::SetNear(float fZNear)
 {
-    m_eye.x += du * m_u.x + dv * m_v.x + dn * m_n.x;  
-    m_eye.y += du * m_u.y + dv * m_v.y + dn * m_n.y;  
-    m_eye.z += du * m_u.z + dv * m_v.z + dn * m_n.z;  
-    m_look.x += du * m_u.x + dv * m_v.x + dn * m_n.x;  
-    m_look.y += du * m_u.y + dv * m_v.y + dn * m_n.y;  
-    m_look.z += du * m_u.z + dv * m_v.z + dn * m_n.z;  
+    if (!BEATS_FLOAT_EQUAL(m_fZNear, fZNear))
+    {
+        m_fZNear = fZNear;
+        ApplyCameraChange();
+    }
+}
 
-}
-void CCamera::MoveStraight(float fSpeed)
+void CCamera::SetFar(float fZFar)
 {
-    Slide(0.0F,0.0F,fSpeed);
+    if (!BEATS_FLOAT_EQUAL(m_fZFar, fZFar))
+    {
+        m_fZFar = fZFar;
+        ApplyCameraChange();
+    }
 }
-void CCamera::MoveTransverse(float fSpeed)
-{
-    Slide(fSpeed,0.0F,0.0F);
-}
-void CCamera::MoveUpDown(float fSpeed)
-{
-    Slide(0.0F,fSpeed,0.0F);
-}
-double CCamera::GetDist()
-{
-    float dist = pow(m_eye.x,2) + pow(m_eye.y,2) + pow(m_eye.z,2);  
-    return pow(dist,0.5);  
 
-}
-float CCamera::GetPitch() const
+void CCamera::SetFOV(float fFOV)
 {
-    return m_fPitch;
+    if (!BEATS_FLOAT_EQUAL(m_fFOV, fFOV))
+    {
+        m_fFOV = fFOV;
+        ApplyCameraChange();
+    }
 }
-float CCamera::GetYaw() const
+
+void CCamera::SetAspect(float fAspect)
 {
-    return m_fYaw;
+    if (!BEATS_FLOAT_EQUAL(m_fAspect, fAspect))
+    {
+        m_fAspect = fAspect;
+        ApplyCameraChange();
+    }
 }
-float CCamera::GetRoll() const
+
+float CCamera::GetNear() const
 {
-    return m_fRoll;
+    return m_fZNear;
+}
+
+float CCamera::GetFar() const
+{
+    return m_fZFar;
+}
+
+float CCamera::GetFOV() const
+{
+    return m_fFOV;
+}
+
+float CCamera::GetAspect() const
+{
+    return m_fAspect;
 }
 
 void CCamera::SetViewPos(float x, float y, float z)
 {
-    kmVec3Fill(&m_look, x, y, z);
+    kmVec3Fill(&m_vec3Eye, x, y, z);
+    ApplyCameraChange();
 }
 
-void CCamera::Update()
+const void CCamera::GetMatrix(kmMat4& mat) const
 {
-    kmMat4Identity(&m_mat);
-
-    m_mat.mat[0] = m_u.x;
-    m_mat.mat[4] = m_u.y;
-    m_mat.mat[8] = m_u.z;
-
-    m_mat.mat[1] = m_v.x;
-    m_mat.mat[5] = m_v.y;
-    m_mat.mat[9] = m_v.z;
-
-    m_mat.mat[2] = m_n.x;
-    m_mat.mat[6] = m_n.y;
-    m_mat.mat[10] = m_n.z;
-
-    kmMat4 translate;
-    kmMat4Translation(&translate, -m_eye.x, -m_eye.y, -m_eye.z);
-    kmMat4Multiply(&m_mat, &m_mat, &translate);
-
-    kmGLMultMatrix(&m_mat);
+    kmMat4Identity(&mat);
+    kmMat4LookAt(&mat, &m_vec3Eye, &m_vec3LookAt, &m_vec3Up);
 }
-void CCamera::RotateX(float angle)  
-{  
-    Yaw(angle);
-    float dist =(float)GetDist();  
-    kmVec3Fill(&m_eye, dist * m_n.x, dist * m_n.y, dist * m_n.z);
-}  
 
-void CCamera::RotateY(float angle)  
-{  
-    Pitch(angle);
-    float dist =(float)GetDist();  
-    kmVec3Fill(&m_eye, dist * m_n.x, dist * m_n.y, dist * m_n.z);
-} 
+void CCamera::ApplyCameraChange(bool bProj2D)
+{
+    GLuint uCurrentShader = CRenderer::GetInstance()->GetCurrentState()->GetCurrentShaderProgram();
+    if(uCurrentShader != 0)
+    {
+        kmMat4 projMat;
+        kmMat4 MVPmat;
+        if(bProj2D)
+        {
+            int iWidth = 0;
+            int iHeight = 0;
+            CRenderManager::GetInstance()->GetWindowSize(iWidth, iHeight);
 
-void  CCamera::SetShape(float viewAngle, float aspect, float Near, float Far)  
-{  
-    kmGLMatrixMode(KM_GL_MODELVIEW);
-    kmGLLoadIdentity();
-    kmMat4 mat;
-    kmMat4PerspectiveProjection(&mat,viewAngle,aspect,Near,Far);
-    kmGLMultMatrix(&mat);     
-}  
+            kmMat4OrthographicProjection(&projMat, 
+                0.0f, static_cast<kmScalar>(iWidth),
+                static_cast<kmScalar>(iHeight), 0.0f,
+                -1000.1f, 10000.0f);
+        }
+        else
+        {
+            kmMat4PerspectiveProjection(&projMat, m_fFOV, m_fAspect, m_fZNear, m_fZFar);
+        }
+        kmMat4 cameraMat;
+        if(bProj2D)
+            kmMat4Identity(&cameraMat);
+        else
+            GetMatrix(cameraMat);
+        kmMat4Multiply(&MVPmat, &projMat, &cameraMat);
+#ifdef USE_UBO
+        const GLvoid *matrices[4] = {
+            vpmatrix.mat,
+            modelmatrix.mat,
+            viewMatrix.mat,
+            projection.mat,
+        };
+        GLsizeiptr sizes[4] = {
+            sizeof(kmMat4),
+            sizeof(kmMat4),
+            sizeof(kmMat4),
+            sizeof(kmMat4),
+        };
 
+        UpdateUBO(UNIFORM_BLOCK_MVP_MATRIX, matrices, sizes, 4);
+#else
+        GLint MVPLocation = CRenderer::GetInstance()->GetUniformLocation(uCurrentShader, COMMON_UNIFORM_NAMES[UNIFORM_MVP_MATRIX]);
+        BEATS_ASSERT(MVPLocation != -1);
+        CRenderer::GetInstance()->SetUniformMatrix4fv(MVPLocation, (const float*)MVPmat.mat, 1);
+    }
+#endif
+}

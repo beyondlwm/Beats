@@ -2,9 +2,10 @@
 #define GUI_RENDERER_BASE_RENDERER_H__INCLUDE 
 
 #include "RendererDefs.h" 
+#include "Render/CommonTypes.h"
 
 //forward declaration
-class CSpriteFrame;
+class CTextureFrag;
 class BaseEvent;
 
 namespace FCGUI
@@ -25,7 +26,9 @@ namespace FCGUI
 
 		virtual void Render(const kmMat4 &parentTransform) const;
 
-		virtual void AddLayer(CSpriteFrame *layer);
+		virtual void AddLayer(CTextureFrag *layer);
+
+		virtual void AddLayer(const TString &textureFragName);
 
 	protected:
 		virtual void setVertices(const Window *window);
@@ -39,7 +42,8 @@ namespace FCGUI
 	protected:
 		Window *_window;
 
-		std::vector<CSpriteFrame *> _layers;
+        CQuadP _quad;
+		std::vector<CTextureFrag *> _layers;
 	};
 }
 

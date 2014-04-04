@@ -28,33 +28,53 @@ bool ScrollLayout::AddChild( Window *window )
 
     SetRowCount(_rowCount+1);
     _children[_children.size() - _colCount] = window;
-    PerformLayout();
+    invalidate();
     return true;
-}
-
-bool ScrollLayout::AddChild( Window *window, kmScalar x, kmScalar y )
-{
-    return false;
 }
 
 bool ScrollLayout::AddChildToCell( Window *window, size_t row, size_t col )
 {
-    BEATS_ASSERT(col < _colCount);
+    BEATS_ASSERT(_window, _T("You must set this layout to a window first"));
+    BEATS_ASSERT(_window->GetChild(window->Name()), 
+        _T("window:%s must be the child of window:%s"), window->Name().c_str(), _window->Name().c_str());
 
     size_t index = row * _colCount + col;
+    if(index >= _children.size())
+    {
+        return AddChild(window);
+    }
+
     if(_children[index])
     {
-        return false;
+        if(_children.back())
+        {
+            SetRowCount(_rowCount+1);
+        }
+        for(size_t i = _children.size()-1; i > index; --i)
+        {
+            _children[i] = _children[i-1];
+        }
     }
-    else
-    {
-        _children[index] = window;
-        PerformLayout();
-        return true;
-    }
+    _children[index] = window;
+    invalidate();
+    return true;
 }
 
-bool ScrollLayout::RemoveChild( size_t row, size_t col )
+bool ScrollLayout::RemoveChild( Window *window )
 {
-    return GridLayout::RemoveChild(row, col);
+    auto itr = std::find(_children.begin(), _children.end(), window);
+    if(itr != _children.end())
+    {
+        for(auto itrNext = itr + 1; itrNext != _children.end(); ++itrNext, ++itr)
+        {
+            *itr = *itrNext;
+        }
+        *itr = nullptr;
+
+        if(!_children[_children.size()-_colCount])
+            SetRowCount(_rowCount-1);
+        invalidate();
+        return true;
+    }
+    return false;
 }

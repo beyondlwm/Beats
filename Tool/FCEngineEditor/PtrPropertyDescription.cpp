@@ -121,6 +121,7 @@ bool CPtrPropertyDescription::CreateInstance()
         {
             AddChild((*propertyPool)[i]);
         }
+        UpdateDisplayString(uInstanceGuid);
         bRet = true;
     }
 
@@ -211,12 +212,18 @@ void CPtrPropertyDescription::Initialize()
     TString* pDefaultValue = (TString*)m_valueArray[eVT_DefaultValue];
     if (pDefaultValue->length() == 0)
     {
-        CComponentEditorProxy* pComponent = static_cast<CComponentEditorProxy*>(CComponentManager::GetInstance()->GetComponentTemplate(m_uComponentGuid));
-        wxString value = wxString::Format(_T("%s%s@0x%x"), _T(""), pComponent == NULL ? _T("Unknown") : pComponent->GetClassStr(), m_uComponentGuid);
-        TString valueStr(value);
-        for (size_t i = eVT_DefaultValue; i < eVT_Count; ++i)
-        {
-            SetValue((void*)&valueStr, (EValueType)i);
-        }
+        UpdateDisplayString(m_uComponentGuid);
     }
+}
+
+void CPtrPropertyDescription::UpdateDisplayString(size_t uComponentId)
+{
+    CComponentEditorProxy* pComponent = static_cast<CComponentEditorProxy*>(CComponentManager::GetInstance()->GetComponentTemplate(uComponentId));
+    wxString value = wxString::Format(_T("%s%s@0x%x"), _T(""), pComponent == NULL ? _T("Unknown") : pComponent->GetClassStr(), uComponentId);
+    TString valueStr(value);
+    for (size_t i = eVT_DefaultValue; i < eVT_Count; ++i)
+    {
+        SetValue((void*)&valueStr, (EValueType)i);
+    }
+
 }

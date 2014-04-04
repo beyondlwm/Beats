@@ -4,6 +4,8 @@
 #include "CommonTypes.h"
 
 class CSpriteFrame;
+class CTexture;
+class CTextureFrag;
 class CSpriteFrameBatch : public CRenderObject
 {
 public:
@@ -18,6 +20,10 @@ public:
 
     void AddSpriteFrame(CSpriteFrame *frame, const kmMat4 &transform);
 
+    void AddQuad(const CQuadP &quad, CTextureFrag *frag, const kmMat4 &transform);
+
+    void AddQuad(const CQuadPT &quad, SharePtr<CTexture> texture);
+
     void Clear();
     
 private:
@@ -26,7 +32,6 @@ private:
 private:
     static const size_t MAX_QUADS = 1024;
     GLuint m_texture;
-    std::vector<CSpriteFrame *> m_frames;
     CQuadPT m_quads[MAX_QUADS];
     size_t m_count;
     GLuint m_VAO, m_VBO[2];
