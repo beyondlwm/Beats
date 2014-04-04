@@ -92,15 +92,47 @@ bool wxPtrButtonEditor::OnEvent( wxPropertyGrid* propGrid,
                 bool bValueChanged = false;
                 if (pButton->GetLabel().CmpNoCase(_T("+")) == 0)
                 {
-                    bool bCreateInstance = pPtrPropertyDescription->CreateInstance();
-                    BEATS_ASSERT(bCreateInstance);
-                    CComponentEditorProxy* pCompBase = static_cast<CComponentEditorProxy*>(pPtrPropertyDescription->GetInstanceComponent());
-                    BEATS_ASSERT(pCompBase != NULL);
-                    BEATS_ASSERT(pMainFrame != NULL);
-                    pMainFrame->InsertComponentsInPropertyGrid(pCompBase, property);
-                    buttons->GetButton(0)->SetLabel(_T("-"));
-                    valueStr.insert(0, _T("+"));
-                    bValueChanged = true;
+                    size_t ptrGuid = pPtrPropertyDescription->GetPtrGuid();
+                    std::vector<size_t> derivedClassGuid;
+                    CComponentManager::GetInstance()->QueryDerivedClass(ptrGuid, derivedClassGuid, true);
+
+                    CComponentBase* pBase = CComponentManager::GetInstance()->GetComponentTemplate(ptrGuid);
+                    bValueChanged = derivedClassGuid.size() == 0;
+                    if (!bValueChanged)
+                    {
+                        wxPGChoices choice;
+                        if (pBase != NULL)
+                        {
+                            choice.Add(pBase->GetClassStr(), pBase->GetGuid());
+                        }
+                        for (auto i : derivedClassGuid)
+                        {
+                            pBase = CComponentManager::GetInstance()->GetComponentTemplate(i);
+                            choice.Add(pBase->GetClassStr(), pBase->GetGuid());
+                        }
+                        wxString strSelectItem = ::wxGetSingleChoice(wxT("TypeChoice"), wxT("Caption"), choice.GetLabels(),
+                            NULL, wxDefaultCoord, wxDefaultCoord, false, wxCHOICE_WIDTH, wxCHOICE_HEIGHT);
+                        if ( !strSelectItem.empty() )
+                        {
+                            int nSelectIndex = choice.Index(strSelectItem);
+                            size_t uDerivedGuid = choice.GetValue(nSelectIndex);
+                            pPtrPropertyDescription->SetDerivedGuid(uDerivedGuid);
+                            bValueChanged = true;
+                        }
+                    }
+                    if (bValueChanged)
+                    {
+                        bool bCreateInstance = pPtrPropertyDescription->CreateInstance();
+                        BEATS_ASSERT(bCreateInstance);
+                        CComponentEditorProxy* pCompBase = static_cast<CComponentEditorProxy*>(pPtrPropertyDescription->GetInstanceComponent());
+                        BEATS_ASSERT(pCompBase != NULL);
+                        BEATS_ASSERT(pMainFrame != NULL);
+                        TString* pStrValue = (TString*)pPtrPropertyDescription->GetValue(eVT_CurrentValue);
+                        property->SetValueFromString(pStrValue->c_str());
+                        pMainFrame->InsertComponentsInPropertyGrid(pCompBase, property);
+                        buttons->GetButton(0)->SetLabel(_T("-"));
+                        valueStr.insert(0, _T("+"));
+                    }
                 }
                 else if (pButton->GetLabel().CmpNoCase(_T("-")) == 0)
                 {

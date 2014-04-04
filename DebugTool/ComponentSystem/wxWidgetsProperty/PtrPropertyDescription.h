@@ -13,6 +13,8 @@ public:
     virtual ~CPtrPropertyDescription();
 
     size_t GetPtrGuid();
+    void SetDerivedGuid(size_t uDerivedGuid);
+    size_t GetDerivedGuid() const;
     CComponentEditorProxy* GetInstanceComponent();
     bool CreateInstance();
     bool DestroyInstance();
@@ -32,12 +34,14 @@ public:
     virtual void Serialize(CSerializer& serializer);
     virtual void Initialize();
 
+private:
+    void UpdateDisplayString(size_t uComponentId);
 
 private:
+    size_t m_uDerivedGuid;
     size_t m_uComponentGuid;
     CComponentEditorProxy* m_pInstance;
     // This flag indicate if this property should have instance according to XML data. 
     bool m_bHasInstance;
 };
-
 #endif

@@ -8,10 +8,11 @@
 #include "../../Components/Component/ComponentManager.h"
 
 CPtrPropertyDescription::CPtrPropertyDescription(CSerializer* pSerializer)
-: super(ePT_Ptr)
-, m_uComponentGuid(0)
-, m_pInstance(NULL)
-, m_bHasInstance(false)
+    : super(ePT_Ptr)
+    , m_uComponentGuid(0)
+    , m_uDerivedGuid(0)
+    , m_pInstance(NULL)
+    , m_bHasInstance(false)
 {
     if (pSerializer != NULL)
     { 
@@ -22,10 +23,11 @@ CPtrPropertyDescription::CPtrPropertyDescription(CSerializer* pSerializer)
 }
 
 CPtrPropertyDescription::CPtrPropertyDescription(const CPtrPropertyDescription& rRef)
-: super(rRef)
-, m_uComponentGuid(rRef.m_uComponentGuid)
-, m_pInstance(NULL)
-, m_bHasInstance(false)
+    : super(rRef)
+    , m_uComponentGuid(rRef.m_uComponentGuid)
+    , m_uDerivedGuid(rRef.m_uDerivedGuid)
+    , m_pInstance(NULL)
+    , m_bHasInstance(false)
 {
     TString emptyStr = _T("");
     InitializeValue(emptyStr);
@@ -92,6 +94,16 @@ size_t CPtrPropertyDescription::GetPtrGuid()
     return m_uComponentGuid;
 }
 
+void CPtrPropertyDescription::SetDerivedGuid(size_t uDerivedGuid)
+{
+    m_uDerivedGuid = uDerivedGuid;
+}
+
+size_t CPtrPropertyDescription::GetDerivedGuid() const
+{
+    return m_uDerivedGuid;
+}
+
 CComponentEditorProxy* CPtrPropertyDescription::GetInstanceComponent()
 {
     return m_pInstance;
@@ -102,12 +114,14 @@ bool CPtrPropertyDescription::CreateInstance()
     bool bRet = false;
     if ( m_pInstance == NULL)
     {
-        m_pInstance = static_cast<CComponentEditorProxy*>(CComponentManager::GetInstance()->CreateComponent(m_uComponentGuid, false, true));
+        size_t uInstanceGuid = m_uDerivedGuid == 0 ? m_uComponentGuid : m_uDerivedGuid;
+        m_pInstance = static_cast<CComponentEditorProxy*>(CComponentManager::GetInstance()->CreateComponent(uInstanceGuid, false, true));
         const std::vector<CPropertyDescriptionBase*>* propertyPool = m_pInstance->GetPropertyPool();
         for (size_t i = 0; i < propertyPool->size(); ++i)
         {
             AddChild((*propertyPool)[i]);
         }
+        UpdateDisplayString(uInstanceGuid);
         bRet = true;
     }
 
@@ -198,12 +212,18 @@ void CPtrPropertyDescription::Initialize()
     TString* pDefaultValue = (TString*)m_valueArray[eVT_DefaultValue];
     if (pDefaultValue->length() == 0)
     {
-        CComponentEditorProxy* pComponent = static_cast<CComponentEditorProxy*>(CComponentManager::GetInstance()->GetComponentTemplate(m_uComponentGuid));
-        wxString value = wxString::Format(_T("%s%s@0x%x"), _T(""), pComponent == NULL ? _T("Unknown") : pComponent->GetClassStr(), m_uComponentGuid);
-        TString valueStr(value);
-        for (size_t i = eVT_DefaultValue; i < eVT_Count; ++i)
-        {
-            SetValue((void*)&valueStr, (EValueType)i);
-        }
+        UpdateDisplayString(m_uComponentGuid);
     }
+}
+
+void CPtrPropertyDescription::UpdateDisplayString(size_t uComponentId)
+{
+    CComponentEditorProxy* pComponent = static_cast<CComponentEditorProxy*>(CComponentManager::GetInstance()->GetComponentTemplate(uComponentId));
+    wxString value = wxString::Format(_T("%s%s@0x%x"), _T(""), pComponent == NULL ? _T("Unknown") : pComponent->GetClassStr(), uComponentId);
+    TString valueStr(value);
+    for (size_t i = eVT_DefaultValue; i < eVT_Count; ++i)
+    {
+        SetValue((void*)&valueStr, (EValueType)i);
+    }
+
 }
