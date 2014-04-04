@@ -237,12 +237,12 @@ void CComponentManager::LoadTemplateDataFromSerializer(CSerializer& serializer, 
         size_t parentGuid = 0;
         serializer >> parentGuid;
         BEATS_ASSERT(guid != 0);
+        TCHAR* pStrHolder = NULL;
+        TCHAR** ppStrHolder = &pStrHolder;
+        serializer.Read(ppStrHolder);
         RegisterClassInheritInfo(guid, parentGuid);
         if (!bIsAbstractClass)
         {
-            TCHAR* pStrHolder = NULL;
-            TCHAR** ppStrHolder = &pStrHolder;
-            serializer.Read(ppStrHolder);
             CComponentEditorProxy* pComponentEditorProxy = func(pGraphicFunc(), guid, parentGuid, pStrHolder);
             serializer.Read(ppStrHolder);
             pComponentEditorProxy->SetDisplayName(pStrHolder);
@@ -250,6 +250,11 @@ void CComponentManager::LoadTemplateDataFromSerializer(CSerializer& serializer, 
             pComponentEditorProxy->SetCatalogName(pStrHolder);
             RegisterTemplate(pComponentEditorProxy);
             pComponentEditorProxy->Deserialize(serializer);
+        }
+        else
+        {
+            BEATS_ASSERT(pStrHolder != NULL);
+            m_abstractComponentNameMap[guid] = TString(pStrHolder);
         }
         BEATS_ASSERT(serializer.GetReadPos() == curReadPos + totalSize);
     }
@@ -702,6 +707,23 @@ void CComponentManager::RegisterClassInheritInfo( size_t uDerivedClassGuid, size
     }
     BEATS_ASSERT(iter != m_pComponentInheritMap->end());
     iter->second.push_back(uDerivedClassGuid);
+}
+
+TString CComponentManager::QueryComponentName(size_t uGuid) const
+{
+    TString strRet;
+    std::map<size_t, TString>::const_iterator iter = m_abstractComponentNameMap.find(uGuid);
+    if (iter != m_abstractComponentNameMap.end())
+    {
+        strRet = iter->second;
+    }
+    else
+    {
+        CComponentBase* pComponent = GetComponentTemplate(uGuid);
+        BEATS_ASSERT(pComponent != NULL, _T("Can't Find Component with GUID: %d"), uGuid);
+        strRet = pComponent->GetClassStr();
+    }
+    return strRet;
 }
 
 void CComponentManager::ResetComponentContainer()

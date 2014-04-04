@@ -35,7 +35,7 @@ public:
     virtual void Initialize();
 
 private:
-    void UpdateDisplayString(size_t uComponentId);
+    void UpdateDisplayString(size_t uComponentGuid);
 
 private:
     size_t m_uDerivedGuid;

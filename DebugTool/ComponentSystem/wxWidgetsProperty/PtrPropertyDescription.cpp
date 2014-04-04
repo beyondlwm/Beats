@@ -138,6 +138,9 @@ bool CPtrPropertyDescription::DestroyInstance()
         m_pChildren->clear();
         bRet = true;
     }
+    SetDerivedGuid(0);
+    UpdateDisplayString(m_uComponentGuid);
+
     return bRet;
 }
 
@@ -216,14 +219,14 @@ void CPtrPropertyDescription::Initialize()
     }
 }
 
-void CPtrPropertyDescription::UpdateDisplayString(size_t uComponentId)
+void CPtrPropertyDescription::UpdateDisplayString(size_t uComponentGuid)
 {
-    CComponentEditorProxy* pComponent = static_cast<CComponentEditorProxy*>(CComponentManager::GetInstance()->GetComponentTemplate(uComponentId));
-    wxString value = wxString::Format(_T("%s%s@0x%x"), _T(""), pComponent == NULL ? _T("Unknown") : pComponent->GetClassStr(), uComponentId);
+    TString strComponentName = CComponentManager::GetInstance()->QueryComponentName(uComponentGuid);
+    BEATS_ASSERT(strComponentName.length() > 0, _T("Can't Find the component name of GUID: %d"), uComponentGuid);
+    wxString value = wxString::Format(_T("%s%s@0x%x"), _T(""), strComponentName.c_str(), uComponentGuid);
     TString valueStr(value);
     for (size_t i = eVT_DefaultValue; i < eVT_Count; ++i)
     {
         SetValue((void*)&valueStr, (EValueType)i);
     }
-
 }

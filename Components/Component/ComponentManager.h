@@ -89,6 +89,8 @@ public:
     
     void QueryDerivedClass(size_t uBaseClassGuid, std::vector<size_t>& result, bool bRecurse);
     void RegisterClassInheritInfo(size_t uDerivedClassGuid, size_t uBaseClassGuid);
+    TString QueryComponentName(size_t uGuid) const;
+
     /*
     Editor will call export to binarize all data.
     Program will call import to deserialize all data to memory.
@@ -114,6 +116,7 @@ private:
     std::map<size_t, std::map<size_t, CComponentBase*>*>* m_pComponentInstanceMap;
     std::vector<SDependencyResolver*>* m_pDependencyResolver;
     std::map<size_t, TCreatePropertyFunc>* m_pPropertyCreatorMap;
+    std::map<size_t, TString> m_abstractComponentNameMap;
     // This map save the inherit relationship for all components. so when we instance a component pointer, we can decide which instance to generate.
     std::map<size_t, std::vector<size_t>>* m_pComponentInheritMap;
 };

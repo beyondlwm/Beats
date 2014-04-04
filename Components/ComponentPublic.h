@@ -253,7 +253,7 @@ CPropertyDescriptionBase* GetEnumPropertyDesc(int defaultValue)\
 
 #ifdef EXPORT_TO_EDITOR
 
-#define START_REGISTER_COMPONET\
+#define START_REGISTER_COMPONENT\
     struct SRegisterLauncher\
     {\
         ~SRegisterLauncher()\
@@ -272,7 +272,7 @@ CPropertyDescriptionBase* GetEnumPropertyDesc(int defaultValue)\
             size_t nComponentCounter = 0;\
             serializer << nCurWritePos;
 
-#define END_REGISTER_COMPONET\
+#define END_REGISTER_COMPONENT\
         size_t nNewCurWritePos = serializer.GetWritePos();\
         serializer.SetWritePos(nCurWritePos);\
         serializer << nComponentCounter;\
@@ -283,7 +283,7 @@ CPropertyDescriptionBase* GetEnumPropertyDesc(int defaultValue)\
     SRegisterLauncher registerLauncher;\
     void(*pComponentLauncherFunc)() = NULL;
 
-#define REGISTER_COMOPNENT(component, displayName, catalogName)\
+#define REGISTER_COMPONENT(component, displayName, catalogName)\
     ++nComponentCounter;\
     {\
     serializer << (bool) false;\
@@ -314,13 +314,19 @@ CPropertyDescriptionBase* GetEnumPropertyDesc(int defaultValue)\
     ++nComponentCounter;\
     {\
         serializer << (bool)true;\
-        serializer << (size_t)12;\
+        size_t nDataSizePosHolder = serializer.GetWritePos();\
+        serializer << nDataSizePosHolder;\
         serializer << component::REFLECT_GUID;\
         serializer << component::PARENT_REFLECT_GUID;\
+        serializer << _T(#component);\
+        size_t curWritePos = serializer.GetWritePos();\
+        serializer.SetWritePos(nDataSizePosHolder);\
+        serializer << (curWritePos - nDataSizePosHolder);\
+        serializer.SetWritePos(curWritePos);\
     }
 #else
 
-#define START_REGISTER_COMPONET\
+#define START_REGISTER_COMPONENT\
     struct SRegisterLauncher\
     {\
     ~SRegisterLauncher()\
@@ -334,7 +340,7 @@ CPropertyDescriptionBase* GetEnumPropertyDesc(int defaultValue)\
         static void Launch()\
         {
 
-#define END_REGISTER_COMPONET\
+#define END_REGISTER_COMPONENT\
             TCHAR szFilePath[MAX_PATH];\
             GetModuleFileName(NULL, szFilePath, MAX_PATH);\
             PathRemoveFileSpec(szFilePath);\
@@ -351,7 +357,7 @@ CPropertyDescriptionBase* GetEnumPropertyDesc(int defaultValue)\
     SRegisterLauncher registerLauncher;\
     void(*pComponentLauncherFunc)() = &SRegisterLauncher::Launch;
 
-#define REGISTER_COMOPNENT(component, displayName, catalogName)\
+#define REGISTER_COMPONENT(component, displayName, catalogName)\
     CComponentManager::GetInstance()->RegisterTemplate(new component);
 
 #define REGISTER_ABSTRACT_COMPONENT(component)

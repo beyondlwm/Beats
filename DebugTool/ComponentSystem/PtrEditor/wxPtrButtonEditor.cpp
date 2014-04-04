@@ -131,6 +131,10 @@ bool wxPtrButtonEditor::OnEvent( wxPropertyGrid* propGrid,
                 {
                     property->DeleteChildren();
                     bool bDeleteInstance = pPtrPropertyDescription->DestroyInstance();
+                    // Destroy instance may cause the value changed, so we fetch it again.
+                    char szTmp[MAX_PATH];
+                    pPtrPropertyDescription->GetValueAsChar(eVT_CurrentValue, szTmp);
+                    valueStr = szTmp;
                     pPtrPropertyDescription->GetChildren().clear();
                     BEATS_ASSERT(bDeleteInstance);
                     buttons->GetButton(0)->SetLabel(_T("+"));
