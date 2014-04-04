@@ -12,11 +12,10 @@ public:
     CListPropertyDescriptionEx(const CListPropertyDescriptionEx& rRef);
     virtual ~CListPropertyDescriptionEx();
 
-    virtual CPropertyDescriptionBase* AddListChild();
-    void AddListChild(CPropertyDescriptionBase* pChild);
-    virtual void DeleteListChild(CPropertyDescriptionBase* pProperty);
-    virtual void DeleteAllListChild();
-
+    virtual bool IsContainerProperty() override;
+    virtual CPropertyDescriptionBase* AddChild(CPropertyDescriptionBase* pProperty) override;
+    virtual bool DeleteChild(CPropertyDescriptionBase* pProperty, bool bKeepOrder = false) override;
+    virtual void DeleteAllChild() override;
 
     virtual bool AnalyseUIParameterImpl(const std::vector<TString>& parameterUnit, bool bSerializePhase = false);
     virtual wxPGProperty* CreateWxProperty();

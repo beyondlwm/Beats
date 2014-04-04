@@ -83,25 +83,21 @@ bool CMapPropertyDescription::IsDataSame( bool bWithDefaultOrXML )
     return bRet;
 }
 
-
-CPropertyDescriptionBase* CMapPropertyDescription::AddMapChild()
+bool CMapPropertyDescription::IsContainerProperty()
 {
-    CPropertyDescriptionBase* pNewChild = CreateInstance();
-    if (pNewChild)
-    {
-        AddChild(pNewChild);
-        ResetName();
-    }
-    return pNewChild;
+    return true;
 }
 
-void CMapPropertyDescription::AddMapChild(CPropertyDescriptionBase* pChild)
+CPropertyDescriptionBase* CMapPropertyDescription::AddChild(CPropertyDescriptionBase* pChild)
 {
-    if (pChild)
+    if (pChild == NULL)
     {
-        AddChild(pChild);
-        ResetName();
+        pChild = CreateInstance();
     }
+    AddChild(pChild);
+    ResetName();
+
+    return pChild;
 }
 
 CPropertyDescriptionBase* CMapPropertyDescription::CreateInstance()
@@ -138,27 +134,22 @@ CPropertyDescriptionBase* CMapPropertyDescription::CreateInstance()
     return pRet;
 }
 
-
-void CMapPropertyDescription::DeleteMapChild(CPropertyDescriptionBase* pProperty)
+bool CMapPropertyDescription::DeleteChild(CPropertyDescriptionBase* pProperty, bool bKeepOrder)
 {
     BEATS_ASSERT((*m_pChildren).size() > 0 && pProperty != NULL);
-    bool bRet = DeleteChild(pProperty, true);
+    bool bRet = super::DeleteChild(pProperty, bKeepOrder);
     if (bRet)
     {
         ResetChildName();
         ResetName();
     }
     BEATS_ASSERT(bRet, _T("Can't Find the property to delete!"));
+    return bRet;
 }
 
-
-void CMapPropertyDescription::DeleteAllMapChild()
+void CMapPropertyDescription::DeleteAllChild()
 {
-    for (size_t i = 0; i < m_pChildren->size(); ++i)
-    {
-        BEATS_SAFE_DELETE((*m_pChildren)[i]);
-    }
-    m_pChildren->clear();
+    super::DeleteAllChild();
     ResetName();
 }
 
@@ -205,7 +196,7 @@ void CMapPropertyDescription::LoadFromXML( TiXmlElement* pNode )
         pVarElement->Attribute("Type", &iVarType);
         if (iVarType == m_valueType)
         {
-            CPropertyDescriptionBase* pNewProperty = AddMapChild();
+            CPropertyDescriptionBase* pNewProperty = AddChild(NULL);
             BEATS_ASSERT(pNewProperty != 0, _T("Create property failed when load from xml for list property description."));
             if (pNewProperty != NULL)
             {
@@ -229,7 +220,7 @@ CPropertyDescriptionBase* CMapPropertyDescription::Clone(bool bCloneValue)
         {
             CPropertyDescriptionBase* pPropertyBase = (*m_pChildren)[i];
             CPropertyDescriptionBase* pNewChildPropertyBase = pPropertyBase->Clone(true);
-            pNewProperty->AddMapChild(pNewChildPropertyBase);
+            pNewProperty->AddChild(pNewChildPropertyBase);
         }
     }
     return pNewProperty;

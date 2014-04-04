@@ -123,27 +123,6 @@ bool CListPropertyDescriptionEx::IsDataSame( bool bWithDefaultOrXML )
     return bRet;
 }
 
-
-CPropertyDescriptionBase* CListPropertyDescriptionEx::AddListChild()
-{
-    CPropertyDescriptionBase* pNewChild = CreateInstance();
-    if (pNewChild)
-    {
-        AddChild(pNewChild);
-        ResetName();
-    }
-    return pNewChild;
-}
-
-void CListPropertyDescriptionEx::AddListChild(CPropertyDescriptionBase* pChild)
-{
-    if (pChild)
-    {
-        AddChild(pChild);
-        ResetName();
-    }
-}
-
 CPropertyDescriptionBase* CListPropertyDescriptionEx::CreateInstance()
 {
     CPropertyDescriptionBase* bRet = NULL;
@@ -166,30 +145,40 @@ CPropertyDescriptionBase* CListPropertyDescriptionEx::CreateInstance()
     return bRet;
 }
 
+bool CListPropertyDescriptionEx::IsContainerProperty()
+{
+    return true;
+}
 
-void CListPropertyDescriptionEx::DeleteListChild(CPropertyDescriptionBase* pProperty)
+CPropertyDescriptionBase* CListPropertyDescriptionEx::AddChild(CPropertyDescriptionBase* pProperty)
+{
+    if (pProperty == NULL)
+    {
+        pProperty = CreateInstance();
+    }
+    super::AddChild(pProperty);
+    ResetName();
+    return pProperty;
+}
+
+bool CListPropertyDescriptionEx::DeleteChild(CPropertyDescriptionBase* pProperty, bool bKeepOrder)
 {
     BEATS_ASSERT((*m_pChildren).size() > 0 && pProperty != NULL);
-    bool bRet = DeleteChild(pProperty, true);
+    bool bRet = super::DeleteChild(pProperty, bKeepOrder);
     if (bRet)
     {
         ResetChildName();
         ResetName();
     }
     BEATS_ASSERT(bRet, _T("Can't Find the property to delete!"));
+    return bRet;
 }
 
-
-void CListPropertyDescriptionEx::DeleteAllListChild()
+void CListPropertyDescriptionEx::DeleteAllChild()
 {
-    for (size_t i = 0; i < m_pChildren->size(); ++i)
-    {
-        BEATS_SAFE_DELETE((*m_pChildren)[i]);
-    }
-    m_pChildren->clear();
+    super::DeleteAllChild();
     ResetName();
 }
-
 
 void CListPropertyDescriptionEx::ResetChildName()
 {
@@ -201,7 +190,6 @@ void CListPropertyDescriptionEx::ResetChildName()
         (*m_pChildren)[i]->GetBasicInfo().m_variableName.assign(szChildName);
     }
 }
-
 
 void CListPropertyDescriptionEx::ResetName()
 {
@@ -223,7 +211,6 @@ void CListPropertyDescriptionEx::GetCurrentName( TCHAR* pszName )
     }
 }
 
-
 void CListPropertyDescriptionEx::LoadFromXML( TiXmlElement* pNode )
 {
     super::LoadFromXML(pNode);
@@ -234,7 +221,7 @@ void CListPropertyDescriptionEx::LoadFromXML( TiXmlElement* pNode )
         pVarElement->Attribute("Type", &iVarType);
         if (iVarType == m_childType)
         {
-            CPropertyDescriptionBase* pNewProperty = AddListChild();
+            CPropertyDescriptionBase* pNewProperty = AddChild(NULL);
             BEATS_ASSERT(pNewProperty != 0, _T("Create property failed when load from xml for list property description."));
             if (pNewProperty != NULL)
             {
@@ -258,7 +245,7 @@ CPropertyDescriptionBase* CListPropertyDescriptionEx::Clone(bool bCloneValue)
         {
             CPropertyDescriptionBase* pPropertyBase = (*m_pChildren)[i];
             CPropertyDescriptionBase* pNewChildPropertyBase = pPropertyBase->Clone(true);
-            pNewProperty->AddListChild(pNewChildPropertyBase);
+            pNewProperty->AddChild(pNewChildPropertyBase);
         }
     }
     return pNewProperty;

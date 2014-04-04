@@ -41,8 +41,9 @@ public:
 
     bool Deserialize(CSerializer& serializer);
 
-    void AddChild(CPropertyDescriptionBase* pProperty);
-    bool DeleteChild(CPropertyDescriptionBase* pProperty, bool bKeepChildOrder = false);
+    virtual CPropertyDescriptionBase* AddChild(CPropertyDescriptionBase* pProperty);
+    virtual bool DeleteChild(CPropertyDescriptionBase* pProperty, bool bKeepChildOrder = false);
+    virtual void DeleteAllChild();
     CPropertyDescriptionBase* GetChild(size_t i) const;
     std::vector<CPropertyDescriptionBase*>& GetChildren();
     size_t GetChildrenCount() const;
@@ -68,6 +69,8 @@ public:
     void* GetValue(EValueType type) const;
 
     virtual void Initialize();
+    virtual bool IsContainerProperty();
+
     virtual CPropertyDescriptionBase* Clone(bool bCloneValue);
     virtual CPropertyDescriptionBase* CreateNewInstance() = 0;
 

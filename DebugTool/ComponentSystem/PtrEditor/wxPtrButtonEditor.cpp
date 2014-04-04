@@ -35,7 +35,7 @@ wxPGWindowList wxPtrButtonEditor::CreateControls( wxPropertyGrid* propGrid,
         CPtrPropertyDescription* pPtrProperty = static_cast<CPtrPropertyDescription*>(pPropertyDescription);
         buttons->Add( pPtrProperty->GetInstanceComponent() == NULL ? _T("+") : _T("-"));
     }
-    else if (pPropertyDescription->GetType() == ePT_List || pPropertyDescription->GetType() == ePT_Map)
+    else if (pPropertyDescription->IsContainerProperty())
     {
         buttons->Add(_T("+"));
         if (property->GetChildCount() > 0)
@@ -43,16 +43,9 @@ wxPGWindowList wxPtrButtonEditor::CreateControls( wxPropertyGrid* propGrid,
             buttons->Add(_T("-"));
         }
     }
-    else if (pPropertyDescription->GetParent() && pPropertyDescription->GetParent()->GetType() == ePT_List)
-    {
-    }
-    else
-    {
-        BEATS_ASSERT(false, _T("Never Reach here!"));
-    }
     CPropertyDescriptionBase* pParent = pPropertyDescription->GetParent();
     // it is a list element.
-    if (pParent && pParent->GetType() == ePT_List)
+    if (pParent && pParent->IsContainerProperty())
     {
         buttons->Add(_T("x"));
     }
@@ -152,12 +145,11 @@ bool wxPtrButtonEditor::OnEvent( wxPropertyGrid* propGrid,
                     propGrid->Refresh();
                 }
             }
-            else if (pPropertyDescription->GetType() == ePT_List)
+            if (pPropertyDescription->IsContainerProperty())
             {
-                CListPropertyDescriptionEx* pListProperty = static_cast<CListPropertyDescriptionEx*>(pPropertyDescription);
                 if (pButton->GetLabel().CmpNoCase(_T("+")) == 0)
                 {
-                    CPropertyDescriptionBase* pNewChild = pListProperty->AddListChild();
+                    CPropertyDescriptionBase* pNewChild = pPropertyDescription->AddChild(NULL);
                     if (pNewChild != NULL)
                     {
                         std::vector<CPropertyDescriptionBase*> value;
@@ -167,70 +159,30 @@ bool wxPtrButtonEditor::OnEvent( wxPropertyGrid* propGrid,
                 }
                 else if (pButton->GetLabel().CmpNoCase(_T("-")) == 0)
                 {
-                    pListProperty->DeleteAllListChild();
+                    pPropertyDescription->DeleteAllChild();
                     property->DeleteChildren();
                 }
                 char valueStr[256];
-                pListProperty->GetValueAsChar(eVT_CurrentValue, valueStr);
+                pPropertyDescription->GetValueAsChar(eVT_CurrentValue, valueStr);
                 property->SetValue(valueStr);
-                property->SetModifiedStatus(pListProperty->GetChildrenCount() > 0);
+                property->SetModifiedStatus(pPropertyDescription->GetChildrenCount() > 0);
                 property->RecreateEditor();
             }
-            else if (pPropertyDescription->GetType() == ePT_Map)
+
+            if (pButton->GetLabel().CmpNoCase(_T("x")) == 0)
             {
-                CMapPropertyDescription* pMapProperty = static_cast<CMapPropertyDescription*>(pPropertyDescription);
-                if (pButton->GetLabel().CmpNoCase(_T("+")) == 0)
-                {
-                    CPropertyDescriptionBase* pNewChild = pMapProperty->AddMapChild();
-                    if (pNewChild != NULL)
-                    {
-                        std::vector<CPropertyDescriptionBase*> value;
-                        value.push_back(pNewChild);
-                        pMainFrame->InsertInPropertyGrid(value, property);
-                    }
-                }
-                else if (pButton->GetLabel().CmpNoCase(_T("-")) == 0)
-                {
-                    pMapProperty->DeleteAllMapChild();
-                    property->DeleteChildren();
-                }
+                BEATS_ASSERT(pPropertyDescription->GetParent() != NULL);
+                CPropertyDescriptionBase* pParent = pPropertyDescription->GetParent();
+                pParent->DeleteChild(pPropertyDescription);
+                // NOTICE: We have deleted this already!
+                pPropertyDescription = NULL;
+
+                property->SetClientData(NULL);
                 char valueStr[256];
-                pMapProperty->GetValueAsChar(eVT_CurrentValue, valueStr);
-                property->SetValue(valueStr);
-                property->SetModifiedStatus(pMapProperty->GetChildrenCount() > 0);
-                property->RecreateEditor();
-            }
-
-            if (pPropertyDescription->GetParent() && pPropertyDescription->GetParent()->GetType() == ePT_List)
-            {
-                if (pButton->GetLabel().CmpNoCase(_T("x")) == 0)
-                {
-                    CListPropertyDescriptionEx* pParent = static_cast<CListPropertyDescriptionEx*>(pPropertyDescription->GetParent());
-                    BEATS_ASSERT(pParent != NULL);
-                    pParent->DeleteListChild(pPropertyDescription);
-                    property->SetClientData(NULL);
-                    char valueStr[256];
-                    pParent->GetValueAsChar(eVT_CurrentValue, valueStr);
-                    property->GetParent()->SetValue(valueStr);
-                    //TODO: I can't refresh property here, because we are trying to delete property of which callback we are in.
-                    pMainFrame->RequestToUpdatePropertyGrid();
-                }
-            }
-
-            if (pPropertyDescription->GetParent() && pPropertyDescription->GetParent()->GetType() == ePT_Map)
-            {
-                if (pButton->GetLabel().CmpNoCase(_T("x")) == 0)
-                {
-                    CMapPropertyDescription* pParent = static_cast<CMapPropertyDescription*>(pPropertyDescription->GetParent());
-                    BEATS_ASSERT(pParent != NULL);
-                    pParent->DeleteMapChild(pPropertyDescription);
-                    property->SetClientData(NULL);
-                    char valueStr[256];
-                    pParent->GetValueAsChar(eVT_CurrentValue, valueStr);
-                    property->GetParent()->SetValue(valueStr);
-                    //TODO: I can't refresh property here, because we are trying to delete property of which callback we are in.
-                    pMainFrame->RequestToUpdatePropertyGrid();
-                }
+                pParent->GetValueAsChar(eVT_CurrentValue, valueStr);
+                property->GetParent()->SetValue(valueStr);
+                //TODO: I can't refresh property here, because we are trying to delete property of which callback we are in.
+                pMainFrame->RequestToUpdatePropertyGrid();
             }
             return true;
         }

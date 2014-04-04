@@ -111,7 +111,7 @@ bool CPropertyDescriptionBase::DeserializeBasicInfo(CSerializer& serializer)
     return true;
 }
 
-void CPropertyDescriptionBase::AddChild(CPropertyDescriptionBase* pProperty)
+CPropertyDescriptionBase* CPropertyDescriptionBase::AddChild(CPropertyDescriptionBase* pProperty)
 {
 #ifdef _DEBUG
     for (size_t i = 0; i < m_pChildren->size(); ++i)
@@ -119,8 +119,10 @@ void CPropertyDescriptionBase::AddChild(CPropertyDescriptionBase* pProperty)
         BEATS_ASSERT((*m_pChildren)[i] != pProperty);
     }
 #endif
+    BEATS_ASSERT(pProperty != NULL);
     pProperty->m_pParent = this;
     m_pChildren->push_back(pProperty);
+    return pProperty;
 }
 
 bool CPropertyDescriptionBase::DeleteChild(CPropertyDescriptionBase* pProperty, bool bKeepChildOrder/* = false*/)
@@ -147,6 +149,15 @@ bool CPropertyDescriptionBase::DeleteChild(CPropertyDescriptionBase* pProperty, 
     }
     BEATS_SAFE_DELETE(pProperty);
     return bRet;
+}
+
+void CPropertyDescriptionBase::DeleteAllChild()
+{
+    for (size_t i = 0; i < m_pChildren->size(); ++i)
+    {
+        BEATS_SAFE_DELETE((*m_pChildren)[i]);
+    }
+    m_pChildren->clear();
 }
 
 CPropertyDescriptionBase* CPropertyDescriptionBase::GetChild(size_t i) const
@@ -188,4 +199,9 @@ void CPropertyDescriptionBase::Save()
 void CPropertyDescriptionBase::Initialize()
 {
 
+}
+
+bool CPropertyDescriptionBase::IsContainerProperty()
+{
+    return false;
 }

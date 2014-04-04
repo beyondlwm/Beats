@@ -12,10 +12,10 @@ public:
     CMapPropertyDescription(const CMapPropertyDescription& rRef);
     virtual ~CMapPropertyDescription();
 
-    virtual CPropertyDescriptionBase* AddMapChild();
-    void AddMapChild(CPropertyDescriptionBase* pChild);
-    virtual void DeleteMapChild(CPropertyDescriptionBase* pProperty);
-    virtual void DeleteAllMapChild();
+    virtual bool IsContainerProperty() override;
+    virtual CPropertyDescriptionBase* AddChild(CPropertyDescriptionBase* pChild) override;
+    virtual bool DeleteChild(CPropertyDescriptionBase* pProperty, bool bKeepOrder = false) override;
+    virtual void DeleteAllChild() override;
 
     virtual wxPGProperty* CreateWxProperty();
     virtual void SetValue(wxVariant& value, bool bSaveValue = true);
