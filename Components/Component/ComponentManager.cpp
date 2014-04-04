@@ -174,6 +174,7 @@ CComponentBase* CComponentManager::CreateComponent( size_t guid, bool bCloneFrom
     }
     __except(EXCEPTION_EXECUTE_HANDLER)
     {
+        BEATS_ASSERT(false, _T("Create Component Failed! GUID :%d ManualManage:%s"), guid, bManualManage ? _T("Yes"):_T("No"));
     }
     return pNewInstance;
 }

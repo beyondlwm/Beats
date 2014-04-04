@@ -43,9 +43,9 @@ public:
 
     void AddChild(CPropertyDescriptionBase* pProperty);
     bool DeleteChild(CPropertyDescriptionBase* pProperty, bool bKeepChildOrder = false);
-    CPropertyDescriptionBase* GetChild(size_t i);
+    CPropertyDescriptionBase* GetChild(size_t i) const;
     std::vector<CPropertyDescriptionBase*>& GetChildren();
-    size_t GetChildrenCount();
+    size_t GetChildrenCount() const;
     void Save();
     template<typename T>
     void InitializeValue(const T& value)
@@ -65,7 +65,7 @@ public:
         }
     }
 
-    void* GetValue(EValueType type);
+    void* GetValue(EValueType type) const;
 
     virtual void Initialize();
     virtual CPropertyDescriptionBase* Clone(bool bCloneValue);

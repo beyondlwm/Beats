@@ -149,13 +149,13 @@ bool CPropertyDescriptionBase::DeleteChild(CPropertyDescriptionBase* pProperty, 
     return bRet;
 }
 
-CPropertyDescriptionBase* CPropertyDescriptionBase::GetChild(size_t i)
+CPropertyDescriptionBase* CPropertyDescriptionBase::GetChild(size_t i) const
 {
     BEATS_ASSERT(i < m_pChildren->size());
     return (*m_pChildren)[i];
 }
 
-size_t CPropertyDescriptionBase::GetChildrenCount()
+size_t CPropertyDescriptionBase::GetChildrenCount() const
 {
     return m_pChildren->size();
 }
@@ -174,7 +174,7 @@ CPropertyDescriptionBase* CPropertyDescriptionBase::Clone(bool bCloneValue)
     return pNewProperty;
 }
 
-void* CPropertyDescriptionBase::GetValue( EValueType type )
+void* CPropertyDescriptionBase::GetValue( EValueType type ) const
 {
     return m_valueArray[type];
 }
