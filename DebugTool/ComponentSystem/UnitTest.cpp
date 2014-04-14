@@ -23,9 +23,9 @@ CTestComponent::CTestComponent(CSerializer& serializer)
     DECLARE_PROPERTY(serializer, m_ptrValue, true, 0xffffffff, _T("其他对象"), NULL, NULL, NULL);
     DECLARE_PROPERTY(serializer, m_listValue, true, 0xffffffff, _T("ListValue"), NULL, NULL, NULL);
     //DECLARE_PROPERTY_ENUM(ETestEnum, m_enumValue, true, 0xffffffff, _T("EnumValue"), NULL, NULL, eTE_Count, NULL, NULL);
-    DECLARE_DEPENDENCY(serializer, m_pNextObj, CTestComponent, _T("目标对象"), eDT_Weak);
-    DECLARE_DEPENDENCY(serializer, m_pNextObj1, CTestComponent, _T("目标对象2"), eDT_Weak);
-    DECLARE_DEPENDENCY(serializer, m_pNextObj2, CTestComponent, _T("目标对象3"), eDT_Weak);
+    DECLARE_DEPENDENCY(serializer, m_pNextObj, _T("目标对象"), eDT_Weak);
+    DECLARE_DEPENDENCY(serializer, m_pNextObj1, _T("目标对象2"), eDT_Weak);
+    DECLARE_DEPENDENCY(serializer, m_pNextObj2, _T("目标对象3"), eDT_Weak);
 }
 
 CTestComponent::~CTestComponent()

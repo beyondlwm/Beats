@@ -93,7 +93,6 @@ public:
     void OnRender(float gridSize, bool bSelected);
     void SetPosition(int x, int y);
     void GetPosition(int* pOutX, int* pOutY);
-    void GetDependencyPosition(size_t uDependencyIndex, int* pOutX, int* pOutY);
     size_t GetDependencyWidth();
     size_t GetDependencyHeight();
     size_t GetHeaderHeight();
@@ -103,11 +102,12 @@ public:
 
     size_t GetWidth();
     size_t GetHeight();
-    EComponentAeraRectType HitTestForAreaType(int x, int y, void** pReturnData);
     void SetOwner(CComponentEditorProxy* pOwner);
     CComponentEditorProxy* GetOwner() const;
     void CaculateSize();
 
+    virtual void GetDependencyPosition(size_t uDependencyIndex, int* pOutX, int* pOutY);
+    virtual EComponentAeraRectType HitTestForAreaType(int x, int y, void** pReturnData);
     virtual CComponentGraphic* Clone() = 0;
 
 protected:
