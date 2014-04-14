@@ -192,12 +192,12 @@ CPropertyDescriptionBase* GetEnumPropertyDesc(int defaultValue)\
 }
 #define DECLARE_DEPENDENCY(serializer, ptrProperty, displayName, dependencyType)\
 {\
-    serializer << (bool) false << (bool)false << dependencyType << ptrProperty->GetGuid() << displayName << _T(#ptrProperty);\
+    serializer << (bool) false << (bool)false << dependencyType << ptrProperty->REFLECT_GUID << displayName << _T(#ptrProperty);\
     ++(((SSerilaizerExtraInfo*)(serializer.GetUserData()))->m_uDependencyCount);\
 }
 #define DECLARE_DEPENDENCY_LIST(serializer, ptrProperty, displayName, dependencyType)\
 {\
-    serializer << (bool) false << (bool)true << dependencyType << ptrProperty->GetGuid() << displayName << _T(#ptrProperty);\
+    serializer << (bool) false << (bool)true << dependencyType << ptrProperty->REFLECT_GUID << displayName << _T(#ptrProperty);\
     ++(((SSerilaizerExtraInfo*)(serializer.GetUserData()))->m_uDependencyCount);\
 }
 #define DECLARE_PROPERTY_ENUM(serializer, enumVariable, count, selfDefineStrArray, enumType, editable, color, displayName, catalog, tip, parameter)\
