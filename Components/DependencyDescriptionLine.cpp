@@ -35,7 +35,7 @@ CDependencyDescriptionLine::~CDependencyDescriptionLine()
     BEATS_SAFE_DELETE_ARRAY(m_pArrowRect);
 }
 
-void CDependencyDescriptionLine::UpdateRect(float cellSize)
+void CDependencyDescriptionLine::UpdateRect(float cellSize, bool bInverseY /*= false*/)
 {
     if (m_pOwner != NULL && m_pConnectedComponent != NULL)
     {
@@ -50,13 +50,13 @@ void CDependencyDescriptionLine::UpdateRect(float cellSize)
         // a. calculate angle.
         CVector2 point[2];
         point[0].x = iDependencyPosX * cellSize + cellSize * 0.5f * pGraphics->GetDependencyWidth();
-        point[0].y = iDependencyPosY * cellSize - cellSize * 0.5f * pGraphics->GetDependencyHeight();
+        point[0].y = iDependencyPosY * cellSize - cellSize * 0.5f * pGraphics->GetDependencyHeight() * (bInverseY ? -1 : 1);
 
         int x = 0;
         int y = 0;
-        static_cast<CComponentEditorProxy*>(m_pConnectedComponent)->GetGraphics()->GetPosition(&x, &y);        
+        static_cast<CComponentEditorProxy*>(m_pConnectedComponent)->GetGraphics()->GetPosition(&x, &y);
         point[1].x = x * cellSize + cellSize * 0.5f * pGraphics->GetConnectWidth();
-        point[1].y = y * cellSize - cellSize * 0.5f * pGraphics->GetHeaderHeight();
+        point[1].y = y * cellSize - cellSize * 0.5f * pGraphics->GetHeaderHeight() * (bInverseY ? -1 : 1);
 
         CVector2 direction(point[1] - point[0]);
         float fAngle = atan2f(direction.x, direction.y);
@@ -80,6 +80,10 @@ void CDependencyDescriptionLine::UpdateRect(float cellSize)
         CVector2 newLeftDown = rotateTransform * leftDown;
         newLeftDown.x += point[0].x;
         newLeftDown.y += point[0].y;
+        if (bInverseY)
+        {
+            newLeftDown.y -= cellSize * pGraphics->GetHeaderHeight() * 0.5f;
+        }
 
         m_pRect[1].m_position.x = newLeftDown.x;
         m_pRect[1].m_position.y = newLeftDown.y;
@@ -100,6 +104,10 @@ void CDependencyDescriptionLine::UpdateRect(float cellSize)
         CVector2 newRightDown = rotateTransform * rightDown;
         newRightDown.x += point[0].x;
         newRightDown.y += point[0].y;
+        if (bInverseY)
+        {
+            newRightDown.y -= cellSize * pGraphics->GetHeaderHeight() * 0.5f;
+        }
 
         m_pRect[3].m_position.x = newRightDown.x;
         m_pRect[3].m_position.y = newRightDown.y;
@@ -202,37 +210,20 @@ const SVertex* CDependencyDescriptionLine::GetArrowRectArray()
     return m_pArrowRect;
 }
 
-bool CDependencyDescriptionLine::HitTest( float x, float y, float fCellSize )
+bool CDependencyDescriptionLine::HitTest( float x, float y )
 {
     bool bRet = false;
-    int iDependencyX, iDependencyY;
-    CComponentGraphic* pGraphics = static_cast<CComponentEditorProxy*>(m_pOwner->GetOwner())->GetGraphics();
-    pGraphics->GetDependencyPosition(m_pOwner->GetIndex(), &iDependencyX, &iDependencyY);
-    CVector2 point[2];
-    point[0].x = iDependencyX * fCellSize + fCellSize * 0.5f * pGraphics->GetDependencyWidth();
-    point[0].y = iDependencyY * fCellSize - fCellSize * 0.5f * pGraphics->GetDependencyHeight();
-    static_cast<CComponentEditorProxy*>(m_pConnectedComponent)->GetGraphics()->GetPosition(&iDependencyX, &iDependencyY);        
-    point[1].x = iDependencyX * fCellSize + fCellSize * 0.5f * pGraphics->GetConnectWidth();
-    point[1].y = iDependencyY * fCellSize - fCellSize * 0.5f * pGraphics->GetHeaderHeight();
-    CVector3 direction1(point[1].x - point[0].x, point[1].y - point[0].y, 0);
-    CVector3 direction2(x - point[0].x, y - point[0].y, 0);
-    float fDotResult = direction1.Dot(direction2);
-    float distance = direction2.Length();
-    float fLineLength = direction1.Length();
-    // Judge if the click point is in the line rect by two ways:
-    // 1. the distance from click point to line start pos must be less than or equal to the length of the line.
-    // 2. the angle of click point from the line should be less (it also mean the click pos shoulde be in the rect.)
-    if (fLineLength > distance)
+    BEATS_ASSERT(m_pRect != NULL);
+    if (m_pRect != NULL)
     {
-        float angle = acosf(fDotResult / (direction1.Length()* distance));
-        if (angle < MATH_PI * 0.5f)
-        {
-            float distanceToLine = distance * sinf(angle);
-            if (distanceToLine <= pGraphics->GetDependencyLineWidth())
-            {
-                bRet = true;
-            }
-        }
+        float top = (m_pRect[1].m_position.x - m_pRect[0].m_position.x) * (y - m_pRect[0].m_position.y) - (x - m_pRect[0].m_position.x) * (m_pRect[1].m_position.y - m_pRect[0].m_position.y);
+        float buttom = (m_pRect[3].m_position.x - m_pRect[2].m_position.x) * (y - m_pRect[2].m_position.y) - (x - m_pRect[2].m_position.x) * (m_pRect[3].m_position.y - m_pRect[2].m_position.y);
+        bool bBetweenHorizontal = top * buttom <= 0;
+
+        float left = (m_pRect[3].m_position.x - m_pRect[1].m_position.x) * (y - m_pRect[1].m_position.y) - (x - m_pRect[1].m_position.x) * (m_pRect[3].m_position.y - m_pRect[1].m_position.y);
+        float right = (m_pRect[2].m_position.x - m_pRect[0].m_position.x) * (y - m_pRect[0].m_position.y) - (x - m_pRect[0].m_position.x) * (m_pRect[2].m_position.y - m_pRect[0].m_position.y);
+        bool bBetweenVertical = left * right <= 0;
+        bRet = bBetweenHorizontal && bBetweenVertical;
     }
     return bRet;
 }

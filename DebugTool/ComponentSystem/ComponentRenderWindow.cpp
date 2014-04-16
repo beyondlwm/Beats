@@ -709,7 +709,7 @@ CComponentEditorProxy* CComponentRenderWindow::HitTestForComponent( wxPoint pos,
                 for (size_t j = 0; j < pDependency->GetDependencyLineCount(); ++j)
                 {
                     CDependencyDescriptionLine* pLine = pDependency->GetDependencyLine(j);
-                    bool bInLine = pLine->HitTest(fClickWorldPosX, fClickWorldPosY, m_cellSize);
+                    bool bInLine = pLine->HitTest(fClickWorldPosX, fClickWorldPosY);
                     if (bInLine)
                     {
                         if (pOutAreaType != NULL && pReturnData != NULL)
