@@ -53,7 +53,14 @@ public:
     {
         for (size_t i = 0; i < eVT_Count; ++i)
         {
-            m_valueArray[i] = new T(value);
+            if (m_valueArray[i] == NULL)
+            {
+                m_valueArray[i] = new T(value);
+            }
+            else
+            {
+                (*(T*)m_valueArray[i]) = value;
+            }
         }
     }
     template<typename T>

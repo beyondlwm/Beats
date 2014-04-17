@@ -262,7 +262,6 @@ CPropertyDescriptionBase* GetEnumPropertyDesc(int defaultValue)\
         }\
         SRegisterLauncher()\
         {\
-            CComponentBase* pBase = NULL;\
             SSerilaizerExtraInfo extraInfo;\
             CSerializer serializer;\
             serializer.SetUserData(&extraInfo);\
@@ -297,7 +296,7 @@ CPropertyDescriptionBase* GetEnumPropertyDesc(int defaultValue)\
     size_t nCountHolder = serializer.GetWritePos();\
     serializer << nCountHolder;\
     serializer << nCountHolder;\
-    pBase = new component(serializer);\
+    component tmp(serializer);\
     size_t curWritePos = serializer.GetWritePos();\
     serializer.SetWritePos(nCountHolder);\
     SSerilaizerExtraInfo* pExtraInfo = (SSerilaizerExtraInfo*)(serializer.GetUserData());\

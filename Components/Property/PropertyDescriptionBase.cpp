@@ -24,6 +24,10 @@ CPropertyDescriptionBase::CPropertyDescriptionBase(const CPropertyDescriptionBas
 , m_pBasicInfo(new SharePtr<SBasicPropertyInfo>(*rRef.m_pBasicInfo))
 , m_type(rRef.GetType())
 {
+    for (size_t i = 0; i < eVT_Count; ++i)
+    {
+        m_valueArray[i] = NULL;
+    }
 }
 
 CPropertyDescriptionBase::~CPropertyDescriptionBase()

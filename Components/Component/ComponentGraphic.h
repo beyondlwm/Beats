@@ -88,7 +88,7 @@ class COMPONENTS_DLL_DECL CComponentGraphic
 {
 public:
     CComponentGraphic();
-    ~CComponentGraphic();
+    virtual ~CComponentGraphic();
 
     void OnRender(float gridSize, bool bSelected);
     void SetPosition(int x, int y);
