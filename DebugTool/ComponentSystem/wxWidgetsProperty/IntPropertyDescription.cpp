@@ -66,6 +66,7 @@ bool CIntPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>&
         {
             BEATS_ASSERT(false, _T("Unknown parameter for Int property %s"), cache[0].c_str());
         }
+        BEATS_ASSERT(errno == 0, _T("call _tstoi failed! string: %s"), cache[1].c_str());
     }
     BEATS_ASSERT(*(int*)m_valueArray[eVT_CurrentValue] < m_maxValue && *(int*)m_valueArray[eVT_CurrentValue] > m_minValue);
     return true;

@@ -77,10 +77,8 @@ void CWxwidgetsPropertyBase::SaveToXML( TiXmlElement* pParentNode )
     CStringHelper::GetInstance()->ConvertToCHAR(GetBasicInfo().m_variableName.c_str(), variableName, MAX_PATH);
     pVariableElement->SetAttribute("Variable", variableName);
     char szValue[102400];
-    GetValueAsChar(eVT_DefaultValue, szValue);
-    pVariableElement->SetAttribute("DefaultValue", szValue);
     GetValueAsChar(eVT_CurrentValue, szValue);
-    pVariableElement->SetAttribute("Value", szValue);
+    pVariableElement->SetAttribute("SavedValue", szValue);
     pParentNode->LinkEndChild(pVariableElement);
     for (size_t i = 0; i < m_pChildren->size(); ++i)
     {
@@ -91,9 +89,12 @@ void CWxwidgetsPropertyBase::SaveToXML( TiXmlElement* pParentNode )
 void CWxwidgetsPropertyBase::LoadFromXML( TiXmlElement* pNode )
 {
     BEATS_ASSERT(pNode != NULL);
-    const char* pValue = pNode->Attribute("Value");
+    const char* pValue = pNode->Attribute("SavedValue");
     TCHAR pTCHARValue[10240];
     CStringHelper::GetInstance()->ConvertToTCHAR(pValue, pTCHARValue, 10240);
+    // NOTICE: Here we do a little trick:To reuse the function AnalyseUIParameter to read data from string.
+    // We need to formated the saved value with UIParameterAttrStr[eUIPAT_DefaultValue] parameter flag.
+    // And we set the bSerializePhase to false, So we won't change the real default value.
     AnalyseUIParameter(wxString::Format(_T("%s:%s"), UIParameterAttrStr[eUIPAT_DefaultValue], pTCHARValue), false);
 }
 

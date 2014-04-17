@@ -48,7 +48,7 @@ CComponentEditorProxy::~CComponentEditorProxy()
     BEATS_SAFE_DELETE(m_pSerializeOrder);
     BEATS_SAFE_DELETE(m_pGraphics);
     for (size_t i = 0; i < m_pDependenciesDescription->size(); ++i)
-    {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
+    {
         BEATS_SAFE_DELETE((*m_pDependenciesDescription)[i]);
     }
     BEATS_SAFE_DELETE(m_pDependenciesDescription);
