@@ -7,9 +7,14 @@ CColorPropertyDescription::CColorPropertyDescription(CSerializer* pSerializer)
     : super(ePT_UInt)
 {
     size_t value = 0;
+    unsigned char r,g,b,a;
     if (pSerializer != NULL)
     {
-        (*pSerializer) >> value;
+        (*pSerializer) >> r;
+        (*pSerializer) >> g;
+        (*pSerializer) >> b;
+        (*pSerializer) >> a;
+        value = (r << 24) + (g << 16) + (b << 8) + a;
     }
     InitializeValue(value);
 }
@@ -36,8 +41,16 @@ bool CColorPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString
         BEATS_ASSERT(cache.size() == 2);
         if (_tcsicmp(cache[0].c_str(), UIParameterAttrStr[eUIPAT_DefaultValue]) == 0)
         {
-            size_t uValue = _tstoi(cache[1].c_str());
-            wxVariant var((wxLongLong)uValue);
+            TCHAR* pEndChar = NULL;
+            size_t uValue = _tcstoul(cache[1].c_str(), &pEndChar, 10);
+            BEATS_ASSERT(_tcslen(pEndChar) == 0, _T("Read uint from string %s error, stop at %s"), cache[1].c_str(), pEndChar);
+            BEATS_ASSERT(errno == 0, _T("Call _tcstoul failed! string %s radix: 10"), cache[1].c_str());
+            unsigned char r = uValue >> 24;
+            unsigned char g = (uValue >> 16) & 0x000000FF;
+            unsigned char b = (uValue >> 8) & 0x000000FF;
+            unsigned char a = uValue & 0x000000FF;
+            wxColour color(r, g, b, a);
+            wxVariant var(color);
             SetValue(var, true);
             if (bSerializePhase)
             {
@@ -55,7 +68,14 @@ bool CColorPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString
 
 wxPGProperty* CColorPropertyDescription::CreateWxProperty()
 {
-    wxPGProperty* pProperty = new wxColourProperty(wxPG_LABEL, wxPG_LABEL, *(size_t*)m_valueArray[eVT_CurrentValue]);
+    size_t uColorValue = *(size_t*)m_valueArray[eVT_CurrentValue];
+    unsigned char r = uColorValue >> 24;
+    unsigned char g = (uColorValue >> 16) & 0x000000FF;
+    unsigned char b = (uColorValue >> 8) & 0x000000FF;
+    unsigned char a = uColorValue & 0x000000FF;
+    wxColour colorVaule(r, g, b, a);
+    wxPGProperty* pProperty = new wxColourProperty(wxPG_LABEL, wxPG_LABEL, colorVaule);
+    pProperty->SetAttribute("HasAlpha", true);
     pProperty->SetClientData(this);
     wxVariant var((wxLongLong)(*(size_t*)m_valueArray[eVT_CurrentValue]));
     pProperty->SetDefaultValue(var);
@@ -68,9 +88,7 @@ void CColorPropertyDescription::SetValue( wxVariant& value, bool bSaveValue /*= 
 {
     wxColor colourValue;
     colourValue << value ;
-    size_t uNewValue = colourValue.GetRGB();
-    uNewValue = uNewValue << 8;
-    uNewValue |= colourValue.Alpha();
+    size_t uNewValue = (colourValue.Red() << 24) + (colourValue.Green() << 16) + (colourValue.Blue() << 8) + colourValue.Alpha();
     SetValue(&uNewValue, eVT_CurrentValue);
     if (bSaveValue)
     {
@@ -98,7 +116,7 @@ CPropertyDescriptionBase* CColorPropertyDescription::CreateNewInstance()
 void CColorPropertyDescription::GetValueAsChar( EValueType type, char* pOut )
 {
     size_t iValue = *(size_t*)m_valueArray[type];
-    sprintf(pOut, "%ud", iValue);
+    sprintf(pOut, "%u", iValue);
 }
 
 void CColorPropertyDescription::Serialize( CSerializer& serializer )

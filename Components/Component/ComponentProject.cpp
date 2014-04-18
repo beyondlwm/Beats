@@ -327,27 +327,30 @@ bool CComponentProject::AnalyseFile(const TString& strFileName, std::map<size_t,
         if (pComponentListNode != NULL )
         {
             TiXmlElement* pComponentElement = pComponentListNode->FirstChildElement("Component");
-            const char* pszGuidStr = pComponentElement->Attribute("GUID");
-            char* pStopPos = NULL;
-            size_t uComponentGuid = strtoul(pszGuidStr, &pStopPos, 16);
-            BEATS_ASSERT(*pStopPos == NULL, _T("Guid value %s is not a 0x value at file %s."), pszGuidStr, strFileName.c_str());
-            if (outResult.find(uComponentGuid) == outResult.end())
+            if (pComponentElement != NULL)
             {
-                outResult[uComponentGuid] = std::vector<size_t>();
-            }
-            std::vector<size_t>& idList = outResult[uComponentGuid];
-            while (pComponentElement != NULL)
-            {
-                TiXmlElement* pInstanceElement = pComponentElement->FirstChildElement("Instance");
-                while (pInstanceElement != NULL)
+                const char* pszGuidStr = pComponentElement->Attribute("GUID");
+                char* pStopPos = NULL;
+                size_t uComponentGuid = strtoul(pszGuidStr, &pStopPos, 16);
+                BEATS_ASSERT(*pStopPos == NULL, _T("Guid value %s is not a 0x value at file %s."), pszGuidStr, strFileName.c_str());
+                if (outResult.find(uComponentGuid) == outResult.end())
                 {
-                    int id = -1;
-                    pInstanceElement->Attribute("Id", &id);
-                    BEATS_ASSERT(id != -1);
-                    idList.push_back(id);
-                    pInstanceElement = pInstanceElement->NextSiblingElement("Instance");
+                    outResult[uComponentGuid] = std::vector<size_t>();
                 }
-                pComponentElement = pComponentElement->NextSiblingElement("Component");
+                std::vector<size_t>& idList = outResult[uComponentGuid];
+                while (pComponentElement != NULL)
+                {
+                    TiXmlElement* pInstanceElement = pComponentElement->FirstChildElement("Instance");
+                    while (pInstanceElement != NULL)
+                    {
+                        int id = -1;
+                        pInstanceElement->Attribute("Id", &id);
+                        BEATS_ASSERT(id != -1);
+                        idList.push_back(id);
+                        pInstanceElement = pInstanceElement->NextSiblingElement("Instance");
+                    }
+                    pComponentElement = pComponentElement->NextSiblingElement("Component");
+                }
             }
         }
     }
