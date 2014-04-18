@@ -28,7 +28,7 @@ protected:
 template <typename MemberFunc, typename ObjectType>
 void EventDispatcher::SubscribeEvent( int type, const MemberFunc &func, ObjectType *obj )
 {
-    SubscribeEvent(type, std::bind1st(std::mem_fn(func), obj));
+    SubscribeEvent(type, std::bind(func, obj, std::placeholders::_1));
 }
 
 #endif

@@ -23,6 +23,13 @@ public:
     CBlendEquationRenderStateParam();
     CBlendEquationRenderStateParam(CSerializer& serializer);
     virtual void Apply() override;
+
+    virtual ERenderState GetRenderStateType() const;
+
+    virtual bool operator==( const CRenderStateParamBase& other ) const;
+
+    void SetBlendEquationType( EBlendEquationType type );
+    EBlendEquationType GetBlendEquationType() const;
 private:
     EBlendEquationType m_nValue;
 };

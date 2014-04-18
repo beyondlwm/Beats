@@ -42,7 +42,8 @@ public:
     wxWindow*       GetFrameWindow();
     TimeBarScale*   GetScalebar();
     TimeBarItemContainer*   GetItemContainer();
-    
+
+protected:
     void OnSize(wxSizeEvent& event);
     void OnBtnAddClick(wxCommandEvent& event);
     void OnBtnDeleteClick(wxCommandEvent& event);
@@ -50,6 +51,7 @@ public:
     void OnPositionChanging(wxSplitterEvent& event);
     void OnSpinCtrl(wxSpinEvent& event);
     void OnSpinTextEnter(wxCommandEvent& event);
+    void OnSelect(wxDataViewEvent& event);
 
 private:
     int                     m_iItemId;

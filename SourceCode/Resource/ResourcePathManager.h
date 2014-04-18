@@ -3,7 +3,6 @@
 
 enum EResourcePathType
 {
-    eRPT_Work,
     eRPT_SourceCode,
     eRPT_Resource,
     eRPT_Shader,
@@ -14,23 +13,29 @@ enum EResourcePathType
     eRPT_Material,
     eRPT_Texture,
     eRPT_Particle,
+    eRPT_Font,
+    eRPT_Language,
 
+    eRPT_Work,// Keep work directory at the end for cocos cross platform.
     eRPT_Count,
 };
  
-static const TCHAR* pszResourcePathName[] =
+static const TCHAR* pszCocosResourcePathName[] =
 {
+    _T("../SourceCode"),
+    _T("../Resource"),
+    _T("../SourceCode/Shader"),
+    _T("../Resource/Animation"),
+    _T("../Resource/SpriteAnimation"),
+    _T("../Resource/Skin"),
+    _T("../Resource/Skeleton"),
+    _T("../Resource/Material"),
+    _T("../Resource/Texture"),
+    _T("../Resource/Particle"),
+    _T("../Resource/Font"),
+    _T("../Resource/Language"),
+
     _T(""),
-    _T("SourceCode"),
-    _T("Resource"),
-    _T("SourceCode/Shader"),
-    _T("Resource/Animation"),
-    _T("Resource/SpriteAnimation"),
-    _T("Resource/Skin"),
-    _T("Resource/Skeleton"),
-    _T("Resource/Material"),
-    _T("Resource/Texture"),
-    _T("Resource/Particle"),
 };
 
 class CResourcePathManager
@@ -38,10 +43,8 @@ class CResourcePathManager
     BEATS_DECLARE_SINGLETON(CResourcePathManager);
 public:
     void Init();
-    const TString& GetResourcePath(EResourcePathType type) const;
+    const TString GetResourcePath(EResourcePathType type) const;
     EResourcePathType GetResourcePathType(EResourceType type) const;
-
-private:
-    TString m_szPath[eRPT_Count];
+    TString GetFullPathForFilename(const std::string &filename);
 };
 #endif

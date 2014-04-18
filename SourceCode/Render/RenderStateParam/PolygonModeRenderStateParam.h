@@ -5,6 +5,7 @@
 class CPolygonModeRenderStateParam : public CRenderStateParamBase
 {
     typedef CRenderStateParamBase super;
+public:
     enum EPolygonModeStateParam
     {
         ePMSP_PolyBackMode,
@@ -14,7 +15,6 @@ class CPolygonModeRenderStateParam : public CRenderStateParamBase
         eSMSP_Force32Bit = 0xFFFFFFFF,
     };
 
-public:
     enum EPolygonModeType
     {
         ePMT_POINTS = 0x1B00, //GL_POINT
@@ -30,6 +30,13 @@ public:
     CPolygonModeRenderStateParam();
     CPolygonModeRenderStateParam(CSerializer& serializer);
     virtual void Apply() override;
+
+    virtual ERenderState GetRenderStateType() const;
+
+    virtual bool operator==( const CRenderStateParamBase& other ) const;
+
+    void SetValue( EPolygonModeStateParam type, EPolygonModeType value );
+    void GetValue( EPolygonModeStateParam& type, EPolygonModeType& value ) const;
 private:
     EPolygonModeStateParam m_type;
     EPolygonModeType m_nValue;

@@ -6,17 +6,6 @@ class CCamera;
 class CTexture;
 struct GLFWwindow;
 
-enum ECameraMoveType
-{
-    eCMT_NOMOVE = 0,
-    eCMT_TRANVERSE,
-    eCMT_STRAIGHT,
-    eCMT_UPDOWN,
-
-    eCMT_Count,
-    eCMT_Force32Bit = 0xFFFFFFFF
-};
-
 class CRenderManager
 {
     BEATS_DECLARE_SINGLETON(CRenderManager);
@@ -34,13 +23,13 @@ public:
     void UpdateUBO(ECommonUniformBlockType type, const GLvoid **data, const GLsizeiptr *size, size_t count);
 #endif
     void UpdateCamera();
-    void UpdateCamera(const kmVec3& vec3Speed, int type);
     void RenderCoordinate(const kmMat4* pMatrix);
     void RenderLine(const CVertexPC& start,const CVertexPC& end);
     void RenderTriangle(const CVertexPC& pt1, const CVertexPC& pt2, const CVertexPC& pt3);
 
     GLFWwindow* GetMainWindow() const;
     CCamera* GetCamera() const;
+    void SetCamera(CCamera* camera);
     void ApplyTexture( int index, GLuint texture );
 
     bool InitGlew();
@@ -63,7 +52,8 @@ public:
     void GetMousePos(size_t& x, size_t& y) { x = m_uCurMousePosX, y = m_uCurMousePosY; }
 
     CShaderProgram* GetShaderProgram(GLuint uVertexShader, GLuint uPixelShader);
-    
+
+    void ContextFlush();
 private:
     bool InitGridData();
     bool InitLineBuffer();

@@ -6,7 +6,7 @@
 #include "Resource/ResourcePublic.h"
 #include <math.h>
 #include "RenderManager.h"
-#include "math/kazmath/include/kazmath/quaternion.h"
+#include "math/kazmath/kazmath/quaternion.h"
 CAnimationController::CAnimationController()
     : m_fPlayingTime(0.0f)
     , m_bLoop(false)
@@ -102,7 +102,6 @@ float CAnimationController::GetPlayingTime() const
 
 void CAnimationController::Update(float fDeltaTime)
 {
-    BEATS_ASSERT(m_pCurrentAnimation && m_pSkeleton);
     if(m_bPlaying && m_pCurrentAnimation && m_pSkeleton)
     {
         m_fPlayingTime += fDeltaTime;

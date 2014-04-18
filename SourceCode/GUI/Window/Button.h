@@ -7,6 +7,7 @@ namespace FCGUI
 {
     class Button : public Window
     {
+        DEFINE_WINDOW_TYPE(WINDOW_BUTTON);
     public:
         enum EventType
         {
@@ -26,9 +27,7 @@ namespace FCGUI
     public:
         Button(const TString &name);
 
-        void Disable();
-        void Enable();
-        State CurrState() const;
+        virtual int CurrState() const override;
 
         virtual bool OnMouseEvent( MouseEvent *event ) override;
 

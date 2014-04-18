@@ -1,12 +1,15 @@
 #ifndef GUI_WINDOW_WINDOW_H__INCLUDE
 #define GUI_WINDOW_WINDOW_H__INCLUDE
 
-#include "Event\EventDispatcher.h"
-#include "GUI\GUIEventType.h"
-#include "Utility\BeatsUtility\ComponentSystem\Component\ComponentBase.h"
+#include "Event/EventDispatcher.h"
+#include "GUI/GUIEventType.h"
+#include "Utility/BeatsUtility/ComponentSystem/Component/ComponentBase.h"
+#include "WindowDefs.h"
+#include "GUI/Animation/Animatable.h"
 
 //forward declaration
 class MouseEvent;
+class KeyboardEvent;
 
 namespace FCGUI
 {
@@ -14,10 +17,11 @@ namespace FCGUI
 	class BaseRenderer;
     class BaseLayout;
 
-	class Window : public EventDispatcher, public CComponentBase
+	class Window : public EventDispatcher, public CComponentBase, public Animatable
 	{
 		typedef CComponentBase super;
         DECLARE_REFLECT_GUID(Window, 0xB4ADE61C, CComponentBase)
+        DEFINE_WINDOW_TYPE(WINDOW_BASE);
 		//type definition
 	public:
 		typedef std::map<TString, Window *> WindowListType;
@@ -48,6 +52,31 @@ namespace FCGUI
             HIT_BOTTOM_RIGHT,
             HIT_ANCHOR,
             HIT_ROTATION_HANDLE,
+        };
+
+        enum State
+        {
+            STATE_NORMAL,
+            STATE_DISABLED,
+        };
+
+        enum Property
+        {
+            PROP_X,
+            PROP_Y,
+            PROP_PERCENT_X,
+            PROP_PERCENT_Y,
+            PROP_WIDTH,
+            PROP_HEIGHT,
+            PROP_PERCENT_WIDTH,
+            PROP_PERCENT_HEIGHT,
+            PROP_ANCHOR_X,
+            PROP_ANCHOR_Y,
+            PROP_ROTATION,
+            PROP_SCALE_X,
+            PROP_SCALE_Y,
+
+            PROP_COUNT,
         };
 
 	public:
@@ -94,20 +123,39 @@ namespace FCGUI
         void SetScale(kmScalar scaleX, kmScalar scaleY);
 		void SetScale(kmVec2 scale);
 		kmVec2 Scale() const;
+        void Scroll(kmVec2 offset);
+
         const kmMat4 &Transform() const;
         kmMat4 WorldTransform() const;
-        void Localize(kmVec3 &pos) const;
-        void Localize(kmScalar &x, kmScalar &y) const;
+        void WorldToLocal(kmVec3 &pos) const;
+        void WorldToLocal(kmScalar &x, kmScalar &y) const;
+        void ParentToLocal(kmVec3 &pos) const;
+        void ParentToLocal(kmScalar &x, kmScalar &y) const;
+        void LocalToParent(kmVec3 &pos) const;
+        void LocalToParent(kmScalar &x, kmScalar &y) const;
+        void LocalToWorld(kmVec3 &pos) const;
+        void LocalToWorld(kmScalar &x, kmScalar &y) const;
+
         HitTestResult HitTest(kmScalar x, kmScalar y, bool localized = false) const;
 
 		void Show();
 		void Hide();
 		void ToggleVisible();
-		bool Visible();
+		bool IsVisible() const;
+
+        void Enable();
+        void Disable();
+        bool IsEnabled() const;
+
+        virtual int CurrState() const;
+
+        void AddAutoAnimation(int eventType, const TString &animName);
 
         //event
         virtual bool OnMouseEvent(MouseEvent *event);
+        virtual bool OnKeyboardEvent(KeyboardEvent *event);
         virtual void Update(float deltaTime);
+        virtual void DispatchEvent(BaseEvent *event) override;
 
         //hierachy
 		void SetParent(Window *parent);
@@ -118,12 +166,15 @@ namespace FCGUI
 		void DestroyChild(Window *window, bool delay = false);
 		void DestroyChild(const TString &name, bool delay = false);
 		Window *GetChild(const TString &name, bool recursively = true) const;
+        Window *GetChild(kmScalar x, kmScalar y, bool recursively = true) const;
 		const WindowVisitor &Traverse(const WindowVisitor &visitor);
-
+     
 	protected:
 		void onParentSized();
 		void calcRealPos();
 		void calcRealSize();
+        void onScrollOffset();
+        void calcChildRealPos();
 		void calcTransform();
 
 	protected:
@@ -138,12 +189,17 @@ namespace FCGUI
 		kmVec2 _anchor;
 		kmScalar _rotation;
 		kmVec2 _scale;
+        kmVec2 _scrolloffset;
 		bool _visible;
+        bool _enabled;
+        bool _clipping;
 		kmMat4 _transform;  //transform in parent space
 
 		//component
         BaseLayout *_layout;
 		BaseRenderer *_renderer;
+
+        std::map<int, TString> _autoAnimations;
 
 		//window hierachy
 		Window *_parent;

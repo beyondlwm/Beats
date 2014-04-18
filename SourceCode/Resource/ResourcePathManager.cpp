@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "ResourcePathManager.h"
+#include "CCFileUtils.h"
 
 CResourcePathManager* CResourcePathManager::m_pInstance = NULL;
 
@@ -15,24 +16,14 @@ CResourcePathManager::~CResourcePathManager()
 
 void CResourcePathManager::Init()
 {
+    std::vector<std::string> searchPaths;
     for (auto i = 0; i < eRPT_Count; i++)
     {
-        if (i == 0)
-        {
-            TCHAR szPath[MAX_PATH];
-            GetCurrentDirectory(MAX_PATH, szPath);
-            m_szPath[eRPT_Work] = szPath;
-        }
-        else
-        {
-            m_szPath[i] = m_szPath[eRPT_Work] + _T("/../") + pszResourcePathName[i];
-        }
+        char szBuffer[MAX_PATH];
+        CStringHelper::GetInstance()->ConvertToCHAR(pszCocosResourcePathName[i], szBuffer, MAX_PATH);
+        searchPaths.push_back(szBuffer);
     }
-}
-
-const TString& CResourcePathManager::GetResourcePath(EResourcePathType type) const
-{
-    return m_szPath[type];
+    cocos2d::FileUtils::getInstance()->setSearchPaths(searchPaths);
 }
 
 EResourcePathType CResourcePathManager::GetResourcePathType(EResourceType type) const
@@ -64,10 +55,32 @@ EResourcePathType CResourcePathManager::GetResourcePathType(EResourceType type) 
     case eRT_ParticleScript:
         ret = eRPT_Particle;
         break;
+    case eRT_Font:
+        ret = eRPT_Font;
+        break;
+    case eRT_Language:
+        ret = eRPT_Language;
+        break;
 
     default:
         break;
     }
     BEATS_ASSERT(ret != eRPT_Count, _T("Unknown type of resource %d"), type);
     return ret;
+}
+
+TString CResourcePathManager::GetFullPathForFilename( const std::string &filename )
+{
+    std::string fullPath = cocos2d::FileUtils::getInstance()->fullPathForFilename(filename);
+    TCHAR szBuffer[MAX_PATH];
+    CStringHelper::GetInstance()->ConvertToTCHAR(fullPath.c_str(), szBuffer, MAX_PATH);
+    return szBuffer;
+}
+
+const TString CResourcePathManager::GetResourcePath( EResourcePathType type ) const
+{
+    const std::vector<std::string> searchPathArray = cocos2d::FileUtils::getInstance()->getSearchPaths();
+    TCHAR szBuffer[MAX_PATH];
+    CStringHelper::GetInstance()->ConvertToTCHAR(searchPathArray[type].c_str(), szBuffer, MAX_PATH);
+    return szBuffer;
 }

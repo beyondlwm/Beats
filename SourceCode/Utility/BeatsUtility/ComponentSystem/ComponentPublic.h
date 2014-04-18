@@ -3,6 +3,7 @@
 
 #include "Property/PropertyPublic.h"
 #include "Utility/BeatsUtility/Serializer.h"
+#include "Utility/BeatsUtility/ComponentSystem/Dependency/DependencyDescription.h"
 class CComponentBase;
 
 // To comment or un-comment this macro to decide serializer/deseraize.
@@ -213,14 +214,14 @@ CPropertyDescriptionBase* GetEnumPropertyDesc(int defaultValue)\
     serializer.SetWritePos(nPropertyDataSizeHolder + propertyDataSize);\
     ++(((SSerilaizerExtraInfo*)(serializer.GetUserData()))->m_uPropertyCount);\
 }
-#define DECLARE_DEPENDENCY(serializer, ptrProperty, propertyType, displayName, dependencyType)\
+#define DECLARE_DEPENDENCY(serializer, ptrProperty, displayName, dependencyType)\
 {\
-    serializer << (bool) false << (bool)false << dependencyType << propertyType::REFLECT_GUID << displayName << _T(#ptrProperty);\
+    serializer << (bool) false << (bool)false << dependencyType << ptrProperty->REFLECT_GUID << displayName << _T(#ptrProperty);\
     ++(((SSerilaizerExtraInfo*)(serializer.GetUserData()))->m_uDependencyCount);\
 }
-#define DECLARE_DEPENDENCY_LIST(serializer, ptrProperty, propertyType, displayName, dependencyType)\
+#define DECLARE_DEPENDENCY_LIST(serializer, ptrProperty, displayName, dependencyType)\
 {\
-    serializer << (bool) false << (bool)true << dependencyType << propertyType::REFLECT_GUID << displayName << _T(#ptrProperty);\
+    serializer << (bool) false << (bool)true << dependencyType << ptrProperty->REFLECT_GUID << displayName << _T(#ptrProperty);\
     ++(((SSerilaizerExtraInfo*)(serializer.GetUserData()))->m_uDependencyCount);\
 }
 #define DECLARE_PROPERTY_ENUM(serializer, enumVariable, count, selfDefineStrArray, enumType, editable, color, displayName, catalog, tip, parameter)\
@@ -245,7 +246,7 @@ CPropertyDescriptionBase* GetEnumPropertyDesc(int defaultValue)\
 #else
 #define DECLARE_PROPERTY(serializer, property, editable, color, displayName, catalog, tip, parameter) DeserializeVarialble(property, &serializer);
     
-#define DECLARE_DEPENDENCY(serializer, ptrProperty, propertyType, displayName, dependencyType)\
+#define DECLARE_DEPENDENCY(serializer, ptrProperty, displayName, dependencyType)\
         {\
             size_t uLineCount = 0;\
             serializer >> uLineCount;\
@@ -258,7 +259,7 @@ CPropertyDescriptionBase* GetEnumPropertyDesc(int defaultValue)\
             }\
 }
 
-#define DECLARE_DEPENDENCY_LIST(serializer, ptrProperty, propertyType, displayName, dependencyType)\
+#define DECLARE_DEPENDENCY_LIST(serializer, ptrProperty, displayName, dependencyType)\
         {\
             size_t uLineCount = 0;\
             serializer >> uLineCount;\
@@ -285,7 +286,9 @@ CPropertyDescriptionBase* GetEnumPropertyDesc(int defaultValue)\
         }\
         SRegisterLauncher()\
         {\
-            CComponentBase* pBase = NULL;\
+        }\
+        static void Launch()\
+        {\
             SSerilaizerExtraInfo extraInfo;\
             CSerializer serializer;\
             serializer.SetUserData(&extraInfo);\
@@ -303,10 +306,9 @@ CPropertyDescriptionBase* GetEnumPropertyDesc(int defaultValue)\
         CComponentManager::GetInstance()->SerializeTemplateData(serializer);\
         }\
     };\
-    SRegisterLauncher registerLauncher;\
-    void(*pComponentLauncherFunc)() = NULL;
+    void(*pComponentLauncherFunc)() = &SRegisterLauncher::Launch;
 
-#define REGISTER_COMOPNENT(component, displayName, catalogName)\
+#define REGISTER_COMPONENT(component, displayName, catalogName)\
     ++nComponentCounter;\
     {\
     serializer << (bool) false;\
@@ -320,7 +322,7 @@ CPropertyDescriptionBase* GetEnumPropertyDesc(int defaultValue)\
     size_t nCountHolder = serializer.GetWritePos();\
     serializer << nCountHolder;\
     serializer << nCountHolder;\
-    pBase = new component(serializer);\
+    component tmp(serializer);\
     size_t curWritePos = serializer.GetWritePos();\
     serializer.SetWritePos(nCountHolder);\
     SSerilaizerExtraInfo* pExtraInfo = (SSerilaizerExtraInfo*)(serializer.GetUserData());\
@@ -337,9 +339,15 @@ CPropertyDescriptionBase* GetEnumPropertyDesc(int defaultValue)\
     ++nComponentCounter;\
     {\
         serializer << (bool)true;\
-        serializer << (size_t)12;\
+        size_t nDataSizePosHolder = serializer.GetWritePos();\
+        serializer << nDataSizePosHolder;\
         serializer << component::REFLECT_GUID;\
         serializer << component::PARENT_REFLECT_GUID;\
+        serializer << _T(#component);\
+        size_t curWritePos = serializer.GetWritePos();\
+        serializer.SetWritePos(nDataSizePosHolder);\
+        serializer << (curWritePos - nDataSizePosHolder);\
+        serializer.SetWritePos(curWritePos);\
     }
 #else
 
@@ -374,7 +382,7 @@ CPropertyDescriptionBase* GetEnumPropertyDesc(int defaultValue)\
     SRegisterLauncher registerLauncher;\
     void(*pComponentLauncherFunc)() = &SRegisterLauncher::Launch;
 
-#define REGISTER_COMOPNENT(component, displayName, catalogName)\
+#define REGISTER_COMPONENT(component, displayName, catalogName)\
     CComponentManager::GetInstance()->RegisterTemplate(new component);
 
 #define REGISTER_ABSTRACT_COMPONENT(component)

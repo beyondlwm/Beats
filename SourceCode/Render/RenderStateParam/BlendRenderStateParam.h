@@ -33,6 +33,16 @@ public:
     CBlendRenderStateParam();
     CBlendRenderStateParam(CSerializer& serializer);
     virtual void Apply() override;
+
+    virtual ERenderState GetRenderStateType() const;
+
+    virtual bool operator==( const CRenderStateParamBase& other ) const;
+
+    void SetSrcFactor( EBlendParamType src );
+    EBlendParamType GetSrcFactor() const;
+
+    void SetTargetFactor( EBlendParamType des );
+    EBlendParamType GetTargetFactor() const;
 private:
     EBlendParamType m_source;
     EBlendParamType m_dest;

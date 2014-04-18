@@ -3,7 +3,6 @@
 #include "RenderObject.h"
 #include "CommonTypes.h"
 
-class CSpriteFrame;
 class CTexture;
 class CTextureFrag;
 class CSpriteFrameBatch : public CRenderObject
@@ -18,8 +17,6 @@ public:
 
     virtual void PostRender();
 
-    void AddSpriteFrame(CSpriteFrame *frame, const kmMat4 &transform);
-
     void AddQuad(const CQuadP &quad, CTextureFrag *frag, const kmMat4 &transform);
 
     void AddQuad(const CQuadPT &quad, SharePtr<CTexture> texture);
@@ -28,6 +25,7 @@ public:
     
 private:
     void setupVAO();
+    void updateVBO();
 
 private:
     static const size_t MAX_QUADS = 1024;

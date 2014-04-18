@@ -1,19 +1,24 @@
 #include "stdafx.h"
-#include "mainapp.h"
+#include "EngineEditor.h"
 #include "EngineProperGridManager.h"
 #include "EnginePropertyGrid.h"
 #include "Utility/BeatsUtility/ComponentSystem/Component/ComponentEditorProxy.h"
 #include "Utility/BeatsUtility/ComponentSystem/Component/ComponentBase.h"
-#include "wxWidgetsPropertyBase.h"
 #include "Utility/BeatsUtility/ComponentSystem/Component/ComponentManager.h"
 #include "Utility/BeatsUtility/ComponentSystem/Component/ComponentGraphic.h"
+#include "Utility/BeatsUtility/ComponentSystem/Component/ComponentProjectData.h"
+#include "Utility/BeatsUtility/ComponentSystem/Component/ComponentProject.h"
+#include "wxWidgetsPropertyBase.h"
 #include "ComponentGraphics_GL.h"
 #include "resource/ResourcePathManager.h"
+#include "wx/html/helpfrm.h"
+#include "ComponentFileTreeItemData.h"
+#include <wx/treectrl.h>
 
 
 BEGIN_EVENT_TABLE(EnginePropertyGirdManager, wxPropertyGridManager)
     EVT_PG_CHANGED(wxID_ANY, EnginePropertyGirdManager::OnComponentPropertyChanged)
-    END_EVENT_TABLE()
+END_EVENT_TABLE()
 
 EnginePropertyGirdManager::EnginePropertyGirdManager()
     : m_bNeedUpdatePropertyGrid(false)
@@ -113,31 +118,6 @@ wxPGProperty* EnginePropertyGirdManager::GetPGPropertyByBase(CPropertyDescriptio
     return pRet;
 }
 
-void EnginePropertyGirdManager::RequestToUpdatePropertyGrid( )
-{
-    if (!m_bNeedUpdatePropertyGrid)
-    {
-        m_bNeedUpdatePropertyGrid = true;
-    }
-}
-
-CComponentEditorProxy* CreateComponentProxy(CComponentGraphic* pGraphics, size_t guid, size_t parentGuid, TCHAR* pszClassName)
-{
-    return new CComponentEditorProxy(pGraphics, guid, parentGuid, pszClassName);
-}
-
-CComponentGraphic* CreateGraphic()
-{
-    CComponentGraphic_GL* pGraphics = new CComponentGraphic_GL();
-    return pGraphics;
-}
-
-void EnginePropertyGirdManager::InitComponentsPage()
-{
-    const TString& strWorkPath = CResourcePathManager::GetInstance()->GetResourcePath(eRPT_Work);
-    CComponentManager::GetInstance()->DeserializeTemplateData(strWorkPath.c_str(), CreateComponentProxy, CreateGraphic);
-}
-
 void EnginePropertyGirdManager::OnComponentPropertyChanged( wxPropertyGridEvent& event )
 {
     wxPGProperty* pProperty = event.GetProperty();
@@ -179,3 +159,16 @@ void EnginePropertyGirdManager::OnComponentPropertyChangedImpl(wxPGProperty* pPr
         Refresh();
     }
 }
+
+bool EnginePropertyGirdManager::IsNeedUpdatePropertyGrid()
+{
+    return m_bNeedUpdatePropertyGrid;
+}
+
+void EnginePropertyGirdManager::SetUpdateFlag(bool bFlag)
+{
+    m_bNeedUpdatePropertyGrid = bFlag;
+}
+
+
+

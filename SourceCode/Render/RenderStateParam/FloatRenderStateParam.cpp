@@ -36,3 +36,35 @@ void CFloatRenderStateParam::Apply()
         break;
     }
 }
+
+ERenderState CFloatRenderStateParam::GetRenderStateType() const
+{
+    return eRS_FloatMode;
+}
+
+CFloatRenderStateParam::EFloatStateParam CFloatRenderStateParam::GetFloatParamType() const
+{
+    return m_type;
+}
+
+void CFloatRenderStateParam::SetFloatParamType( EFloatStateParam type )
+{
+    m_type = type;
+}
+
+void CFloatRenderStateParam::SetValue( float value )
+{
+    m_fValue = value;
+}
+
+float CFloatRenderStateParam::GetValue() const
+{
+    return m_fValue;
+}
+
+bool CFloatRenderStateParam::operator==( const CRenderStateParamBase& other ) const
+{
+    BEATS_ASSERT( other.GetRenderStateType() == eRS_FloatMode );
+    CFloatRenderStateParam* pOther = ( CFloatRenderStateParam* )&other;
+    return ( m_fValue == pOther->m_fValue && m_type == pOther->m_type );
+}

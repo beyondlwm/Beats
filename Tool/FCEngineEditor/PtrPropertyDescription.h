@@ -35,7 +35,7 @@ public:
     virtual void Initialize();
 
 private:
-    void UpdateDisplayString(size_t uComponentId);
+    void UpdateDisplayString(size_t uComponentGuid);
 
 private:
     size_t m_uDerivedGuid;
@@ -44,5 +44,4 @@ private:
     // This flag indicate if this property should have instance according to XML data. 
     bool m_bHasInstance;
 };
-
 #endif

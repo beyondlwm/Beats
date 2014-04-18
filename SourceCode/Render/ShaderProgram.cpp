@@ -31,7 +31,7 @@ CShaderProgram::CShaderProgram(GLuint uVertexShader, GLuint uPixelShader)
 
     for(size_t i = 0; i < UNIFORM_COUNT; ++i)
     {
-        m_uniformLocations[static_cast<ECommonUniformType>(i)] = pRenderer->GetUniformLocation(m_uProgram, COMMON_UNIFORM_NAMES[i]);    
+        m_uniformLocations[static_cast<ECommonUniformType>(i)] = pRenderer->GetUniformLocation(m_uProgram, COMMON_UNIFORM_NAMES[i]);
     }
 
 #ifdef USE_UBO

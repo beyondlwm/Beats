@@ -147,7 +147,7 @@
       <TreatWarningAsError>true</TreatWarningAsError>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <DisableSpecificWarnings>4100;4127;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>..\cocos2d-x-3.0beta2\cocos\2d\platform\;..\cocos2d-x-3.0beta2\cocos\2d\platform\win32\;..\cocos2d-x-3.0beta2\cocos\2d;..\cocos2d-x-3.0beta2\cocos\;..\cocos2d-x-3.0beta2\cocos\base;..\cocos2d-x-3.0beta2\external\glfw3\include\win32\;..\cocos2d-x-3.0beta2\external\freetype2\include\win32;..\cocos2d-x-3.0beta2\external\win32-specific\gles\include\OGLES;Lib\;Lib\zlib\;Lib\boost\;SourceCode\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\cocos2d-x-3.0rc1\cocos\2d\platform\;..\cocos2d-x-3.0rc1\cocos\2d\platform\win32\;..\cocos2d-x-3.0rc1\cocos\2d;..\cocos2d-x-3.0rc1\cocos\;..\cocos2d-x-3.0rc1\cocos\base;..\cocos2d-x-3.0rc1\external\glfw3\include\win32\;..\cocos2d-x-3.0rc1\external\freetype2\include\win32;..\cocos2d-x-3.0rc1\external\win32-specific\gles\include\OGLES;Lib\;Lib\zlib\;Lib\boost\;SourceCode\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Lib>
       <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
@@ -181,7 +181,7 @@
       <TreatWarningAsError>true</TreatWarningAsError>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4100;4127;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>..\cocos2d-x-3.0beta2\cocos\2d\platform\;..\cocos2d-x-3.0beta2\cocos\2d\platform\win32\;..\cocos2d-x-3.0beta2\cocos\2d;..\cocos2d-x-3.0beta2\cocos\;..\cocos2d-x-3.0beta2\cocos\base;..\cocos2d-x-3.0beta2\external\glfw3\include\win32\;..\cocos2d-x-3.0beta2\external\win32-specific\gles\include\OGLES;Lib\;Lib\zlib\;Lib\boost\;SourceCode\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\cocos2d-x-3.0rc1\cocos\2d\platform\;..\cocos2d-x-3.0rc1\cocos\2d\platform\win32\;..\cocos2d-x-3.0rc1\cocos\2d;..\cocos2d-x-3.0rc1\cocos\;..\cocos2d-x-3.0rc1\cocos\base;..\cocos2d-x-3.0rc1\external\glfw3\include\win32\;..\cocos2d-x-3.0rc1\external\win32-specific\gles\include\OGLES;Lib\;Lib\zlib\;Lib\boost\;SourceCode\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -256,8 +256,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="SourceCode\ComponentRegister.cpp" />
+    <ClCompile Include="SourceCode\EngineCenter.cpp" />
     <ClCompile Include="SourceCode\Event\EventDispatcher.cpp" />
+    <ClCompile Include="SourceCode\GUI\Animation\Animatable.cpp" />
+    <ClCompile Include="SourceCode\GUI\Animation\Animation_ui.cpp" />
+    <ClCompile Include="SourceCode\GUI\Animation\AnimationInstance.cpp" />
+    <ClCompile Include="SourceCode\GUI\Animation\AnimationLayer.cpp" />
+    <ClCompile Include="SourceCode\GUI\Animation\AnimationManager_ui.cpp" />
+    <ClCompile Include="SourceCode\GUI\Animation\KeyFrame.cpp" />
     <ClCompile Include="SourceCode\GUI\Behavior\BehaviorBase.cpp" />
+    <ClCompile Include="SourceCode\GUI\Font\Font.cpp" />
     <ClCompile Include="SourceCode\GUI\Font\FontFace.cpp" />
     <ClCompile Include="SourceCode\GUI\Font\FontManager.cpp" />
     <ClCompile Include="SourceCode\GUI\Layout\BaseLayout.cpp" />
@@ -266,11 +274,27 @@
     <ClCompile Include="SourceCode\GUI\Layout\ScrollLayout.cpp" />
     <ClCompile Include="SourceCode\GUI\Layout\VScrollLayout.cpp" />
     <ClCompile Include="SourceCode\GUI\Renderer\BaseRenderer.cpp" />
-    <ClCompile Include="SourceCode\GUI\Renderer\ButtonRenderer.cpp" />
+    <ClCompile Include="SourceCode\GUI\Renderer\CheckBoxRenderer.cpp" />
+    <ClCompile Include="SourceCode\GUI\Renderer\ComboBoxRenderer.cpp" />
+    <ClCompile Include="SourceCode\GUI\Renderer\ListBoxRenderer.cpp" />
+    <ClCompile Include="SourceCode\GUI\Renderer\ProgressRenderer.cpp" />
+    <ClCompile Include="SourceCode\GUI\Renderer\RenderLayer.cpp" />
+    <ClCompile Include="SourceCode\GUI\Renderer\SliderRenderer.cpp" />
+    <ClCompile Include="SourceCode\GUI\Renderer\TextEditRenderer.cpp" />
+    <ClCompile Include="SourceCode\GUI\Renderer\TextLabelRenderer.cpp" />
     <ClCompile Include="SourceCode\GUI\System.cpp" />
     <ClCompile Include="SourceCode\GUI\WindowManager.cpp" />
     <ClCompile Include="SourceCode\GUI\Window\Button.cpp" />
+    <ClCompile Include="SourceCode\GUI\Window\CheckBox.cpp" />
+    <ClCompile Include="SourceCode\GUI\Window\ComboBox.cpp" />
+    <ClCompile Include="SourceCode\GUI\Window\ListBox.cpp" />
+    <ClCompile Include="SourceCode\GUI\Window\ListControl.cpp" />
+    <ClCompile Include="SourceCode\GUI\Window\Progress.cpp" />
+    <ClCompile Include="SourceCode\GUI\Window\Slider.cpp" />
+    <ClCompile Include="SourceCode\GUI\Window\TextEdit.cpp" />
+    <ClCompile Include="SourceCode\GUI\Window\TextLabel.cpp" />
     <ClCompile Include="SourceCode\GUI\Window\Window.cpp" />
+    <ClCompile Include="SourceCode\LanguageManager.cpp" />
     <ClCompile Include="SourceCode\ParticlesSystem\BallParticleEmitterEntity.cpp" />
     <ClCompile Include="SourceCode\ParticlesSystem\BoxParticleEmitterEntity.cpp" />
     <ClCompile Include="SourceCode\ParticlesSystem\ColorParticleAnimation.cpp" />
@@ -315,13 +339,13 @@
     <ClCompile Include="SourceCode\Render\RenderStateParam\UintRenderStateParam.cpp" />
     <ClCompile Include="SourceCode\Render\Shader.cpp" />
     <ClCompile Include="SourceCode\Render\ShaderProgram.cpp" />
+    <ClCompile Include="SourceCode\Render\ShaderUniform.cpp" />
+    <ClCompile Include="SourceCode\Render\ShaderUniformData.cpp" />
     <ClCompile Include="SourceCode\Render\Skeleton.cpp" />
     <ClCompile Include="SourceCode\Render\SkeletonBone.cpp" />
     <ClCompile Include="SourceCode\Render\Skin.cpp" />
     <ClCompile Include="SourceCode\Render\Sprite.cpp" />
-    <ClCompile Include="SourceCode\Render\SpriteAnimation.cpp" />
-    <ClCompile Include="SourceCode\Render\SpriteAnimationController.cpp" />
-    <ClCompile Include="SourceCode\Render\SpriteFrame.cpp" />
+    <ClCompile Include="SourceCode\Render\AnimatableSprite.cpp" />
     <ClCompile Include="SourceCode\Render\SpriteFrameBatch.cpp" />
     <ClCompile Include="SourceCode\Render\SpriteFrameBatchManager.cpp" />
     <ClCompile Include="SourceCode\Render\Texture.cpp" />
@@ -346,15 +370,23 @@
     <ClCompile Include="SourceCode\Render\RenderManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\cocos2d-x-3.0beta2\cocos\math\kazmath\include\kazmath\mat4.h" />
+    <ClInclude Include="SourceCode\EngineCenter.h" />
     <ClInclude Include="SourceCode\Event\BaseEvent.h" />
     <ClInclude Include="SourceCode\Event\EventDispatcher.h" />
     <ClInclude Include="SourceCode\Event\EventType.h" />
     <ClInclude Include="SourceCode\Event\KeyboardEvent.h" />
     <ClInclude Include="SourceCode\Event\MouseEvent.h" />
+    <ClInclude Include="SourceCode\GUI\Animation\Animatable.h" />
+    <ClInclude Include="SourceCode\GUI\Animation\Animation_ui.h" />
+    <ClInclude Include="SourceCode\GUI\Animation\AnimationInstance.h" />
+    <ClInclude Include="SourceCode\GUI\Animation\AnimationLayer.h" />
+    <ClInclude Include="SourceCode\GUI\Animation\AnimationManager_ui.h" />
+    <ClInclude Include="SourceCode\GUI\Animation\AnimProp.h" />
+    <ClInclude Include="SourceCode\GUI\Animation\KeyFrame.h" />
     <ClInclude Include="SourceCode\GUI\Behavior\BehaviorBase.h" />
     <ClInclude Include="SourceCode\GUI\Behavior\BehaviorDefs.h" />
     <ClInclude Include="SourceCode\GUI\Event\WindowEvent.h" />
+    <ClInclude Include="SourceCode\GUI\Font\Font.h" />
     <ClInclude Include="SourceCode\GUI\Font\FontFace.h" />
     <ClInclude Include="SourceCode\GUI\Font\FontManager.h" />
     <ClInclude Include="SourceCode\GUI\GUIEventType.h" />
@@ -364,12 +396,32 @@
     <ClInclude Include="SourceCode\GUI\Layout\ScrollLayout.h" />
     <ClInclude Include="SourceCode\GUI\Layout\VScrollLayout.h" />
     <ClInclude Include="SourceCode\GUI\Renderer\BaseRenderer.h" />
-    <ClInclude Include="SourceCode\GUI\Renderer\ButtonRenderer.h" />
+    <ClInclude Include="SourceCode\GUI\Renderer\CheckBoxRenderer.h" />
+    <ClInclude Include="SourceCode\GUI\Renderer\ComboBoxRenderer.h" />
+    <ClInclude Include="SourceCode\GUI\Renderer\ListBoxRenderer.h" />
+    <ClInclude Include="SourceCode\GUI\Renderer\ProgressRenderer.h" />
     <ClInclude Include="SourceCode\GUI\Renderer\RendererDefs.h" />
+    <ClInclude Include="SourceCode\GUI\Renderer\RendererFactory.h" />
+    <ClInclude Include="SourceCode\GUI\Renderer\RenderLayer.h" />
+    <ClInclude Include="SourceCode\GUI\Renderer\SliderRenderer.h" />
+    <ClInclude Include="SourceCode\GUI\Renderer\TextEditRenderer.h" />
+    <ClInclude Include="SourceCode\GUI\Renderer\TextLabelRenderer.h" />
     <ClInclude Include="SourceCode\GUI\System.h" />
     <ClInclude Include="SourceCode\GUI\WindowManager.h" />
     <ClInclude Include="SourceCode\GUI\Window\Button.h" />
+    <ClInclude Include="SourceCode\GUI\Window\CheckBox.h" />
+    <ClInclude Include="SourceCode\GUI\Window\ComboBox.h" />
+    <ClInclude Include="SourceCode\GUI\Window\ListBox.h" />
+    <ClInclude Include="SourceCode\GUI\Window\ListControl.h" />
+    <ClInclude Include="SourceCode\GUI\Window\Progress.h" />
+    <ClInclude Include="SourceCode\GUI\Window\Slider.h" />
+    <ClInclude Include="SourceCode\GUI\Window\TextEdit.h" />
+    <ClInclude Include="SourceCode\GUI\Window\TextLabel.h" />
     <ClInclude Include="SourceCode\GUI\Window\Window.h" />
+    <ClInclude Include="SourceCode\GUI\Window\WindowDefs.h" />
+    <ClInclude Include="SourceCode\GUI\Window\WindowFactory.h" />
+    <ClInclude Include="SourceCode\Language.h" />
+    <ClInclude Include="SourceCode\LanguageManager.h" />
     <ClInclude Include="SourceCode\ParticlesSystem\BallParticleEmitterEntity.h" />
     <ClInclude Include="SourceCode\ParticlesSystem\BoxParticleEmitterEntity.h" />
     <ClInclude Include="SourceCode\ParticlesSystem\ColorParticleAnimation.h" />
@@ -399,6 +451,7 @@
     <ClInclude Include="SourceCode\Render\Material.h" />
     <ClInclude Include="SourceCode\Render\Model.h" />
     <ClInclude Include="SourceCode\Render\Renderer.h" />
+    <ClInclude Include="SourceCode\Render\RenderManager.h" />
     <ClInclude Include="SourceCode\Render\RenderObject.h" />
     <ClInclude Include="SourceCode\Render\RenderObjectManager.h" />
     <ClInclude Include="SourceCode\Render\RenderPublic.h" />
@@ -418,13 +471,13 @@
     <ClInclude Include="SourceCode\Render\RenderStateParam\UintRenderStateParam.h" />
     <ClInclude Include="SourceCode\Render\Shader.h" />
     <ClInclude Include="SourceCode\Render\ShaderProgram.h" />
+    <ClInclude Include="SourceCode\Render\ShaderUniform.h" />
+    <ClInclude Include="SourceCode\Render\ShaderUniformData.h" />
     <ClInclude Include="SourceCode\Render\Skeleton.h" />
     <ClInclude Include="SourceCode\Render\SkeletonBone.h" />
     <ClInclude Include="SourceCode\Render\Skin.h" />
     <ClInclude Include="SourceCode\Render\Sprite.h" />
-    <ClInclude Include="SourceCode\Render\SpriteAnimation.h" />
-    <ClInclude Include="SourceCode\Render\SpriteAnimationController.h" />
-    <ClInclude Include="SourceCode\Render\SpriteFrame.h" />
+    <ClInclude Include="SourceCode\Render\AnimatableSprite.h" />
     <ClInclude Include="SourceCode\Render\SpriteFrameBatch.h" />
     <ClInclude Include="SourceCode\Render\SpriteFrameBatchManager.h" />
     <ClInclude Include="SourceCode\Render\Texture.h" />
@@ -462,13 +515,12 @@
     <ClInclude Include="SourceCode\Utility\BeatsUtility\ComponentSystem\Property\PropertyPublic.h" />
     <ClInclude Include="SourceCode\Utility\TinyXML\tinystr.h" />
     <ClInclude Include="SourceCode\Utility\TinyXML\tinyxml.h" />
-    <ClInclude Include="SourceCode\Render\RenderManager.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\cocos2d-x-3.0beta2\cocos\2d\cocos2d.vcxproj">
+    <ProjectReference Include="..\cocos2d-x-3.0rc1\cocos\2d\cocos2d.vcxproj">
       <Project>{98a51ba8-fc3a-415b-ac8f-8c7bd464e93e}</Project>
     </ProjectReference>
   </ItemGroup>

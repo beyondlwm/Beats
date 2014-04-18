@@ -49,6 +49,7 @@ public:
 private:
 
     void    GetMaterialInfo(IGameNode* pNode);
+    bool    FilterVertexData(const Point3& ptPos, const Point3& ptUv);
 
     std::string   m_strFileName;
     std::string   m_strFilePath;
@@ -71,6 +72,8 @@ private:
     size_t  m_uMeshCount;
     std::vector<int>  m_vMeshVCount;
     std::vector<int>  m_vMeshMeterialCnt;
+    std::vector<int>  m_posIndexVector;
+    std::vector<int>  m_MeshPosIndexCnt;
 };
 
 

@@ -3,6 +3,7 @@
 
 #include "RendererDefs.h" 
 #include "Render/CommonTypes.h"
+#include "RenderLayer.h"
 
 //forward declaration
 class CTextureFrag;
@@ -12,23 +13,25 @@ namespace FCGUI
 {
 	//forward declaration
 	class Window;
+    class RenderLayer;
 
 	//rendering children and layers
 	class BaseRenderer
 	{
+        DEFINE_RENDERER_TYPE(RENDERER_BASE);
 	public:
 		BaseRenderer();
 		virtual ~BaseRenderer();
 
         void SetWindow(Window *window);
 
-		virtual RendererType Type() const;
-
 		virtual void Render(const kmMat4 &parentTransform) const;
 
-		virtual void AddLayer(CTextureFrag *layer);
+		void AddLayer(const TString &textureFragName, unsigned int state = 0);
+        void AddLayer(CTextureFrag *textureFrag, unsigned int state = 0);
+        void AddLayer(const RenderLayer::FrameList &frames, unsigned int state = 0);
 
-		virtual void AddLayer(const TString &textureFragName);
+        RenderLayer *GetLayer(size_t index, unsigned int state = 0);
 
 	protected:
 		virtual void setVertices(const Window *window);
@@ -40,10 +43,13 @@ namespace FCGUI
 		void onWindowEvent(BaseEvent *event);
 
 	protected:
+        typedef std::vector<RenderLayer *> LayerList;
+        typedef std::map<unsigned int, LayerList> StateLayerList;
+
 		Window *_window;
 
         CQuadP _quad;
-		std::vector<CTextureFrag *> _layers;
+        StateLayerList _stateLayers;
 	};
 }
 

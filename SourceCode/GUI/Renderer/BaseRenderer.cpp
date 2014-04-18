@@ -16,13 +16,20 @@ BaseRenderer::BaseRenderer()
 
 BaseRenderer::~BaseRenderer()
 {
+    for(auto layers : _stateLayers)
+    {
+        for(auto layer : layers.second)
+        {
+            BEATS_SAFE_DELETE(layer);
+        }
+    }
 }
 
 void BaseRenderer::SetWindow(Window *window)
 {
     _window = window;
 
-	auto windowEventHandler = std::bind1st(std::mem_fn(&BaseRenderer::onWindowEvent), this); 
+	auto windowEventHandler = std::bind(&BaseRenderer::onWindowEvent, this, std::placeholders::_1); 
 	_window->SubscribeEvent(Window::EVENT_SIZED, windowEventHandler);
 	_window->SubscribeEvent(Window::EVENT_MOVED, windowEventHandler);
 	_window->SubscribeEvent(Window::EVENT_ROTATED, windowEventHandler);
@@ -32,14 +39,40 @@ void BaseRenderer::SetWindow(Window *window)
     setVertices(_window);
 }
 
-RendererType BaseRenderer::Type() const
+void BaseRenderer::AddLayer(CTextureFrag *layer, unsigned int state)
 {
-	return RENDERER_BASE;
+    _stateLayers[state].push_back(new RenderLayer(layer));
+}
+
+void BaseRenderer::AddLayer(const TString &textureFragName, unsigned int state)
+{
+    CTextureFrag *frag = CTextureFragManager::GetInstance()->GetTextureFrag(textureFragName);
+    BEATS_ASSERT(frag);
+    AddLayer(frag, state);
+}
+
+void BaseRenderer::AddLayer(const RenderLayer::FrameList &frames, unsigned int state)
+{
+    _stateLayers[state].push_back(new RenderLayer(frames));
+}
+
+RenderLayer *BaseRenderer::GetLayer(size_t index, unsigned int state)
+{
+    RenderLayer *layer = nullptr;
+    auto itr = _stateLayers.find(state);
+    if(itr != _stateLayers.end())
+    {
+        if(index < itr->second.size())
+        {
+            layer = itr->second[index];
+        }
+    }
+    return layer;
 }
 
 void BaseRenderer::Render(const kmMat4 &parentTransform) const
 {
-	if(!_window || !_window->Visible()) return;
+	if(!_window || !_window->IsVisible()) return;
 
 	kmMat4 worldTransform;
 	kmMat4Multiply(&worldTransform, &parentTransform, &_window->Transform());
@@ -48,12 +81,30 @@ void BaseRenderer::Render(const kmMat4 &parentTransform) const
 	renderChildren(worldTransform);
 }
 
-void BaseRenderer::renderLayers(const kmMat4 &worldTransform) const
+void BaseRenderer::renderLayers( const kmMat4 &parentTransform ) const
 {
-	for(auto layer : _layers)
-	{
-		CSpriteFrameBatchManager::GetInstance()->AddQuad(_quad, layer, worldTransform);
-	}
+    const LayerList *layers = nullptr;
+    auto itr = _stateLayers.find(_window->CurrState());
+    if(itr != _stateLayers.end() && !itr->second.empty())
+    {
+        layers = &itr->second;
+    }
+    else
+    {
+        auto itrNormal = _stateLayers.find(Window::STATE_NORMAL);
+        if(itrNormal != _stateLayers.end())
+        {
+            layers = &itrNormal->second;
+        }
+    }
+    if(layers)
+    {
+        for(auto layer : *layers)
+        {
+            CSpriteFrameBatchManager::GetInstance()->AddQuad(_quad, 
+                layer->GetTextureFrag(), parentTransform);
+        }
+    }
 }
 
 void BaseRenderer::renderChildren(const kmMat4 &parentTransform) const
@@ -68,18 +119,6 @@ void BaseRenderer::renderChildren(const kmMat4 &parentTransform) const
 		}
         return false;
 	});	
-}
-
-void BaseRenderer::AddLayer(CTextureFrag *layer)
-{
-	_layers.push_back(layer);
-}
-
-void BaseRenderer::AddLayer(const TString &textureFragName)
-{
-    CTextureFrag *frag = CTextureFragManager::GetInstance()->GetTextureFrag(textureFragName);
-    BEATS_ASSERT(frag);
-    _layers.push_back(frag);
 }
 
 void BaseRenderer::onWindowEvent(BaseEvent *event)

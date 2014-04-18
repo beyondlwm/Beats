@@ -27,6 +27,11 @@ public:
         return static_cast<char>(_key);
     }
 
+    wchar_t WChar() const
+    {
+        return static_cast<wchar_t>(_key);
+    }
+
 private:
     int _key;
     int _mods;

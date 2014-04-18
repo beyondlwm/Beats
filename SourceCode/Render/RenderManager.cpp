@@ -44,7 +44,6 @@ CRenderManager::CRenderManager()
     , m_fPressStartYaw(0.f)
     , m_fPressStartPitch(0.f)
 {
-    m_pCamera = new CCamera;
 }
 
 CRenderManager::~CRenderManager()
@@ -52,7 +51,6 @@ CRenderManager::~CRenderManager()
 #ifdef USE_UBO
     DeleteUBOList();
 #endif
-    BEATS_SAFE_DELETE(m_pCamera);
     BEATS_SAFE_DELETE_VECTOR(m_shaderProgramPool);
 }
 
@@ -86,9 +84,7 @@ bool CRenderManager::InitializeWithWindow(size_t uWidth, size_t uHeight)
 
     bool bRet = Initialize();
 
-    kmVec2 resolution;
-    kmVec2Fill(&resolution, (float)m_iWidth, (float)m_iHeight);
-    FCGUI::System::GetInstance()->OnResolutionChanged(resolution);
+    FCGUI::System::GetInstance()->OnResolutionChanged((float)m_iWidth, (float)m_iHeight);
 
     return bRet;
 }
@@ -98,6 +94,7 @@ bool CRenderManager::Initialize()
     // check OpenGL version at first
 #ifdef _DEBUG
     const GLubyte* glVersion = glGetString(GL_VERSION);
+    BEATS_ASSERT(glVersion != NULL, _T("Get Opengl version failed!"));
     TCHAR szVersionTCHAR[MAX_PATH];
     CStringHelper::GetInstance()->ConvertToTCHAR((const char*)glVersion, szVersionTCHAR, MAX_PATH);
     BEATS_ASSERT( atof((const char*)glVersion) >= 1.5, _T("OpenGL 1.5 or higher is required (your version is %s). Please upgrade the driver of your video card."), szVersionTCHAR);
@@ -122,11 +119,12 @@ bool CRenderManager::Initialize()
 #ifdef USE_UBO
     InitUBOList();
 #endif
+
     SharePtr<CShader> pVS = CResourceManager::GetInstance()->GetResource<CShader>(_T("PointColorShader.vs"), false);
     SharePtr<CShader> pPS = CResourceManager::GetInstance()->GetResource<CShader>(_T("PointColorShader.ps"), false);
+
     m_pLineShaderProgram = GetShaderProgram(pVS->ID(), pPS->ID());
 
-    m_pCamera->SetAspect((float)m_iWidth / m_iHeight);
     return bRet;
 }
 
@@ -134,6 +132,7 @@ void CRenderManager::SetWindowSize(int width, int height)
 {
     m_iWidth = width;
     m_iHeight = height;
+    FCGUI::System::GetInstance()->OnResolutionChanged((float)width, (float)height);
 }
 
 void CRenderManager::GetWindowSize(int& nWidth, int& nHeight)
@@ -280,35 +279,44 @@ bool CRenderManager::InitGlew()
 
 void CRenderManager::Render()
 {
-    CRenderer* pRenderer = CRenderer::GetInstance();
-    pRenderer->Viewport(0, 0, m_iWidth, m_iHeight);
-    pRenderer->ClearColor(0.0f, 0.0f, 1.0f, 1.0f);
-    pRenderer->ClearDepth(1.0F);
-    pRenderer->ClearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);    
-    pRenderer->EnableGL(GL_DEPTH_TEST);
-    pRenderer->EnableGL(GL_CULL_FACE);
-    CSpriteFrameBatchManager::GetInstance()->Clear();
-    // 3D rendering
-    CRenderObjectManager::GetInstance()->Render();
-    float fOldFar = m_pCamera->GetFar();
-    m_pCamera->SetFar(25.f);
-    RenderGrid();
-    m_pCamera->SetFar(fOldFar);
+    if (m_pCamera)
+    {
+        CRenderer* pRenderer = CRenderer::GetInstance();
+        pRenderer->Viewport(0, 0, m_iWidth, m_iHeight);
+        pRenderer->ClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+        pRenderer->ClearDepth(1.0F);
+        pRenderer->ClearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        pRenderer->EnableGL(GL_DEPTH_TEST);
+        pRenderer->EnableGL(GL_CULL_FACE);
+        FC_CHECK_GL_ERROR_DEBUG();
+        CSpriteFrameBatchManager::GetInstance()->Clear();
+        // 3D rendering
+        CRenderObjectManager::GetInstance()->Render();
+        FC_CHECK_GL_ERROR_DEBUG();
+        float fOldFar = m_pCamera->GetFar();
+        m_pCamera->SetFar(25.f);
+        FC_CHECK_GL_ERROR_DEBUG();
+        RenderGrid();
+        FC_CHECK_GL_ERROR_DEBUG();
+        ContextFlush();
+        m_pCamera->SetFar(fOldFar);
+        FC_CHECK_GL_ERROR_DEBUG();
+        FCEngine::ParticleSystemManager::GetInstance()->Render();
 
-    RenderLineImpl();
-    RenderTriangleImpl();
+        // 2D rendering
+        SetCamera(CSpriteFrameBatchManager::GetInstance()->GetCamera());
+        CSpriteFrameBatchManager::GetInstance()->Render();
 
-    FCEngine::ParticleSystemManager::GetInstance()->Render( );
+        // GUI rendering
+        CSpriteFrameBatchManager::GetInstance()->Clear();
+        FCGUI::System::GetInstance()->Render();
+        CSpriteFrameBatchManager::GetInstance()->GetCamera()->SetWidth(m_iWidth);
+        CSpriteFrameBatchManager::GetInstance()->GetCamera()->SetHeight(m_iHeight);
+        SetCamera(CSpriteFrameBatchManager::GetInstance()->GetCamera());
+        CSpriteFrameBatchManager::GetInstance()->Render();
 
-	// 2D rendering
-	CSpriteFrameBatchManager::GetInstance()->Render();
-
-    // GUI rendering
-    CSpriteFrameBatchManager::GetInstance()->Clear();
-    FCGUI::System::GetInstance()->Render();
-    CSpriteFrameBatchManager::GetInstance()->Render();
-
-    SwapBuffers();    
+        SwapBuffers();
+    }
 }
 
 void CRenderManager::SwitchPolygonMode()
@@ -326,7 +334,10 @@ void CRenderManager::SwitchPolygonMode()
 
 void CRenderManager::SwapBuffers()
 {
-    glfwSwapBuffers(m_pMainWindow);
+    if (m_pMainWindow)
+    {
+        glfwSwapBuffers(m_pMainWindow);
+    }
 }
 
 void CRenderManager::onGLFWError( int errorID, const char* errorDesc )
@@ -380,15 +391,14 @@ void CRenderManager::onGLFWMouseMoveCallBack(GLFWwindow* window, double x, doubl
     {
         if (pRenderMgr->m_bLeftMouseDown)
         {
-            CCamera* pCamera = pRenderMgr->GetCamera();
             int iDeltaX = pRenderMgr->m_uLastMousePosX - pRenderMgr->m_uCurMousePosX;
             int iDeltaY = pRenderMgr->m_uLastMousePosY - pRenderMgr->m_uCurMousePosY;
 
             float fYawValue = (float)iDeltaX / pRenderMgr->m_iWidth;
-            pCamera->Yaw(fYawValue);
+            pRenderMgr->m_pCamera->Yaw(fYawValue);
 
             float fPitchValue = (float)iDeltaY / pRenderMgr->m_iHeight;
-            pCamera->Pitch( fPitchValue);
+            pRenderMgr->m_pCamera->Pitch( fPitchValue);
         }
     }
 
@@ -494,6 +504,12 @@ CShaderProgram* CRenderManager::GetShaderProgram(GLuint uVertexShader, GLuint uP
     return pRet;
 }
 
+void CRenderManager::ContextFlush()
+{
+    RenderLineImpl();
+    RenderTriangleImpl();
+}
+
 void CRenderManager::ApplyTexture( int index, GLuint texture )
 {
     CRenderer* pRenderer = CRenderer::GetInstance();
@@ -520,6 +536,18 @@ CCamera* CRenderManager::GetCamera() const
     return m_pCamera;
 }
 
+void CRenderManager::SetCamera(CCamera* camera)
+{
+    if (m_pCamera != camera)
+    {
+        m_pCamera = camera;
+        if (m_pCamera != NULL)
+        {
+            m_pCamera->ApplyCameraChange();
+        }
+    }
+}
+
 void CRenderManager::UpdateCamera()
 {
     kmVec3 vec3Speed;
@@ -532,13 +560,13 @@ void CRenderManager::UpdateCamera()
     {
         kmVec3Scale(&vec3Speed, &vec3Speed, 1.0F * 0.016F);
     }
-    int type = eCMT_NOMOVE;
+    int type = CCamera::eCMT_NOMOVE;
 
     bool bPressA = glfwGetKey(CRenderManager::GetInstance()->GetMainWindow(),GLFW_KEY_A) != 0;
     bool bPressD = glfwGetKey(CRenderManager::GetInstance()->GetMainWindow(),GLFW_KEY_D) != 0;
     if ( bPressA || bPressD )
     {
-        type |= (1 << eCMT_TRANVERSE);
+        type |= (1 << CCamera::eCMT_TRANVERSE);
         if (bPressA)
         {
             vec3Speed.x *= -1;
@@ -549,7 +577,7 @@ void CRenderManager::UpdateCamera()
 
     if ( bPressW || bPressS )
     {
-        type |= (1 << eCMT_STRAIGHT);
+        type |= (1 << CCamera::eCMT_STRAIGHT);
         if (bPressW)
         {
             vec3Speed.z *= -1;
@@ -560,52 +588,17 @@ void CRenderManager::UpdateCamera()
 
     if ( bPressUp || bPressDown )
     {
-        type |= (1 << eCMT_UPDOWN);
+        type |= (1 << CCamera::eCMT_UPDOWN);
         if (bPressDown)
         {
             vec3Speed.y *= -1;
         }
     }
 
-    if (type != eCMT_NOMOVE)
+    if (type != CCamera::eCMT_NOMOVE)
     {
-        CRenderManager::GetInstance()->UpdateCamera(vec3Speed, type);
+        m_pCamera->Update(vec3Speed, type);
     }
-}
-
-void CRenderManager::UpdateCamera(const kmVec3& vec3Speed, int type)
-{
-    CCamera* pCamera = CRenderManager::GetInstance()->GetCamera();
-    kmMat4 cameraMat;
-    pCamera->GetMatrix(cameraMat);
-    kmMat4Inverse(&cameraMat, &cameraMat);
-    kmVec3 vec3Translation;
-    kmVec3Zero(&vec3Translation);
-    if ((type & (1 << eCMT_TRANVERSE)) != 0)
-    {
-        kmVec3 tmpTranslation;
-        kmMat4GetRightVec3(&tmpTranslation, &cameraMat);
-        kmVec3Scale(&tmpTranslation, &tmpTranslation, vec3Speed.x);
-        tmpTranslation.y = 0;
-        kmVec3Add(&vec3Translation, &vec3Translation, &tmpTranslation);
-    }
-    if ((type & (1 << eCMT_STRAIGHT)) != 0)
-    {
-        kmVec3 tmpTranslation;
-        kmMat4GetForwardVec3(&tmpTranslation, &cameraMat);
-        kmVec3Scale(&tmpTranslation, &tmpTranslation, vec3Speed.z);
-        kmVec3Add(&vec3Translation, &vec3Translation, &tmpTranslation);
-    }
-    if ((type & (1 << eCMT_UPDOWN)) != 0)
-    {
-        kmVec3 tmpTranslation;
-        kmMat4GetUpVec3(&tmpTranslation, &cameraMat);
-        kmVec3Scale(&tmpTranslation, &tmpTranslation, vec3Speed.y);
-        tmpTranslation.x = 0;
-        tmpTranslation.z = 0;
-        kmVec3Add(&vec3Translation, &vec3Translation, &tmpTranslation);
-    }
-    pCamera->Translate(vec3Translation.x, vec3Translation.y, vec3Translation.z);
 }
 
 bool CRenderManager::InitGridData()
@@ -705,7 +698,6 @@ bool CRenderManager::InitTriangleBuffer()
 void CRenderManager::RenderGrid()
 {
     CRenderer* pRenderer = CRenderer::GetInstance();
-
     pRenderer->BindTexture(GL_TEXTURE_2D, 0);
     pRenderer->UseProgram(m_pLineShaderProgram->ID());
 
@@ -718,6 +710,7 @@ void CRenderManager::RenderGrid()
     pRenderer->DrawArrays(GL_LINES, 0, m_uGridVertexCount);
     pRenderer->BindBuffer(GL_ARRAY_BUFFER, 0);
     pRenderer->BindVertexArray(0);
+
     FC_CHECK_GL_ERROR_DEBUG();
 }
 

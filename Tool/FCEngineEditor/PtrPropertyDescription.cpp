@@ -2,17 +2,17 @@
 #include "PtrPropertyDescription.h"
 #include "Utility/BeatsUtility/Serializer.h"
 #include "Utility/BeatsUtility/StringHelper.h"
-#include "MainApp.h"
+#include "EngineEditor.h"
 #include "EngineProperGridManager.h"
 #include "Utility/BeatsUtility/ComponentSystem/Component/ComponentEditorProxy.h"
 #include "Utility/BeatsUtility/ComponentSystem/Component/ComponentManager.h"
 
 CPtrPropertyDescription::CPtrPropertyDescription(CSerializer* pSerializer)
-: super(ePT_Ptr)
-, m_uComponentGuid(0)
-, m_uDerivedGuid(0)
-, m_pInstance(NULL)
-, m_bHasInstance(false)
+    : super(ePT_Ptr)
+    , m_uComponentGuid(0)
+    , m_uDerivedGuid(0)
+    , m_pInstance(NULL)
+    , m_bHasInstance(false)
 {
     if (pSerializer != NULL)
     { 
@@ -23,11 +23,11 @@ CPtrPropertyDescription::CPtrPropertyDescription(CSerializer* pSerializer)
 }
 
 CPtrPropertyDescription::CPtrPropertyDescription(const CPtrPropertyDescription& rRef)
-: super(rRef)
-, m_uComponentGuid(rRef.m_uComponentGuid)
-, m_uDerivedGuid(rRef.m_uDerivedGuid)
-, m_pInstance(NULL)
-, m_bHasInstance(false)
+    : super(rRef)
+    , m_uComponentGuid(rRef.m_uComponentGuid)
+    , m_uDerivedGuid(rRef.m_uDerivedGuid)
+    , m_pInstance(NULL)
+    , m_bHasInstance(false)
 {
     TString emptyStr = _T("");
     InitializeValue(emptyStr);
@@ -138,6 +138,9 @@ bool CPtrPropertyDescription::DestroyInstance()
         m_pChildren->clear();
         bRet = true;
     }
+    SetDerivedGuid(0);
+    UpdateDisplayString(m_uComponentGuid);
+
     return bRet;
 }
 
@@ -216,14 +219,14 @@ void CPtrPropertyDescription::Initialize()
     }
 }
 
-void CPtrPropertyDescription::UpdateDisplayString(size_t uComponentId)
+void CPtrPropertyDescription::UpdateDisplayString(size_t uComponentGuid)
 {
-    CComponentEditorProxy* pComponent = static_cast<CComponentEditorProxy*>(CComponentManager::GetInstance()->GetComponentTemplate(uComponentId));
-    wxString value = wxString::Format(_T("%s%s@0x%x"), _T(""), pComponent == NULL ? _T("Unknown") : pComponent->GetClassStr(), uComponentId);
+    TString strComponentName = CComponentManager::GetInstance()->QueryComponentName(uComponentGuid);
+    BEATS_ASSERT(strComponentName.length() > 0, _T("Can't Find the component name of GUID: %d"), uComponentGuid);
+    wxString value = wxString::Format(_T("%s%s@0x%x"), _T(""), strComponentName.c_str(), uComponentGuid);
     TString valueStr(value);
     for (size_t i = eVT_DefaultValue; i < eVT_Count; ++i)
     {
         SetValue((void*)&valueStr, (EValueType)i);
     }
-
 }

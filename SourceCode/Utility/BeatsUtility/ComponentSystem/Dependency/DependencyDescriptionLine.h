@@ -11,7 +11,7 @@ public:
     CDependencyDescriptionLine(CDependencyDescription* pOwner, size_t uIndex, CComponentEditorProxy* pTo);
     ~CDependencyDescriptionLine();
 
-    void UpdateRect(float cellSize);
+    void UpdateRect(float cellSize, bool bInverseY = false);
     const SVertex* GetRectArray();
     const SVertex* GetArrowRectArray();
     CDependencyDescription* GetOwnerDependency();
@@ -21,7 +21,7 @@ public:
     void SetSelected(bool bFlag);
     size_t GetIndex();
     void SetIndex(size_t uIndex);
-    bool HitTest(float x, float y, float fCellSize);
+    bool HitTest(float x, float y);
 
 private:
     bool m_bIsSelected;

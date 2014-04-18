@@ -9,29 +9,31 @@ class KeyboardEvent;
 
 namespace FCGUI
 {
-	//forward declaration
-	class Window;
+    //forward declaration
+    class Window;
 
-	class System
-	{
-		BEATS_DECLARE_SINGLETON(System);
-	public:
-		void Update(float deltaTime);
-		void Render();
+    class System
+    {
+        BEATS_DECLARE_SINGLETON(System);
+    public:
+        void Update(float deltaTime);
+        void Render();
 
         bool InjectMouseEvent(MouseEvent *event);
         bool InjectKeyboardEvent(KeyboardEvent *event);
 
-		void OnResolutionChanged(kmVec2 resolution);
-		kmVec2 GetResolution() const;
+        void OnResolutionChanged(kmVec2 resolution);
+        void OnResolutionChanged(kmScalar width, kmScalar height);
+        kmVec2 GetResolution() const;
 
-	private:
-		void preRender();
-		void postRender();
+        void InitFontFace();
+    private:
+        void preRender();
+        void postRender();
 
-	private:
-		kmVec2 _resolution;
-	};
+    private:
+        kmVec2 _resolution;
+    };
 }
 
 #endif

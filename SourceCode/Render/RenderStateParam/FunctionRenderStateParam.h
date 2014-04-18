@@ -35,6 +35,17 @@ public:
     CFunctionRenderStateParam();
     CFunctionRenderStateParam(CSerializer& serializer);
     virtual void Apply() override;
+
+    virtual ERenderState GetRenderStateType() const;
+
+    virtual bool operator==( const CRenderStateParamBase& other ) const;
+
+    void SetType( EFunctionStateParam type );
+    EFunctionStateParam GetType() const;
+
+    void SetValue( EFunctionType value );
+    EFunctionType GetValue() const;
+
 private:
     EFunctionStateParam m_type;
     EFunctionType m_nValue;

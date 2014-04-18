@@ -2,7 +2,7 @@
 #include "MapPropertyDescription.h"
 #include "Utility/BeatsUtility/StringHelper.h"
 #include "Utility/BeatsUtility/Serializer.h"
-#include "mainapp.h"
+#include "EngineEditor.h"
 #include "ListPropertyDescription.h"
 #include "Utility/BeatsUtility/ComponentSystem/Component/ComponentManager.h"
 #include "Utility/TinyXML/tinyxml.h"

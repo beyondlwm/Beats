@@ -33,11 +33,11 @@ public:
         a = (char)(fa * 0xFF);
     }
 
-    CColor(char r, char g, char b, char a)
-        : r(r)
-        , g(g)
-        , b(b)
-        , a(a)
+    CColor(unsigned char rr, unsigned char gg, unsigned char bb, unsigned char aa)
+        : r(rr)
+        , g(gg)
+        , b(bb)
+        , a(aa)
     {
     }
 
@@ -47,6 +47,17 @@ public:
         g = (colorUint >> 16) & 0x000000FF;
         b = (colorUint >> 8) & 0x000000FF;
         a = colorUint & 0x000000FF;
+    }
+
+    bool operator==( const CColor& other ) const
+    {
+        return ( r == other.r && g == other.g && b == other.b && a == other.a );
+    }
+
+    operator size_t () const
+    {
+        size_t uRet = (r << 24) + (g << 16) + (b << 8) + a;
+        return uRet;
     }
 };
 
@@ -106,6 +117,33 @@ public:
     CVertexPC()
     {
         kmVec3Fill(&position, 0.f, 0.f, 0.f);
+    }
+};
+
+class CVertexPTN
+{
+public:
+    kmVec3 position;
+    kmVec3 normal;
+    CTex tex;
+    CVertexPTN()
+    {
+        kmVec3Fill(&position, 0.f, 0.f, 0.f);
+        kmVec3Fill(&normal, 0.f, 0.f, 0.f);
+    }
+};
+
+class CVertexPTNC
+{
+public:
+    kmVec3 position;
+    kmVec3 normal;
+    CTex tex;
+    CColor color;
+    CVertexPTNC()
+    {
+        kmVec3Fill(&position, 0.f, 0.f, 0.f);
+        kmVec3Fill(&normal, 0.f, 0.f, 0.f);
     }
 };
 

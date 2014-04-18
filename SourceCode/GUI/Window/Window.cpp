@@ -7,6 +7,9 @@
 #include "GUI/Renderer/BaseRenderer.h"
 #include "GUI/WindowManager.h"
 #include "Event/MouseEvent.h"
+#include "Event/KeyboardEvent.h"
+#include "GUI/Animation/AnimationInstance.h"
+#include "GUI/Animation/AnimationManager_ui.h"
 
 using namespace FCGUI;
 
@@ -25,6 +28,7 @@ Window::Window(CSerializer& serializer)
 	: super(serializer)
 {
     Init();
+
     DECLARE_PROPERTY(serializer, _name, true, 0xFFFFFFFF, _T("名称"), NULL, NULL, NULL);
     DECLARE_PROPERTY(serializer, _pos, true, 0xFFFFFFFF, _T("位置"), NULL, NULL, NULL);
     DECLARE_PROPERTY(serializer, _percentPos, true, 0xFFFFFFFF, _T("位置百分比"), NULL, NULL, NULL);
@@ -51,6 +55,33 @@ Window::~Window()
 
 void Window::Init()
 {
+    AddProp(PROP_X, _T("X"), 
+        [this](kmScalar x){SetPos(x, Pos().y);}, [this](){return Pos().x;});
+    AddProp(PROP_Y, _T("Y"), 
+        [this](kmScalar y){SetPos(Pos().x, y);}, [this](){return Pos().y;});
+    AddProp(PROP_PERCENT_X, _T("X%"), 
+        [this](kmScalar xPer){SetPercentPos(xPer, PercentPos().y);}, [this](){return PercentPos().x;});
+    AddProp(PROP_PERCENT_Y, _T("Y%"), 
+        [this](kmScalar yPer){SetPercentPos(PercentPos().x, yPer);}, [this](){return PercentPos().y;});
+    AddProp(PROP_WIDTH, _T("Width"), 
+        [this](kmScalar width){SetSize(width, Size().y);}, [this](){return Size().x;});
+    AddProp(PROP_HEIGHT, _T("Height"), 
+        [this](kmScalar height){SetSize(Size().x, height);}, [this](){return Size().y;});
+    AddProp(PROP_PERCENT_WIDTH, _T("Width%"), 
+        [this](kmScalar wPer){SetPercentSize(wPer, PercentSize().y);}, [this](){return PercentSize().x;});
+    AddProp(PROP_PERCENT_HEIGHT, _T("Height%"), 
+        [this](kmScalar hPer){SetPercentSize(PercentSize().x, hPer);}, [this](){return PercentSize().y;});
+    AddProp(PROP_ANCHOR_X, _T("Anchor X"), 
+        [this](kmScalar x){SetAnchor(x, Anchor().y);}, [this](){return Anchor().x;});
+    AddProp(PROP_ANCHOR_Y, _T("Anchor Y"), 
+        [this](kmScalar y){SetAnchor(Anchor().x, y);}, [this](){return Anchor().y;});
+    AddProp(PROP_ROTATION, _T("Rotation"), 
+        [this](kmScalar r){SetRotation(r);}, [this](){return Rotation();});
+    AddProp(PROP_SCALE_X, _T("Scale X"), 
+        [this](kmScalar x){SetScale(x, Scale().y);}, [this](){return Scale().x;});
+    AddProp(PROP_SCALE_Y, _T("Scale Y"), 
+        [this](kmScalar y){SetScale(Scale().x, y);}, [this](){return Scale().y;});
+
     _parent = nullptr;
     _renderer = nullptr;
     _layout = nullptr;
@@ -64,7 +95,10 @@ void Window::Init()
 	kmVec2Fill(&_anchor, 0.f, 0.f);
 	_rotation = 0.f;
 	kmVec2Fill(&_scale, 1.f, 1.f);
+    kmVec2Fill(&_scrolloffset, 0.f, 0.f);
 	_visible = true;
+    _enabled = true;
+    _clipping = false;
 }
 
 void Window::SetPosSize(kmScalar x, kmScalar y, kmScalar xPercent, kmScalar yPercent, 
@@ -234,6 +268,36 @@ void Window::calcRealSize()
     }
 }
 
+void Window::onScrollOffset()
+  {
+      for(auto child : _children)
+      {
+          child.second->calcChildRealPos();
+      }
+  }
+
+void Window::calcChildRealPos()
+{
+    if(!_parent)
+    {
+        _realPos = _pos;
+    }
+    else
+    {
+        kmVec2 parentSize = _parent->RealSize();
+        kmVec2 parentAnchor;
+        parentAnchor.x = parentSize.x * _parent->Anchor().x;
+        parentAnchor.y = parentSize.y * _parent->Anchor().y;
+        _realPos.x = parentSize.x * _percentPos.x + _pos.x - parentAnchor.x - _parent->_scrolloffset.x;
+        _realPos.y = parentSize.y * _percentPos.y + _pos.y - parentAnchor.y - _parent->_scrolloffset.y;
+    }
+
+    calcTransform();
+
+    WindowEvent event(EVENT_MOVED);
+    DispatchEvent(&event);
+}
+
 kmVec2 Window::RealSize() const
 {
 	return _realSize;
@@ -301,6 +365,12 @@ kmVec2 Window::Scale() const
 	return _scale;
 }
 
+void Window::Scroll(kmVec2 offset)
+{
+    kmVec2Add(&_scrolloffset, &_scrolloffset, &offset);
+    onScrollOffset();
+}
+
 void Window::calcTransform()
 {
 	kmMat4 scale;
@@ -336,25 +406,72 @@ kmMat4 Window::WorldTransform() const
     }
 }
 
-void Window::Localize(kmVec3 &pos) const
+void Window::WorldToLocal(kmVec3 &pos) const
 {
     if(_parent)
     {
-        _parent->Localize(pos);
+        _parent->WorldToLocal(pos);
     }
 
+    ParentToLocal(pos);
+}
+
+void Window::WorldToLocal(kmScalar &x, kmScalar &y) const
+{
+    kmVec3 pos;
+    kmVec3Fill(&pos, x, y, 0.f);
+    WorldToLocal(pos);
+    x = pos.x;
+    y = pos.y;
+}
+
+void Window::ParentToLocal(kmVec3 &pos) const
+{
     kmMat4 inverseMat;
     kmMat4Inverse(&inverseMat, &_transform);
     kmVec3Transform(&pos, &pos, &inverseMat);
 }
 
-void Window::Localize(kmScalar &x, kmScalar &y) const
+void Window::ParentToLocal(kmScalar &x, kmScalar &y) const
 {
-    kmVec3 hitPos;
-    kmVec3Fill(&hitPos, x, y, 0.f);
-    Localize(hitPos);
-    x = hitPos.x;
-    y = hitPos.y;
+    kmVec3 pos;
+    kmVec3Fill(&pos, x, y, 0.f);
+    ParentToLocal(pos);
+    x = pos.x;
+    y = pos.y;
+}
+
+void Window::LocalToWorld(kmVec3 &pos) const
+{
+    LocalToParent(pos);
+
+    if(_parent)
+    {
+        _parent->LocalToWorld(pos);
+    }
+}
+
+void Window::LocalToWorld(kmScalar &x, kmScalar &y) const
+{
+    kmVec3 pos;
+    kmVec3Fill(&pos, x, y, 0.f);
+    LocalToWorld(pos);
+    x = pos.x;
+    y = pos.y;
+}
+
+void Window::LocalToParent(kmVec3 &pos) const
+{
+    kmVec3Transform(&pos, &pos, &_transform);
+}
+
+void Window::LocalToParent(kmScalar &x, kmScalar &y) const
+{
+    kmVec3 pos;
+    kmVec3Fill(&pos, x, y, 0.f);
+    LocalToParent(pos);
+    x = pos.x;
+    y = pos.y;
 }
 
 Window::HitTestResult Window::HitTest(kmScalar x, kmScalar y, bool localized) const
@@ -364,7 +481,7 @@ Window::HitTestResult Window::HitTest(kmScalar x, kmScalar y, bool localized) co
     kmVec2 realAnchor = RealAnchor();
 
     if(!localized)
-        Localize(x, y);
+        WorldToLocal(x, y);
 
     kmScalar toLeft = x - (-realAnchor.x);
     kmScalar toRight = (-realAnchor.x + _realSize.x) - x;
@@ -426,9 +543,29 @@ void Window::ToggleVisible()
 	_visible = !_visible;
 }
 
-bool Window::Visible()
+bool Window::IsVisible() const
 {
 	return _visible;
+}
+
+void Window::Enable()
+{
+    _enabled = true;
+}
+
+void Window::Disable()
+{
+    _enabled = false;
+}
+
+bool Window::IsEnabled() const
+{
+    return _enabled && (!_parent || _parent->IsEnabled());
+}
+
+int Window::CurrState() const
+{
+    return _enabled ? STATE_NORMAL : STATE_DISABLED;
 }
 
 void Window::onParentSized()
@@ -439,31 +576,54 @@ void Window::onParentSized()
 
 bool Window::OnMouseEvent( MouseEvent *event )
 {
-    if(HitTest(event->X(), event->Y()))
+    bool handled = false;
+
+    bool hitted = HitTest(event->X(), event->Y()) > HIT_NONE;
+    if(hitted || !_clipping)
     {
         for(auto child : _children)
         {
-            child.second->OnMouseEvent(event);
-            if(event->Stopped())
+            if(child.second->OnMouseEvent(event))
             {
-                return true;
+                handled = true;
+                if(event->Stopped())
+                    break;
             }
         }
+    }
 
-        if(!event->Stopped())
-        {
-            DispatchEvent(event);
-        }
+    if(hitted && !event->Stopped())
+    {
+        DispatchEvent(event);
 
-        if(!event->Stopped() && event->Type() == EVENT_MOUSE_PRESSED)
+        if(event->Type() == EVENT_MOUSE_PRESSED)
         {
             WindowManager::GetInstance()->SetFocusedWindow(this);
             event->StopPropagation();
         }
 
-        return true;
+        handled = true;
     }
-    return false;
+    return handled;
+}
+
+bool Window::OnKeyboardEvent(KeyboardEvent *event)
+{
+    for(auto child : _children)
+    {
+        child.second->OnKeyboardEvent(event);
+        if(event->Stopped())
+        {
+            return true;
+        }
+    }
+
+    if(!event->Stopped())
+    {
+        DispatchEvent(event);
+    }
+
+    return true;
 }
 
 void Window::Update(float deltaTime)
@@ -486,6 +646,25 @@ void Window::Update(float deltaTime)
     {
         child.second->Update(deltaTime);
     }
+}
+
+void Window::DispatchEvent(BaseEvent *event)
+{
+    EventDispatcher::DispatchEvent(event);
+
+    auto itr = _autoAnimations.find(event->Type());
+    if(itr != _autoAnimations.end())
+    {
+        AnimationInstance *instance = 
+            AnimationManager::GetInstance()->InstantiateAnimation(itr->second, this, 
+            Animation::ReplayMode::DEFAULT, 1.f, true);
+        instance->Play();
+    }
+}
+
+void Window::AddAutoAnimation(int eventType, const TString &animName)
+{
+    _autoAnimations[eventType] = animName;
 }
 
 void Window::SetParent( Window *parent )
@@ -578,7 +757,7 @@ Window *Window::GetChild( const TString &name, bool recursively ) const
 	{
 		for(auto child : _children)
 		{
-			Window *window = child.second->GetChild(name);
+			Window *window = child.second->GetChild(name, recursively);
 			if(window)
 			{
 				pRet = window;
@@ -587,6 +766,36 @@ Window *Window::GetChild( const TString &name, bool recursively ) const
 		}
 	}
 	return pRet;
+}
+
+Window *Window::GetChild(kmScalar x, kmScalar y, bool recursively) const
+{
+    Window *result = nullptr;
+    if(!_clipping || HitTest(x, y, true))
+    {
+        for(auto child : _children)
+        {
+            kmScalar xc = x;
+            kmScalar yc = y;
+            child.second->ParentToLocal(xc, yc);
+            bool hitted = child.second->HitTest(xc, yc, true) > HIT_NONE;
+            if(hitted)
+            {
+                result = child.second;
+            }
+            if(recursively && (hitted || !child.second->_clipping))
+            {
+                Window *newresult = child.second->GetChild(xc, yc, recursively);
+                if(newresult)
+                {
+                    result = newresult;
+                }
+            }
+            if(result)
+                break;
+        }
+    }
+    return result;
 }
 
 const Window::WindowVisitor &Window::Traverse( const WindowVisitor &visitor )

@@ -12,49 +12,39 @@ Button::Button( const TString &name )
 
 }
 
-void Button::Disable()
+int Button::CurrState() const
 {
-    _state = STATE_DISABLED;
-}
-
-void Button::Enable()
-{
-    _state = STATE_NORMAL;
-}
-
-Button::State Button::CurrState() const
-{
-    return _state;
+    return IsEnabled() ? _state : STATE_DISABLED;
 }
 
 bool Button::OnMouseEvent( MouseEvent *event )
 {
-    if(_state == STATE_DISABLED)
+    bool result = false;
+    if(IsEnabled())
     {
-        return false;
-    }
-
-    if(Window::OnMouseEvent(event))
-    {
-        if(event->Button() == GLFW_MOUSE_BUTTON_LEFT)
+        if(Window::OnMouseEvent(event))
         {
-            if(event->Type() == EVENT_MOUSE_PRESSED)
+            if(event->Button() == GLFW_MOUSE_BUTTON_LEFT)
             {
-                _state = STATE_PRESSED;
-            }
-            else if(event->Type() == EVENT_MOUSE_RELEASED)
-            {
-                if(_state == STATE_PRESSED)
+                if(event->Type() == EVENT_MOUSE_PRESSED)
                 {
-                    _state = STATE_NORMAL;
+                    _state = STATE_PRESSED;
+                }
+                else if(event->Type() == EVENT_MOUSE_RELEASED)
+                {
+                    if(_state == STATE_PRESSED)
+                    {
+                        _state = STATE_NORMAL;
 
-                    WindowEvent event(EVENT_CLICKED);
-                    DispatchEvent(&event);
+                        WindowEvent event(EVENT_CLICKED);
+                        DispatchEvent(&event);
+                    }
                 }
             }
-        }
 
-        return true;
+            result = true;
+        }
     }
-    return false;
+
+    return result;
 }

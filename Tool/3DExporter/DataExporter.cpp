@@ -432,12 +432,38 @@ BOOL	CDataExporter::ExportAnimationNode(IGameNode* pNode, CSerializer& serialize
     return TRUE;
 }
 
+bool    CDataExporter::FilterVertexData(const Point3& ptPos, const Point3& ptUv)
+{
+    bool bRet = true;
+    int iSizePos = m_vecPos.size();
+    int iIndex = 0;
+    for(iIndex = 0; iIndex < iSizePos; iIndex++)
+    {
+        if(ptPos == m_vecPos[iIndex] && ptUv == m_vecUV[iIndex])
+        {
+            break;
+        }
+    }
+
+    if(iIndex == iSizePos)
+    {
+        m_vecUV.push_back(ptUv);
+        m_vecPos.push_back(ptPos);
+        bRet = false;
+    }
+    
+    m_posIndexVector.push_back(iIndex);
+
+    return bRet;
+}
+
 void    CDataExporter::GetSkinInfo()
 {
     m_vecPos.clear();
     m_vecUV.clear();
     m_vecWeightData.clear();
     m_vMeshVCount.clear();
+    m_posIndexVector.clear();
     m_uMeshCount = 0;
 
     UINT uTotalRootNodeCnt = m_pIGameScene->GetTopLevelNodeCount();
@@ -462,7 +488,9 @@ void    CDataExporter::GetSkinInfo()
             Tab<int> mapNums = pMesh->GetActiveMapChannelNum();
             BEATS_ASSERT( mapNums.Count() == 1);
             int uFaceCount = pMesh->GetNumberOfFaces();
-            m_vMeshVCount.push_back(uFaceCount*3);
+            
+            int iVertexCount = 0;
+
             for(int i = 0; i < uFaceCount; ++i)
             {
                 FaceEx* pFace = pMesh->GetFace(i);
@@ -475,54 +503,59 @@ void    CDataExporter::GetSkinInfo()
                         ptUV = pMesh->GetMapVertex(mapNums[0], mapIndex[j]);
                     else
                         ptUV = pMesh->GetMapVertex(mapNums[0], indexUV);
-                    m_vecUV.push_back(ptUV);
-
+                   
                     int indexPos = pFace->vert[j];
                     Point3 pos = pMesh->GetVertex(indexPos);
-                    m_vecPos.push_back(pos);
 
-                    int uEffectedBones = pSkin->GetNumberOfBones(indexPos);
-                    float weightSum = 0;
-
-                    std::map<ESkeletonBoneType, SWeightData> sortCache;
-                    for (int j = 0; j < uEffectedBones; ++j)
+                    if(false == FilterVertexData(pos, ptUV))
                     {
-                        INode* pBone = pSkin->GetBone(indexPos, j);
-                        const char* pszBoneName = pBone->GetName();
+                        iVertexCount++;
 
-                        ESkeletonBoneType boneType = GetBoneType(pszBoneName);
+                        int uEffectedBones = pSkin->GetNumberOfBones(indexPos);
+                        float weightSum = 0;
 
-                        float fWeight = pSkin->GetWeight(indexPos, j);
-
-                        if (!BEATS_FLOAT_EQUAL(fWeight, 0))
+                        std::map<ESkeletonBoneType, SWeightData> sortCache;
+                        for (int j = 0; j < uEffectedBones; ++j)
                         {
-                            SWeightData data;
-                            data.type = boneType;
-                            data.fWeight = fWeight;
-                            sortCache[boneType] = data;
-                            weightSum += fWeight;
-                        }
-                    }
-                    int counter = 0;
-                    for (std::map<ESkeletonBoneType, SWeightData>::iterator iter = sortCache.begin(); iter != sortCache.end(); ++iter)
-                    {
-                        m_vecWeightData.push_back(iter->second);
-                        if (++counter == MAX_BONE_BLEND)
-                        {
-                            break;
-                        }
-                    }
-                    for (int k = counter; k < MAX_BONE_BLEND; ++k)
-                    {
-                        SWeightData weightdata;
-                        weightdata.type = eSBT_Null;
-                        weightdata.fWeight = 0;
-                        m_vecWeightData.push_back(weightdata);
-                    }
+                            INode* pBone = pSkin->GetBone(indexPos, j);
+                            const char* pszBoneName = pBone->GetName();
 
-                    BEATS_ASSERT(weightSum > 0.98f && weightSum < 1.01f);
+                            ESkeletonBoneType boneType = GetBoneType(pszBoneName);
+
+                            float fWeight = pSkin->GetWeight(indexPos, j);
+
+                            if (!BEATS_FLOAT_EQUAL(fWeight, 0))
+                            {
+                                SWeightData data;
+                                data.type = boneType;
+                                data.fWeight = fWeight;
+                                sortCache[boneType] = data;
+                                weightSum += fWeight;
+                            }
+                        }
+                        int counter = 0;
+                        for (std::map<ESkeletonBoneType, SWeightData>::iterator iter = sortCache.begin(); iter != sortCache.end(); ++iter)
+                        {
+                            m_vecWeightData.push_back(iter->second);
+                            if (++counter == MAX_BONE_BLEND)
+                            {
+                                break;
+                            }
+                        }
+                        for (int k = counter; k < MAX_BONE_BLEND; ++k)
+                        {
+                            SWeightData weightdata;
+                            weightdata.type = eSBT_Null;
+                            weightdata.fWeight = 0;
+                            m_vecWeightData.push_back(weightdata);
+                        }
+
+                        BEATS_ASSERT(weightSum > 0.98f && weightSum < 1.01f);
+                    }
                 }
             }
+            m_MeshPosIndexCnt.push_back(uFaceCount*3);
+            m_vMeshVCount.push_back(iVertexCount);
         }
         pNode->ReleaseIGameObject();
     }
@@ -533,25 +566,33 @@ void	CDataExporter::ExportSkinnedMesh()
     CSerializer serializer;
 
     serializer << m_uMeshCount;
+
+    int iStartMat = 0;
+    int iEndMat = 0;
+
+    int startIndexVertex = 0;
+    int endIndexVertex = 0;
+
+    int startPosIndex = 0;
+    int endPosIndex = 0;
     for(size_t i = 0; i < m_uMeshCount; ++i)
     {
         //Meterial
         int iMeshMaterialCnt = m_vMeshMeterialCnt[i];
         serializer << iMeshMaterialCnt;
-        int iStartMat = 0;
-        int iEndMat = iMeshMaterialCnt;
+       
+        iEndMat  += iMeshMaterialCnt;
         for(; iStartMat < iEndMat; ++iStartMat)
         {
             serializer << m_vMaterialName[iStartMat];
         }
-        iStartMat += iMeshMaterialCnt;
-        iEndMat   += iMeshMaterialCnt;
-
+        iStartMat = iEndMat;
+       
         //vertex data
         int iMeshVertexCount = m_vMeshVCount[i];
         serializer << iMeshVertexCount;
-        int startIndexVertex = 0;
-        int endIndexVertex = iMeshVertexCount;
+           
+        endIndexVertex += iMeshVertexCount;
         for(; startIndexVertex < endIndexVertex; ++startIndexVertex)
         {
             serializer << m_vecPos[startIndexVertex].x << m_vecPos[startIndexVertex].y << m_vecPos[startIndexVertex].z;
@@ -559,12 +600,21 @@ void	CDataExporter::ExportSkinnedMesh()
 
             for(int j = 0; j < MAX_BONE_BLEND; ++j)
             {
-                SWeightData weightdata = m_vecWeightData[i*MAX_BONE_BLEND+j];
+                SWeightData weightdata = m_vecWeightData[startIndexVertex*MAX_BONE_BLEND+j];
                 serializer << weightdata.type << weightdata.fWeight;
             }
         }
-        startIndexVertex += iMeshVertexCount;
-        endIndexVertex  += iMeshVertexCount;
+        startIndexVertex = endIndexVertex; 
+
+        //PosIndex
+        int iMeshPosIndexCount = m_MeshPosIndexCnt[i];
+        serializer << iMeshPosIndexCount;
+        endPosIndex += iMeshPosIndexCount;
+        for(; startPosIndex < endPosIndex; ++startPosIndex)
+        {
+            serializer << m_posIndexVector[startPosIndex];
+        }
+        startPosIndex =  endPosIndex;
     }
 
     std::string  filename = m_strFileName;

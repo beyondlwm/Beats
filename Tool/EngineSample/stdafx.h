@@ -28,11 +28,11 @@
 
 #include "GL/glew.h"
 #include "glfw3.h"
-#include "math/kazmath/include/kazmath/GL/matrix.h"
-#include "math/kazmath/include/kazmath/mat4.h"
-#include "math/kazmath/include/kazmath/vec4.h"
-#include "math/kazmath/include/kazmath/vec3.h"
-#include "math/kazmath/include/kazmath/vec2.h" 
+#include "math/kazmath/kazmath/GL/matrix.h"
+#include "math/kazmath/kazmath/mat4.h"
+#include "math/kazmath/kazmath/vec4.h"
+#include "math/kazmath/kazmath/vec3.h"
+#include "math/kazmath/kazmath/vec2.h" 
 
 #include "PublicDef.h"
 

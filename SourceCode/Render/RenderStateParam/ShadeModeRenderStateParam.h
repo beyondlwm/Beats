@@ -20,6 +20,13 @@ public:
     CShadeModeRenderStateParam();
     CShadeModeRenderStateParam(CSerializer& serializer);
     virtual void Apply() override;
+
+    virtual ERenderState GetRenderStateType() const;
+
+    virtual bool operator==( const CRenderStateParamBase& other ) const;
+
+    void SetValue( EShadeModeType value );
+    EShadeModeType GetValue() const;
 private:
     EShadeModeType m_nValue;
 };

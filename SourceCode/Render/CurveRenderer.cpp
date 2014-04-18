@@ -78,8 +78,6 @@ void CCurveRenderer::PreRender()
 {
     CRenderer::GetInstance()->UseProgram(m_pProgram->ID());
 
-    CRenderManager::GetInstance()->GetCamera()->ApplyCameraChange(true);
-
     glPointSize(4.0f);
     CRenderer::GetInstance()->DisableGL(GL_DEPTH_TEST);
 }

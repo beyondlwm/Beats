@@ -6,7 +6,7 @@
 #include "Event/MouseEvent.h"
 #include "WindowManager.h"
 #include "Render/Camera.h"
-
+#include "GUI/Font/FontManager.h"
 using namespace FCGUI;
 
 System *System::m_pInstance = nullptr;
@@ -27,21 +27,20 @@ void System::Update(float deltaTime)
 
 void System::preRender()
 {
-	CRenderManager::GetInstance()->GetCamera()->ApplyCameraChange(true);
 }
 
 void System::Render()
 {
-	BaseRenderer *renderer = WindowManager::GetInstance()->RootWindow()->Renderer();
-	if(renderer)
-	{
-		kmMat4 transform;
-		kmMat4Identity(&transform);
+    BaseRenderer *renderer = WindowManager::GetInstance()->RootWindow()->Renderer();
+    if(renderer)
+    {
+        kmMat4 transform;
+        kmMat4Identity(&transform);
 
-		preRender();
-		renderer->Render(transform);
-		postRender();
-	}
+        preRender();
+        renderer->Render(transform);
+        postRender();
+    }
 }
 
 void System::postRender()
@@ -51,9 +50,16 @@ void System::postRender()
 
 void System::OnResolutionChanged( kmVec2 resolution )
 {
-	_resolution = resolution;
+    _resolution = resolution;
     WindowManager::GetInstance()->RootWindow()->SetPos(0.f, 0.f);
     WindowManager::GetInstance()->RootWindow()->SetSize(resolution);
+}
+
+void System::OnResolutionChanged(kmScalar width, kmScalar height)
+{
+    kmVec2 resolution;
+    kmVec2Fill(&resolution, width, height);
+    OnResolutionChanged(resolution);
 }
 
 kmVec2 System::GetResolution() const
@@ -66,7 +72,12 @@ bool System::InjectMouseEvent( MouseEvent *event)
     return WindowManager::GetInstance()->OnMouseEvent(event);
 }
 
-bool System::InjectKeyboardEvent( KeyboardEvent *)
+bool System::InjectKeyboardEvent( KeyboardEvent *event)
 {
-    return true;
+    return WindowManager::GetInstance()->OnKeyboardEvent(event);
+}
+
+void System::InitFontFace()
+{
+    FontManager::GetInstance()->CreateFace(_T("STFANGSO_12"), _T("STFANGSO.TTF") ,12);
 }

@@ -3,6 +3,10 @@
 
 #include "Utility/BeatsUtility/ComponentSystem/Component/ComponentGraphic.h"
 
+namespace FCGUI
+{
+    class FontFace;
+}
 class CTexture;
 
 class CComponentGraphic_GL : public CComponentGraphic
@@ -12,8 +16,9 @@ public:
     CComponentGraphic_GL();
     virtual ~CComponentGraphic_GL();
 
-    static void RecreateTextures();
-    static void ReleaseTextures();
+    void CreateTextures();
+    virtual void GetDependencyPosition(size_t uDependencyIndex, int* pOutX, int* pOutY);
+    virtual EComponentAeraRectType HitTestForAreaType( int x, int y, void** pReturnData);
     virtual CComponentGraphic* Clone();
 
 private:
@@ -23,7 +28,8 @@ private:
     virtual void DrawSelectedRect(float cellSize);
 
 private:
-    static CTexture* m_pTextures;
+    FCGUI::FontFace* m_pFont;
+    SharePtr<CTexture> m_pTextures[eCT_Count];
 };
 
 #endif

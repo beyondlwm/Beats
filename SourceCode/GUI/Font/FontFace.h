@@ -5,6 +5,8 @@ class CTexture;
 
 namespace FCGUI
 {
+    class Font;
+
     class FontGlyph
     {
     public:
@@ -16,33 +18,35 @@ namespace FCGUI
     class FontFace
     {
     public:
-        FontFace(const TString &name, const std::string &file, int sizeInPt, int dpi);
-        FontFace(const TString &name, const std::string &file, int sizeInPx);
+        FontFace(const TString &name, const TString &file, int size, int dpi = -1);
         ~FontFace();
 
         void PrepareCharacters(const TString &chars);
+        void RenderText(const TString &text, kmScalar x, kmScalar y);
         std::vector<FontGlyph *> GetGlyphs(const TString &text);
         FontGlyph *GetGlyph(unsigned long character);
+        const TString& GetName()const;   
 
     private:
-        void init(const TString &name, const std::string &file);
         void newPage();
+        void setSize();
+        void drawGlyph(FontGlyph *glyph, kmScalar x, kmScalar y);
 
     private:
         TString _name;
-        FT_Face _face;
+        SharePtr<Font> _font;
         std::map<unsigned long, FontGlyph *> _glyphs;
         std::vector<SharePtr<CTexture> > _textures;
         int _currPage;
-        size_t _currX, _currY;
+        size_t _currX;
+		size_t _currY;
+        int _size;
+		int _dpi;
         int _lineHeight;    //maxheight of current font face
         int _ascender;  //distance from top to baseline
 
         static const int PAGE_WIDTH = 1024;
         static const int PAGE_HEIGHT = 1024;
-
-        static FT_Library _library;
-        static int _libRefCount;
     };
 }
 

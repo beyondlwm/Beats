@@ -22,12 +22,11 @@ namespace FCEngine
         friend class ParticleEmitter;
         DECLARE_REFLECT_GUID(PointParticleEmitterEntity, 0x1544C159, ParticleEmitterEntityBase )
     public:
+        PointParticleEmitterEntity( );
         PointParticleEmitterEntity( CSerializer& serializer );
         ~PointParticleEmitterEntity( );
 
     private:
-        PointParticleEmitterEntity( );
-
         virtual const kmVec3& GetBirthPositon( );
 
         virtual void SetEmitterPropty( const void* pValue );

@@ -16,7 +16,7 @@ class CShaderProgram;
 class CModel : public CComponentBase, public CRenderObject
 {
     typedef CComponentBase super;
-    DECLARE_REFLECT_GUID(CModel, 0x1547ABEC, CComponentBase)
+    DECLARE_REFLECT_GUID(CModel, 0x1547DBEC, CComponentBase)
 
 public:
     CModel();

@@ -36,6 +36,10 @@ public:
     bool GetValue() const;
 
     virtual void Apply() override;
+
+    virtual ERenderState GetRenderStateType() const;
+
+    virtual bool operator==( const CRenderStateParamBase& other ) const;
 private:
     EBoolStateParam m_type;
     bool m_bValue;

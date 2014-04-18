@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "AnimationManager.h"
 #include "AnimationController.h"
-#include "SpriteAnimationController.h"
 
 CAnimationManager *CAnimationManager::m_pInstance = nullptr;
 
@@ -21,13 +20,6 @@ CAnimationManager::~CAnimationManager()
 CAnimationController * CAnimationManager::CreateSkelAnimationController()
 {
     CAnimationController *controller = new CAnimationController();
-    m_controllers.push_back(controller);
-    return controller;
-}
-
-CSpriteAnimationController * CAnimationManager::CreateSpriteAnimationController()
-{
-    CSpriteAnimationController *controller = new CSpriteAnimationController();
     m_controllers.push_back(controller);
     return controller;
 }

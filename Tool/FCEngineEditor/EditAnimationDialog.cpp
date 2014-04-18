@@ -2,15 +2,18 @@
 #include <wx/statline.h>
 #include "EditAnimationDialog.h"
 #include "timebarframe.h"
-#include "FCEngineEditor.h"
+#include "EditorMainFrame.h"
 #include "Utility/BeatsUtility/UtilityManager.h"
 #include "Render/RenderObjectManager.h"
 #include "Render/Texture.h"
 #include "Render/SkeletonBone.h"
 #include "Render/AnimationController.h"
 #include "Resource/ResourceManager.h"
+#include "EngineEditor.h"
+#include "AnimationGLWindow.h"
+#include "Render/RenderManager.h"
 
-BEGIN_EVENT_TABLE(EditAnimationDialog, wxDialog)
+BEGIN_EVENT_TABLE(EditAnimationDialog, EditDialogBase)
     EVT_BUTTON(ID_BUTTON_SELECTANIDIR, EditAnimationDialog::OnSelectFile)
     EVT_BUTTON(ID_BUTTON_SELECTSKEDIR, EditAnimationDialog::OnSelectFile)
     EVT_BUTTON(ID_BUTTON_SELECTSKIDIR, EditAnimationDialog::OnSelectFile)
@@ -29,13 +32,15 @@ BEGIN_EVENT_TABLE(EditAnimationDialog, wxDialog)
 END_EVENT_TABLE()
 
     EditAnimationDialog::EditAnimationDialog(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoint &pos, const wxSize &size, long style, const wxString &name)
-    : wxDialog(parent, id, title, pos, size, style, name)
+    : EditDialogBase(parent, id, title, pos, size, style, name)
     , m_bAnimation(false)
     , m_bSkeleton(false)
     , m_bSkin(false)
     , m_bIsLoop(false)
     , m_bIsVisibleBone(false)
     , m_bIsVisibleCoordinate(false)
+    , m_bIsSelectAll(false)
+    , m_bISLanguageSwitch(false)
 {
     wxToolTip::Enable(true);
     wxButton* pButton = NULL;
@@ -53,10 +58,15 @@ END_EVENT_TABLE()
     wxBoxSizer* pTopRightCenterBottomSizer = new wxBoxSizer(wxHORIZONTAL);
     wxBoxSizer* pTopRightBottomBottomSizer = new wxBoxSizer(wxHORIZONTAL);
 
-    m_pTopLeft = new GLAnimationCanvas(this);
-    m_pTopRight = new wxPanel(this);
     wxPanel* pLogPanel = new wxPanel(this);
     wxPanel* pTimeBarPanel = new wxPanel(this);
+
+    CRenderManager::GetInstance()->Initialize();
+    
+    wxGLContext* pContext = static_cast<CEngineEditor*>(wxApp::GetInstance())->GetGLContext();
+    m_pAnimationGLWindow = new CAnimationGLWindow(this, pContext);
+    m_pTopRight = new wxPanel(this);
+    
     wxTextCtrl* pTextCtrl = new wxTextCtrl(pLogPanel, wxID_ANY, _T(""), wxPoint(0,0), client_size, wxNO_BORDER | wxTE_MULTILINE);
     m_pTimeBar = new TimeBarFrame(pTimeBarPanel);
     m_pTimeBar->SetFrameWindow(this);
@@ -76,17 +86,17 @@ END_EVENT_TABLE()
     pTimeBarPanel->SetSizer(pTimeBarPanelSizer);
     pTimeBarPanelSizer->Add(pTimeBarPanelTopSizer, 0, wxGROW|wxALL, 0);
     pTimeBarPanelSizer->Add(m_pTimeBar, 1, wxGROW|wxALL, 0);
-    pButton = new wxButton(pTimeBarPanel, ID_BUTTON_PLAY, _T("|>"), wxDefaultPosition, ButtonSize);
-    pButton->SetToolTip(_T("play"));
-    pTimeBarPanelTopSizer->Add(pButton, 0, wxALIGN_RIGHT|wxALL, 0);
-    pButton = new wxButton(pTimeBarPanel, ID_BUTTON_PAUSE, _T("||"), wxDefaultPosition, ButtonSize);
-    pButton->SetToolTip(_T("pause"));
-    pTimeBarPanelTopSizer->Add(pButton, 0, wxALIGN_RIGHT|wxALL, 0);
-    pButton = new wxButton(pTimeBarPanel, ID_BUTTON_STOP, _T("[]"), wxDefaultPosition, ButtonSize);
-    pButton->SetToolTip(_T("stop"));
-    pTimeBarPanelTopSizer->Add(pButton, 0, wxALIGN_RIGHT|wxALL, 0);
-    wxCheckBox* pCheckBox = new wxCheckBox(pTimeBarPanel, ID_CHECKBOX_LOOP, _("IsLoop"));
-    pTimeBarPanelTopSizer->Add(pCheckBox, 0, wxALIGN_RIGHT|wxALL, 0);
+    m_pButtonPlay = new wxButton(pTimeBarPanel, ID_BUTTON_PLAY, _T("|>"), wxDefaultPosition, ButtonSize);
+    m_pButtonPlay->SetToolTip(_T("Play"));
+    pTimeBarPanelTopSizer->Add(m_pButtonPlay, 0, wxALIGN_RIGHT|wxALL, 0);
+    m_pButtonPause = new wxButton(pTimeBarPanel, ID_BUTTON_PAUSE, _T("||"), wxDefaultPosition, ButtonSize);
+    m_pButtonPause->SetToolTip(_T("Pause"));
+    pTimeBarPanelTopSizer->Add(m_pButtonPause, 0, wxALIGN_RIGHT|wxALL, 0);
+    m_pButtonStop = new wxButton(pTimeBarPanel, ID_BUTTON_STOP, _T("[]"), wxDefaultPosition, ButtonSize);
+    m_pButtonStop->SetToolTip(_T("Stop"));
+    pTimeBarPanelTopSizer->Add(m_pButtonStop, 0, wxALIGN_RIGHT|wxALL, 0);
+    m_pLoopCheckBox = new wxCheckBox(pTimeBarPanel, ID_CHECKBOX_LOOP, _("Loop"));
+    pTimeBarPanelTopSizer->Add(m_pLoopCheckBox, 0, wxALIGN_RIGHT|wxALL, 0);
 
 
     m_pAnimitionListBox = new wxListBox(m_pTopRight, ID_LISTBOX_ANIMATION);
@@ -99,7 +109,6 @@ END_EVENT_TABLE()
     GetResourceList(CResourcePathManager::GetInstance()->GetResourcePath(eRPT_Skin));
 
     m_pTopRight->SetSizer(pTopRightSizer);
-
     pTopRightSizer->Add(pTopRightTopSizer, 1, wxGROW|wxALL, 5);
     pTopRightSizer->Add(new wxStaticLine(m_pTopRight, wxLI_HORIZONTAL), 0, wxGROW|wxALL, 5);
     pTopRightSizer->Add(pTopRightCenterSizer, 1, wxGROW|wxALL, 5);
@@ -119,18 +128,22 @@ END_EVENT_TABLE()
     m_pAnimationCheckBox->Disable();
     pTopRightTopBottomSizer->AddStretchSpacer();
     pTopRightTopBottomSizer->Add(m_pAnimationCheckBox, 0, wxGROW|wxALL, 5);
-    pTopRightTopBottomSizer->Add(new wxButton(m_pTopRight, ID_BUTTON_SELECTANIDIR, _T("Animation")), 0, wxGROW|wxALL, 0);
+    m_pButtonAnimaton = new wxButton(m_pTopRight, ID_BUTTON_SELECTANIDIR, _T("Animation"));
+    pTopRightTopBottomSizer->Add(m_pButtonAnimaton, 0, wxGROW|wxALL, 0);
     pTopRightTopBottomSizer->AddStretchSpacer();
 
-    pTopRightCenterBottomSizer->Add(new wxCheckBox(m_pTopRight, ID_CHECKBOX_SKELETONVISIBLE, _T("SKE")), 0, wxGROW|wxALL, 0);
-    pTopRightCenterBottomSizer->Add(new wxCheckBox(m_pTopRight, ID_CHECKBOX_SKELETONBONEVISIBLE, _T("SKEB")), 0, wxGROW|wxALL, 0);
+    m_pSKECheckBox = new wxCheckBox(m_pTopRight, ID_CHECKBOX_SKELETONVISIBLE, _T("SKE"));
+    m_pSKEBCheckBox = new wxCheckBox(m_pTopRight, ID_CHECKBOX_SKELETONBONEVISIBLE, _T("SKEB"));
+    pTopRightCenterBottomSizer->Add(m_pSKECheckBox, 0, wxGROW|wxALL, 0);
+    pTopRightCenterBottomSizer->Add(m_pSKEBCheckBox, 0, wxGROW|wxALL, 0);
     m_pSkeletonCheckBox = new wxCheckBox(m_pTopRight, wxID_ANY, _T(""));
     m_pSkeletonCheckBox->Disable();
     pTopRightCenterBottomSizer->AddStretchSpacer();
     pTopRightCenterBottomSizer->Add(m_pSkeletonCheckBox, 0, wxGROW|wxALL, 5);
-    wxSize m_size = wxSize(60,0);
-    m_pSkeSelectButton = new wxButton(m_pTopRight, ID_BUTTON_SELECT, _T("Selected"), wxDefaultPosition, m_size);
-    pTopRightCenterBottomSizer->Add(new wxButton(m_pTopRight, ID_BUTTON_SELECTSKEDIR, _T("Skeleton"), wxDefaultPosition, m_size), 0, wxGROW|wxALL, 0);
+    wxSize buttonSize = wxSize(60,0);
+    m_pSkeSelectButton = new wxButton(m_pTopRight, ID_BUTTON_SELECT, _T("SelectAll"), wxDefaultPosition, buttonSize);
+    m_pButtonSkeleton = new wxButton(m_pTopRight, ID_BUTTON_SELECTSKEDIR, _T("Skeleton"), wxDefaultPosition, buttonSize);
+    pTopRightCenterBottomSizer->Add(m_pButtonSkeleton, 0, wxGROW|wxALL, 0);
     pTopRightCenterBottomSizer->Add(m_pSkeSelectButton, 0, wxGROW|wxALL, 0);
     pTopRightCenterBottomSizer->AddStretchSpacer();
 
@@ -138,10 +151,11 @@ END_EVENT_TABLE()
     m_pSkinCheckBox->Disable();
     pTopRightBottomBottomSizer->AddStretchSpacer();
     pTopRightBottomBottomSizer->Add(m_pSkinCheckBox, 0, wxGROW|wxALL, 5);
-    pTopRightBottomBottomSizer->Add(new wxButton(m_pTopRight, ID_BUTTON_SELECTSKIDIR, _T("Skin")), 0, wxGROW|wxALL, 0);
+    m_pButtonSkin = new wxButton(m_pTopRight, ID_BUTTON_SELECTSKIDIR, _T("Skin"));
+    pTopRightBottomBottomSizer->Add(m_pButtonSkin, 0, wxGROW|wxALL, 0);
     pTopRightBottomBottomSizer->AddStretchSpacer();
 
-    m_Manager.AddPane(m_pTopLeft, wxAuiPaneInfo().CenterPane().
+    m_Manager.AddPane(m_pAnimationGLWindow, wxAuiPaneInfo().CenterPane().
         Name(wxT("left")).
         Center());
     m_Manager.AddPane(m_pTopRight, wxAuiPaneInfo().MinSize(260,0).CenterPane().
@@ -163,17 +177,6 @@ EditAnimationDialog::~EditAnimationDialog()
     m_Manager.UnInit();
     wxLog* p = wxLog::SetActiveTarget(m_pLogOld);
     BEATS_SAFE_DELETE(p);
-}
-
-int EditAnimationDialog::ShowModal()
-{
-    wxWindow* pParent = GetParent();
-    wxRect rect = pParent->GetRect();
-    wxPoint pnt = rect.GetPosition();
-    SetSize(rect.GetSize());
-    SetPosition(pnt);
-
-    return super::ShowModal(); 
 }
 
 void EditAnimationDialog::OnSelectFile(wxCommandEvent& event)
@@ -206,26 +209,26 @@ void EditAnimationDialog::OnClearLog(wxCommandEvent& /*event*/)
 void EditAnimationDialog::OnPlayAnimation( wxCommandEvent& /*event*/ )
 {
     bool bIsOK = true;
-    wxString strlog = _T("");
+    wxString strlog;
     if (!m_pAnimationCheckBox->GetValue())
     {
         bIsOK = false;
-        strlog += _T("Animation is not ready \n");
+        strlog = _T("Animation is not ready \n");
     }
     if (!m_pSkeletonCheckBox->GetValue())
     {
         bIsOK = false;
-        strlog += _T("Skeleton is not ready \n");
+        strlog = _T("Skeleton is not ready \n");
     }
     if (!m_pSkinCheckBox->GetValue())
     {
         bIsOK = false;
-        strlog += _T("Skin is not ready \n");
+        strlog = _T("Skin is not ready \n");
     }
 
     if (bIsOK)
     {
-        ((GLAnimationCanvas*)m_pTopLeft)->GetModel()->PlayAnimationById(0, 0, m_bIsLoop);
+        m_pAnimationGLWindow->GetModel()->PlayAnimationById(0, 0, m_bIsLoop);
     }
     else
     {
@@ -235,19 +238,19 @@ void EditAnimationDialog::OnPlayAnimation( wxCommandEvent& /*event*/ )
 
 void EditAnimationDialog::OnPauseAnimation( wxCommandEvent& /*event*/ )
 {
-    if (((GLAnimationCanvas*)m_pTopLeft)->GetModel()->GetAnimationController()->IsPlaying())
+    if (m_pAnimationGLWindow->GetModel()->GetAnimationController()->IsPlaying())
     {
-        ((GLAnimationCanvas*)m_pTopLeft)->GetModel()->GetAnimationController()->Pause();
+        m_pAnimationGLWindow->GetModel()->GetAnimationController()->Pause();
     }
     else
     {
-        ((GLAnimationCanvas*)m_pTopLeft)->GetModel()->GetAnimationController()->Resume();
+        m_pAnimationGLWindow->GetModel()->GetAnimationController()->Resume();
     }
 }
 
 void EditAnimationDialog::OnStopAnimation( wxCommandEvent& /*event*/ )
 {
-    ((GLAnimationCanvas*)m_pTopLeft)->GetModel()->GetAnimationController()->Stop();
+    m_pAnimationGLWindow->GetModel()->GetAnimationController()->Stop();
     m_pTimeBar->SetCurrentCursor(0);
 }
 
@@ -258,7 +261,7 @@ void EditAnimationDialog::OnAnimationListBox( wxCommandEvent& event )
     m_pAnimation = CResourceManager::GetInstance()->GetResource<CAnimation>(strFileName, false);
     if (m_pAnimation)
     {
-        ((GLAnimationCanvas*)m_pTopLeft)->GetModel()->SetAnimaton(m_pAnimation);
+        m_pAnimationGLWindow->GetModel()->SetAnimaton(m_pAnimation);
         m_pAnimationCheckBox->SetValue(true);
         logMessage = strFileName;
         logMessage.append(_T(" load success"));
@@ -283,7 +286,7 @@ void EditAnimationDialog::OnSkeletonChoice( wxCommandEvent& event )
 {
     if (m_pSkeletonListBox->GetCount() > 0)
     {
-        DelListboxSelect();
+        m_pSkeletonListBox->Clear();
         SetAllSkeletonAndBoneVisible();
     }
     m_skeletonBoneType.clear();
@@ -292,7 +295,7 @@ void EditAnimationDialog::OnSkeletonChoice( wxCommandEvent& event )
     m_pSkeleton = CResourceManager::GetInstance()->GetResource<CSkeleton>(strFileName, false);
     if (m_pSkeleton)
     {
-        ((GLAnimationCanvas*)m_pTopLeft)->GetModel()->SetSkeleton(m_pSkeleton);
+        m_pAnimationGLWindow->GetModel()->SetSkeleton(m_pSkeleton);
         m_pSkeletonCheckBox->SetValue(true);
         logMessage = strFileName + _T(" load success");
         m_bSkeleton = true;
@@ -321,12 +324,12 @@ void EditAnimationDialog::OnSkinListBox( wxCommandEvent& event )
     m_pSkin = CResourceManager::GetInstance()->GetResource<CSkin>(strFileName, false);
     if (m_pSkin)
     {
-        ((GLAnimationCanvas*)m_pTopLeft)->GetModel()->SetSkin(m_pSkin);
+        m_pAnimationGLWindow->GetModel()->SetSkin(m_pSkin);
         m_pSkinCheckBox->SetValue(true);
         logMessage = strFileName + _T(" load success");
 
         SharePtr<CTexture> pTestTexture = CResourceManager::GetInstance()->GetResource<CTexture>(_T("TestTexture.tga"), false);
-        ((GLAnimationCanvas*)m_pTopLeft)->GetModel()->AddTexture(pTestTexture);
+        m_pAnimationGLWindow->GetModel()->AddTexture(pTestTexture);
 
         m_bSkin = true;
         ShowAnima();
@@ -377,7 +380,7 @@ void EditAnimationDialog::ShowAnima()
     if (m_bAnimation && m_bSkeleton && m_bSkin)
     {
         InitTimeBar();
-        ((GLAnimationCanvas*)m_pTopLeft)->GetModel()->PlayAnimationById(0, 0, true);
+        m_pAnimationGLWindow->GetModel()->PlayAnimationById(0, 0, true);
     }
 }
 
@@ -428,20 +431,23 @@ void EditAnimationDialog::OnSelectBoneButton( wxCommandEvent& event )
     wxButton *clicked = (wxButton *)event.GetEventObject();
     if(m_pSkeletonListBox->GetCount() > 0)
     {
-        if (clicked->GetLabelText() == _T("Selected"))
+        if (clicked->GetLabelText() == _T("SelectAll") ||
+            clicked->GetLabelText() == CLanguageManager::GetInstance()->GetText(eL_SelectAll))
         {
-            clicked->SetLabel(_T("NoSelect"));
+            clicked->SetLabel( m_bISLanguageSwitch ? CLanguageManager::GetInstance()->GetText(eL_DeselectAll) : _T("Deselect"));
             for(unsigned i = 0; i != m_pSkeletonListBox->GetCount(); i++)
             {
                 m_pSkeletonListBox->SetSelection(i);
             }
             SetAllSkeletonAndBoneVisible(m_bIsVisibleBone,m_bIsVisibleCoordinate);
+            m_bIsSelectAll = true;
         }
         else
         {
             SetAllSkeletonAndBoneVisible();
             DelListboxSelect();
-            clicked->SetLabel(_T("Selected"));
+            clicked->SetLabel(m_bISLanguageSwitch ? CLanguageManager::GetInstance()->GetText(eL_SelectAll) :_T("SelectAll"));
+            m_bIsSelectAll = false;
         }
     }
 }
@@ -468,5 +474,35 @@ void EditAnimationDialog::DelListboxSelect()
 
 wxWindow* EditAnimationDialog::GetCanvas() const
 {
-    return m_pTopLeft;
+    return m_pAnimationGLWindow;
+}
+
+void EditAnimationDialog::LanguageSwitch()
+{
+    m_bISLanguageSwitch = true;
+    CLanguageManager* pLanguageManager = CLanguageManager::GetInstance();
+    m_pButtonAnimaton->SetLabel(pLanguageManager->GetText(eL_Animation));
+    m_pSKECheckBox->SetLabel(pLanguageManager->GetText(eL_SKE));
+    m_pSKEBCheckBox->SetLabel(pLanguageManager->GetText(eL_SKEB));
+    m_pButtonSkeleton->SetLabel(pLanguageManager->GetText(eL_Skeleton));
+    m_pButtonSkin->SetLabel(pLanguageManager->GetText(eL_Skin));
+
+    m_pButtonPlay->SetToolTip(pLanguageManager->GetText(eL_Play));
+    m_pButtonPause->SetToolTip(pLanguageManager->GetText(eL_Pause));
+    m_pButtonStop->SetToolTip(pLanguageManager->GetText(eL_Stop));
+
+    m_pLoopCheckBox->SetLabel(pLanguageManager->GetText(eL_Loop));
+    SetLanguage();
+}
+
+void EditAnimationDialog::SetLanguage()
+{
+    if (m_bIsSelectAll)
+    {
+        m_pSkeSelectButton->SetLabel(CLanguageManager::GetInstance()->GetText(eL_DeselectAll));
+    } 
+    else
+    {
+        m_pSkeSelectButton->SetLabel(CLanguageManager::GetInstance()->GetText(eL_SelectAll));
+    }
 }

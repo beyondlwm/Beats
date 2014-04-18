@@ -198,9 +198,6 @@
     <ClCompile Include="SourceCode\Render\Camera.cpp">
       <Filter>源文件\Render</Filter>
     </ClCompile>
-    <ClCompile Include="SourceCode\Render\SpriteFrame.cpp">
-      <Filter>源文件\Render</Filter>
-    </ClCompile>
     <ClCompile Include="SourceCode\Render\SpriteFrameBatch.cpp">
       <Filter>源文件\Render</Filter>
     </ClCompile>
@@ -208,12 +205,6 @@
       <Filter>源文件\Render</Filter>
     </ClCompile>
     <ClCompile Include="SourceCode\Render\SpriteFrameBatchManager.cpp">
-      <Filter>源文件\Render</Filter>
-    </ClCompile>
-    <ClCompile Include="SourceCode\Render\SpriteAnimation.cpp">
-      <Filter>源文件\Render</Filter>
-    </ClCompile>
-    <ClCompile Include="SourceCode\Render\SpriteAnimationController.cpp">
       <Filter>源文件\Render</Filter>
     </ClCompile>
     <ClCompile Include="SourceCode\Render\CurveRenderer.cpp">
@@ -246,9 +237,6 @@
     <ClCompile Include="SourceCode\Render\Material.cpp">
       <Filter>源文件\Render</Filter>
     </ClCompile>
-    <ClCompile Include="SourceCode\ComponentRegister.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="SourceCode\Resource\ResourcePathManager.cpp">
       <Filter>源文件\Resource</Filter>
     </ClCompile>
@@ -257,9 +245,6 @@
     </ClCompile>
     <ClCompile Include="SourceCode\GUI\WindowManager.cpp">
       <Filter>源文件\GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="SourceCode\GUI\Renderer\ButtonRenderer.cpp">
-      <Filter>源文件\GUI\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="SourceCode\GUI\Renderer\BaseRenderer.cpp">
       <Filter>源文件\GUI\Renderer</Filter>
@@ -378,6 +363,93 @@
     <ClCompile Include="SourceCode\GUI\Font\FontManager.cpp">
       <Filter>源文件\GUI\Font</Filter>
     </ClCompile>
+    <ClCompile Include="SourceCode\GUI\Font\Font.cpp">
+      <Filter>源文件\GUI\Font</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\ShaderUniform.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\ShaderUniformData.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\Animation\Animatable.cpp">
+      <Filter>源文件\GUI\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\Animation\AnimationInstance.cpp">
+      <Filter>源文件\GUI\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\Animation\AnimationLayer.cpp">
+      <Filter>源文件\GUI\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\Animation\AnimationManager_ui.cpp">
+      <Filter>源文件\GUI\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\Animation\Animation_ui.cpp">
+      <Filter>源文件\GUI\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\Animation\KeyFrame.cpp">
+      <Filter>源文件\GUI\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\Window\CheckBox.cpp">
+      <Filter>源文件\GUI\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\Window\Progress.cpp">
+      <Filter>源文件\GUI\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\Window\Slider.cpp">
+      <Filter>源文件\GUI\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\Window\TextEdit.cpp">
+      <Filter>源文件\GUI\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\Renderer\CheckBoxRenderer.cpp">
+      <Filter>源文件\GUI\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\ComponentRegister.cpp">
+      <Filter>源文件\GUI\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\Renderer\ProgressRenderer.cpp">
+      <Filter>源文件\GUI\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\Renderer\SliderRenderer.cpp">
+      <Filter>源文件\GUI\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\Renderer\TextEditRenderer.cpp">
+      <Filter>源文件\GUI\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\EngineCenter.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\Window\TextLabel.cpp">
+      <Filter>源文件\GUI\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\Renderer\TextLabelRenderer.cpp">
+      <Filter>源文件\GUI\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\Window\ListBox.cpp">
+      <Filter>源文件\GUI\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\Renderer\ListBoxRenderer.cpp">
+      <Filter>源文件\GUI\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\Window\ComboBox.cpp">
+      <Filter>源文件\GUI\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\Renderer\ComboBoxRenderer.cpp">
+      <Filter>源文件\GUI\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\Render\AnimatableSprite.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\Renderer\RenderLayer.cpp">
+      <Filter>源文件\GUI\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\LanguageManager.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCode\GUI\Window\ListControl.cpp">
+      <Filter>源文件\GUI\Window</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -452,9 +524,6 @@
     <ClInclude Include="SourceCode\Utility\TinyXML\tinyxml.h">
       <Filter>头文件\Utility\TinyXML</Filter>
     </ClInclude>
-    <ClInclude Include="SourceCode\Render\RenderManager.h">
-      <Filter>头文件\Render</Filter>
-    </ClInclude>
     <ClInclude Include="SourceCode\Render\Texture.h">
       <Filter>头文件\Render</Filter>
     </ClInclude>
@@ -527,19 +596,10 @@
     <ClInclude Include="SourceCode\Render\Camera.h">
       <Filter>头文件\Render</Filter>
     </ClInclude>
-    <ClInclude Include="SourceCode\Render\SpriteFrame.h">
-      <Filter>头文件\Render</Filter>
-    </ClInclude>
     <ClInclude Include="SourceCode\Render\SpriteFrameBatch.h">
       <Filter>头文件\Render</Filter>
     </ClInclude>
     <ClInclude Include="SourceCode\Render\SpriteFrameBatchManager.h">
-      <Filter>头文件\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCode\Render\SpriteAnimation.h">
-      <Filter>头文件\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCode\Render\SpriteAnimationController.h">
       <Filter>头文件\Render</Filter>
     </ClInclude>
     <ClInclude Include="SourceCode\Render\CurveRenderer.h">
@@ -550,9 +610,6 @@
     </ClInclude>
     <ClInclude Include="SourceCode\Spline\Spline.h">
       <Filter>头文件\Spline</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos2d-x-3.0beta2\cocos\math\kazmath\include\kazmath\mat4.h">
-      <Filter>头文件\Utility\BeatsUtility</Filter>
     </ClInclude>
     <ClInclude Include="SourceCode\PublicDef.h">
       <Filter>头文件</Filter>
@@ -607,9 +664,6 @@
     </ClInclude>
     <ClInclude Include="SourceCode\GUI\Window\Button.h">
       <Filter>头文件\GUI\Window</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCode\GUI\Renderer\ButtonRenderer.h">
-      <Filter>头文件\GUI\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="SourceCode\GUI\Renderer\BaseRenderer.h">
       <Filter>头文件\GUI\Renderer</Filter>
@@ -730,6 +784,110 @@
     </ClInclude>
     <ClInclude Include="SourceCode\GUI\Font\FontManager.h">
       <Filter>头文件\GUI\Font</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Window\WindowDefs.h">
+      <Filter>头文件\GUI\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Renderer\RendererFactory.h">
+      <Filter>头文件\GUI\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Window\WindowFactory.h">
+      <Filter>头文件\GUI\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Font\Font.h">
+      <Filter>头文件\GUI\Font</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\RenderManager.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\ShaderUniform.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\ShaderUniformData.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Renderer\CheckBoxRenderer.h">
+      <Filter>头文件\GUI\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Renderer\ProgressRenderer.h">
+      <Filter>头文件\GUI\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Renderer\SliderRenderer.h">
+      <Filter>头文件\GUI\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Renderer\TextEditRenderer.h">
+      <Filter>头文件\GUI\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Window\CheckBox.h">
+      <Filter>头文件\GUI\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Window\Progress.h">
+      <Filter>头文件\GUI\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Window\Slider.h">
+      <Filter>头文件\GUI\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Window\TextEdit.h">
+      <Filter>头文件\GUI\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\EngineCenter.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Window\TextLabel.h">
+      <Filter>头文件\GUI\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Renderer\TextLabelRenderer.h">
+      <Filter>头文件\GUI\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Window\ListBox.h">
+      <Filter>头文件\GUI\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Renderer\ListBoxRenderer.h">
+      <Filter>头文件\GUI\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Window\ComboBox.h">
+      <Filter>头文件\GUI\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Renderer\ComboBoxRenderer.h">
+      <Filter>头文件\GUI\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Render\AnimatableSprite.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Renderer\RenderLayer.h">
+      <Filter>头文件\GUI\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\LanguageManager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\Language.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Window\ListControl.h">
+      <Filter>头文件\GUI\Window</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="SourceCode\GUI\Animation\Animatable.h">
+      <Filter>头文件\GUI\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Animation\AnimationInstance.h">
+      <Filter>头文件\GUI\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Animation\AnimationLayer.h">
+      <Filter>头文件\GUI\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Animation\AnimProp.h">
+      <Filter>头文件\GUI\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Animation\KeyFrame.h">
+      <Filter>头文件\GUI\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Animation\AnimationManager_ui.h">
+      <Filter>头文件\GUI\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCode\GUI\Animation\Animation_ui.h">
+      <Filter>头文件\GUI\Animation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

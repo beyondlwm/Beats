@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Utility/BeatsUtility/StringHelper.h"
 #include "Utility/BeatsUtility/Serializer.h"
-#include "mainapp.h"
+#include "EngineEditor.h"
 #include "ListPropertyDescription.h"
 #include "Utility/BeatsUtility/ComponentSystem/Component/ComponentManager.h"
 #include "Utility/TinyXML/tinyxml.h"
@@ -158,7 +158,8 @@ void CListPropertyDescription::SetChildType(EPropertyType type)
     m_childType = type;
 }
 CPropertyDescriptionBase* CListPropertyDescription::CreateInstance()
-{    CPropertyDescriptionBase* bRet = NULL;
+{
+    CPropertyDescriptionBase* bRet = NULL;
     if (m_pChildren->size() < m_uMaxCount)
     {
         TCHAR szChildName[32];

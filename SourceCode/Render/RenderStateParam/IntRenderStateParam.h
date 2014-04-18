@@ -7,6 +7,7 @@
 class CIntRenderStateParam : public CRenderStateParamBase
 {
     typedef CRenderStateParamBase super;
+public:
     enum EIntStateParam
     {
         eISP_ClearStencil,
@@ -16,12 +17,21 @@ class CIntRenderStateParam : public CRenderStateParamBase
         eISP_Count = 3,
         eISP_Force32Bit = 0xFFFFFFFF
     };
-public:
     DECLARE_REFLECT_GUID(CIntRenderStateParam, 0x70C59FDD, CRenderStateParamBase)
 public:
     CIntRenderStateParam();
     CIntRenderStateParam(CSerializer& serializer);
     virtual void Apply() override;
+
+    virtual ERenderState GetRenderStateType() const;
+
+    virtual bool operator==( const CRenderStateParamBase& other ) const;
+
+    void SetType( EIntStateParam type );
+    EIntStateParam GetType() const;
+
+    void SetValue( int value );
+    int GetValue() const;
 private:
     EIntStateParam m_type;
     int m_nValue;

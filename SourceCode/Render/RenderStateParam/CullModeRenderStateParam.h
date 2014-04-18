@@ -22,6 +22,13 @@ public:
     CCullModeRenderStateParam();
     CCullModeRenderStateParam(CSerializer& serializer);
     virtual void Apply() override;
+
+    virtual ERenderState GetRenderStateType() const;
+
+    void SetCullModeType( ECullModeType type );
+    ECullModeType GetCullModeType() const;
+
+    virtual bool operator==( const CRenderStateParamBase& other ) const;
 private:
     ECullModeType m_nValue;
 };

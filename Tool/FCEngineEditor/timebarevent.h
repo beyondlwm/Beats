@@ -13,8 +13,8 @@ public:
     virtual wxEvent* Clone() const;
 
 public:
-    void    SetIndex(const int msg);
-    int     GetIndex() const;
+    void    SetRow(const int msg);
+    int     GetRow() const;
 
     void    SetType(const int msg);
     int     GetType() const;
@@ -39,7 +39,7 @@ END_DECLARE_EVENT_TYPES()
 
 typedef void (wxEvtHandler::*TimeLineEventFunction)(TimeBarEvent&);
 
-#define EVT_THREAD_FINISHED(id, fn) DECLARE_EVENT_TABLE_ENTRY( \
+#define EVT_DATAVIEW_CUSTRENDER_ACTIVE(id, fn) DECLARE_EVENT_TABLE_ENTRY( \
     TIMEBAR_EVENT_TYPE, id, -1, \
     (wxObjectEventFunction)(wxEventFunction)(TimeLineEventFunction)&fn, \
     (wxObject*)NULL),

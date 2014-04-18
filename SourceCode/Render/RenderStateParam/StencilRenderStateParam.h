@@ -28,6 +28,13 @@ public:
     CStencilRenderStateParam();
     CStencilRenderStateParam(CSerializer& serializer);
     virtual void Apply() override;
+    virtual ERenderState GetRenderStateType() const;
+
+    void SetValue( EStencilType fail, EStencilType zFali, EStencilType zPass );
+
+    void GetValue( EStencilType& fail, EStencilType& zFali, EStencilType& zPass ) const;
+
+    virtual bool operator==( const CRenderStateParamBase& other ) const;
 private:
     EStencilType m_nFail;
     EStencilType m_nZFail;

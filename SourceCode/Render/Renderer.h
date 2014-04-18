@@ -1,7 +1,7 @@
 #ifndef RENDER_RENDERER_H__INCLUDE
 #define RENDER_RENDERER_H__INCLUDE
 
-class CRenderState;
+#include "RenderState.h"
 
 class CRenderer
 {
@@ -29,6 +29,15 @@ public:
     void SetUniform1i(GLint location, GLint i1);
     void SetUniform4f(GLint location, GLfloat f1, GLfloat f2, GLfloat f3, GLfloat f4);
     void SetUniform1fv(GLint location, const GLfloat *floats, GLsizei numberOfFloats);
+    void SetUniform2fv(GLint location, const GLfloat *floats, GLsizei numberOfFloats);
+    void SetUniform3fv(GLint location, const GLfloat *floats, GLsizei numberOfFloats);
+    void SetUniform4fv(GLint location, const GLfloat *floats, GLsizei numberOfFloats);
+    void SetUniform1iv(GLint location, const GLint *ints, GLsizei numberOfInt);
+    void SetUniform2iv(GLint location, const GLint *ints, GLsizei numberOfInt);
+    void SetUniform3iv(GLint location, const GLint *ints, GLsizei numberOfInt);
+    void SetUniform4iv(GLint location, const GLint *ints, GLsizei numberOfInt);
+    void SetUniformMatrix2fv(GLint location, const GLfloat *matrixArray, GLsizei numberOfMatrices);
+    void SetUniformMatrix3fv(GLint location, const GLfloat *matrixArray, GLsizei numberOfMatrices);
     void SetUniformMatrix4fv(GLint location, const GLfloat *matrixArray, GLsizei numberOfMatrices);
     void UniformBlockBinding(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding);
     void LineWidth(GLfloat fLineWidth);
@@ -61,6 +70,7 @@ public:
     void DelTexture(GLsizei n, GLuint* textures);
 
     void GetIntegerV(GLenum pname, GLint * params );
+    void GetFloatV(GLenum pname, GLfloat * params );
     void PixelStorei (GLenum pname, GLint param);
 
     void Viewport(GLint x, GLint y, GLsizei width, GLsizei height);

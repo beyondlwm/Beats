@@ -16,6 +16,7 @@ enum EventType
     EVENT_CHAR,
 
     EVENT_GUI = 3 << 24,
+    EVENT_ANIMATION = 4 << 24,
 };
 
 #endif

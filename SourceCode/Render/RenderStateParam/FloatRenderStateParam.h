@@ -6,6 +6,7 @@ class CFloatRenderStateParam : public CRenderStateParamBase
 {
     typedef CRenderStateParamBase super;
 
+public:
     enum EFloatStateParam
     {
         eFSP_ClearDepth,
@@ -23,6 +24,16 @@ public:
     CFloatRenderStateParam();
     CFloatRenderStateParam(CSerializer& serializer);
     virtual void Apply() override;
+
+    virtual ERenderState GetRenderStateType() const;
+
+    virtual bool operator==( const CRenderStateParamBase& other ) const;
+
+    void SetFloatParamType( EFloatStateParam type );
+    EFloatStateParam GetFloatParamType() const;
+
+    void SetValue( float value );
+    float GetValue() const;
 private:
     EFloatStateParam m_type;
     float m_fValue;

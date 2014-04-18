@@ -281,7 +281,9 @@ public:
                 if (bGetAddrSuccess)
                 {
                     const char* pszPathExtension = PathFindExtensionA(info.FileName);                        
-                    bMeaningfulFile = strlen(pszPathExtension) > 0 && _stricmp(PathFindFileNameA(info.FileName), "shareptr.h") != 0;
+                    bMeaningfulFile = strlen(pszPathExtension) > 0 && 
+                        _stricmp(PathFindFileNameA(info.FileName), "shareptr.h") != 0 &&
+                        _stricmp(PathFindFileNameA(info.FileName), "resourcemanager.h") != 0;
                 }
                 else
                 {

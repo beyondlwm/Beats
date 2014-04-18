@@ -21,11 +21,10 @@ namespace FCEngine
     {
         DECLARE_REFLECT_GUID( BoxParticleEmitterEntity, 0x1544C157, ParticleEmitterEntityBase )
     public:
+        BoxParticleEmitterEntity( );
         BoxParticleEmitterEntity( CSerializer& serializer );
         ~BoxParticleEmitterEntity( );
     private:
-        BoxParticleEmitterEntity( );
-
         virtual const kmVec3& GetBirthPositon( );
 
         virtual void SetEmitterPropty( const void* pValue );

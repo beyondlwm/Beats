@@ -31,3 +31,35 @@ void CFunctionRenderStateParam::Apply()
     }
 }
 
+ERenderState CFunctionRenderStateParam::GetRenderStateType() const
+{
+    return eRS_FuncMode;
+}
+
+void CFunctionRenderStateParam::SetValue( EFunctionType value )
+{
+    m_nValue = value;
+}
+
+CFunctionRenderStateParam::EFunctionType CFunctionRenderStateParam::GetValue() const
+{
+    return m_nValue;
+}
+
+void CFunctionRenderStateParam::SetType( EFunctionStateParam type )
+{
+    m_type = type;
+}
+
+CFunctionRenderStateParam::EFunctionStateParam CFunctionRenderStateParam::GetType() const
+{
+    return m_type;
+}
+
+bool CFunctionRenderStateParam::operator==( const CRenderStateParamBase& other ) const
+{
+    BEATS_ASSERT( other.GetRenderStateType() == eRS_FuncMode );
+    CFunctionRenderStateParam* pOther = ( CFunctionRenderStateParam* )&other;
+    return ( m_nValue == pOther->m_nValue && m_type == pOther->m_type );
+}
+

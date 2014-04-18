@@ -32,3 +32,35 @@ void CIntRenderStateParam::Apply()
         break;
     }
 }
+
+ERenderState CIntRenderStateParam::GetRenderStateType() const
+{
+    return eRS_IntMode;
+}
+
+void CIntRenderStateParam::SetType( EIntStateParam type )
+{
+    m_type = type;
+}
+
+CIntRenderStateParam::EIntStateParam CIntRenderStateParam::GetType() const
+{
+    return m_type;
+}
+
+void CIntRenderStateParam::SetValue( int value )
+{
+    m_nValue = value;
+}
+
+int CIntRenderStateParam::GetValue() const
+{
+    return m_nValue;
+}
+
+bool CIntRenderStateParam::operator==( const CRenderStateParamBase& other ) const
+{
+    BEATS_ASSERT( other.GetRenderStateType() == eRS_IntMode );
+    CIntRenderStateParam* pOther = ( CIntRenderStateParam* )&other;
+    return ( m_type == pOther->m_type && m_nValue == pOther->m_nValue );
+}

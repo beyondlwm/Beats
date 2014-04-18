@@ -319,3 +319,8 @@ int CTexture::Height() const
 {
     return m_iHeight;
 }
+
+bool CTexture::operator==( const CTexture& other )
+{
+    return m_uId == other.m_uId;
+}

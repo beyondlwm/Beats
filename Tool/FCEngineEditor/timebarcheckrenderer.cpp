@@ -58,9 +58,8 @@ bool TimeBarCheckRenderer::ActivateCell(const wxRect& WXUNUSED(cell),
             }
             pMyModel->SetValueByRow( variant, row, col );
             TimeBarEvent event(TIMEBAR_EVENT_TYPE, 0);
-            event.SetIndex(row);
+            event.SetRow(row);
             event.SetType(m_type);
-
             GetOwner()->GetOwner()->GetEventHandler()->ProcessEvent(event);
         }
     }

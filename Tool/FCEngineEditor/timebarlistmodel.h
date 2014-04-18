@@ -4,23 +4,24 @@
 #include <wx/dynarray.h>
 #include <wx/dataview.h>
 
+enum
+{
+    Col_EditableText,
+    Col_Visible,
+    Col_Lock,
+    Col_Max
+};
+
 WX_DEFINE_ARRAY_CHAR(char, wxArrayChar);
 class TimeBarListModel: public wxDataViewVirtualListModel
 {
 public:
-    enum
-    {
-        Col_EditableText,
-        Col_IsVisible,
-        Col_Islocked,
-        Col_Max
-    };
-
     TimeBarListModel();
     virtual ~TimeBarListModel();
 
     // helper methods to change the model
-    void DeleteItem( int index );
+    void DeleteItem( unsigned int index );
+    void DeleteItem( wxDataViewItem& index );
     void DeleteItems( const wxDataViewItemArray &items );
     void AddItem( const wxString text, bool visible, bool islock );
 
@@ -34,8 +35,8 @@ private:
 
     wxArrayString    m_textColValues;
     wxArrayString    m_iconColValues;
-    wxArrayChar      m_bview;
-    wxArrayChar      m_block;
+    wxArrayChar      m_bView;
+    wxArrayChar      m_bLock;
     wxBitmap         m_BmpV;
     wxBitmap         m_BmpL;
 };

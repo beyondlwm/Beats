@@ -80,12 +80,11 @@ namespace FCEngine
         typedef std::list< ParticleEntity* > TParticleList;
         DECLARE_REFLECT_GUID( ParticleEmitter, 0x1544A159, CComponentBase )
     public:
+        ParticleEmitter();
         ParticleEmitter( CSerializer& serializer );
         ~ParticleEmitter( );
 
     private:
-        ParticleEmitter( );
-
         /*
         * Method:    beginShoot
         

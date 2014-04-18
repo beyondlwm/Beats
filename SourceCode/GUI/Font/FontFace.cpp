@@ -1,6 +1,11 @@
 #include "stdafx.h"
 #include "FontFace.h"
+#include "Font.h"
 #include "Render/Texture.h"
+#include "Resource/ResourceManager.h"
+#include "Render/SpriteFrameBatchManager.h"
+
+#define FT_SHIFT_NUM 6;
 
 //next multiple of 8
 inline int nextMOE(int x)
@@ -10,50 +15,17 @@ inline int nextMOE(int x)
 
 using namespace FCGUI;
 
-FT_Library FontFace::_library = nullptr;
-int FontFace::_libRefCount = 0;
-
-FontFace::FontFace(const TString &name, const std::string &file, int sizeInPt, int dpi)
+FontFace::FontFace(const TString &name, const TString &file, int size, int dpi/*= -1*/)
+    : _name(name)
+    , _currPage(-1)
+    , _currX(0)
+    , _currY(0)
+    , _lineHeight(0)
+    , _ascender(0)
+    , _size(size)
+    , _dpi(dpi)
+    , _font(CResourceManager::GetInstance()->GetResource<Font>(file, false))
 {
-    init(name, file);
-
-    FT_Error err = 0;
-    FT_F26Dot6 size = sizeInPt << 6;
-    err = FT_Set_Char_Size(_face, size, size, dpi, dpi);
-    BEATS_ASSERT(!err);
-}
-
-FontFace::FontFace(const TString &name, const std::string &file, int sizeInPx)
-{
-    init(name, file);
-
-    FT_Error err = 0;
-    err = FT_Set_Pixel_Sizes(_face, sizeInPx, sizeInPx);
-    BEATS_ASSERT(!err);
-}
-
-void FontFace::init(const TString &name, const std::string &file)
-{
-    FT_Error err = 0;
-    if(_libRefCount++ == 0)
-    {
-        err = FT_Init_FreeType(&_library);
-        BEATS_ASSERT(!err);
-    }
-
-    _name = name;
-    _currPage = -1;
-    _currX = 0;
-    _currY = 0;
-    _lineHeight = 0;
-    _ascender = 0;
-
-    err = FT_New_Face(_library, file.c_str(), 0, &_face);
-    BEATS_ASSERT(!err);
-
-    err = FT_Select_Charmap(_face, FT_ENCODING_UNICODE);
-    BEATS_ASSERT(!err);
-
     newPage();
 }
 
@@ -63,19 +35,9 @@ FontFace::~FontFace()
     {
         BEATS_SAFE_DELETE(glyph.second);
     }
-
-    FT_Error err = 0;
-    err = FT_Done_Face(_face);
-    BEATS_ASSERT(!err);
-
-    if(--_libRefCount == 0)
-    {
-        err = FT_Done_FreeType(_library);
-        BEATS_ASSERT(!err);
-    }
 }
 
-void FCGUI::FontFace::newPage()
+void FontFace::newPage()
 {
     SharePtr<CTexture> texture = new CTexture;
     texture->InitWithData(nullptr, 0, PixelFormat::A8, PAGE_WIDTH, PAGE_HEIGHT);
@@ -83,13 +45,36 @@ void FCGUI::FontFace::newPage()
     _textures.push_back(texture);
 }
 
-void FontFace::PrepareCharacters( const TString &chars )
+void FontFace::setSize()
 {
     FT_Error err = 0;
+    if (_dpi == -1)
+    {
+        err = FT_Set_Pixel_Sizes(_font->Face(), _size, _size);
+    }
+    else
+    {
+        FT_F26Dot6 sizeTrans = _size << FT_SHIFT_NUM;
+        err = FT_Set_Char_Size(_font->Face(), sizeTrans, sizeTrans, _dpi, _dpi);
+    }
+
+    _ascender = _font->Face()->size->metrics.ascender >> FT_SHIFT_NUM;
+    long descender = _font->Face()->size->metrics.descender >> FT_SHIFT_NUM;
+    _lineHeight = _ascender - descender;
+
+    BEATS_ASSERT(!err);
+}
+
+void FontFace::PrepareCharacters( const TString &chars )
+{
+    setSize();
+
 #ifndef _UNICODE
     //TODO: translate chars to unicode
 #pragma error("non-unicode unsupported")
 #endif
+
+    FT_Error err = 0;
 
     for(size_t i = 0; i < chars.size(); ++i)
     {
@@ -98,23 +83,22 @@ void FontFace::PrepareCharacters( const TString &chars )
         if(_glyphs.find(character) != _glyphs.end())
             continue;
 
-        err = FT_Load_Char(_face, character, FT_LOAD_RENDER);
+        err = FT_Load_Char(_font->Face(), character, FT_LOAD_RENDER);
         BEATS_ASSERT(!err);
 
-        BEATS_ASSERT(_ascender == 0 || _ascender == _face->size->metrics.ascender >> 6);
-        _ascender = _face->size->metrics.ascender >> 6;
-        long descender = _face->size->metrics.descender >> 6;
-        BEATS_ASSERT(_lineHeight == 0 || _lineHeight == _ascender - descender);
-        _lineHeight = _ascender - descender;
-
-        FT_Bitmap &bitmap = _face->glyph->bitmap;
-        FT_Glyph_Metrics &metrics = _face->glyph->metrics;
-        long x = metrics.horiBearingX >> 6;
-        long y = metrics.horiBearingY >> 6;
-        long xAdvance = metrics.horiAdvance >> 6;
-        long width = metrics.width >> 6;
-        long height = metrics.height >> 6;
+        FT_Bitmap &bitmap = _font->Face()->glyph->bitmap;
+        FT_Glyph_Metrics &metrics = _font->Face()->glyph->metrics;
+        long x = metrics.horiBearingX >> FT_SHIFT_NUM;
+        long y = metrics.horiBearingY >> FT_SHIFT_NUM;
+        long xAdvance = metrics.horiAdvance >> FT_SHIFT_NUM;
+        long width = metrics.width >> FT_SHIFT_NUM;
+        long height = metrics.height >> FT_SHIFT_NUM;
         width, height;
+
+        if(x < 0)
+            x =  0;
+        if(xAdvance < x + width)
+            xAdvance = x + width;
 
         long xOffset = x;
         long yOffset = _ascender - y;
@@ -169,6 +153,39 @@ void FontFace::PrepareCharacters( const TString &chars )
     }
 }
 
+void FontFace::RenderText(const TString &text, kmScalar x, kmScalar y)
+{
+    auto glyphs = GetGlyphs(text);
+    for(auto glyph : glyphs)
+    {
+        drawGlyph(glyph, x, y);
+        x += glyph->width;
+    }
+}
+
+void FontFace::drawGlyph(FontGlyph *glyph, kmScalar x, kmScalar y)
+{
+    CQuadPT quad;
+    quad.tl.position.x = x;
+    quad.tl.position.y = y;
+    quad.tr.position.x = x + glyph->width;
+    quad.tr.position.y = quad.tl.position.y;
+    quad.bl.position.x = quad.tl.position.x;
+    quad.bl.position.y = y + glyph->height;
+    quad.br.position.x = quad.tr.position.x;
+    quad.br.position.y = quad.bl.position.y;
+    quad.tl.tex.u = glyph->u;
+    quad.tl.tex.v = glyph->v;
+    quad.tr.tex.u = glyph->u + glyph->width / glyph->texture->Width();
+    quad.tr.tex.v = quad.tl.tex.v;
+    quad.bl.tex.u = quad.tl.tex.u;
+    quad.bl.tex.v = glyph->v + glyph->height / glyph->texture->Height();
+    quad.br.tex.u = quad.tr.tex.u;
+    quad.br.tex.v = quad.bl.tex.v;
+
+    CSpriteFrameBatchManager::GetInstance()->AddQuad(quad, glyph->texture);
+}
+
 FontGlyph *FontFace::GetGlyph( unsigned long character )
 {
     auto itr = _glyphs.find(character);
@@ -186,4 +203,9 @@ std::vector<FontGlyph *> FontFace::GetGlyphs(const TString &text)
             glyphs.push_back(glyph);
     }
     return glyphs;
+}
+
+const TString& FontFace::GetName()const
+{
+    return _name;
 }

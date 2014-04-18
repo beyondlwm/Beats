@@ -17,3 +17,25 @@ void CCullModeRenderStateParam::Apply()
 {
     CRenderer::GetInstance()->CullFace(m_nValue);
 }
+
+ERenderState CCullModeRenderStateParam::GetRenderStateType() const
+{
+    return eRS_CullMode;
+}
+
+void CCullModeRenderStateParam::SetCullModeType( ECullModeType type )
+{
+    m_nValue = type;
+}
+
+CCullModeRenderStateParam::ECullModeType CCullModeRenderStateParam::GetCullModeType() const
+{
+    return m_nValue;
+}
+
+bool CCullModeRenderStateParam::operator==( const CRenderStateParamBase& other ) const
+{
+    BEATS_ASSERT( other.GetRenderStateType() == eRS_CullMode );
+    CCullModeRenderStateParam* pOther = (CCullModeRenderStateParam*)&other;
+    return m_nValue == pOther->m_nValue;
+}

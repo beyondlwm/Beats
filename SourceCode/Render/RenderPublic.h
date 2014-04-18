@@ -5,10 +5,6 @@
 #include <map>
 #include <vector>
 
-#include "math/kazmath/include/kazmath/mat4.h"
-#include "math/kazmath/include/kazmath/vec3.h"
-#include "math/kazmath/include/kazmath/vec4.h"
-#include "math/kazmath/include/kazmath/vec2.h"
 #include "Utility/BeatsUtility/mathpublic.h"
 #include "CommonTypes.h"
 
@@ -41,6 +37,10 @@ enum ECommonUniformType
     UNIFORM_TEX0,
     UNIFORM_TEX1,
     UNIFORM_BONE_MATRICES,
+    UNIFORM_AMBIENT_COLOR,
+    UNIFORM_DIFFUSE_COLOR,
+    UNIFORM_SPECULAR_COLOR,
+    UNIFORM_SHININESS,
 
     UNIFORM_COUNT,
 };
@@ -58,6 +58,10 @@ static const char *COMMON_UNIFORM_NAMES[] =
     "u_tex0",
     "u_tex1",
     "u_BoneMatrices",
+    "u_AmbientColor",
+    "u_DiffuseColor",
+    "u_SpecularColor",
+    "u_Shininess"
 };
 
 #ifdef USE_UBO
@@ -78,6 +82,7 @@ enum ECommonAttribIndex
 {
     ATTRIB_INDEX_POSITION,
     ATTRIB_INDEX_COLOR,
+    ATTRIB_INDEX_NORMAL,
     ATTRIB_INDEX_TEXCOORD0,
     ATTRIB_INDEX_TEXCOORD1,
     ATTRIB_INDEX_BONE_INDICES,
@@ -90,6 +95,7 @@ static const char *COMMON_ATTIB_NAMES[] =
 {
     "a_position",
     "a_color",
+    "a_normal",
     "a_texCoord0",
     "a_texCoord1",
     "a_boneIndices",

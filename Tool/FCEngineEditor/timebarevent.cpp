@@ -27,12 +27,12 @@ wxEvent* TimeBarEvent::Clone() const
     return new TimeBarEvent(*this);
 }
 
-void TimeBarEvent::SetIndex(const int msg) 
+void TimeBarEvent::SetRow(const int msg) 
 { 
     m_nIndex = msg;
 }
 
-int TimeBarEvent::GetIndex() const 
+int TimeBarEvent::GetRow() const 
 {
     return m_nIndex;
 }

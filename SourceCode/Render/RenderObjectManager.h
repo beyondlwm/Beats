@@ -5,9 +5,11 @@
 class CRenderObject;
 class CModel;
 class CSprite;
+class CAnimatableSprite;
 class CCurveRenderer;
 class CTexture;
 struct Spline;
+class CCamera;
 
 class CRenderObjectManager
 {
@@ -15,6 +17,7 @@ class CRenderObjectManager
 public:
     CModel *CreateModel();
     CSprite *CreateSprite(const TString &textureFragName, const kmVec2 &size);
+    CAnimatableSprite *CreateAnimatableSprite(const TString &textureFragName, const kmVec2 &size);
     CCurveRenderer *CreateCurve(SharePtr<Spline> spline);
     void Render();
 

@@ -20,6 +20,7 @@ BEGIN_EVENT_TABLE(TimeBarFrame, wxSplitterWindow)
     EVT_SPLITTER_SASH_POS_CHANGING(wxID_ANY, TimeBarFrame::OnPositionChanging)
     EVT_SPINCTRL(wxID_ANY, TimeBarFrame::OnSpinCtrl)
     EVT_TEXT_ENTER(wxID_ANY, TimeBarFrame::OnSpinTextEnter)
+    EVT_DATAVIEW_SELECTION_CHANGED(wxID_ANY, TimeBarFrame::OnSelect)
 END_EVENT_TABLE()
 
 TimeBarFrame::TimeBarFrame(wxWindow *parent)
@@ -136,18 +137,7 @@ void TimeBarFrame::OnSize(wxSizeEvent & event)
 
 void TimeBarFrame::ResetLeft()
 {
-    int iRestFixedWidth = 0;
-    if (m_pTimeLineDataViewCtrl != NULL)
-    {
-        wxSize curSize = m_pTimeLineDataViewCtrl->GetSize();
-        int iColumnCount = m_pTimeLineDataViewCtrl->GetColumnCount();
-        wxDataViewColumn* pFirstColumn = m_pTimeLineDataViewCtrl->GetColumn(0);
-        for (int i = 1; i < iColumnCount; i++)
-        {
-            iRestFixedWidth += m_pTimeLineDataViewCtrl->GetColumn(i)->GetWidth();
-        }
-        pFirstColumn->SetWidth(curSize.GetWidth() - iRestFixedWidth);
-    }
+    m_pTimeLineDataViewCtrl->RefreshSize();
 }
 
 void TimeBarFrame::AddItems()
@@ -225,7 +215,7 @@ void TimeBarFrame::SetCursorPositionX(int pos)
     {
         if (iIndex < pDialog->GetAnimation()->GetFrameCount())
         {
-            ((GLAnimationCanvas*)pDialog->GetCanvas())->GetModel()->GetAnimationController()->GoToFrame(iIndex);
+            //((GLAnimationCanvas*)pDialog->GetCanvas())->GetModel()->GetAnimationController()->GoToFrame(iIndex);
         }
     }
     m_pScalebar->Refresh(false);
@@ -310,4 +300,11 @@ int TimeBarFrame::GetCursorPositionX()
 int TimeBarFrame::GetItemCount()
 {
     return ((TimeBarListModel*)m_pTimeLineDataViewCtrl->GetModel())->GetCount();
+}
+
+void TimeBarFrame::OnSelect(wxDataViewEvent& event)
+{
+    wxDataViewItem item = event.GetItem();
+    int row = (int)item.GetID() - 1;
+    SetCurrentSelect(row);
 }

@@ -50,3 +50,15 @@ void CBoolRenderStateParam::Apply()
         break;
     }
 }
+
+ERenderState CBoolRenderStateParam::GetRenderStateType() const
+{
+    return eRS_BoolMode;
+}
+
+bool CBoolRenderStateParam::operator==( const CRenderStateParamBase& other ) const
+{
+    BEATS_ASSERT( other.GetRenderStateType() == eRS_BoolMode );
+    CBoolRenderStateParam* pOther = (CBoolRenderStateParam*)&other;
+    return ( m_type == pOther->m_type && m_bValue == pOther->m_bValue );
+}

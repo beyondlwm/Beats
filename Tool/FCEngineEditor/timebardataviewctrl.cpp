@@ -9,7 +9,6 @@
 
 BEGIN_EVENT_TABLE(TimeBarDataViewCtrl, wxDataViewCtrl)
 EVT_SCROLLWIN(TimeBarDataViewCtrl::OnScroll)
-EVT_DATAVIEW_SELECTION_CHANGED(wxID_ANY, TimeBarDataViewCtrl::OnSelect)
 END_EVENT_TABLE()
 
 ArrayOfAnimation::~ArrayOfAnimation()
@@ -53,14 +52,14 @@ bool TimeBarDataViewCtrl::InitCtrl()
 {
     ShowScrollbars(wxSHOW_SB_NEVER,wxSHOW_SB_NEVER);
     AppendTextColumn(_T("Layer"),
-        TimeBarListModel::Col_EditableText,
+        Col_EditableText,
         wxDATAVIEW_CELL_EDITABLE,
         wxCOL_WIDTH_AUTOSIZE);
 
     AppendColumn(
         new wxDataViewColumn(_T("V"),
-        new TimeBarCheckRenderer(TimeBarListModel::Col_IsVisible),
-        TimeBarListModel::Col_IsVisible,
+        new TimeBarCheckRenderer(Col_Visible),
+        Col_Visible,
         COLUMNWIDTH,
         wxALIGN_CENTER,
         0)
@@ -68,8 +67,8 @@ bool TimeBarDataViewCtrl::InitCtrl()
 
     AppendColumn(
         new wxDataViewColumn(_T("L"),
-        new TimeBarCheckRenderer(TimeBarListModel::Col_Islocked),
-        TimeBarListModel::Col_Islocked,
+        new TimeBarCheckRenderer(Col_Lock),
+        Col_Lock,
         COLUMNWIDTH,
         wxALIGN_CENTER,
         0)
@@ -85,11 +84,14 @@ void TimeBarDataViewCtrl::OnScroll(wxScrollWinEvent& /*event*/)
         m_pSyncWnd->Scroll(GetViewStart());
     }
 }
-
-void TimeBarDataViewCtrl::OnSelect(wxDataViewEvent& event)
+void TimeBarDataViewCtrl::RefreshSize()
 {
-    wxDataViewItem item = this->GetSelection();
-    int row = this->GetRowByItem(item);
-    ((TimeBarFrame*)(GetParent()->GetParent()))->SetCurrentSelect(row);
-    event.Skip(false);
+    int iRestFixedWidth = 0;
+    wxSize curSize = GetSize();
+    int iColumnCount = GetColumnCount();
+    for (int i = 1; i < iColumnCount; i++)
+    {
+        iRestFixedWidth += GetColumn(i)->GetWidth();
+    }
+    GetColumn(0)->SetWidth(curSize.GetWidth() - iRestFixedWidth);
 }

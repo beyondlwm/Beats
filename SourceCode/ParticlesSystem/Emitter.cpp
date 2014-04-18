@@ -36,6 +36,8 @@ namespace FCEngine
         SharePtr<CShader> pPS = CResourceManager::GetInstance()->GetResource<CShader>(_T("particle.ps"), false);
         m_pParticleProgram = CRenderManager::GetInstance()->GetShaderProgram(pVS->ID(), pPS->ID());
 
+        m_VAO = 0;
+
         m_pMaterial = NULL;
         m_pEmitterBase = NULL;
     }
@@ -53,12 +55,13 @@ namespace FCEngine
         m_bInit = false;
         m_pParticleProperty = NULL;
 
-        //SharePtr<CShader> pVS = CResourceManager::GetInstance()->GetResource<CShader>(_T("particle.vs"), false);
-        //SharePtr<CShader> pPS = CResourceManager::GetInstance()->GetResource<CShader>(_T("particle.ps"), false);
-        //m_pParticleProgram = CRenderManager::GetInstance()->GetShaderProgram(pVS->ID(), pPS->ID());
+        SharePtr<CShader> pVS = CResourceManager::GetInstance()->GetResource<CShader>(_T("particle.vs"), false);
+        SharePtr<CShader> pPS = CResourceManager::GetInstance()->GetResource<CShader>(_T("particle.ps"), false);
+        m_pParticleProgram = CRenderManager::GetInstance()->GetShaderProgram(pVS->ID(), pPS->ID());
 
         m_pMaterial = NULL;
         m_pEmitterBase = NULL;
+        m_VAO = 0;
 
         DECLARE_PROPERTY( serializer, m_pEmitterBase, true, 0xFFFFFFFF, _T( "发射器类型" ), NULL, NULL, NULL );
         DECLARE_PROPERTY( serializer, m_pEmitter->m_TotalCount, true, 0xFFFFFFFF, _T( "发射粒子总数" ), NULL, NULL, NULL );
@@ -94,8 +97,11 @@ namespace FCEngine
         }
 
         CRenderer* pRenderer = CRenderer::GetInstance();
-        pRenderer->DeleteBuffers(2, m_VBO);
-        pRenderer->DeleteBuffers(1, &m_VAO);
+        if ( 0 != m_VAO )
+        {
+            pRenderer->DeleteBuffers(2, m_VBO);
+            pRenderer->DeleteBuffers(1, &m_VAO);
+        }
 
         BEATS_SAFE_DELETE( m_pEmitter );
         BEATS_SAFE_DELETE_ARRAY( m_VertData );

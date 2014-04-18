@@ -2,36 +2,42 @@
 #include "Sprite.h"
 #include "Texture.h"
 #include "RenderManager.h"
-#include "SpriteFrame.h"
 #include "SpriteFrameBatchManager.h"
-#include "SpriteAnimationController.h"
-#include "SpriteAnimation.h"
-#include "AnimationManager.h"
-
-CSprite::CSprite():
-    m_frame(nullptr),
-    m_animController(nullptr)
-{
-
-}
+#include "TextureFragManager.h"
+#include "TextureFrag.h"
 
 CSprite::CSprite(CTextureFrag *textureFrag)
-    : m_animController(nullptr)
+    : m_textureFrag(textureFrag)
 {
-    m_frame = new CSpriteFrame(textureFrag);
+    kmVec2 origin;
+    kmVec2Fill(&origin, 0.f, 0.f);
+    SetOriginSize(origin, m_textureFrag->Size());
+}
+
+CSprite::CSprite(const TString &textureFragName)
+    : m_textureFrag(CTextureFragManager::GetInstance()->GetTextureFrag(textureFragName))
+{
+    kmVec2 origin;
+    kmVec2Fill(&origin, 0.f, 0.f);
+    SetOriginSize(origin, m_textureFrag->Size());
 }
 
 CSprite::CSprite(const TString &textureFragName, const kmVec2 &size)
-    : m_animController(nullptr)
+    : m_textureFrag(CTextureFragManager::GetInstance()->GetTextureFrag(textureFragName))
 {
-    kmVec2 point;
-    kmVec2Fill(&point, 0.f, 0.f);
-    m_frame = new CSpriteFrame(textureFragName, size, point);
+    kmVec2 origin;
+    kmVec2Fill(&origin, 0.f, 0.f);
+    SetOriginSize(origin, size);
+}
+
+CSprite::CSprite(const TString &textureFragName, const kmVec2 &size, const kmVec2 &origin)
+    : m_textureFrag(CTextureFragManager::GetInstance()->GetTextureFrag(textureFragName))
+{
+    SetOriginSize(origin, size);
 }
 
 CSprite::~CSprite()
 {
-    delete m_frame;
 }
 
 void CSprite::PreRender()
@@ -43,14 +49,11 @@ void CSprite::Render()
     kmMat4 transform;
     kmMat4Identity(&transform);
 
+    BEATS_ASSERT(m_textureFrag);
     CSpriteFrameBatchManager *batchMgr = CSpriteFrameBatchManager::GetInstance();
-    if(m_animController)
+    if(m_textureFrag)
     {
-        batchMgr->AddSpriteFrame(m_animController->GetCurrFrame(), transform);
-    }
-    else if(m_frame)
-    {
-        batchMgr->AddSpriteFrame(m_frame, transform);
+        batchMgr->AddQuad(m_quad, m_textureFrag, transform);
     }
 }
 
@@ -58,23 +61,35 @@ void CSprite::PostRender()
 {
 }
 
-void CSprite::AddAnimation( SharePtr<CSpriteAnimation> animation )
+const CQuadP &CSprite::QuadP() const
 {
-    m_animations[animation->Name()] = animation;
+    return m_quad;
 }
 
-void CSprite::PlayAnimation( const TString &name, bool loop )
+const CQuadT &CSprite::QuadT() const
 {
-    auto itr = m_animations.find(name);    
-    BEATS_ASSERT(itr != m_animations.end());
-    animController()->PlayAnimation(itr->second, loop);
+    return m_textureFrag->Quad();
 }
 
-CSpriteAnimationController * CSprite::animController()
+SharePtr<CTexture> CSprite::Texture() const
 {
-    if(!m_animController)
-    {
-        m_animController = CAnimationManager::GetInstance()->CreateSpriteAnimationController();
-    }
-    return m_animController;
+    return m_textureFrag->Texture();
+}
+
+void CSprite::SetQuad( const CQuadP &quad )
+{
+    m_quad = quad;
+}
+
+void CSprite::SetOriginSize( const kmVec2 &origin, const kmVec2 &size )
+{
+    //set vertex
+    m_quad.tl.x = 0 - origin.x;
+    m_quad.tl.y = 0 - origin.y;
+    m_quad.tr.x = size.x - origin.x;
+    m_quad.tr.y = m_quad.tl.y;
+    m_quad.bl.x = m_quad.tl.x;
+    m_quad.bl.y = size.y - origin.y;
+    m_quad.br.x = m_quad.tr.x;
+    m_quad.br.y = m_quad.bl.y;
 }

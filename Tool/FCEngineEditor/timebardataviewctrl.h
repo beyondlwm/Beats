@@ -39,10 +39,11 @@ public:
     int             GetRow(const wxDataViewItem & item);
     void            AddItem( const wxString &text, bool visible, bool islock );
     bool            InitCtrl();
+    void            RefreshSize();
     TimeBarListModel*    GetUserModel()const;
 
+protected:
     void OnScroll(wxScrollWinEvent& event);
-    void OnSelect(wxDataViewEvent& event);
 
 private:
     wxScrollHelperBase*             m_pSyncWnd;

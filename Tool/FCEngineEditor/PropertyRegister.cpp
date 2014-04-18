@@ -16,7 +16,7 @@
 
 #include "Utility/BeatsUtility/ComponentSystem/Component/ComponentManager.h"
 
-REGISTER_PROPERTY_DESC(ePT_Bool, CBoolPropertyDescription)
+    REGISTER_PROPERTY_DESC(ePT_Bool, CBoolPropertyDescription)
     REGISTER_PROPERTY_DESC(ePT_Float, CFloatPropertyDescription)
     REGISTER_PROPERTY_DESC(ePT_Double, CDoublePropertyDescription)
     REGISTER_PROPERTY_DESC(ePT_Int, CIntPropertyDescription)

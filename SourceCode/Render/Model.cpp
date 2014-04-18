@@ -30,7 +30,7 @@ CModel::CModel(CSerializer& serializer)
     , m_pAnimationController(CAnimationManager::GetInstance()->CreateSkelAnimationController())
     , m_bRenderSkeleton(true)
 {
-    DECLARE_PROPERTY(serializer, m_pMaterial, true, 0xFFFFFFFF, _T("材质"), NULL, _T("材质参数"), NULL);
+    DECLARE_DEPENDENCY(serializer, m_pMaterial, _T("材质"), eDT_Weak);
 }
 
 CModel::~CModel()

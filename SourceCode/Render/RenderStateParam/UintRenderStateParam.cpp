@@ -32,4 +32,38 @@ void CUintRenderStateParam::Apply()
     }
 }
 
+ERenderState CUintRenderStateParam::GetRenderStateType() const
+{
+    return eRS_UnitMode;
+}
+
+bool CUintRenderStateParam::operator==( const CRenderStateParamBase& other ) const
+{
+    BEATS_ASSERT( other.GetRenderStateType() == eRS_UnitMode );
+    CUintRenderStateParam* pOther = ( CUintRenderStateParam* )&other;
+    return ( m_type == pOther->m_type && m_uValue == pOther->m_uValue );
+}
+
+CUintRenderStateParam::EUintStateParam CUintRenderStateParam::GetType() const
+{
+    return m_type;
+}
+
+void CUintRenderStateParam::SetType( const EUintStateParam& type )
+{
+    m_type = type;
+}
+
+const CColor& CUintRenderStateParam::GetValue() const
+{
+    return m_uValue;
+}
+
+void CUintRenderStateParam::SetValue( const CColor& value )
+{
+    m_uValue.a = value.a;
+    m_uValue.r = value.r;
+    m_uValue.g = value.g;
+    m_uValue.b = value.b;
+}
 

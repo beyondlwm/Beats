@@ -6,13 +6,16 @@
 #include "Render/Texture.h"
 #include "render/RenderManager.h"
 #include "render/Renderer.h"
-
-CTexture* CComponentGraphic_GL::m_pTextures = NULL;
+#include "GUI/Font/FontManager.h"
+#include "Resource/ResourceManager.h"
+#include "Render/SpriteFrameBatchManager.h"
 
 
 CComponentGraphic_GL::CComponentGraphic_GL()
+    : m_pFont(NULL)
 {
-
+    // Base class is dx implemented.
+    m_gridPosZ *= -1;
 }
 
 CComponentGraphic_GL::~CComponentGraphic_GL()
@@ -20,79 +23,79 @@ CComponentGraphic_GL::~CComponentGraphic_GL()
 
 }
 
-void CComponentGraphic_GL::RecreateTextures()
+void CComponentGraphic_GL::CreateTextures()
 {
-    if (m_pTextures != NULL)
+    if (m_pFont == NULL)
     {
-        ReleaseTextures();
-    }
-    if (m_pTextures == NULL)
-    {
-        m_pTextures = new CTexture[eCT_Count];
-        bool bLoadSuceess = false;
-        m_pTextures[eCT_RectBG].SetFilePath(_T("E:/Project/FCEngine/FCEngine/Resource/Component/Texture/RectBG.bmp"));
-        bLoadSuceess = m_pTextures[eCT_RectBG].Load();
-        BEATS_ASSERT(bLoadSuceess, _T("Create Component Texture Failed!"));
-
-        m_pTextures[eCT_ConnectRect].SetFilePath(_T("E:/Project/FCEngine/FCEngine/Resource/Component/Texture/ConnectRect.bmp"));
-        bLoadSuceess = bLoadSuceess && m_pTextures[eCT_ConnectRect].Load();
-        BEATS_ASSERT(bLoadSuceess, _T("Create Component Texture Failed!"));
-
-        m_pTextures[eCT_SelectedRectBG].SetFilePath(_T("E:/Project/FCEngine/FCEngine/Resource/Component/Texture/SelectedRect.bmp"));
-        bLoadSuceess = bLoadSuceess && m_pTextures[eCT_SelectedRectBG].Load();
-        BEATS_ASSERT(bLoadSuceess, _T("Create Component Texture Failed!"));
-
-        m_pTextures[eCT_NormalLine].SetFilePath(_T("E:/Project/FCEngine/FCEngine/Resource/Component/Texture/NormalLine.bmp"));
-        bLoadSuceess = bLoadSuceess && m_pTextures[eCT_NormalLine].Load();
-        BEATS_ASSERT(bLoadSuceess, _T("Create Component Texture Failed!"));
-
-        m_pTextures[eCT_SelectedLine].SetFilePath(_T("E:/Project/FCEngine/FCEngine/Resource/Component/Texture/SelectedLine.bmp"));
-        bLoadSuceess = bLoadSuceess && m_pTextures[eCT_SelectedLine].Load();
-        BEATS_ASSERT(bLoadSuceess, _T("Create Component Texture Failed!"));
-
-        m_pTextures[eCT_NormalArrow].SetFilePath(_T("E:/Project/FCEngine/FCEngine/Resource/Component/Texture/NormalArrow.bmp"));
-        bLoadSuceess = bLoadSuceess && m_pTextures[eCT_NormalArrow].Load();
-        BEATS_ASSERT(bLoadSuceess, _T("Create Component Texture Failed!"));
-
-
-        m_pTextures[eCT_SelectedArrow].SetFilePath(_T("E:/Project/FCEngine/FCEngine/Resource/Component/Texture/SelectedArrow.bmp"));
-        bLoadSuceess = bLoadSuceess && m_pTextures[eCT_SelectedArrow].Load();
-        BEATS_ASSERT(bLoadSuceess, _T("Create Component Texture Failed!"));
-
-        m_pTextures[eCT_ConnectedDependency].SetFilePath(_T("E:/Project/FCEngine/FCEngine/Resource/Component/Texture/ConnectedDependency.bmp"));
-        bLoadSuceess = bLoadSuceess && m_pTextures[eCT_ConnectedDependency].Load();
-        BEATS_ASSERT(bLoadSuceess, _T("Create Component Texture Failed!"));
-
-        m_pTextures[eCT_ConnectedDependencyList].SetFilePath(_T("E:/Project/FCEngine/FCEngine/Resource/Component/Texture/ConnectedDependencyList.bmp"));
-        bLoadSuceess = bLoadSuceess && m_pTextures[eCT_ConnectedDependencyList].Load();
-        BEATS_ASSERT(bLoadSuceess, _T("Create Component Texture Failed!"));
-
-        m_pTextures[eCT_WeakDependency].SetFilePath(_T("E:/Project/FCEngine/FCEngine/Resource/Component/Texture/WeakDependency.bmp"));
-        bLoadSuceess = bLoadSuceess && m_pTextures[eCT_WeakDependency].Load();
-        BEATS_ASSERT(bLoadSuceess, _T("Create Component Texture Failed!"));
-
-        m_pTextures[eCT_WeakDependencyList].SetFilePath(_T("E:/Project/FCEngine/FCEngine/Resource/Component/Texture/WeakDependencyList.bmp"));
-        bLoadSuceess = bLoadSuceess && m_pTextures[eCT_WeakDependencyList].Load();
-        BEATS_ASSERT(bLoadSuceess, _T("Create Component Texture Failed!"));
-
-        m_pTextures[eCT_StrongDependency].SetFilePath(_T("E:/Project/FCEngine/FCEngine/Resource/Component/Texture/StrongDependency.bmp"));
-        bLoadSuceess = bLoadSuceess && m_pTextures[eCT_StrongDependency].Load();
-        BEATS_ASSERT(bLoadSuceess, _T("Create Component Texture Failed!"));
-
-        m_pTextures[eCT_StrongDependencyList].SetFilePath(_T("E:/Project/FCEngine/FCEngine/Resource/Component/Texture/StrongDependencyList.bmp"));
-        bLoadSuceess = bLoadSuceess && m_pTextures[eCT_StrongDependencyList].Load();
-        BEATS_ASSERT(bLoadSuceess, _T("Create Component Texture Failed!"));
-
-        if (bLoadSuceess == false)
+        m_pFont = FCGUI::FontManager::GetInstance()->GetFace(_T("ComponentGraphicFont"));
+        if (m_pFont == NULL)
         {
-            BEATS_SAFE_DELETE_ARRAY(m_pTextures);
+            m_pFont = FCGUI::FontManager::GetInstance()->CreateFace(_T("ComponentGraphicFont"), _T("msyh.ttf"), 16, 0);
         }
+    }
+    BEATS_ASSERT(m_pFont != NULL);
+    if (m_pTextures[eCT_RectBG].Get() == NULL)
+    {
+        CResourceManager* pResourceMgr = CResourceManager::GetInstance();
+        m_pTextures[eCT_RectBG] = pResourceMgr->GetResource<CTexture>(_T("Component/RectBG.jpg"), false);
+        bool bLoadSuccess = m_pTextures[eCT_RectBG].Get() != NULL;
+        BEATS_ASSERT(bLoadSuccess, _T("Create Component Texture Failed!"));
+
+        m_pTextures[eCT_ConnectRect] = pResourceMgr->GetResource<CTexture>(_T("Component/ConnectRect.jpg"), false);
+        bLoadSuccess = m_pTextures[eCT_ConnectRect].Get() != NULL;
+        BEATS_ASSERT(bLoadSuccess, _T("Create Component Texture Failed!"));
+
+        m_pTextures[eCT_SelectedRectBG] = pResourceMgr->GetResource<CTexture>(_T("Component/SelectedRect.jpg"), false);
+        bLoadSuccess = m_pTextures[eCT_SelectedRectBG].Get() != NULL;
+        BEATS_ASSERT(bLoadSuccess, _T("Create Component Texture Failed!"));
+
+        m_pTextures[eCT_NormalLine] = pResourceMgr->GetResource<CTexture>(_T("Component/NormalLine.jpg"), false);
+        bLoadSuccess = m_pTextures[eCT_NormalLine].Get() != NULL;
+        BEATS_ASSERT(bLoadSuccess, _T("Create Component Texture Failed!"));
+
+        m_pTextures[eCT_SelectedLine] = pResourceMgr->GetResource<CTexture>(_T("Component/SelectedLine.jpg"), false);
+        bLoadSuccess = m_pTextures[eCT_SelectedLine].Get() != NULL;
+        BEATS_ASSERT(bLoadSuccess, _T("Create Component Texture Failed!"));
+
+        m_pTextures[eCT_NormalArrow] = pResourceMgr->GetResource<CTexture>(_T("Component/NormalArrow.jpg"), false);
+        bLoadSuccess = m_pTextures[eCT_NormalArrow].Get() != NULL;
+        BEATS_ASSERT(bLoadSuccess, _T("Create Component Texture Failed!"));
+
+        m_pTextures[eCT_SelectedArrow] = pResourceMgr->GetResource<CTexture>(_T("Component/SelectedArrow.jpg"), false);
+        bLoadSuccess = m_pTextures[eCT_SelectedArrow].Get() != NULL;
+        BEATS_ASSERT(bLoadSuccess, _T("Create Component Texture Failed!"));
+
+        m_pTextures[eCT_ConnectedDependency] = pResourceMgr->GetResource<CTexture>(_T("Component/ConnectedDependency.jpg"), false);
+        bLoadSuccess = m_pTextures[eCT_ConnectedDependency].Get() != NULL;
+        BEATS_ASSERT(bLoadSuccess, _T("Create Component Texture Failed!"));
+
+        m_pTextures[eCT_ConnectedDependencyList] = pResourceMgr->GetResource<CTexture>(_T("Component/ConnectedDependencyList.jpg"), false);
+        bLoadSuccess = m_pTextures[eCT_ConnectedDependencyList].Get() != NULL;
+        BEATS_ASSERT(bLoadSuccess, _T("Create Component Texture Failed!"));
+
+        m_pTextures[eCT_WeakDependency] = pResourceMgr->GetResource<CTexture>(_T("Component/WeakDependency.jpg"), false);
+        bLoadSuccess = m_pTextures[eCT_WeakDependency].Get() != NULL;
+        BEATS_ASSERT(bLoadSuccess, _T("Create Component Texture Failed!"));
+
+        m_pTextures[eCT_WeakDependencyList] = pResourceMgr->GetResource<CTexture>(_T("Component/WeakDependencyList.jpg"), false);
+        bLoadSuccess = m_pTextures[eCT_WeakDependencyList].Get() != NULL;
+        BEATS_ASSERT(bLoadSuccess, _T("Create Component Texture Failed!"));
+
+        m_pTextures[eCT_StrongDependency] = pResourceMgr->GetResource<CTexture>(_T("Component/StrongDependency.jpg"), false);
+        bLoadSuccess = m_pTextures[eCT_StrongDependency].Get() != NULL;
+        BEATS_ASSERT(bLoadSuccess, _T("Create Component Texture Failed!"));
+
+        m_pTextures[eCT_StrongDependencyList] = pResourceMgr->GetResource<CTexture>(_T("Component/StrongDependencyList.jpg"), false);
+        bLoadSuccess = m_pTextures[eCT_StrongDependencyList].Get() != NULL;
+        BEATS_ASSERT(bLoadSuccess, _T("Create Component Texture Failed!"));
     }
 }
 
-void CComponentGraphic_GL::ReleaseTextures()
+void CComponentGraphic_GL::GetDependencyPosition(size_t uDependencyIndex, int* pOutX, int* pOutY)
 {
-    BEATS_SAFE_DELETE_ARRAY(m_pTextures);
+    BEATS_ASSERT(m_pOwner->GetDependency(uDependencyIndex) != NULL);
+    *pOutX = m_gridPosX + MIN_WIDTH;
+    *pOutY = m_gridPosY + HEADER_HEIGHT + (int)(uDependencyIndex + 1) * DEPENDENCY_HEIGHT;
 }
 
 CComponentGraphic* CComponentGraphic_GL::Clone()
@@ -100,159 +103,105 @@ CComponentGraphic* CComponentGraphic_GL::Clone()
     return new CComponentGraphic_GL();
 }
 
-void CComponentGraphic_GL::DrawHead(float /*cellSize*/)
+void CComponentGraphic_GL::DrawHead(float cellSize)
 {
-    /*
-    CRenderManager::GetInstance()->ApplyTexture(0, m_pTextures[eCT_RectBG].ID());
+    CreateTextures();
+    CSpriteFrameBatchManager * pSpriteBatchMgr = CSpriteFrameBatchManager::GetInstance();
+    CQuadPT head;
+    head.tl.position.x = (m_gridPosX + CONNECTION_WIDTH) * cellSize;// Left top
+    head.tl.position.y = m_gridPosY * cellSize;
+    head.tl.position.z = (float)m_gridPosZ;
+    head.tl.tex.u = 0;
+    head.tl.tex.v = 0;
 
-    SVertex headPoints[4];
-    headPoints[0].m_position.x = (m_gridPosX + CONNECTION_WIDTH) * cellSize;    // Left top
-    headPoints[0].m_position.y = m_gridPosY * cellSize;    
-    headPoints[0].m_position.z = (float)m_gridPosZ;    
-    headPoints[0].m_color = 0xffffffff;
-    headPoints[0].m_uv.x = 0;
-    headPoints[0].m_uv.y = 0;
+    head.bl.position.x = (m_gridPosX + CONNECTION_WIDTH) * cellSize;// Left down
+    head.bl.position.y = (m_gridPosY + HEADER_HEIGHT) * cellSize;
+    head.bl.position.z = (float)m_gridPosZ;
+    head.bl.tex.u = 0;
+    head.bl.tex.v = 1;
 
-    headPoints[1].m_position.x = (m_gridPosX + CONNECTION_WIDTH) * cellSize;    // Left down
-    headPoints[1].m_position.y = (m_gridPosY - HEADER_HEIGHT) * cellSize;
-    headPoints[1].m_position.z = (float)m_gridPosZ;    
-    headPoints[1].m_color = 0xffffffff;
-    headPoints[1].m_uv.x = 0;
-    headPoints[1].m_uv.y = 1;
+    head.tr.position.x = (m_gridPosX + CONNECTION_WIDTH + MIN_WIDTH) * cellSize;    // Right top
+    head.tr.position.y = m_gridPosY * cellSize;
+    head.tr.position.z = (float)m_gridPosZ;
+    head.tr.tex.u = 1;
+    head.tr.tex.v = 0;
 
-    headPoints[2].m_position.x = (m_gridPosX + CONNECTION_WIDTH + MIN_WIDTH) * cellSize;    // Right top
-    headPoints[2].m_position.y = m_gridPosY * cellSize ;
-    headPoints[2].m_position.z = (float)m_gridPosZ;    
-    headPoints[2].m_color = 0xffffffff;
-    headPoints[2].m_uv.x = 1;
-    headPoints[2].m_uv.y = 0;
-
-    headPoints[3].m_position.x = (m_gridPosX + CONNECTION_WIDTH + MIN_WIDTH) * cellSize;    // Right down
-    headPoints[3].m_position.y = (m_gridPosY - HEADER_HEIGHT) * cellSize;
-    headPoints[3].m_position.z = (float)m_gridPosZ;    
-    headPoints[3].m_color = 0xffffffff;
-    headPoints[3].m_uv.x = 1;
-    headPoints[3].m_uv.y = 1;
-
-    //CRenderer::GetInstance()->DrawArrays(GL_TRIANGLE_STRIP, 0, headPoints);
-    */
+    head.br.position.x = (m_gridPosX + CONNECTION_WIDTH + MIN_WIDTH) * cellSize;    // Right down
+    head.br.position.y = (m_gridPosY + HEADER_HEIGHT) * cellSize;
+    head.br.position.z = (float)m_gridPosZ;
+    head.br.tex.u = 1;
+    head.br.tex.v = 1;
+    pSpriteBatchMgr->AddQuad(head, m_pTextures[eCT_RectBG]);
 
     // 2. Draw title text.
-    /*
-    IDirect3DSurface9* pSurface = NULL;
-    m_pRenderDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &pSurface);
-    D3DSURFACE_DESC surfaceDesc;
-    pSurface->GetDesc(&surfaceDesc);
-    pSurface->Release();
-
-    D3DVIEWPORT9 viewPort;
-    m_pRenderDevice->GetViewport(&viewPort);    
-    float dYRate = (float)surfaceDesc.Height / viewPort.Height;
-    float dXRate = (float)surfaceDesc.Width / viewPort.Width;
-    D3DMATRIX viewMatrix;
-    m_pRenderDevice->GetTransform(D3DTS_VIEW, &viewMatrix);
-    int x = (int)(((m_gridPosX + CONNECTION_WIDTH) * cellSize + viewMatrix._41) / dXRate + viewPort.Width * 0.5f);
-    int y = (int)((-m_gridPosY * cellSize - viewMatrix._42) / dYRate + viewPort.Height * 0.5f);
-    RECT rc;
-    rc.left = x;
-    rc.right = rc.left + (long)((MIN_WIDTH * cellSize) / dXRate);
-    rc. top = y;
-    rc.bottom = rc. top + (long)((HEADER_HEIGHT * cellSize) / dYRate);
-    m_pFont->DrawText(NULL, m_pOwner->GetDisplayName().c_str(), -1,  &rc, DT_LEFT | DT_VCENTER | DT_SINGLELINE, 0xffffffff);
+    FCGUI::FontManager::GetInstance()->RenderText(m_pOwner->GetDisplayName(), head.tl.position.x, head.tl.position.y, _T("ComponentGraphicFont"));
 
     // 3. Draw Connect rect.
-    m_pRenderDevice->SetTexture(0, m_pTextures[eCT_ConnectRect]);
-    headPoints[0].m_position.x = m_gridPosX * cellSize;    // Left top
-    headPoints[0].m_position.y = m_gridPosY * cellSize;    
-    headPoints[0].m_position.z = (float)m_gridPosZ;    
-    headPoints[0].m_color = 0xffffffff;
-    headPoints[0].m_uv.x = 0;
-    headPoints[0].m_uv.y = 0;
+    CQuadPT connectRect;
 
-    headPoints[1].m_position.x = m_gridPosX * cellSize;    // Left down
-    headPoints[1].m_position.y = (m_gridPosY - HEADER_HEIGHT) * cellSize;
-    headPoints[1].m_position.z = (float)m_gridPosZ;    
-    headPoints[1].m_color = 0xffffffff;
-    headPoints[0].m_uv.x = 0;
-    headPoints[0].m_uv.y = 1;
+    connectRect.tl.position.x = m_gridPosX * cellSize;    // Left top
+    connectRect.tl.position.y = m_gridPosY * cellSize;
+    connectRect.tl.position.z = (float)m_gridPosZ;
+    connectRect.tl.tex.u = 0;
+    connectRect.tl.tex.v = 0;
 
-    headPoints[2].m_position.x = (m_gridPosX + CONNECTION_WIDTH) * cellSize;    // Right top
-    headPoints[2].m_position.y = m_gridPosY * cellSize ;
-    headPoints[2].m_position.z = (float)m_gridPosZ;    
-    headPoints[2].m_color = 0xffffffff;
-    headPoints[0].m_uv.x = 1;
-    headPoints[0].m_uv.y = 0;
+    connectRect.bl.position.x = m_gridPosX * cellSize;    // Left down
+    connectRect.bl.position.y = (m_gridPosY + HEADER_HEIGHT) * cellSize;
+    connectRect.bl.position.z = (float)m_gridPosZ;
+    connectRect.bl.tex.u = 0;
+    connectRect.bl.tex.v = 1;
 
-    headPoints[3].m_position.x = (m_gridPosX + CONNECTION_WIDTH) * cellSize;    // Right down
-    headPoints[3].m_position.y = (m_gridPosY - HEADER_HEIGHT) * cellSize;
-    headPoints[3].m_position.z = (float)m_gridPosZ;    
-    headPoints[3].m_color = 0xffffffff;
-    headPoints[0].m_uv.x = 1;
-    headPoints[0].m_uv.y = 1;
+    connectRect.tr.position.x = (m_gridPosX + CONNECTION_WIDTH) * cellSize;    // Right top
+    connectRect.tr.position.y = m_gridPosY * cellSize;
+    connectRect.tr.position.z = (float)m_gridPosZ;    
+    connectRect.tr.tex.u = 1;
+    connectRect.tr.tex.v = 0;
 
-    m_pRenderDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, headPoints, sizeof(SVertex));
-    */
+    connectRect.br.position.x = (m_gridPosX + CONNECTION_WIDTH) * cellSize;    // Right down
+    connectRect.br.position.y = (m_gridPosY + HEADER_HEIGHT) * cellSize;
+    connectRect.br.position.z = (float)m_gridPosZ;    
+    connectRect.br.tex.u = 1;
+    connectRect.br.tex.v = 1;
+
+    pSpriteBatchMgr->AddQuad(connectRect, m_pTextures[eCT_ConnectRect]);
 }
 
-void CComponentGraphic_GL::DrawDependencies( float /*cellSize*/ )
+void CComponentGraphic_GL::DrawDependencies( float cellSize )
 {
-    /*
+    CreateTextures();
+    CSpriteFrameBatchManager* pSpriteBatchMgr = CSpriteFrameBatchManager::GetInstance();
     size_t uDependencyCount = m_pOwner->GetDependencies().size();
     for (int i = 0; i < (int)uDependencyCount; ++i)
     {
         // 1. Draw background.
-        m_pRenderDevice->SetTexture(0, m_pTextures[eCT_RectBG]);
-        SVertex dependencyPoints[4];
-        dependencyPoints[0].m_position.x = m_gridPosX * cellSize;    // Left top
-        dependencyPoints[0].m_position.y = (m_gridPosY - HEADER_HEIGHT - i * DEPENDENCY_HEIGHT) * cellSize;    
-        dependencyPoints[0].m_position.z = (float)m_gridPosZ;    
-        dependencyPoints[0].m_color = 0xffffffff;
-        dependencyPoints[0].m_uv.x = 0;
-        dependencyPoints[0].m_uv.y = 0;
+        CQuadPT dependencyPoint;
+        dependencyPoint.tl.position.x = m_gridPosX * cellSize;    // Left top
+        dependencyPoint.tl.position.y = (m_gridPosY + HEADER_HEIGHT + i * DEPENDENCY_HEIGHT) * cellSize;
+        dependencyPoint.tl.position.z = (float)m_gridPosZ;
+        dependencyPoint.tl.tex.u = 0;
+        dependencyPoint.tl.tex.v = 0;
 
-        dependencyPoints[1].m_position.x = m_gridPosX * cellSize;    // Left down
-        dependencyPoints[1].m_position.y = (m_gridPosY - HEADER_HEIGHT - (i + 1) * DEPENDENCY_HEIGHT) * cellSize;
-        dependencyPoints[1].m_position.z = (float)m_gridPosZ;    
-        dependencyPoints[1].m_color = 0xffffffff;
-        dependencyPoints[1].m_uv.x = 0;
-        dependencyPoints[1].m_uv.y = 1;
+        dependencyPoint.bl.position.x = m_gridPosX * cellSize;    // Left down
+        dependencyPoint.bl.position.y = (m_gridPosY + HEADER_HEIGHT + (i + 1) * DEPENDENCY_HEIGHT) * cellSize;
+        dependencyPoint.bl.position.z = (float)m_gridPosZ;
+        dependencyPoint.bl.tex.u = 0;
+        dependencyPoint.bl.tex.v = 1;
 
-        dependencyPoints[2].m_position.x = (m_gridPosX + MIN_WIDTH) * cellSize;    // Right top
-        dependencyPoints[2].m_position.y = (m_gridPosY - HEADER_HEIGHT - i * DEPENDENCY_HEIGHT) * cellSize ;
-        dependencyPoints[2].m_position.z = (float)m_gridPosZ;    
-        dependencyPoints[2].m_color = 0xffffffff;
-        dependencyPoints[2].m_uv.x = 1;
-        dependencyPoints[2].m_uv.y = 0;
+        dependencyPoint.tr.position.x = (m_gridPosX + MIN_WIDTH) * cellSize;    // Right top
+        dependencyPoint.tr.position.y = (m_gridPosY + HEADER_HEIGHT + i * DEPENDENCY_HEIGHT) * cellSize ;
+        dependencyPoint.tr.position.z = (float)m_gridPosZ;
+        dependencyPoint.tr.tex.u = 1;
+        dependencyPoint.tr.tex.v = 0;
 
-        dependencyPoints[3].m_position.x = (m_gridPosX + MIN_WIDTH) * cellSize;    // Right down
-        dependencyPoints[3].m_position.y = (m_gridPosY - HEADER_HEIGHT - (i + 1) * DEPENDENCY_HEIGHT) * cellSize;
-        dependencyPoints[3].m_position.z = (float)m_gridPosZ;    
-        dependencyPoints[3].m_color = 0xffffffff;
-        dependencyPoints[3].m_uv.x = 1;
-        dependencyPoints[3].m_uv.y = 1;
+        dependencyPoint.br.position.x = (m_gridPosX + MIN_WIDTH) * cellSize;    // Right down
+        dependencyPoint.br.position.y = (m_gridPosY + HEADER_HEIGHT + (i + 1) * DEPENDENCY_HEIGHT) * cellSize;
+        dependencyPoint.br.position.z = (float)m_gridPosZ;    
+        dependencyPoint.br.tex.u = 1;
+        dependencyPoint.br.tex.v = 1;
 
-        m_pRenderDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, dependencyPoints, sizeof(SVertex));
+        pSpriteBatchMgr->AddQuad(dependencyPoint, m_pTextures[eCT_RectBG]);
 
-        // 2. Draw dependency name.
-        IDirect3DSurface9* pSurface = NULL;
-        m_pRenderDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &pSurface);
-        D3DSURFACE_DESC surfaceDesc;
-        pSurface->GetDesc(&surfaceDesc);
-        pSurface->Release();
-        D3DVIEWPORT9 viewPort;
-        m_pRenderDevice->GetViewport(&viewPort);    
-        float dYRate = (float)surfaceDesc.Height / viewPort.Height;
-        float dXRate = (float)surfaceDesc.Width / viewPort.Width;
-        D3DMATRIX viewMatrix;
-        m_pRenderDevice->GetTransform(D3DTS_VIEW, &viewMatrix);
-        int x = (int)((m_gridPosX * cellSize + viewMatrix._41) / dXRate + viewPort.Width * 0.5f);
-        int y = (int)((-m_gridPosY * cellSize - viewMatrix._42) / dYRate + viewPort.Height * 0.5f);
-        RECT rc2;
-        rc2.left = x;
-        rc2.right = rc2.left + (long)((MIN_WIDTH * cellSize) / dXRate);
-        rc2.top = y + (int)((i * DEPENDENCY_HEIGHT + HEADER_HEIGHT) * cellSize) + HEADER_HEIGHT;
-        rc2.bottom = rc2.top + (long)((DEPENDENCY_HEIGHT * cellSize) / dYRate);
-        m_pFont->DrawText(NULL, m_pOwner->GetDependency(i)->GetDisplayName(), -1,  &rc2, DT_CENTER | DT_VCENTER | DT_SINGLELINE, 0xffffffff);
+        // 2. TODO:Draw dependency name.
 
         // 3. Draw Connect rect.
         CDependencyDescription* pDescription = m_pOwner->GetDependency(i);
@@ -277,46 +226,43 @@ void CComponentGraphic_GL::DrawDependencies( float /*cellSize*/ )
             }
         }
         BEATS_ASSERT(textureType != eCT_Count);
-        m_pRenderDevice->SetTexture(0, m_pTextures[textureType]);
 
-        dependencyPoints[0].m_position.x = (m_gridPosX + MIN_WIDTH) * cellSize;    // Left top
-        dependencyPoints[0].m_position.y = (m_gridPosY - HEADER_HEIGHT - i * DEPENDENCY_HEIGHT) * cellSize;    
-        dependencyPoints[0].m_position.z = (float)m_gridPosZ;    
-        dependencyPoints[0].m_color = 0xffffffff;
-        dependencyPoints[0].m_uv.x = 0;
-        dependencyPoints[0].m_uv.y = 0;
+        dependencyPoint.tl.position.x = (m_gridPosX + MIN_WIDTH) * cellSize;    // Left top
+        dependencyPoint.tl.position.y = (m_gridPosY + HEADER_HEIGHT + i * DEPENDENCY_HEIGHT) * cellSize;
+        dependencyPoint.tl.position.z = (float)m_gridPosZ;
+        dependencyPoint.tl.tex.u = 0;
+        dependencyPoint.tl.tex.v = 0;
 
-        dependencyPoints[1].m_position.x = (m_gridPosX + MIN_WIDTH) * cellSize;    // Left down
-        dependencyPoints[1].m_position.y = (m_gridPosY - HEADER_HEIGHT - (i + 1) * DEPENDENCY_HEIGHT) * cellSize;
-        dependencyPoints[1].m_position.z = (float)m_gridPosZ;    
-        dependencyPoints[1].m_color = 0xffffffff;
-        dependencyPoints[1].m_uv.x = 0;
-        dependencyPoints[1].m_uv.y = 1;
+        dependencyPoint.bl.position.x = (m_gridPosX + MIN_WIDTH) * cellSize;    // Left down
+        dependencyPoint.bl.position.y = (m_gridPosY + HEADER_HEIGHT + (i + 1) * DEPENDENCY_HEIGHT) * cellSize;
+        dependencyPoint.bl.position.z = (float)m_gridPosZ;
+        dependencyPoint.bl.tex.u = 0;
+        dependencyPoint.bl.tex.v = 1;
 
-        dependencyPoints[2].m_position.x = (m_gridPosX + MIN_WIDTH + CONNECTION_WIDTH) * cellSize;    // Right top
-        dependencyPoints[2].m_position.y = (m_gridPosY - HEADER_HEIGHT - i * DEPENDENCY_HEIGHT) * cellSize;
-        dependencyPoints[2].m_position.z = (float)m_gridPosZ;    
-        dependencyPoints[2].m_color = 0xffffffff;
-        dependencyPoints[2].m_uv.x = 1;
-        dependencyPoints[2].m_uv.y = 0;
+        dependencyPoint.tr.position.x = (m_gridPosX + MIN_WIDTH + CONNECTION_WIDTH) * cellSize;    // Right top
+        dependencyPoint.tr.position.y = (m_gridPosY + HEADER_HEIGHT + i * DEPENDENCY_HEIGHT) * cellSize;
+        dependencyPoint.tr.position.z = (float)m_gridPosZ;
+        dependencyPoint.tr.tex.u = 1;
+        dependencyPoint.tr.tex.v = 0;
 
-        dependencyPoints[3].m_position.x = (m_gridPosX + MIN_WIDTH + CONNECTION_WIDTH) * cellSize;    // Right down
-        dependencyPoints[3].m_position.y = (m_gridPosY - HEADER_HEIGHT - (i + 1) * DEPENDENCY_HEIGHT) * cellSize;
-        dependencyPoints[3].m_position.z = (float)m_gridPosZ;    
-        dependencyPoints[3].m_color = 0xffffffff;
-        dependencyPoints[3].m_uv.x = 1;
-        dependencyPoints[3].m_uv.y = 1;
-        m_pRenderDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, dependencyPoints, sizeof(SVertex));
+        dependencyPoint.br.position.x = (m_gridPosX + MIN_WIDTH + CONNECTION_WIDTH) * cellSize;    // Right down
+        dependencyPoint.br.position.y = (m_gridPosY + HEADER_HEIGHT + (i + 1) * DEPENDENCY_HEIGHT) * cellSize;
+        dependencyPoint.br.position.z = (float)m_gridPosZ;
+        dependencyPoint.br.tex.u = 1;
+        dependencyPoint.br.tex.v = 1;
+
+        pSpriteBatchMgr->AddQuad(dependencyPoint, m_pTextures[textureType]);
 
         // 4. Draw the line.
         DrawDependencyLine(cellSize, m_pOwner->GetDependency(i));
     }
-    */
 }
 
-void CComponentGraphic_GL::DrawDependencyLine( float /*cellSize*/, const CDependencyDescription* /*pDependency*/ )
+void CComponentGraphic_GL::DrawDependencyLine( float /*cellSize*/, const CDependencyDescription* pDependency )
 {
-    /*
+    CreateTextures();
+    CSpriteFrameBatchManager* pSpriteBatchMgr = CSpriteFrameBatchManager::GetInstance();
+
     BEATS_ASSERT(pDependency != NULL);
     if (pDependency->IsVisible())
     {
@@ -325,79 +271,144 @@ void CComponentGraphic_GL::DrawDependencyLine( float /*cellSize*/, const CDepend
         {
             CDependencyDescriptionLine* pDependencyLine = pDependency->GetDependencyLine(i);
             const SVertex* pData = pDependencyLine->GetRectArray();
-            m_pRenderDevice->SetTexture(0, m_pTextures[pDependencyLine->IsSelected() ? eCT_SelectedLine : eCT_NormalLine]);
-            m_pRenderDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, pData, sizeof(SVertex));
-            const SVertex* pArrowData = pDependencyLine->GetArrowRectArray();
-            m_pRenderDevice->SetTexture(0, m_pTextures[pDependencyLine->IsSelected() ? eCT_SelectedArrow : eCT_NormalArrow]);
-            m_pRenderDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, pArrowData, sizeof(SVertex));
+            static const size_t SVERTEX_SIZE = 24;
+            CSerializer serializer(SVERTEX_SIZE * 4, (void*)pData);
+            DWORD tmpColor = 0;
+            CQuadPT dependencyLine;
+            serializer >> dependencyLine.br.position.x;
+            serializer >> dependencyLine.br.position.y;
+            serializer >> dependencyLine.br.position.z;
+            serializer >> tmpColor;
+            serializer >> dependencyLine.br.tex.u;
+            serializer >> dependencyLine.br.tex.v;
 
-            //Render Index Number for dependency list.
+            serializer >> dependencyLine.bl.position.x;
+            serializer >> dependencyLine.bl.position.y;
+            serializer >> dependencyLine.bl.position.z;
+            serializer >> tmpColor;
+            serializer >> dependencyLine.bl.tex.u;
+            serializer >> dependencyLine.bl.tex.v;
+
+            serializer >> dependencyLine.tr.position.x;
+            serializer >> dependencyLine.tr.position.y;
+            serializer >> dependencyLine.tr.position.z;
+            serializer >> tmpColor;
+            serializer >> dependencyLine.tr.tex.u;
+            serializer >> dependencyLine.tr.tex.v;
+
+            serializer >> dependencyLine.tl.position.x;
+            serializer >> dependencyLine.tl.position.y;
+            serializer >> dependencyLine.tl.position.z;
+            serializer >> tmpColor;
+            serializer >> dependencyLine.tl.tex.u;
+            serializer >> dependencyLine.tl.tex.v;
+
+
+            pSpriteBatchMgr->AddQuad(dependencyLine, m_pTextures[pDependencyLine->IsSelected() ? eCT_SelectedLine : eCT_NormalLine]);
+
+            const SVertex* pArrowData = pDependencyLine->GetArrowRectArray();
+            CSerializer serializerArrow(SVERTEX_SIZE * 4, (void*)pArrowData);
+            CQuadPT arrow;
+            serializerArrow >> arrow.br.position.x;
+            serializerArrow >> arrow.br.position.y;
+            serializerArrow >> arrow.br.position.z;
+            serializerArrow >> tmpColor;
+            serializerArrow >> arrow.br.tex.u;
+            serializerArrow >> arrow.br.tex.v;
+
+            serializerArrow >> arrow.bl.position.x;
+            serializerArrow >> arrow.bl.position.y;
+            serializerArrow >> arrow.bl.position.z;
+            serializerArrow >> tmpColor;
+            serializerArrow >> arrow.bl.tex.u;
+            serializerArrow >> arrow.bl.tex.v;
+
+            serializerArrow >> arrow.tr.position.x;
+            serializerArrow >> arrow.tr.position.y;
+            serializerArrow >> arrow.tr.position.z;
+            serializerArrow >> tmpColor;
+            serializerArrow >> arrow.tr.tex.u;
+            serializerArrow >> arrow.tr.tex.v;
+
+            serializerArrow >> arrow.tl.position.x;
+            serializerArrow >> arrow.tl.position.y;
+            serializerArrow >> arrow.tl.position.z;
+            serializerArrow >> tmpColor;
+            serializerArrow >> arrow.tl.tex.u;
+            serializerArrow >> arrow.tl.tex.v;
+
+            pSpriteBatchMgr->AddQuad(arrow, m_pTextures[pDependencyLine->IsSelected() ? eCT_SelectedArrow : eCT_NormalArrow]);
+
+            //Render index number for dependency list.
             if (pDependency->IsListType())
             {
-                D3DXVECTOR3 vecWorldPos((pData[0].m_position.x - pData[1].m_position.x) * 0.3f + pData[1].m_position.x,
-                    (pData[0].m_position.y - pData[1].m_position.y) * 0.3f + pData[1].m_position.y + cellSize*0.3f, 0);
-                D3DXVECTOR3 vecScreenPos(0.f,0.f,0.f);
+                kmVec3 deltaDirection;
+                kmVec3Subtract(&deltaDirection, &dependencyLine.tr.position, &dependencyLine.tl.position);
+                float fXPos = (dependencyLine.tl.position.x + deltaDirection.x * 0.15f);
+                static const float fHardCodeOffset = 32;
+                float fYPos = (dependencyLine.tl.position.y + deltaDirection.y * 0.15f - fHardCodeOffset);
 
-                D3DXMATRIX viewMatrix;
-                m_pRenderDevice->GetTransform(D3DTS_VIEW, &viewMatrix);
-                D3DXMATRIX mtxProjection;
-                m_pRenderDevice->GetTransform(D3DTS_PROJECTION, &mtxProjection);
-                D3DVIEWPORT9 viewPort;
-                m_pRenderDevice->GetViewport(&viewPort);    
-
-                D3DXVec3Project(&vecScreenPos, &vecWorldPos, &viewPort, &mtxProjection, &viewMatrix, NULL);
-                RECT rc2;
-                rc2.left = (long)vecScreenPos.x;
-                rc2.right = rc2.left + 20;
-                rc2.top = (long)vecScreenPos.y;
-                rc2.bottom = rc2.top + 20;
                 TCHAR szIndex[8];
                 _stprintf(szIndex, _T("%d"), pDependencyLine->GetIndex());
-
-                m_pFont->DrawText(NULL, szIndex, -1,  &rc2, DT_LEFT | DT_TOP | DT_SINGLELINE, 0xffffff00);
+                FCGUI::FontManager::GetInstance()->RenderText(szIndex, fXPos, fYPos, _T("ComponentGraphicFont"));
             }
         }
     }
-    */
 }
 
-void CComponentGraphic_GL::DrawSelectedRect(float /*cellSize*/)
+void CComponentGraphic_GL::DrawSelectedRect(float fCellSize)
 {
-    /*
-    m_pRenderDevice->SetTexture(0, CComponentGraphic_GL::m_pTextures[eCT_SelectedRectBG]);
-    float fWidth = GetWidth() * cellSize;
-    float fHeight = GetHeight() * cellSize;
+    CreateTextures();
+    float fWidth = GetWidth() * fCellSize;
+    float fHeight = GetHeight() * fCellSize;
     int x, y;
     GetPosition(&x, &y);
-    SVertex rect[4];
+    CQuadPT rect;
     // left top
-    rect[0].m_position.x = x * cellSize;
-    rect[0].m_position.y = y * cellSize;
-    rect[0].m_position.z = (float)m_gridPosZ;
-    rect[0].m_color = 0xffffffff;
-    rect[0].m_uv.x = 0;
-    rect[0].m_uv.y = 0;
+    rect.tl.position.x = x * fCellSize;
+    rect.tl.position.y = y * fCellSize;
+    rect.tl.position.z = (float)m_gridPosZ;
+    rect.tl.tex.u = 0;
+    rect.tl.tex.v = 0;
     // left down
-    rect[1].m_position.x = x * cellSize;
-    rect[1].m_position.y = y * cellSize - fHeight;
-    rect[1].m_position.z = (float)m_gridPosZ;
-    rect[1].m_color = 0xffffffff;
-    rect[1].m_uv.x = 0;
-    rect[1].m_uv.y = 1;
+    rect.bl.position.x = x * fCellSize;
+    rect.bl.position.y = y * fCellSize + fHeight;
+    rect.bl.position.z = (float)m_gridPosZ;
+    rect.bl.tex.u = 0;
+    rect.bl.tex.v = 1;
     // right top
-    rect[2].m_position.x = x * cellSize + fWidth;
-    rect[2].m_position.y = y * cellSize;
-    rect[2].m_position.z = (float)m_gridPosZ;
-    rect[2].m_color = 0xffffffff;
-    rect[2].m_uv.x = 1;
-    rect[2].m_uv.y = 0;
+    rect.tr.position.x = x * fCellSize + fWidth;
+    rect.tr.position.y = y * fCellSize;
+    rect.tr.position.z = (float)m_gridPosZ;
+    rect.tr.tex.u = 1;
+    rect.tr.tex.v = 0;
     // right down
-    rect[3].m_position.x = x * cellSize + fWidth;
-    rect[3].m_position.y = y * cellSize - fHeight;
-    rect[3].m_position.z = (float)m_gridPosZ;
-    rect[3].m_color = 0xffffffff;
-    rect[3].m_uv.x = 1;
-    rect[3].m_uv.y = 1;
-    m_pRenderDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, rect, sizeof(SVertex));
-    */
+    rect.br.position.x = x * fCellSize + fWidth;
+    rect.br.position.y = y * fCellSize + fHeight;
+    rect.br.position.z = (float)m_gridPosZ;
+    rect.br.tex.u = 1;
+    rect.br.tex.v = 1;
+    CSpriteFrameBatchManager::GetInstance()->AddQuad(rect, m_pTextures[eCT_SelectedRectBG]);
+}
+
+EComponentAeraRectType CComponentGraphic_GL::HitTestForAreaType( int x, int y, void** pReturnData)
+{
+    EComponentAeraRectType result = eCART_Invalid;
+    if (x >= m_gridPosX && x < m_gridPosX + (int)m_width && y > m_gridPosY && y <= m_gridPosY + (int)m_height)
+    {
+        result = eCART_Body;
+        if (y <= m_gridPosY + HEADER_HEIGHT && x < m_gridPosX + CONNECTION_WIDTH)
+        {
+            result = eCART_Connection;
+        }
+        else if (x >= m_gridPosX + MIN_WIDTH && y > m_gridPosY + HEADER_HEIGHT)
+        {
+            result = eCART_Dependency;
+            if (pReturnData != NULL)
+            {
+                (*pReturnData) = m_pOwner->GetDependency((y - m_gridPosY - HEADER_HEIGHT - 1) / DEPENDENCY_HEIGHT);
+            }
+        }
+    }
+    return result;
 }

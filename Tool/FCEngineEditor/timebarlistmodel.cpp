@@ -1,20 +1,8 @@
 #include "stdafx.h"
 #include "timebarlistmodel.h"
 
-static int my_sort_reverse( int *v1, int *v2 )
-{
-    return *v2-*v1;
-}
-
-static int my_sort( int *v1, int *v2 )
-{
-    return *v1-*v2;
-}
-
-#define INITIAL_NUMBER_OF_ITEMS 1
-
 TimeBarListModel::TimeBarListModel()
-: wxDataViewVirtualListModel( INITIAL_NUMBER_OF_ITEMS )
+: wxDataViewVirtualListModel()
 {
 
 }
@@ -24,15 +12,21 @@ TimeBarListModel::~TimeBarListModel()
 
 }
 
-void TimeBarListModel::DeleteItem( int index )
+void TimeBarListModel::DeleteItem( unsigned int index )
 {
-    unsigned int row = index;
-
-    if (row < m_textColValues.GetCount())
+    if (index < m_textColValues.GetCount())
     {
-        m_textColValues.RemoveAt( row );
-        RowDeleted( row );
+        m_textColValues.RemoveAt( index );
+        m_bView.RemoveAt( index );
+        m_bLock.RemoveAt( index );
+        RowDeleted( index );
     }
+}
+
+void TimeBarListModel::DeleteItem( wxDataViewItem& item )
+{
+    unsigned int row = GetRow( item );
+    DeleteItem( row );
 }
 
 void TimeBarListModel::DeleteItems( const wxDataViewItemArray &items )
@@ -50,17 +44,23 @@ void TimeBarListModel::DeleteItems( const wxDataViewItemArray &items )
         // Sort in descending order so that the last
         // row will be deleted first. Otherwise the
         // remaining indeces would all be wrong.
-        rows.Sort( my_sort_reverse );
+        rows.Sort([](int *v1, int *v2)
+        {
+            return *v2-*v1;
+        });
         for (unsigned i = 0; i < rows.GetCount(); i++)
         {
             m_textColValues.RemoveAt( rows[i] );
-            m_bview.RemoveAt( rows[i] );
-            m_block.RemoveAt( rows[i] );
+            m_bView.RemoveAt( rows[i] );
+            m_bLock.RemoveAt( rows[i] );
         }
         // This is just to test if wxDataViewCtrl can
         // cope with removing rows not sorted in
         // descending order
-        rows.Sort( my_sort );
+        rows.Sort([](int *v1, int *v2)
+        {
+            return *v1-*v2;
+        });
         RowsDeleted( rows );
     }
 }
@@ -68,8 +68,8 @@ void TimeBarListModel::DeleteItems( const wxDataViewItemArray &items )
 void TimeBarListModel::AddItem( const wxString text, bool visible, bool islock )
 {
     m_textColValues.push_back(text);
-    m_bview.push_back(visible);
-    m_block.push_back(islock);
+    m_bView.push_back(visible);
+    m_bLock.push_back(islock);
     Reset(m_textColValues.Count());
 }
 
@@ -83,12 +83,12 @@ void TimeBarListModel::GetValueByRow( wxVariant &variant, unsigned int row, unsi
             variant = m_textColValues[ row ];
             break;
 
-        case Col_IsVisible:
-            variant = m_bview[row];
+        case Col_Visible:
+            variant = m_bView[row];
             break;
 
-        case Col_Islocked:
-            variant = m_block[row];
+        case Col_Lock:
+            variant = m_bLock[row];
             break;
 
         case Col_Max:
@@ -111,12 +111,12 @@ bool TimeBarListModel::SetValueByRow( const wxVariant &variant, unsigned int row
             m_textColValues[row] = variant.GetString();
             break;
 
-        case Col_IsVisible:
-            m_bview[row] = variant.GetChar();
+        case Col_Visible:
+            m_bView[row] = variant.GetChar();
             break;
 
-        case Col_Islocked:
-            m_block[row] = variant.GetChar();
+        case Col_Lock:
+            m_bLock[row] = variant.GetChar();
             break;
 
         case Col_Max:

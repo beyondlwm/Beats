@@ -22,12 +22,12 @@ namespace FCEngine
         friend class ParticleEntity;
         DECLARE_REFLECT_GUID( ScaleParticleAnimation, 0x1544B156, ParticleAnimationBase )
     public:
+        ScaleParticleAnimation();
         ScaleParticleAnimation( CSerializer& serializer );
         ~ScaleParticleAnimation();
 
     private:
-        ScaleParticleAnimation();
- 
+
         virtual void Update( float dtt );
 
         virtual const void* GetCurrentAnimationValue( );

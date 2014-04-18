@@ -6,9 +6,11 @@
 #include "Render/Skin.h"
 #include "Render/Skeleton.h"
 #include "Render/Model.h"
+#include "EditDialogBase.h"
 
+class CAnimationGLWindow;
 class TimeBarFrame;
-class EditAnimationDialog : public wxDialog
+class EditAnimationDialog : public EditDialogBase
 {
     enum
     {
@@ -28,7 +30,7 @@ class EditAnimationDialog : public wxDialog
         ID_CHECKBOX_SKELETONVISIBLE,
         ID_CHECKBOX_SKELETONBONEVISIBLE,
     };
-    typedef wxDialog super;
+    typedef EditDialogBase super;
 public:
     EditAnimationDialog(wxWindow *parent, wxWindowID id, const wxString &title
         , const wxPoint &pos = wxDefaultPosition
@@ -37,7 +39,6 @@ public:
         , const wxString &name = wxDialogNameStr);
     virtual ~EditAnimationDialog();
 
-    virtual int ShowModal();
     void InitWindow();
     void GetResourceList(wxString path);
     void ShowAnima();
@@ -62,16 +63,27 @@ public:
     void SetAllSkeletonAndBoneVisible(bool bSke = false, bool bSkeBone = false);
     void SetSkeletonAndBoneVisible(bool bSke = false, bool bSkeBone = false);
     void DelListboxSelect();
+    virtual void LanguageSwitch();
+    void SetLanguage();
 private:
 
     TimeBarFrame*       m_pTimeBar;
     wxAuiManager        m_Manager;
-    wxWindow*           m_pTopLeft;
+    CAnimationGLWindow* m_pAnimationGLWindow;
     wxWindow*           m_pTopRight;
     
+    wxButton*           m_pButtonPlay;
+    wxButton*           m_pButtonPause;
+    wxButton*           m_pButtonStop;
+    wxButton*           m_pButtonAnimaton;
+    wxButton*           m_pButtonSkeleton;
+    wxButton*           m_pButtonSkin;
     wxCheckBox*         m_pAnimationCheckBox;
+    wxCheckBox*         m_pSKECheckBox;
+    wxCheckBox*         m_pSKEBCheckBox;
     wxCheckBox*         m_pSkeletonCheckBox;
     wxCheckBox*         m_pSkinCheckBox;
+    wxCheckBox*         m_pLoopCheckBox;
     wxTextCtrl*         m_pLog;
     wxListBox*          m_pAnimitionListBox;
     wxListBox*          m_pSkeletonListBox;
@@ -88,6 +100,8 @@ private:
     bool                    m_bIsLoop;
     bool                    m_bIsVisibleBone;
     bool                    m_bIsVisibleCoordinate;
+    bool                    m_bIsSelectAll;
+    bool                    m_bISLanguageSwitch;
     std::vector<ESkeletonBoneType>         m_skeletonBoneType;
 DECLARE_EVENT_TABLE();
 };

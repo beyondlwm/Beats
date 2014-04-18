@@ -35,6 +35,8 @@ public:
     int Width() const;
     int Height() const;
 
+    bool operator==( const CTexture& other );
+
 private:
     bool m_bPremultipliedAlpha;
     int m_iWidth;

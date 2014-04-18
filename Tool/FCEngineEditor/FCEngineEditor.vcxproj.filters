@@ -55,17 +55,20 @@
     <Filter Include="源文件\wxUIControl\wxWidgetsProperty\kmVecProperty">
       <UniqueIdentifier>{dccefe95-eb53-49cf-8e1f-5351fb033e2b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\wxUIControl\CommandDoUndo">
+      <UniqueIdentifier>{d67fee55-9a97-4c41-ae2f-da6026acef33}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\wxUIControl\CommandDoUndo">
+      <UniqueIdentifier>{b55ffecc-203a-4002-a49b-29d729bca321}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\wxUIControl\GLWindow">
+      <UniqueIdentifier>{c1aa0ae0-eff2-449f-8423-fb9983d84e75}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\wxUIControl\GLWindow">
+      <UniqueIdentifier>{c905db63-8ad5-40e7-bbaa-1630064ce2e3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="FCEngineEditor.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="GLCanvas.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="mainapp.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -150,9 +153,6 @@
     <ClCompile Include="wxPtrButtonEditor.cpp">
       <Filter>源文件\wxUIControl\wxWidgetsProperty</Filter>
     </ClCompile>
-    <ClCompile Include="ComponentGraphics_GL.cpp">
-      <Filter>头文件</Filter>
-    </ClCompile>
     <ClCompile Include="PropertyRegister.cpp">
       <Filter>源文件\wxUIControl\wxWidgetsProperty</Filter>
     </ClCompile>
@@ -174,17 +174,53 @@
     <ClCompile Include="MapPropertyDescription.cpp">
       <Filter>源文件\wxUIControl\wxWidgetsProperty</Filter>
     </ClCompile>
+    <ClCompile Include="CommandBase.cpp">
+      <Filter>源文件\wxUIControl\CommandDoUndo</Filter>
+    </ClCompile>
+    <ClCompile Include="CommandManager.cpp">
+      <Filter>源文件\wxUIControl\CommandDoUndo</Filter>
+    </ClCompile>
+    <ClCompile Include="SplineGLWindow.cpp">
+      <Filter>源文件\wxUIControl\GLWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimationGLWindow.cpp">
+      <Filter>源文件\wxUIControl\GLWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="FCEditorGLWindow.cpp">
+      <Filter>源文件\wxUIControl\GLWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="EditDialogBase.cpp">
+      <Filter>源文件\ExtraWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="EditUIDialog.cpp">
+      <Filter>源文件\ExtraWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentFileTreeItemData.cpp">
+      <Filter>源文件\wxUIControl\wxProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="EditLanguageDialog.cpp">
+      <Filter>源文件\ExtraWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentTreeItemData.cpp">
+      <Filter>源文件\wxUIControl\wxProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="FCEditorComponentWindow.cpp">
+      <Filter>源文件\wxUIControl\GLWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentGraphics_GL.cpp">
+      <Filter>源文件\wxUIControl\GLWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="UIGLWindow.cpp">
+      <Filter>源文件\wxUIControl\GLWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="EditorMainFrame.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="EngineEditor.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="FCEngineEditor.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="GLCanvas.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="mainapp.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -272,9 +308,6 @@
     <ClInclude Include="wxPtrButtonEditor.h">
       <Filter>头文件\wxUIControl\wxWidgetsProperty</Filter>
     </ClInclude>
-    <ClInclude Include="ComponentGraphics_GL.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="ColorPropertyDescription.h">
       <Filter>头文件\wxUIControl\wxWidgetsProperty</Filter>
     </ClInclude>
@@ -292,6 +325,51 @@
     </ClInclude>
     <ClInclude Include="MapPropertyDescription.h">
       <Filter>头文件\wxUIControl\wxWidgetsProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandBase.h">
+      <Filter>头文件\wxUIControl\CommandDoUndo</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandManager.h">
+      <Filter>头文件\wxUIControl\CommandDoUndo</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationGLWindow.h">
+      <Filter>头文件\wxUIControl\GLWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="FCEditorGLWindow.h">
+      <Filter>头文件\wxUIControl\GLWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="SplineGLWindow.h">
+      <Filter>头文件\wxUIControl\GLWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="EditDialogBase.h">
+      <Filter>头文件\ExtraWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="EditUIDialog.h">
+      <Filter>头文件\ExtraWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentFileTreeItemData.h">
+      <Filter>头文件\wxUIControl\wxProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="EditLanguageDialog.h">
+      <Filter>头文件\ExtraWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentTreeItemData.h">
+      <Filter>头文件\wxUIControl\wxProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="FCEditorComponentWindow.h">
+      <Filter>头文件\wxUIControl\GLWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentGraphics_GL.h">
+      <Filter>头文件\wxUIControl\GLWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="UIGLWindow.h">
+      <Filter>头文件\wxUIControl\GLWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="EditorMainFrame.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="EngineEditor.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

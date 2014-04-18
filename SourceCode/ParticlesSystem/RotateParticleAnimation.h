@@ -22,11 +22,11 @@ namespace FCEngine
         friend class ParticleEntity;
         DECLARE_REFLECT_GUID( RotateParticleAnimation, 0x1544B157, ParticleAnimationBase )
     public:
+        RotateParticleAnimation();
         RotateParticleAnimation( CSerializer& serializer );
         ~RotateParticleAnimation();
 
     private:
-        RotateParticleAnimation();
 
         virtual void Update( float dtt );
 

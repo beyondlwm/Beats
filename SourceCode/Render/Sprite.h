@@ -7,17 +7,15 @@
 
 class CTexture;
 class CTextureFrag;
-class CSpriteFrame;
-class CSpriteAnimation;
-class CSpriteAnimationController;
 
 class CSprite : public CRenderObject
 {
 public:
-    CSprite();
     CSprite(CTextureFrag *textureFrag);
+    CSprite(const TString &textureFragName);
     CSprite(const TString &textureFragName, const kmVec2 &size);
-    ~CSprite();
+    CSprite(const TString &textureFragName, const kmVec2 &size, const kmVec2 &origin);
+    virtual ~CSprite();
 
     virtual void PreRender() override;
 
@@ -25,17 +23,16 @@ public:
 
     virtual void PostRender() override;
 
-    void AddAnimation(SharePtr<CSpriteAnimation> animation);
+    void SetQuad(const CQuadP &quad);
+    void SetOriginSize(const kmVec2 &origin, const kmVec2 &size);
 
-    void PlayAnimation(const TString &name, bool loop);
+    const CQuadP &QuadP() const;
+    const CQuadT &QuadT() const;
+    SharePtr<CTexture> Texture() const;
 
-private:
-    CSpriteAnimationController *animController();
-
-private:
-    CSpriteFrame *m_frame;
-    std::map<TString, SharePtr<CSpriteAnimation> > m_animations;
-    CSpriteAnimationController *m_animController;
+protected:
+    CQuadP m_quad;
+    CTextureFrag *m_textureFrag;
 };
 
 #endif

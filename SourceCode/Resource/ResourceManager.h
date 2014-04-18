@@ -47,7 +47,7 @@ SharePtr<T> CResourceManager::GetResource( const TString &strFilePath, bool bAsy
     SharePtr<T> pRet;
     EResourcePathType pathType = CResourcePathManager::GetInstance()->GetResourcePathType(T::RESOURCE_TYPE);
     TString strPath = CResourcePathManager::GetInstance()->GetResourcePath(pathType);
-    strPath.append(_T("/")).append(strFilePath);
+    strPath.append(strFilePath);
     TResourceNameMap::iterator iter = m_resource.find(strPath);
     if(iter == m_resource.end())
     {

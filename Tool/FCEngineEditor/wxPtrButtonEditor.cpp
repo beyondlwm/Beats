@@ -6,7 +6,7 @@
 #include "PtrPropertyDescription.h"
 #include "ListPropertyDescription.h"
 #include "MapPropertyDescription.h"
-#include "FCEngineEditor.h"
+#include "EditorMainFrame.h"
 #include "EnginePropertyGrid.h"
 
 IMPLEMENT_DYNAMIC_CLASS(wxPtrButtonEditor, wxPGTextCtrlEditor);
@@ -132,6 +132,10 @@ bool wxPtrButtonEditor::OnEvent( wxPropertyGrid* propGrid,
                 {
                     property->DeleteChildren();
                     bool bDeleteInstance = pPtrPropertyDescription->DestroyInstance();
+                    // Destroy instance may cause the value changed, so we fetch it again.
+                    char szTmp[MAX_PATH];
+                    pPtrPropertyDescription->GetValueAsChar(eVT_CurrentValue, szTmp);
+                    valueStr = szTmp;
                     pPtrPropertyDescription->GetChildren().clear();
                     BEATS_ASSERT(bDeleteInstance);
                     buttons->GetButton(0)->SetLabel(_T("+"));
@@ -183,7 +187,7 @@ bool wxPtrButtonEditor::OnEvent( wxPropertyGrid* propGrid,
                 pParent->GetValueAsChar(eVT_CurrentValue, valueStr);
                 property->GetParent()->SetValue(valueStr);
                 //TODO: I can't refresh property here, because we are trying to delete property of which callback we are in.
-                pManager->RequestToUpdatePropertyGrid();
+                pManager->SetUpdateFlag(true);
             }
             return true;
         }

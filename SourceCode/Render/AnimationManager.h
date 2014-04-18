@@ -10,7 +10,6 @@ class CAnimationManager
     BEATS_DECLARE_SINGLETON(CAnimationManager);
 public:
     CAnimationController *CreateSkelAnimationController();
-    CSpriteAnimationController *CreateSpriteAnimationController();
     void DeleteController(CBaseAnimationController *controller);
 
     void Update(float deltaTime);

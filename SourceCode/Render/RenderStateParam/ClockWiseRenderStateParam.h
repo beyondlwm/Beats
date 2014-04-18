@@ -20,6 +20,13 @@ public:
     CClockWiseRenderStateParam();
     CClockWiseRenderStateParam(CSerializer& serializer);
     virtual void Apply() override;
+
+    virtual ERenderState GetRenderStateType() const;
+
+    void SetClockWiseType( EClockWiseType type );
+    EClockWiseType GetClockWiseType() const;
+
+    virtual bool operator==( const CRenderStateParamBase& other ) const;
 private:
     EClockWiseType m_nValue;
 };

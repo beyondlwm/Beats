@@ -24,6 +24,8 @@
 #define MessageBox MessageBoxA
 #endif
 
+static TCHAR szBeatsDialogBuffer[10240] = {0};
+
 #ifdef _DEBUG
 #define BEATS_ASSERT(condition, ...)\
     if (!(condition))\
@@ -32,12 +34,13 @@
         if (!bIgnoreThisAssert)\
         {\
             BEATS_WARNING(condition, __VA_ARGS__)\
-            TCHAR strBuffer[10240];\
-            _stprintf_s(strBuffer, __VA_ARGS__, _T(""));\
+            _stprintf_s(szBeatsDialogBuffer, __VA_ARGS__, _T(""));\
             TCHAR errorInfo[32];\
-            _stprintf_s(errorInfo, _T("\nErrorID:%d"), GetLastError());\
-            _tcscat_s(strBuffer, errorInfo);\
-            int iRet = MessageBox(NULL, strBuffer, _T("Beats assert"), MB_ABORTRETRYIGNORE | MB_ICONERROR);\
+            _stprintf_s(errorInfo, _T("\nErrorID:%d\n"), GetLastError());\
+            _tcscat_s(szBeatsDialogBuffer, errorInfo);\
+            _tcscat_s(szBeatsDialogBuffer, _T("Condition: "));\
+            _tcscat_s(szBeatsDialogBuffer, _T(#condition));\
+            int iRet = MessageBox(NULL, szBeatsDialogBuffer, _T("Beats assert"), MB_ABORTRETRYIGNORE | MB_ICONERROR);\
             if(iRet == IDABORT)\
             {\
                 __asm{int 3};\
@@ -70,16 +73,14 @@
 #ifdef _DEBUG
 #define BEATS_PRINT(...)\
 {\
-    TCHAR strBuffer[1024];\
-    _stprintf_s(strBuffer, __VA_ARGS__, _T(""));\
-    OutputDebugString(strBuffer);\
+    _stprintf_s(szBeatsDialogBuffer, __VA_ARGS__, _T(""));\
+    OutputDebugString(szBeatsDialogBuffer);\
 }
 
 #define BEATS_PRINT_VARIABLE(infoStr, ...)\
     {\
-    TCHAR strBuffer[1024];\
-    _stprintf_s(strBuffer, infoStr, __VA_ARGS__);\
-    OutputDebugString(strBuffer);\
+    _stprintf_s(szBeatsDialogBuffer, infoStr, __VA_ARGS__);\
+    OutputDebugString(szBeatsDialogBuffer);\
     }
 
 #else
@@ -149,6 +150,28 @@ private:\
     else if ((var) > (maxValue)) (var)=(maxValue);
 #define BEATS_FLOAT_EPSILON 1.192092896e-07F        //FLT_EPSILON
 #define BEATS_FLOAT_EQUAL(floatValue, value) (fabs((value) - (floatValue)) < BEATS_FLOAT_EPSILON)
+
+template< class T> bool ComperaPtrVector( const std::vector<T*>& v1, const std::vector<T*>& v2 )
+{
+    bool bReturn = true;
+    if ( v1.size() == v2.size() )
+    {
+        size_t size = v1.size();
+        for ( size_t i = 0; i < size; ++i )
+        {
+            if ( v1[ i ] != v2[ i ])
+            {
+                bReturn = false;
+                break;
+            }
+        }
+    }
+    else
+    {
+        bReturn = false;
+    }
+    return bReturn;
+}
 
 //////////////////////////////////////////////////////////////////////////
 /// Unicode Marco

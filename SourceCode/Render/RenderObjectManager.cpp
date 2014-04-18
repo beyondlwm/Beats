@@ -8,12 +8,12 @@
 #include "CurveRenderer.h"
 #include "Spline/Curve.h"
 #include "Camera.h"
+#include "AnimatableSprite.h"
 
 CRenderObjectManager *CRenderObjectManager::m_pInstance = NULL;
 
 CRenderObjectManager::CRenderObjectManager()
 {
-
 }
 
 CRenderObjectManager::~CRenderObjectManager()
@@ -26,6 +26,7 @@ CRenderObjectManager::~CRenderObjectManager()
     {
         delete renderObject;
     }
+
 }
 
 CModel *CRenderObjectManager::CreateModel()
@@ -43,6 +44,13 @@ CSprite *CRenderObjectManager::CreateSprite(const TString &textureFragName, cons
     return sprite;
 }
 
+CAnimatableSprite *CRenderObjectManager::CreateAnimatableSprite(const TString &textureFragName, const kmVec2 &size)
+{
+    CAnimatableSprite *sprite = new CAnimatableSprite(textureFragName, size);
+    m_renderObjects2D.push_back(sprite);
+    return sprite;
+}
+
 CCurveRenderer *CRenderObjectManager::CreateCurve(SharePtr<Spline> spline)
 {
     CCurveRenderer *curve = new CCurveRenderer(spline);
@@ -53,9 +61,10 @@ CCurveRenderer *CRenderObjectManager::CreateCurve(SharePtr<Spline> spline)
 void CRenderObjectManager::Render()
 {
     FC_CHECK_GL_ERROR_DEBUG();
+    int nWindowWidth = 0;
+    int nWindowHeight = 0;
+    CRenderManager::GetInstance()->GetWindowSize(nWindowWidth, nWindowHeight);
 
-    CRenderManager* pRenderMgr = CRenderManager::GetInstance();
-    pRenderMgr->GetCamera()->ApplyCameraChange(false);
     for(auto renderObject : m_renderObjects3D)
     {
         FC_CHECK_GL_ERROR_DEBUG();
@@ -66,7 +75,6 @@ void CRenderObjectManager::Render()
         renderObject->PostRender();
         FC_CHECK_GL_ERROR_DEBUG();
     }
-    pRenderMgr->GetCamera()->ApplyCameraChange(true);
     for(auto renderObject : m_renderObjects2D)
     {
         FC_CHECK_GL_ERROR_DEBUG();

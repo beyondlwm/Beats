@@ -33,11 +33,11 @@ namespace FCEngine
         typedef std::vector< ParticleAnimationBase* > TParticleAnimation;
         DECLARE_REFLECT_GUID( ParticleProperty, 0x1544A158, CComponentBase )
     public:
+        ParticleProperty( );
         ParticleProperty( CSerializer& serializer );
         ~ParticleProperty( );
 
     private:
-        ParticleProperty( );
 
         float GetWidth( );
 

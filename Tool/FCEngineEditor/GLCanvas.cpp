@@ -221,12 +221,12 @@ void GLAnimationCanvas::OnMouse(wxMouseEvent& event)
             kmVec3Fill(&vec3Speed, SHIFTWHEELSPEED, SHIFTWHEELSPEED, SHIFTWHEELSPEED);
             if (event.GetWheelRotation() > 0)
             {
-                CRenderManager::GetInstance()->UpdateCamera(vec3Speed, (1 << eCMT_STRAIGHT));
+                CRenderManager::GetInstance()->GetCamera()->Update(vec3Speed, (1 << CCamera::eCMT_STRAIGHT));
             }
             else if (event.GetWheelRotation() < 0)
             {
                 kmVec3Scale(&vec3Speed, &vec3Speed, -1.0f);
-                CRenderManager::GetInstance()->UpdateCamera(vec3Speed, (1 << eCMT_STRAIGHT));
+                CRenderManager::GetInstance()->GetCamera()->Update(vec3Speed, (1 << CCamera::eCMT_STRAIGHT));
             }
         }
         m_lastPosition = event.GetPosition();
@@ -332,13 +332,13 @@ void GLAnimationCanvas::UpDateCamera()
     {
         kmVec3Scale(&vec3Speed, &vec3Speed, 1.0F * 0.016F);
     }
-    int type = eCMT_NOMOVE;
+    int type = CCamera::eCMT_NOMOVE;
 
     bool bPressA = GetKeyState(KEY_A);
     bool bPressD = GetKeyState(KEY_D);
     if ( bPressA || bPressD )
     {
-        type |= (1 << eCMT_TRANVERSE);
+        type |= (1 << CCamera::eCMT_TRANVERSE);
         if (bPressA)
         {
             vec3Speed.x *= -1;
@@ -349,7 +349,7 @@ void GLAnimationCanvas::UpDateCamera()
 
     if ( bPressW || bPressS )
     {
-        type |= (1 << eCMT_STRAIGHT);
+        type |= (1 << CCamera::eCMT_STRAIGHT);
         if (bPressW)
         {
             vec3Speed.z *= -1;
@@ -360,16 +360,16 @@ void GLAnimationCanvas::UpDateCamera()
 
     if ( bPressUp || bPressDown )
     {
-        type |= (1 << eCMT_UPDOWN);
+        type |= (1 << CCamera::eCMT_UPDOWN);
         if (bPressDown)
         {
             vec3Speed.y *= -1;
         }
     }
 
-    if (type != eCMT_NOMOVE)
+    if (type != CCamera::eCMT_NOMOVE)
     {
-        CRenderManager::GetInstance()->UpdateCamera(vec3Speed, type);
+        CRenderManager::GetInstance()->GetCamera()->Update(vec3Speed, type);
     }
 }
 

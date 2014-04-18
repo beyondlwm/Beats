@@ -22,12 +22,11 @@ namespace FCEngine
         friend class ParticleEntity;
         DECLARE_REFLECT_GUID( ColorParticleAnimation, 0x1544B158, ParticleAnimationBase )
     public:
+        ColorParticleAnimation();
         ColorParticleAnimation( CSerializer& serializer );
         ~ColorParticleAnimation();
 
     private:
-        ColorParticleAnimation();
-
         virtual void Update( float dtt );
 
         virtual const void* GetCurrentAnimationValue( );

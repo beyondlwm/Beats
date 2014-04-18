@@ -2,13 +2,13 @@
 #include "SpriteFrameBatchManager.h"
 #include "SpriteFrameBatch.h"
 #include "RenderManager.h"
-#include "SpriteFrame.h"
 #include "Texture.h"
 #include "renderer.h"
 #include "Resource/ResourceManager.h"
 #include "ShaderProgram.h"
 #include "Shader.h"
 #include "TextureFrag.h"
+#include "Camera.h"
 
 CSpriteFrameBatchManager *CSpriteFrameBatchManager::m_pInstance = nullptr;
 
@@ -18,6 +18,11 @@ CSpriteFrameBatchManager::CSpriteFrameBatchManager()
     SharePtr<CShader> pPS = CResourceManager::GetInstance()->GetResource<CShader>(_T("PointTexShader.ps"), false);
     BEATS_ASSERT(pVS && pPS, _T("Load Shader Failed!"));
     m_pProgram = CRenderManager::GetInstance()->GetShaderProgram(pVS->ID(), pPS->ID());
+    m_pCamera = new CCamera(CCamera::eCT_2D);
+    int width, height;
+    CRenderManager::GetInstance()->GetWindowSize(width, height);
+    m_pCamera->SetWidth(width);
+    m_pCamera->SetHeight(height);
 }
 
 CSpriteFrameBatchManager::~CSpriteFrameBatchManager()
@@ -26,41 +31,24 @@ CSpriteFrameBatchManager::~CSpriteFrameBatchManager()
     {
         BEATS_ASSERT(batch.second);
     }
+	BEATS_SAFE_DELETE(m_pCamera);
 }
 
 void CSpriteFrameBatchManager::Render()
 {
-    CRenderer::GetInstance()->UseProgram(m_pProgram->ID());
-    CRenderer::GetInstance()->DisableGL(GL_DEPTH_TEST);
-    CRenderer::GetInstance()->EnableGL(GL_BLEND);
-    CRenderer::GetInstance()->BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    CRenderer* pRender = CRenderer::GetInstance();
+    pRender->UseProgram(m_pProgram->ID());
+    pRender->DisableGL(GL_DEPTH_TEST);
+    pRender->EnableGL(GL_BLEND);
+    pRender->BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     for(auto batch : m_batches)
     {
         batch.second->PreRender();
         batch.second->Render();
         batch.second->PostRender();
     }
-    CRenderer::GetInstance()->EnableGL(GL_DEPTH_TEST);
-    CRenderer::GetInstance()->DisableGL(GL_BLEND);
-}
-
-void CSpriteFrameBatchManager::AddSpriteFrame( CSpriteFrame *frame, const kmMat4 &transform )
-{
-    if(!frame)
-        return;
-
-    GLuint textureID = frame->Texture()->ID();
-    auto itr = m_batches.find(textureID);
-    if(itr == m_batches.end())
-    {
-        CSpriteFrameBatch *batch = new CSpriteFrameBatch;
-        m_batches[textureID] = batch;
-        batch->AddSpriteFrame(frame, transform);
-    }
-    else
-    {
-        itr->second->AddSpriteFrame(frame, transform);
-    }
+    pRender->EnableGL(GL_DEPTH_TEST);
+    pRender->DisableGL(GL_BLEND);
 }
 
 void CSpriteFrameBatchManager::AddQuad(const CQuadP &quad, CTextureFrag *frag, const kmMat4 &transform)
@@ -109,4 +97,9 @@ void CSpriteFrameBatchManager::Clear()
     {
         batch.second->Clear();
     }
+}
+
+CCamera* CSpriteFrameBatchManager::GetCamera() const
+{
+    return m_pCamera;
 }

@@ -83,6 +83,7 @@ bool CEnumPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>
             {
                 BEATS_ASSERT(false, _T("Unknown parameter for Int property %s"), result[0].c_str());
             }
+            BEATS_ASSERT(errno == 0, _T("call _tstoi failed! string: %s"), result[1].c_str());
         }
     }
     return true;

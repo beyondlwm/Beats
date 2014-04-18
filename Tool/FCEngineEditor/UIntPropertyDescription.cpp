@@ -6,7 +6,7 @@
 CUIntPropertyDescription::CUIntPropertyDescription(CSerializer* pSerializer)
 : super(ePT_UInt)
 , m_minValue(0)
-, m_maxValue(0xffffffff)
+, m_maxValue(ULONG_MAX)
 , m_spinStep(0)
 {
     size_t value = 0;
@@ -43,8 +43,11 @@ bool CUIntPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>
         BEATS_ASSERT(cache.size() == 2);
         if (_tcsicmp(cache[0].c_str(), UIParameterAttrStr[eUIPAT_DefaultValue]) == 0)
         {
-            size_t uValue = _tstoi(cache[1].c_str());
-            wxVariant var((wxLongLong)uValue);
+            TCHAR* pEndChar = NULL;
+            size_t uValue = _tcstoul(cache[1].c_str(), &pEndChar, 10);
+            BEATS_ASSERT(_tcslen(pEndChar) == 0, _T("Read uint from string %s error, stop at %s"), cache[1].c_str(), pEndChar);
+            BEATS_ASSERT(errno == 0, _T("Call _tcstoul failed! string %s radix: 10"), cache[1].c_str());
+            wxVariant var((wxULongLong)uValue);
             SetValue(var, true);
             if (bSerializePhase)
             {
@@ -87,18 +90,17 @@ wxPGProperty* CUIntPropertyDescription::CreateWxProperty()
         pProperty->SetEditor( wxPGEditor_SpinCtrl );
         pProperty->SetAttribute( wxT("Step"), (long)m_spinStep );
         pProperty->SetAttribute( wxT("MotionSpin"), true );
-    }        
-
+    }
     return pProperty;
 }
 
 void CUIntPropertyDescription::SetValue( wxVariant& value, bool bSaveValue /*= true*/ )
 {
-    int iNewValue = value.GetULongLong().GetLo();
-    SetValue(&iNewValue, eVT_CurrentValue);
+    size_t uNewValue = value.GetULongLong().GetLo();
+    SetValue(&uNewValue, eVT_CurrentValue);
     if (bSaveValue)
     {
-        SetValue(&iNewValue, eVT_SavedValue);
+        SetValue(&uNewValue, eVT_SavedValue);
     }
 }
 
@@ -113,7 +115,6 @@ bool CUIntPropertyDescription::IsDataSame( bool bWithDefaultOrXML )
     return bRet;
 }
 
-
 CPropertyDescriptionBase* CUIntPropertyDescription::CreateNewInstance()
 {
     CPropertyDescriptionBase* pNewProperty = new CUIntPropertyDescription(*this);
@@ -122,8 +123,8 @@ CPropertyDescriptionBase* CUIntPropertyDescription::CreateNewInstance()
 
 void CUIntPropertyDescription::GetValueAsChar( EValueType type, char* pOut )
 {
-    size_t iValue = *(size_t*)m_valueArray[type];
-    sprintf(pOut, "%ud", iValue);
+    size_t uValue = *(size_t*)m_valueArray[type];
+    sprintf(pOut, "%u", uValue);
 }
 
 void CUIntPropertyDescription::Serialize( CSerializer& serializer )
