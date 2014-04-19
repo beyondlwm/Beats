@@ -1,7 +1,9 @@
 #ifndef BEATS_COMPONENTS_COMPONENTPUBLIC_H__INCLUDE
 #define BEATS_COMPONENTS_COMPONENTPUBLIC_H__INCLUDE
 
+#include <string>
 #include "Property/PropertyPublic.h"
+#include "../Utility/StringHelper/StringHelper.h"
 
 // To comment or un-comment this macro to decide serializer/deseraize.
 #define EXPORT_TO_EDITOR
@@ -31,10 +33,20 @@ struct SSerilaizerExtraInfo
 class CSerializer;
 
 template<typename T>
-inline EPropertyType GetEnumType(T& /*value*/, CSerializer* /*serializer*/, bool /*bIgnoreValue*/)
+inline EPropertyType GetEnumType(T& value, CSerializer* pSerializer, bool /*bIgnoreValue*/)
 {
-    BEATS_ASSERT(false, _T("Unknown type!"));
-    return ePT_Invalid;
+    EPropertyType eRet = ePT_Invalid;
+    const char* pszTypeName = typeid(value).name();
+    bool bIsEnum = memcmp(pszTypeName, "enum ", strlen("enum ")) == 0;
+    if (bIsEnum)
+    {
+        eRet = ePT_Enum;
+        TCHAR szNameBuffer[128];
+        CStringHelper::GetInstance()->ConvertToTCHAR(&pszTypeName[strlen("enum ")], szNameBuffer, 128);
+        (*pSerializer) << (size_t)ePT_Enum << (int)(value) << szNameBuffer;
+    }
+    BEATS_ASSERT(bIsEnum, _T("Unknown type!"));
+    return eRet;
 }
 
 template<typename T>
@@ -177,13 +189,66 @@ CPropertyDescriptionBase* GetEnumPropertyDesc(int defaultValue)\
 }
 
 #ifdef EXPORT_TO_EDITOR
+
+inline const TCHAR* GenEnumParamStr(const TCHAR* enumStringArray[], const TCHAR* pszParam = NULL)
+{
+    static TString strEnumParam;
+    strEnumParam.clear();
+    strEnumParam.append(UIParameterAttrStr[eUIPAT_EnumStringArray]).append(_T(":"));
+    size_t uCount = sizeof(enumStringArray);
+    BEATS_ASSERT(uCount > 0, _T("Enum string array is empty!"));
+    for (size_t i = 0; i < uCount; ++i)
+    {
+        strEnumParam.append(enumStringArray[i]);
+        if (i < uCount - 1)
+        {
+            strEnumParam.append(_T("@"));
+        }
+    }
+    if(pszParam != NULL)
+    {
+        strEnumParam.append(_T(",")).append(pszParam);
+    }    
+    return strEnumParam.c_str();
+}
+
+inline bool CheckIfEnumHasExported(const TString& strEnumName)
+{
+    static std::set<TString> exportRecord;
+
+    bool bRet = exportRecord.find(strEnumName) == exportRecord.end();
+    if (bRet)
+    {
+        exportRecord.insert(strEnumName);
+    }
+    return !bRet;
+}
+
+#define GEN_ENUM_PARAM(stringarray, propertyParam) GenEnumParamStr(stringarray, propertyParam)
+
 #define DECLARE_PROPERTY(serializer, property, editable, color, displayName, catalog, tip, parameter)\
 {\
     serializer << (bool) true;\
-    GetEnumType(property, &serializer, false);\
+    EPropertyType propertyType = GetEnumType(property, &serializer, false);\
     size_t nPropertyDataSizeHolder = serializer.GetWritePos();\
     serializer << nPropertyDataSizeHolder;\
-    serializer << (bool)editable << color << (displayName ? displayName : _T(#property)) << (catalog ? catalog : _T("")) << (tip ? tip : _T("")) << (_T(#property)) << (parameter ? parameter : _T(""));\
+    const TCHAR* pszParam = parameter;\
+    if (propertyType == ePT_Enum && pszParam != NULL)\
+    {\
+        size_t uEnumStringArrayNameLen = _tcslen(UIParameterAttrStr[eUIPAT_EnumStringArray]);\
+        if (_tcslen(pszParam) > uEnumStringArrayNameLen && memcmp(pszParam, UIParameterAttrStr[eUIPAT_EnumStringArray], uEnumStringArrayNameLen) == 0)\
+        {\
+            const char* pszTypeName = typeid(property).name();\
+            TCHAR szNameBuffer[128];\
+            CStringHelper::GetInstance()->ConvertToTCHAR(&pszTypeName[strlen("enum ")], szNameBuffer, 128);\
+            TString strEnumName = szNameBuffer;\
+            if (CheckIfEnumHasExported(strEnumName))\
+            {\
+                pszParam = NULL;/*It's not necessary to export the same enum string array value, so ignore it!*/\
+            }\
+        }\
+    }\
+    serializer << (bool)editable << color << (displayName ? displayName : _T(#property)) << (catalog ? catalog : _T("")) << (tip ? tip : _T("")) << (_T(#property)) << (pszParam ? pszParam : _T(""));\
     size_t propertyDataSize = serializer.GetWritePos() - nPropertyDataSizeHolder;\
     serializer.SetWritePos(nPropertyDataSizeHolder);\
     serializer << propertyDataSize;\
@@ -200,24 +265,6 @@ CPropertyDescriptionBase* GetEnumPropertyDesc(int defaultValue)\
     serializer << (bool) false << (bool)true << dependencyType << ptrProperty->REFLECT_GUID << displayName << _T(#ptrProperty);\
     ++(((SSerilaizerExtraInfo*)(serializer.GetUserData()))->m_uDependencyCount);\
 }
-#define DECLARE_PROPERTY_ENUM(serializer, enumVariable, count, selfDefineStrArray, enumType, editable, color, displayName, catalog, tip, parameter)\
-{\
-    serializer << (bool) true << ePT_Enum << (int)enumVariable << _T(#enumType) << count;\
-    for(size_t i = 0; i < count; ++i)\
-    {\
-        BEATS_ASSERT(selfDefineStrArray != NULL, _T("序列化枚举失败，设定了枚举数目却没有指定枚举对应的字符串数组。位于组件%s 的枚举%s"), GetClassStr(), _T(#enumType));\
-        serializer << ((const TCHAR**)selfDefineStrArray)[i];\
-    }\
-    size_t nPropertyDataSizeHolder = serializer.GetWritePos();\
-    serializer << nPropertyDataSizeHolder;\
-    serializer << (bool)editable << color << (displayName ? displayName : _T(#enumVariable)) << (catalog ? catalog : _T("")) << (tip ? tip : _T("")) << (_T(#enumVariable)) << (parameter ? parameter : _T(""));\
-    size_t propertyDataSize = serializer.GetWritePos() - nPropertyDataSizeHolder;\
-    serializer.SetWritePos(nPropertyDataSizeHolder);\
-    serializer << propertyDataSize;\
-    serializer.SetWritePos(nPropertyDataSizeHolder + propertyDataSize);\
-    ++(((SSerilaizerExtraInfo*)(serializer.GetUserData()))->m_uPropertyCount);\
-}
-
 
 #else
 #define DECLARE_PROPERTY(serializer, property, editable, color, displayName, catalog, tip, parameter) DeserializeVarialble(property, &serializer);
@@ -247,8 +294,6 @@ CPropertyDescriptionBase* GetEnumPropertyDesc(int defaultValue)\
             }\
         }
 
-#define DECLARE_PROPERTY_ENUM(serializer, enumVariable, count, selfDefineStrArray, enumType, editable, color, displayName, catalog, tip, parameter)\
-    serializer >> enumVariable;
 #endif
 
 #ifdef EXPORT_TO_EDITOR

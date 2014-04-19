@@ -82,6 +82,7 @@ enum EUIParameterAttrType
     eUIPAT_MaxCount,
     eUIPAT_FixCount,
     eUIPAT_VisibleWhen,
+    eUIPAT_EnumStringArray,
     eUIPAT_Count,
     eUIPAT_Force32Bit = 0xffffffff
 };
@@ -95,6 +96,7 @@ static const TCHAR* UIParameterAttrStr[] =
     _T("MaxCount"),
     _T("FixCount"),
     _T("VisibleWhen"),
+    _T("EnumUIString"),
 };
 
 #endif

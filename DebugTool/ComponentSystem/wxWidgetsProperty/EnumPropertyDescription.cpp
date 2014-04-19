@@ -17,15 +17,6 @@ CEnumPropertyDescription::CEnumPropertyDescription(CSerializer* pSerializer)
         TString enumTypeStr;
         (*pSerializer) >> iValue;
         (*pSerializer) >> enumTypeStr;
-        size_t selfDefineStrCount = 0;
-        (*pSerializer) >> selfDefineStrCount;
-        std::vector<TString> selfDefineStrPool;
-        for (size_t i = 0; i < selfDefineStrCount; ++i)
-        {
-            TString selfDefineStr;
-            (*pSerializer) >> selfDefineStr;
-            selfDefineStrPool.push_back(selfDefineStr);
-        }
         std::map<TString, SEnumPropertyData*>::iterator iter = m_enumPropertyDataMap.m_data.find(enumTypeStr);
         if (iter == m_enumPropertyDataMap.m_data.end())
         {
@@ -34,9 +25,7 @@ CEnumPropertyDescription::CEnumPropertyDescription(CSerializer* pSerializer)
             BEATS_ASSERT(bFind, _T("Can't find the enum str for type : %s"), enumTypeStr.c_str());
             if (bFind)
             {
-                BEATS_ASSERT(selfDefineStrCount <= pEnumValue->size(), _T("the self define string count :%d is too much for real count %d"), selfDefineStrCount, pEnumValue->size());
                 m_pPropertyData = new SEnumPropertyData(pEnumValue);
-                m_pPropertyData->m_displayString = selfDefineStrPool;
                 m_enumPropertyDataMap.m_data[enumTypeStr] = m_pPropertyData;
             }
         }
@@ -69,7 +58,7 @@ bool CEnumPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>
         CStringHelper::GetInstance()->SplitString(parameter.c_str(), _T(":"), result);
         if (result.size() == 2)
         {
-            if ((_tcsicmp(result[0].c_str(), UIParameterAttrStr[eUIPAT_DefaultValue]) == 0))
+            if (_tcsicmp(result[0].c_str(), UIParameterAttrStr[eUIPAT_DefaultValue]) == 0)
             {
                 int iValue = _tstoi(result[1].c_str());
                 wxVariant var(iValue);
@@ -78,6 +67,12 @@ bool CEnumPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>
                 {
                     SetValue(&iValue, eVT_DefaultValue);
                 }
+            }
+            else if (_tcsicmp(result[0].c_str(), UIParameterAttrStr[eUIPAT_EnumStringArray]) == 0)
+            {
+                BEATS_ASSERT(m_pPropertyData->m_displayString.size() == 0, _T("We have promised that every enum property will export one enum string array! See DECLARE_PROPERTY!"));
+                BEATS_ASSERT(result[1].length() > 0, _T("enum string array should not be empty!"));
+                CStringHelper::GetInstance()->SplitString(result[1].c_str(), _T("@"), m_pPropertyData->m_displayString);
             }
             else
             {
