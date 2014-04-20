@@ -10,6 +10,8 @@ static const TString EMPTY_STRING = _T("Empty");
 
 CMapPropertyDescription::CMapPropertyDescription(CSerializer* pSerializer)
     : super(ePT_Map)
+    , m_valueType(ePT_Invalid)
+    , m_uValuePtrGuid(0xFFFFFFFF)
 {
     if (pSerializer != NULL)
     {
@@ -94,7 +96,7 @@ CPropertyDescriptionBase* CMapPropertyDescription::AddChild(CPropertyDescription
     {
         pChild = CreateInstance();
     }
-    AddChild(pChild);
+    super::AddChild(pChild);
     ResetName();
 
     return pChild;

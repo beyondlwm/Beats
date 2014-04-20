@@ -33,7 +33,7 @@ struct SSerilaizerExtraInfo
 class CSerializer;
 
 template<typename T>
-inline EPropertyType GetEnumType(T& value, CSerializer* pSerializer, bool /*bIgnoreValue*/)
+inline EPropertyType GetEnumType(T& value, CSerializer* pSerializer, bool bIgnoreValue)
 {
     EPropertyType eRet = ePT_Invalid;
     const char* pszTypeName = typeid(value).name();
@@ -43,7 +43,11 @@ inline EPropertyType GetEnumType(T& value, CSerializer* pSerializer, bool /*bIgn
         eRet = ePT_Enum;
         TCHAR szNameBuffer[128];
         CStringHelper::GetInstance()->ConvertToTCHAR(&pszTypeName[strlen("enum ")], szNameBuffer, 128);
-        (*pSerializer) << (size_t)ePT_Enum << (int)(value) << szNameBuffer;
+        (*pSerializer) << (size_t)ePT_Enum;
+        if (!bIgnoreValue)
+        {
+            (*pSerializer) << (int)(value);
+        }
     }
     BEATS_ASSERT(bIsEnum, _T("Unknown type!"));
     return eRet;
