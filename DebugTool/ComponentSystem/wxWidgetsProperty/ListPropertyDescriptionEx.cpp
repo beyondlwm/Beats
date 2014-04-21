@@ -15,11 +15,9 @@ CListPropertyDescriptionEx::CListPropertyDescriptionEx(CSerializer* pSerializer)
 {
     if (pSerializer != NULL)
     {
-        (*pSerializer) >> m_childType;
-        if (m_childType == ePT_Ptr)
-        {
-            (*pSerializer) >> m_childPtrGuid;
-        }
+        EPropertyType childType;
+        (*pSerializer) >> childType;
+        m_pChildTemplate = CComponentManager::GetInstance()->CreateProperty(childType, pSerializer);
     }
     InitializeValue(EMPTY_STRING);
 }
@@ -28,8 +26,7 @@ CListPropertyDescriptionEx::CListPropertyDescriptionEx(const CListPropertyDescri
 : super(rRef)
 , m_maxCount(rRef.m_maxCount)
 , m_bFixCount(rRef.m_bFixCount)
-, m_childPtrGuid(rRef.m_childPtrGuid)
-, m_childType(rRef.m_childType)
+, m_pChildTemplate(rRef.m_pChildTemplate->Clone(true))
 {
     InitializeValue(EMPTY_STRING);
 }
@@ -133,9 +130,7 @@ CPropertyDescriptionBase* CListPropertyDescriptionEx::CreateInstance()
         SBasicPropertyInfo basicInfo = GetBasicInfo();
         basicInfo.m_displayName.assign(szChildName);
         basicInfo.m_variableName.assign(szChildName);
-        CSerializer serializer;
-        serializer << m_childPtrGuid;
-        CPropertyDescriptionBase* pProperty = CComponentManager::GetInstance()->CreateProperty(m_childType, m_childType == ePT_Ptr ? &serializer : NULL);
+        CPropertyDescriptionBase* pProperty = m_pChildTemplate->Clone(true);
         pProperty->Initialize();
         pProperty->SetBasicInfo(basicInfo);
         pProperty->SetOwner(this->GetOwner());
@@ -219,7 +214,7 @@ void CListPropertyDescriptionEx::LoadFromXML( TiXmlElement* pNode )
     {
         int iVarType = 0;
         pVarElement->Attribute("Type", &iVarType);
-        if (iVarType == m_childType)
+        if (iVarType == m_pChildTemplate->GetType())
         {
             CPropertyDescriptionBase* pNewProperty = AddChild(NULL);
             BEATS_ASSERT(pNewProperty != 0, _T("Create property failed when load from xml for list property description."));
@@ -264,7 +259,6 @@ void CListPropertyDescriptionEx::GetValueAsChar( EValueType type, char* pOut )
 
 void CListPropertyDescriptionEx::Serialize( CSerializer& serializer )
 {
-    serializer << m_childType;
     serializer << m_pChildren->size();
     for (size_t i = 0; i < m_pChildren->size(); ++i)
     {

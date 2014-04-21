@@ -15,6 +15,8 @@
 #include "wxWidgetsProperty/PtrPropertyDescription.h"
 #include "wxWidgetsProperty/EnumPropertyDescription.h"
 #include "wxWidgetsProperty/DoublePropertyDescription.h"
+#include "wxWidgetsProperty/MapPropertyDescription.h"
+
 REGISTER_PROPERTY(bool, ePT_Bool);
 REGISTER_PROPERTY(float, ePT_Float);
 REGISTER_PROPERTY(double, ePT_Double);
@@ -23,6 +25,7 @@ REGISTER_PROPERTY(size_t, ePT_UInt);
 REGISTER_PROPERTY(TString, ePT_Str);
 REGISTER_PROPERTY(CComponentBase*, ePT_Ptr);
 REGISTER_PROPERTY_TEMPLATE1(std::vector, ePT_List);
+REGISTER_PROPERTY_TEMPLATE2(std::map, ePT_Map);
 
 REGISTER_PROPERTY_DESC(ePT_Bool, CBoolPropertyDescription)
 REGISTER_PROPERTY_DESC(ePT_Float, CFloatPropertyDescription)
@@ -33,6 +36,8 @@ REGISTER_PROPERTY_DESC(ePT_UInt, CUIntPropertyDescription)
 REGISTER_PROPERTY_DESC(ePT_Ptr, CPtrPropertyDescription)
 REGISTER_PROPERTY_DESC(ePT_List, CListPropertyDescriptionEx)
 REGISTER_PROPERTY_DESC(ePT_Enum, CEnumPropertyDescription)
+REGISTER_PROPERTY_DESC(ePT_Map, CMapPropertyDescription)
+
 struct SLuancher
 {
     SLuancher()
@@ -72,6 +77,15 @@ enum ETestEnum2
 
 };
 
+static const TCHAR* TestEnumStr[] = 
+{
+    _T("A"),
+    _T("B"),
+    _T("C"),
+    _T("D"),
+    _T("个数"),
+    _T("强制"),
+};
 
 static const TCHAR* TestEnum2Str[] = 
 {
@@ -98,7 +112,7 @@ private:
     size_t m_uintValue;
     TString m_strValue;
     std::vector<int> m_listValue;
-    std::map<int, float> m_mapValue;
+    std::map<ETestEnum, CTestComponent*> m_mapValue;
     CTestComponent* m_ptrValue;
     ETestEnum m_enumValue;
     CTestComponent* m_pNextObj;

@@ -36,8 +36,7 @@ private:
 
 private:
     size_t m_maxCount;
-    EPropertyType m_childType;
-    size_t m_childPtrGuid;
+    CPropertyDescriptionBase* m_pChildTemplate;
     bool m_bFixCount;
 };
 

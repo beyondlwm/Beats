@@ -35,8 +35,8 @@ private:
     CPropertyDescriptionBase* CreateInstance();
 
 private:
-    EPropertyType m_keyType;
-    EPropertyType m_valueType;
+    CPropertyDescriptionBase* m_pKeyPropertyTemplate;
+    CPropertyDescriptionBase* m_pValuePropertyTemplate;
     size_t m_uValuePtrGuid;
 };
 

@@ -33,7 +33,7 @@ struct SSerilaizerExtraInfo
 class CSerializer;
 
 template<typename T>
-inline EPropertyType GetEnumType(T& value, CSerializer* pSerializer, bool bIgnoreValue)
+inline EPropertyType GetEnumType(T& value, CSerializer* pSerializer)
 {
     EPropertyType eRet = ePT_Invalid;
     const char* pszTypeName = typeid(value).name();
@@ -44,10 +44,7 @@ inline EPropertyType GetEnumType(T& value, CSerializer* pSerializer, bool bIgnor
         TCHAR szNameBuffer[128];
         CStringHelper::GetInstance()->ConvertToTCHAR(&pszTypeName[strlen("enum ")], szNameBuffer, 128);
         (*pSerializer) << (size_t)ePT_Enum;
-        if (!bIgnoreValue)
-        {
-            (*pSerializer) << (int)(value);
-        }
+        (*pSerializer) << (int)(value) << szNameBuffer;
     }
     BEATS_ASSERT(bIsEnum, _T("Unknown type!"));
     return eRet;
@@ -84,9 +81,7 @@ inline void DeserializeVarialble(T*& value, CSerializer* pSerializer)
 template<typename T>
 inline void DeserializeVarialble(std::vector<T>& value, CSerializer* pSerializer)
 {
-    EPropertyType childType;
     size_t childCount = 0;
-    *pSerializer >> childType;
     *pSerializer >> childCount;
     value.resize(childCount);
     for (size_t i = 0; i < childCount; ++i)
@@ -95,8 +90,28 @@ inline void DeserializeVarialble(std::vector<T>& value, CSerializer* pSerializer
     }
 }
 
+template<typename T1, typename T2>
+inline void DeserializeVarialble(std::map<T1, T2>& value, CSerializer* pSerializer)
+{
+    EPropertyType keyType;
+    EPropertyType valueType;
+    size_t childCount = 0;
+    *pSerializer >> keyType;
+    *pSerializer >> valueType;
+    *pSerializer >> childCount;
+    for (size_t i = 0; i < childCount; ++i)
+    {
+        T1 key;
+        DeserializeVarialble(key, pSerializer);
+        T2 myValue;
+        DeserializeVarialble(myValue, pSerializer);
+        BEATS_ASSERT(value.find(key) == value.end(), _T("A map can't have two same key value!"));
+        value[key] = myValue;
+    }
+}
+
 template<typename T>
-inline EPropertyType GetEnumType(T*& /*value*/, CSerializer* pSerializer, bool /*bIgnoreValue*/)
+inline EPropertyType GetEnumType(T*& /*value*/, CSerializer* pSerializer)
 {
     size_t guid = T::REFLECT_GUID;
     T* pTestParam = (T*)(guid);
@@ -104,70 +119,63 @@ inline EPropertyType GetEnumType(T*& /*value*/, CSerializer* pSerializer, bool /
     CComponentBase* pReflect = dynamic_cast<CComponentBase*>(pTestParam);
     if (pReflect != NULL)
     {
-        eReturnType = GetEnumType(pReflect, pSerializer, true);
-        if (pSerializer != NULL)
-        {
-            *pSerializer << T::REFLECT_GUID;
-        }
-        return eReturnType;
+        eReturnType = ePT_Ptr;
+        *pSerializer << (int)ePT_Ptr;
+        *pSerializer << T::REFLECT_GUID;
     }
-    BEATS_ASSERT(false, _T("Unknown type!"));
-    return ePT_Invalid;
+    BEATS_ASSERT(eReturnType != ePT_Invalid, _T("Unknown type!"));
+    return eReturnType;
 }
 
 #define REGISTER_PROPERTY(classType, enumType)\
 template<>\
-inline EPropertyType GetEnumType(classType& value, CSerializer* pSerializer, bool bIgnoreValue)\
+inline EPropertyType GetEnumType(classType& value, CSerializer* pSerializer)\
 {\
     if (pSerializer != NULL)\
     {\
         *pSerializer << ((size_t)enumType);\
-        if(!bIgnoreValue)\
-        {\
-            BEATS_ASSERT(enumType != ePT_Ptr && enumType != ePT_List);\
-            *pSerializer << value;\
-        }\
+        *pSerializer << value;\
     }\
     return enumType;\
 }
 
 #define REGISTER_PROPERTY_SHAREPTR(classType, enumType)\
     template<typename T>\
-    inline EPropertyType GetEnumType(classType<T>& /*value*/, CSerializer* pSerializer, bool /*bIgnoreValue*/)\
+    inline EPropertyType GetEnumType(classType<T>& /*value*/, CSerializer* pSerializer)\
 {\
     if (pSerializer != NULL)\
     {\
         *pSerializer << (size_t)enumType;\
-        T* tmp;\
-        GetEnumType(tmp, pSerializer, true);\
+        T* tmp = NULL;\
+        GetEnumType(tmp, pSerializer);\
     }\
     return enumType;\
 }
 
 #define REGISTER_PROPERTY_TEMPLATE1(classType, enumType)\
     template<typename T>\
-    inline EPropertyType GetEnumType(classType<T>& /*value*/, CSerializer* pSerializer, bool /*bIgnoreValue*/)\
+    inline EPropertyType GetEnumType(classType<T>& /*value*/, CSerializer* pSerializer)\
 {\
     if (pSerializer != NULL)\
     {\
         *pSerializer << (size_t)enumType;\
         T tmp;\
-        GetEnumType(tmp, pSerializer, true);\
+        GetEnumType(tmp, pSerializer);\
     }\
     return enumType;\
 }
 
 #define REGISTER_PROPERTY_TEMPLATE2(classType, enumType)\
     template<typename T1, typename T2>\
-    inline EPropertyType GetEnumType(classType<T1, T2>& /*value*/, CSerializer* pSerializer, bool /*bIgnoreValue*/)\
+    inline EPropertyType GetEnumType(classType<T1, T2>& /*value*/, CSerializer* pSerializer)\
 {\
     if (pSerializer != NULL)\
 {\
     *pSerializer << (size_t)enumType;\
     T1 tmp1;\
-    GetEnumType(tmp1, pSerializer, true);\
+    GetEnumType(tmp1, pSerializer);\
     T2 tmp2;\
-    GetEnumType(tmp2, pSerializer, true);\
+    GetEnumType(tmp2, pSerializer);\
 }\
     return enumType;\
 }
@@ -233,7 +241,7 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
 #define DECLARE_PROPERTY(serializer, property, editable, color, displayName, catalog, tip, parameter)\
 {\
     serializer << (bool) true;\
-    EPropertyType propertyType = GetEnumType(property, &serializer, false);\
+    EPropertyType propertyType = GetEnumType(property, &serializer);\
     size_t nPropertyDataSizeHolder = serializer.GetWritePos();\
     serializer << nPropertyDataSizeHolder;\
     const TCHAR* pszParam = parameter;\
@@ -393,7 +401,7 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
             GetModuleFileName(NULL, szFilePath, MAX_PATH);\
             PathRemoveFileSpec(szFilePath);\
             _tcscat(szFilePath, _T("\\AIData.bin"));\
-            bool bFileExists = PathFileExists(szFilePath);\
+            bool bFileExists = PathFileExists(szFilePath) != FALSE;\
             BEATS_ASSERT(bFileExists, _T("The data file doesn't exists in path : %s"), szFilePath);\
             if(bFileExists)\
             {\

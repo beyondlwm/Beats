@@ -55,8 +55,6 @@ bool CPtrPropertyDescription::AnalyseUIParameterImpl( const std::vector<TString>
             parameter = result[1].c_str();
         }
         m_bHasInstance = parameter[0] == _T('+');
-        wxVariant var(parameter);
-        SetValue(var, true);
     }
 
     return true;
@@ -223,7 +221,7 @@ void CPtrPropertyDescription::UpdateDisplayString(size_t uComponentGuid)
 {
     TString strComponentName = CComponentManager::GetInstance()->QueryComponentName(uComponentGuid);
     BEATS_ASSERT(strComponentName.length() > 0, _T("Can't Find the component name of GUID: %d"), uComponentGuid);
-    wxString value = wxString::Format(_T("%s%s@0x%x"), _T(""), strComponentName.c_str(), uComponentGuid);
+    wxString value = wxString::Format(_T("%s%s@0x%x"), m_bHasInstance ? _T("+") : _T(""), strComponentName.c_str(), uComponentGuid);
     TString valueStr(value);
     for (size_t i = eVT_DefaultValue; i < eVT_Count; ++i)
     {

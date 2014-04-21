@@ -10,26 +10,27 @@ static const TString EMPTY_STRING = _T("Empty");
 
 CMapPropertyDescription::CMapPropertyDescription(CSerializer* pSerializer)
     : super(ePT_Map)
-    , m_valueType(ePT_Invalid)
+    , m_pKeyPropertyTemplate(NULL)
+    , m_pValuePropertyTemplate(NULL)
     , m_uValuePtrGuid(0xFFFFFFFF)
 {
     if (pSerializer != NULL)
     {
-        (*pSerializer) >> m_keyType;
-        BEATS_ASSERT(m_keyType != ePT_Ptr, _T("Key can't be ePT_Ptr! It's not implemented yet!"));
-        (*pSerializer) >> m_valueType;
-        if (m_valueType == ePT_Ptr)
-        {
-            (*pSerializer) >> m_uValuePtrGuid;
-        }
+        EPropertyType keyType;
+        (*pSerializer) >> keyType;
+        BEATS_ASSERT(keyType != ePT_Ptr, _T("Key can't be ePT_Ptr! It's not implemented yet!"));
+        m_pKeyPropertyTemplate = CComponentManager::GetInstance()->CreateProperty(keyType, pSerializer);
+        EPropertyType valueType;
+        (*pSerializer) >> valueType;
+        m_pValuePropertyTemplate = CComponentManager::GetInstance()->CreateProperty(valueType, pSerializer);
     }
     InitializeValue(EMPTY_STRING);
 }
 
 CMapPropertyDescription::CMapPropertyDescription(const CMapPropertyDescription& rRef)
     : super(rRef)
-    , m_keyType(rRef.m_keyType)
-    , m_valueType(rRef.m_valueType)
+    , m_pKeyPropertyTemplate(rRef.m_pKeyPropertyTemplate->Clone(true))
+    , m_pValuePropertyTemplate(rRef.m_pValuePropertyTemplate->Clone(true))
     , m_uValuePtrGuid(rRef.m_uValuePtrGuid)
 {
     InitializeValue(EMPTY_STRING);
@@ -73,16 +74,7 @@ void CMapPropertyDescription::SetValue( void* pValue, EValueType type )
 
 bool CMapPropertyDescription::IsDataSame( bool bWithDefaultOrXML )
 {
-    bool bRet = false;
-    if (bWithDefaultOrXML)
-    {
-        bRet = m_pChildren->size() == 0;
-    }
-    else
-    {
-        bRet = false;
-    }
-    return bRet;
+    return bWithDefaultOrXML && m_pChildren->size() == 0;
 }
 
 bool CMapPropertyDescription::IsContainerProperty()
@@ -109,22 +101,22 @@ CPropertyDescriptionBase* CMapPropertyDescription::CreateInstance()
     SBasicPropertyInfo basicInfo = GetBasicInfo();
     basicInfo.m_displayName.assign(szChildName);
     basicInfo.m_variableName.assign(szChildName);
+    basicInfo.m_bEditable = false;
 
     CPropertyDescriptionBase* pRet = CComponentManager::GetInstance()->CreateProperty(ePT_Str, NULL);
     pRet->Initialize();
     pRet->SetBasicInfo(basicInfo);
     pRet->SetOwner(this->GetOwner());
 
-    CPropertyDescriptionBase* pKey = CComponentManager::GetInstance()->CreateProperty(m_keyType, NULL);
+    basicInfo.m_bEditable = true;// Only label can't be changed.
+    CPropertyDescriptionBase* pKey = m_pKeyPropertyTemplate->Clone(false);
     pKey->Initialize();
     basicInfo.m_displayName.assign(_T("Key"));
     basicInfo.m_variableName.assign(_T("Key"));
     pKey->SetBasicInfo(basicInfo);
     pKey->SetOwner(this->GetOwner());
 
-    CSerializer serializer;
-    serializer << m_uValuePtrGuid;
-    CPropertyDescriptionBase* pValue = CComponentManager::GetInstance()->CreateProperty(m_valueType, m_valueType == ePT_Ptr ? &serializer : NULL);
+    CPropertyDescriptionBase* pValue = m_pValuePropertyTemplate->Clone(false);
     pValue->Initialize();
     basicInfo.m_displayName.assign(_T("Value"));
     basicInfo.m_variableName.assign(_T("Value"));
@@ -196,13 +188,17 @@ void CMapPropertyDescription::LoadFromXML( TiXmlElement* pNode )
     {
         int iVarType = 0;
         pVarElement->Attribute("Type", &iVarType);
-        if (iVarType == m_valueType)
+        BEATS_ASSERT(iVarType == ePT_Str);
+        if (iVarType == ePT_Str)
         {
             CPropertyDescriptionBase* pNewProperty = AddChild(NULL);
             BEATS_ASSERT(pNewProperty != 0, _T("Create property failed when load from xml for list property description."));
             if (pNewProperty != NULL)
             {
-                pNewProperty->LoadFromXML(pVarElement);
+                TiXmlElement* pChildVarElement = pVarElement->FirstChildElement("VariableNode");
+                pNewProperty->GetChild(0)->LoadFromXML(pChildVarElement);
+                pChildVarElement = pChildVarElement->NextSiblingElement("VariableNode");
+                pNewProperty->GetChild(1)->LoadFromXML(pChildVarElement);
             }
         }
         else
@@ -222,6 +218,13 @@ CPropertyDescriptionBase* CMapPropertyDescription::Clone(bool bCloneValue)
         {
             CPropertyDescriptionBase* pPropertyBase = (*m_pChildren)[i];
             CPropertyDescriptionBase* pNewChildPropertyBase = pPropertyBase->Clone(true);
+            BEATS_ASSERT(pPropertyBase->GetChildrenCount() == 2, _T("Map property must contain two property childern for each element."));
+            CPropertyDescriptionBase* pKeyProperty = pPropertyBase->GetChild(0);
+            CPropertyDescriptionBase* pNewKeyProperty = pKeyProperty->Clone(true);
+            CPropertyDescriptionBase* pValueProperty = pPropertyBase->GetChild(1);
+            CPropertyDescriptionBase* pNewValueProperty = pValueProperty->Clone(true);
+            pNewChildPropertyBase->AddChild(pNewKeyProperty);
+            pNewChildPropertyBase->AddChild(pNewValueProperty);
             pNewProperty->AddChild(pNewChildPropertyBase);
         }
     }
@@ -241,12 +244,14 @@ void CMapPropertyDescription::GetValueAsChar( EValueType type, char* pOut )
 
 void CMapPropertyDescription::Serialize( CSerializer& serializer )
 {
-    serializer << m_keyType;
-    serializer << m_valueType;
+    serializer << m_pKeyPropertyTemplate->GetType();
+    serializer << m_pValuePropertyTemplate->GetType();
     serializer << m_pChildren->size();
     for (size_t i = 0; i < m_pChildren->size(); ++i)
     {
-        (*m_pChildren)[i]->Serialize(serializer);
+        BEATS_ASSERT((*m_pChildren)[i]->GetChildrenCount() == 2, _T("An element of map must contain two children!"));
+        (*m_pChildren)[i]->GetChild(0)->Serialize(serializer);
+        (*m_pChildren)[i]->GetChild(1)->Serialize(serializer);
     }
 }
 
