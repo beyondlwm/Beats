@@ -14,6 +14,9 @@ CTestComponent::CTestComponent(CSerializer& serializer)
 , m_uintValue(0)
 , m_ptrValue(NULL)
 , m_enumValue(eTE_A)
+, m_pNextObj(NULL)
+, m_pNextObj1(NULL)
+, m_pNextObj2(NULL)
 {
     DECLARE_PROPERTY(serializer, m_floatValue, true, 0xffffffff, _T("ÉúÃüÖµ"), _T(""), _T(""), _T("DefaultValue: 7.5, SpinStep: 0.7"));
     DECLARE_PROPERTY(serializer, m_doubleValue, true, 0xffffffff, NULL, NULL, NULL, NULL);

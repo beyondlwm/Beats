@@ -160,6 +160,7 @@ inline EPropertyType GetEnumType(classType& value, CSerializer* pSerializer)\
     {\
         *pSerializer << (size_t)enumType;\
         T tmp;\
+        InitValue(tmp);\
         GetEnumType(tmp, pSerializer);\
     }\
     return enumType;\
@@ -173,13 +174,24 @@ inline EPropertyType GetEnumType(classType& value, CSerializer* pSerializer)\
 {\
     *pSerializer << (size_t)enumType;\
     T1 tmp1;\
+    InitValue(tmp1);\
     GetEnumType(tmp1, pSerializer);\
     T2 tmp2;\
+    InitValue(tmp2);\
     GetEnumType(tmp2, pSerializer);\
 }\
     return enumType;\
 }
 
+template<typename T>
+inline void InitValue(const T& param)
+{
+    //TODO: I don't know how to init a template value, so this is the HACK way.
+    if (sizeof(T) <= 4)
+    {
+        ZeroMemory(&param, sizeof(T));
+    }
+}
 
 #define REGISTER_PROPERTY_DESC(enumType, propertyDescriptionType)\
     CPropertyDescriptionBase* CreateProperty_##propertyDescriptionType(CSerializer* serilaizer)\
