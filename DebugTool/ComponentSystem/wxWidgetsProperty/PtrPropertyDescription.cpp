@@ -220,7 +220,7 @@ void CPtrPropertyDescription::Initialize()
 void CPtrPropertyDescription::UpdateDisplayString(size_t uComponentGuid)
 {
     TString strComponentName = CComponentManager::GetInstance()->QueryComponentName(uComponentGuid);
-    BEATS_ASSERT(strComponentName.length() > 0, _T("Can't Find the component name of GUID: %d"), uComponentGuid);
+    BEATS_ASSERT(strComponentName.length() > 0, _T("Can't Find the component name of GUID: 0x%x"), uComponentGuid);
     wxString value = wxString::Format(_T("%s%s@0x%x"), m_bHasInstance ? _T("+") : _T(""), strComponentName.c_str(), uComponentGuid);
     TString valueStr(value);
     for (size_t i = eVT_DefaultValue; i < eVT_Count; ++i)

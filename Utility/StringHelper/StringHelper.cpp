@@ -45,7 +45,7 @@ bool CStringHelper::SplitString( const TCHAR* pParameter, const TCHAR* pSpliter,
         }
         result.push_back(cache);
         memset(cache, 0, MAX_CACH_SIZE);
-        pReader = pFindStr + 1;
+        pReader = pFindStr + _tcslen(pSpliter);
         pFindStr = _tcsstr(pReader, pSpliter);
     }
     memset(cache, 0, MAX_CACH_SIZE);

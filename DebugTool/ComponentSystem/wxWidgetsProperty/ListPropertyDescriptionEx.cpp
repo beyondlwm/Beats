@@ -12,6 +12,7 @@ CListPropertyDescriptionEx::CListPropertyDescriptionEx(CSerializer* pSerializer)
 : super(ePT_List)
 , m_uMaxCount(INT_MAX)
 , m_bFixCount(false)
+, m_pChildTemplate(NULL)
 {
     if (pSerializer != NULL)
     {

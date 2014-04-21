@@ -720,7 +720,7 @@ TString CComponentManager::QueryComponentName(size_t uGuid) const
     else
     {
         CComponentBase* pComponent = GetComponentTemplate(uGuid);
-        BEATS_ASSERT(pComponent != NULL, _T("Can't Find Component with GUID: %d"), uGuid);
+        BEATS_ASSERT(pComponent != NULL, _T("Can't Find Component with GUID: 0x%x"), uGuid);
         strRet = pComponent->GetClassStr();
     }
     return strRet;
