@@ -189,7 +189,7 @@ inline void InitValue(const T& param)
     //TODO: I don't know how to init a template value, so this is the HACK way.
     if (sizeof(T) <= 4)
     {
-        ZeroMemory(&param, sizeof(T));
+        ZeroMemory((void*)&param, sizeof(T));
     }
 }
 

@@ -13,6 +13,13 @@ public:
     virtual ~CListPropertyDescriptionEx();
 
     virtual bool IsContainerProperty() override;
+    bool IsFixed() const;
+    void SetFixed(bool bFixedFlag);
+    size_t GetMaxCount() const;
+    void SetMaxCount(size_t uMaxCount);
+    void SetTemplateProperty(CPropertyDescriptionBase* pTemplateProperty);
+    CPropertyDescriptionBase* GetTemplateProperty() const;
+
     virtual CPropertyDescriptionBase* AddChild(CPropertyDescriptionBase* pProperty) override;
     virtual bool DeleteChild(CPropertyDescriptionBase* pProperty, bool bKeepOrder = false) override;
     virtual void DeleteAllChild() override;
@@ -35,9 +42,9 @@ private:
     CPropertyDescriptionBase* CreateInstance();
 
 private:
-    size_t m_maxCount;
-    CPropertyDescriptionBase* m_pChildTemplate;
     bool m_bFixCount;
+    size_t m_uMaxCount;
+    CPropertyDescriptionBase* m_pChildTemplate;
 };
 
 #endif

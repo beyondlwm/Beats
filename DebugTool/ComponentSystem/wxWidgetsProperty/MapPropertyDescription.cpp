@@ -38,6 +38,8 @@ CMapPropertyDescription::CMapPropertyDescription(const CMapPropertyDescription& 
 
 CMapPropertyDescription::~CMapPropertyDescription()
 {
+    BEATS_SAFE_DELETE(m_pKeyPropertyTemplate);
+    BEATS_SAFE_DELETE(m_pValuePropertyTemplate);
     DestoryValue<TString>();
 }
 

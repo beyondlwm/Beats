@@ -10,7 +10,7 @@ static const TString EMPTY_STRING = _T("Empty");
 
 CListPropertyDescriptionEx::CListPropertyDescriptionEx(CSerializer* pSerializer)
 : super(ePT_List)
-, m_maxCount(INT_MAX)
+, m_uMaxCount(INT_MAX)
 , m_bFixCount(false)
 {
     if (pSerializer != NULL)
@@ -24,7 +24,7 @@ CListPropertyDescriptionEx::CListPropertyDescriptionEx(CSerializer* pSerializer)
 
 CListPropertyDescriptionEx::CListPropertyDescriptionEx(const CListPropertyDescriptionEx& rRef)
 : super(rRef)
-, m_maxCount(rRef.m_maxCount)
+, m_uMaxCount(rRef.m_uMaxCount)
 , m_bFixCount(rRef.m_bFixCount)
 , m_pChildTemplate(rRef.m_pChildTemplate->Clone(true))
 {
@@ -33,6 +33,7 @@ CListPropertyDescriptionEx::CListPropertyDescriptionEx(const CListPropertyDescri
 
 CListPropertyDescriptionEx::~CListPropertyDescriptionEx()
 {
+    BEATS_SAFE_DELETE(m_pChildTemplate);
     DestoryValue<TString>();
 }
 
@@ -46,7 +47,7 @@ bool CListPropertyDescriptionEx::AnalyseUIParameterImpl(const std::vector<TStrin
         BEATS_ASSERT(cache.size() == 2 || cache.size() == 1);
         if (_tcsicmp(cache[0].c_str(), UIParameterAttrStr[eUIPAT_MaxCount]) == 0)
         {
-            m_maxCount = _tstoi(cache[1].c_str());
+            m_uMaxCount = _tstoi(cache[1].c_str());
         }
         else if (_tcsicmp(cache[0].c_str(), UIParameterAttrStr[eUIPAT_FixCount]) == 0)
         {
@@ -123,7 +124,7 @@ bool CListPropertyDescriptionEx::IsDataSame( bool bWithDefaultOrXML )
 CPropertyDescriptionBase* CListPropertyDescriptionEx::CreateInstance()
 {
     CPropertyDescriptionBase* bRet = NULL;
-    if (m_pChildren->size() < m_maxCount)
+    if (m_pChildren->size() < m_uMaxCount)
     {
         TCHAR szChildName[32];
         _stprintf(szChildName, _T("Child_%d"), m_pChildren->size());
@@ -138,6 +139,37 @@ CPropertyDescriptionBase* CListPropertyDescriptionEx::CreateInstance()
         bRet = pProperty;
     }
     return bRet;
+}
+
+bool CListPropertyDescriptionEx::IsFixed() const
+{
+    return m_bFixCount;
+}
+
+void CListPropertyDescriptionEx::SetFixed(bool bFixedFlag)
+{
+    m_bFixCount = bFixedFlag;
+}
+
+size_t CListPropertyDescriptionEx::GetMaxCount() const
+{
+    return m_uMaxCount;
+}
+
+void CListPropertyDescriptionEx::SetMaxCount(size_t uMaxCount)
+{
+    m_uMaxCount = uMaxCount;
+}
+
+void CListPropertyDescriptionEx::SetTemplateProperty(CPropertyDescriptionBase* pTemplateProperty)
+{
+    BEATS_SAFE_DELETE(m_pChildTemplate);
+    m_pChildTemplate = pTemplateProperty;
+}
+
+CPropertyDescriptionBase* CListPropertyDescriptionEx::GetTemplateProperty() const
+{
+    return m_pChildTemplate;
 }
 
 bool CListPropertyDescriptionEx::IsContainerProperty()
