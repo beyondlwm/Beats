@@ -174,7 +174,7 @@ CComponentBase* CComponentManager::CreateComponent( size_t guid, bool bCloneFrom
     }
     __except(EXCEPTION_EXECUTE_HANDLER)
     {
-        BEATS_ASSERT(false, _T("Create Component Failed! GUID :%d ManualManage:%s"), guid, bManualManage ? _T("Yes"):_T("No"));
+        BEATS_ASSERT(false, _T("Create Component Failed! GUID :0x%x ManualManage:%s"), guid, bManualManage ? _T("Yes"):_T("No"));
     }
     return pNewInstance;
 }
@@ -295,7 +295,7 @@ void CComponentManager::LoadTemplateDataFromXML(const TCHAR* pszPath)
                     }
                     else
                     {
-                        BEATS_PRINT(_T("Component (guid %d) doesn't exist, have you deleted it recently?\n"), guid);
+                        BEATS_PRINT(_T("Component (guid 0x%x) doesn't exist, have you deleted it recently?\n"), guid);
                     }
                     pInstanceElement = pInstanceElement->NextSiblingElement("Instance");
                 }
@@ -556,12 +556,7 @@ void CComponentManager::Import( CSerializer& serializer)
                 size_t uStartPos = serializer.GetReadPos();
                 serializer >> uDataSize >> uGuid >> uId;
                 CComponentBase* pComponent = CComponentManager::GetInstance()->CreateComponent(uGuid, false, false, uId, true, &serializer);
-                if (uStartPos + uDataSize != serializer.GetReadPos())
-                {
-                    TCHAR szInfo[256];
-                    _stprintf(szInfo, _T("Got an error when import data for component %x %s instance id %d"), uGuid, pComponent->GetClassStr(), uId);
-                    MessageBox(NULL, szInfo, _T("Component Data Not Match!"), MB_OK | MB_ICONERROR);
-                }
+                BEATS_ASSERT(uStartPos + uDataSize == serializer.GetReadPos(), _T("Component Data Not Match!\nGot an error when import data for component %x %s instance id %d\nRequired size: %d, Actual size: %d"), uGuid, pComponent->GetClassStr(), uId, uDataSize, serializer.GetReadPos() - uStartPos);
                 serializer.SetReadPos(uStartPos + uDataSize);
             }
         }

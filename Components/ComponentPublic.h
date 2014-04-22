@@ -72,12 +72,8 @@ inline void DeserializeVarialble(T*& value, CSerializer* pSerializer)
         *pSerializer >> uGuid;
         *pSerializer >> uId;
         value = dynamic_cast<T*>(CComponentManager::GetInstance()->CreateComponent(uGuid, false, true, 0xFFFFFFFF, false, pSerializer));
-        if ((uStartPos + uDataSize) != pSerializer->GetReadPos())
-        {
-            TCHAR szInfo[256];
-            _stprintf(szInfo, _T("Got an error when creating data for component"));
-            MessageBox(NULL, szInfo, _T("Component Data Not Match!"), MB_OK | MB_ICONERROR);
-        }
+        BEATS_ASSERT(uStartPos + uDataSize == pSerializer->GetReadPos(), 
+            _T("Component Data Not Match!\nGot an error when Deserialize a pointer of component 0x%x %s instance id %d\nRequired size: %d, Actual size: %d"), uGuid, value->GetClassStr(), uId, uDataSize, pSerializer->GetReadPos() - uStartPos);
     }
 }
 
