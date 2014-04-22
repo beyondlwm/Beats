@@ -21,7 +21,7 @@ public:
 
     virtual void SetValue(wxVariant& value, bool bSaveValue);
 
-    virtual bool AnalyseUIParameterImpl(const std::vector<TString>& parameterUnit, bool bSerializePhase = false);
+    virtual bool AnalyseUIParameterImpl(const std::vector<TString>& parameterUnit);
     virtual wxPGProperty* CreateWxProperty();
     virtual void LoadFromXML(TiXmlElement* pNode);
     virtual bool IsDataSame(bool bWithDefaultOrXML);
@@ -30,7 +30,8 @@ public:
     virtual CPropertyDescriptionBase* CreateNewInstance();
 
     virtual void SetValue(void* pDefaultValue, EValueType type);
-    virtual void GetValueAsChar(EValueType type, char* pOut);
+    virtual void GetValueAsChar(EValueType type, char* pOut) override;
+    virtual bool GetValueByTChar(const TCHAR* pIn, void* pOutValue) override;
     virtual void Serialize(CSerializer& serializer);
     virtual void Initialize();
 

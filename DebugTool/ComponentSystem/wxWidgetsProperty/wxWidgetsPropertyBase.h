@@ -28,8 +28,8 @@ public:
     virtual void SetValue(wxVariant& value, bool bSaveValue = true) = 0;
     virtual void SaveToXML(TiXmlElement* pParentNode);
     virtual void LoadFromXML(TiXmlElement* pNode);
-    virtual bool AnalyseUIParameter(const TCHAR* parameter, bool bSerializePhase = false);
-    virtual bool AnalyseUIParameterImpl(const std::vector<TString>& parameterUnit, bool bSerializePhase = false) = 0;
+    virtual void AnalyseUIParameter(const TCHAR* parameter);
+    virtual bool AnalyseUIParameterImpl(const std::vector<TString>& parameterUnit) = 0;
 
 private:
     SharePtr<CPropertyTrigger> m_pVisibleWhenTrigger;

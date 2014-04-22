@@ -11,13 +11,14 @@ public:
     CUIntPropertyDescription(const CUIntPropertyDescription& rRef);
     virtual ~CUIntPropertyDescription();
 
-    virtual bool AnalyseUIParameterImpl(const std::vector<TString>& parameterUnit, bool bSerializePhase = false );
+    virtual bool AnalyseUIParameterImpl(const std::vector<TString>& parameterUnit);
     virtual wxPGProperty* CreateWxProperty();
     virtual void SetValue(wxVariant& value, bool bSaveValue = true);
     virtual void SetValue(void* pValue, EValueType type);
     virtual bool IsDataSame(bool bWithDefaultOrXML);
     virtual CPropertyDescriptionBase* CreateNewInstance();
-    virtual void GetValueAsChar(EValueType type, char* pOut);
+    virtual void GetValueAsChar(EValueType type, char* pOut) override;
+    virtual bool GetValueByTChar(const TCHAR* pIn, void* pOutValue) override;
     virtual void Serialize(CSerializer& serializer);
 
 private:

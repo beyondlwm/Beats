@@ -82,6 +82,7 @@ public:
     virtual CPropertyDescriptionBase* CreateNewInstance() = 0;
 
     virtual void GetValueAsChar(EValueType type, char* pOut) = 0;
+    virtual bool GetValueByTChar(const TCHAR* pIn, void* pOutValue) = 0;
     virtual void SetValue(void* pDefaultValue, EValueType type) = 0;
 
     // It's very important to know what this function mean.
@@ -90,10 +91,8 @@ public:
     // Notice: Default Value stores in wxPGProperty's defaultValue; current value stores in wxPGProperty's value; XML value stores in m_refVariableAddr.
     virtual bool IsDataSame(bool bWithDefaultOrXML) = 0;
 
-    // This function will be called when:
-    // 1. Serialize from macro to data.
-    // 2. Load XML data and parse the string.
-    virtual bool AnalyseUIParameter(const TCHAR* parameter, bool bSerializePhase = false) = 0;
+    // This function will be called when Serialize from macro to data.
+    virtual void AnalyseUIParameter(const TCHAR* parameter) = 0;
 
     virtual void SaveToXML(TiXmlElement* pParentNode) = 0;
     virtual void LoadFromXML(TiXmlElement* pNode) = 0;

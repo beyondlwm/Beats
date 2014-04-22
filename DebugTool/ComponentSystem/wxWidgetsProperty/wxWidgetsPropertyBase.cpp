@@ -92,26 +92,23 @@ void CWxwidgetsPropertyBase::LoadFromXML( TiXmlElement* pNode )
     const char* pValue = pNode->Attribute("SavedValue");
     TCHAR pTCHARValue[10240];
     CStringHelper::GetInstance()->ConvertToTCHAR(pValue, pTCHARValue, 10240);
-    // NOTICE: Here we do a little trick:To reuse the function AnalyseUIParameter to read data from string.
-    // We need to formated the saved value with UIParameterAttrStr[eUIPAT_DefaultValue] parameter flag.
-    // And we set the bSerializePhase to false, So we won't change the real default value.
-    AnalyseUIParameter(wxString::Format(_T("%s:%s"), UIParameterAttrStr[eUIPAT_DefaultValue], pTCHARValue), false);
+    GetValueByTChar(pTCHARValue, m_valueArray[eVT_CurrentValue]);
+    GetValueByTChar(pTCHARValue, m_valueArray[eVT_SavedValue]);
 }
 
-bool CWxwidgetsPropertyBase::AnalyseUIParameter( const TCHAR* parameter, bool bSerializePhase /*= false*/ )
+void CWxwidgetsPropertyBase::AnalyseUIParameter( const TCHAR* parameter )
 {
-    bool bHasParamter = parameter != NULL && parameter[0] != 0;
-    if (bHasParamter)
+    if (parameter != NULL && parameter[0] != 0)
     {
         CStringHelper* pStringHelper = CStringHelper::GetInstance();
         std::vector<TString> paramUnit;
         // Don't Ignore the space, because the string value may contains space.
-        pStringHelper->SplitString(parameter, _T(","), paramUnit, false);
+        pStringHelper->SplitString(parameter, PROPERTY_PARAM_SPLIT_STR, paramUnit, false);
         std::vector<TString> cache;
         for (std::vector<TString>::iterator iter = paramUnit.begin(); iter != paramUnit.end();)
         {
             cache.resize(0);
-            pStringHelper->SplitString(iter->c_str(), _T(":"), cache, true);
+            pStringHelper->SplitString(iter->c_str(), PROPERTY_KEYWORD_SPLIT_STR, cache, true);
             bool bHandled = false;
             if(cache.size() == 2)
             {
@@ -130,7 +127,6 @@ bool CWxwidgetsPropertyBase::AnalyseUIParameter( const TCHAR* parameter, bool bS
                 ++iter;
             }
         }
-        bHasParamter = AnalyseUIParameterImpl(paramUnit, bSerializePhase);
+        AnalyseUIParameterImpl(paramUnit);
     }
-    return bHasParamter;
 }

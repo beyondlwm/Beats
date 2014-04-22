@@ -31,20 +31,18 @@ CColorPropertyDescription::~CColorPropertyDescription()
     DestoryValue<size_t>();
 }
 
-bool CColorPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>& result, bool bSerializePhase/* = false */)
+bool CColorPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>& result)
 {
     std::vector<TString> cache;
     for (size_t i = 0; i < result.size(); ++i)
     {
         cache.clear();
-        CStringHelper::GetInstance()->SplitString(result[i].c_str(), _T(":"), cache);
+        CStringHelper::GetInstance()->SplitString(result[i].c_str(), PROPERTY_KEYWORD_SPLIT_STR, cache);
         BEATS_ASSERT(cache.size() == 2);
         if (_tcsicmp(cache[0].c_str(), UIParameterAttrStr[eUIPAT_DefaultValue]) == 0)
         {
-            TCHAR* pEndChar = NULL;
-            size_t uValue = _tcstoul(cache[1].c_str(), &pEndChar, 10);
-            BEATS_ASSERT(_tcslen(pEndChar) == 0, _T("Read uint from string %s error, stop at %s"), cache[1].c_str(), pEndChar);
-            BEATS_ASSERT(errno == 0, _T("Call _tcstoul failed! string %s radix: 10"), cache[1].c_str());
+            size_t uValue = 0;
+            GetValueByTChar(cache[1].c_str(), &uValue);
             unsigned char r = uValue >> 24;
             unsigned char g = (uValue >> 16) & 0x000000FF;
             unsigned char b = (uValue >> 8) & 0x000000FF;
@@ -52,11 +50,8 @@ bool CColorPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString
             wxColour color(r, g, b, a);
             wxVariant var(color);
             SetValue(var, true);
-            if (bSerializePhase)
-            {
-                uValue = var.GetULongLong().GetLo();
-                SetValue(&uValue, eVT_DefaultValue);
-            }
+            uValue = var.GetULongLong().GetLo();
+            SetValue(&uValue, eVT_DefaultValue);
         }
         else
         {
@@ -117,6 +112,16 @@ void CColorPropertyDescription::GetValueAsChar( EValueType type, char* pOut )
 {
     size_t iValue = *(size_t*)m_valueArray[type];
     sprintf(pOut, "%u", iValue);
+}
+
+bool CColorPropertyDescription::GetValueByTChar(const TCHAR* pIn, void* pOutValue)
+{
+    TCHAR* pEndChar = NULL;
+    size_t uValue = _tcstoul(pIn, &pEndChar, 10);
+    BEATS_ASSERT(_tcslen(pEndChar) == 0, _T("Read uint from string %s error, stop at %s"), pIn, pEndChar);
+    BEATS_ASSERT(errno == 0, _T("Call _tcstoul failed! string %s radix: 10"), pIn);
+    *(size_t*)pOutValue = uValue;
+    return true;
 }
 
 void CColorPropertyDescription::Serialize( CSerializer& serializer )

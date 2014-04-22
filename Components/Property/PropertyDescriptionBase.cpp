@@ -90,7 +90,7 @@ bool CPropertyDescriptionBase::Deserialize( CSerializer& serializer )
     TCHAR* pParameter = NULL;
     TCHAR** pParameterHolder = &pParameter;
     serializer.Read(pParameterHolder);
-    this->AnalyseUIParameter(pParameter, true);
+    this->AnalyseUIParameter(pParameter);
     size_t totalSize = serializer.GetReadPos() - startPos;
     BEATS_ASSERT(dataLenghth == totalSize, _T("Read data of property: %s in component: %d Failed, Data Length :%d while require %d"), (*m_pBasicInfo)->m_variableName.c_str(), m_pOwner->GetGuid(), dataLenghth, totalSize);
     serializer.SetReadPos(startPos + dataLenghth);

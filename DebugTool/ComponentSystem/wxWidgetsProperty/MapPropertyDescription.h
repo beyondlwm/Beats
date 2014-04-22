@@ -23,10 +23,11 @@ public:
     virtual bool IsDataSame(bool bWithDefaultOrXML);
     virtual CPropertyDescriptionBase* Clone(bool bCloneValue);
     virtual CPropertyDescriptionBase* CreateNewInstance();
-    virtual void GetValueAsChar(EValueType type, char* pOut);
+    virtual void GetValueAsChar(EValueType type, char* pOut) override;
+    virtual bool GetValueByTChar(const TCHAR* pIn, void* pOutValue) override;
     virtual void LoadFromXML(TiXmlElement* pNode);
     virtual void Serialize(CSerializer& serializer);
-    virtual bool AnalyseUIParameterImpl(const std::vector<TString>& parameterUnit, bool bSerializePhase = false);
+    virtual bool AnalyseUIParameterImpl(const std::vector<TString>& parameterUnit);
 
 private:
     void ResetChildName();

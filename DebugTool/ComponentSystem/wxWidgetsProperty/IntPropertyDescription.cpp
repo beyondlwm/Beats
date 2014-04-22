@@ -32,23 +32,21 @@ CIntPropertyDescription::~CIntPropertyDescription()
     DestoryValue<int>();
 }
 
-bool CIntPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>& result, bool bSerializePhase/* = false */)
+bool CIntPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>& result)
 {
     std::vector<TString> cache;
     for (size_t i = 0; i < result.size(); ++i)
     {
         cache.clear();
-        CStringHelper::GetInstance()->SplitString(result[i].c_str(), _T(":"), cache);
+        CStringHelper::GetInstance()->SplitString(result[i].c_str(), PROPERTY_KEYWORD_SPLIT_STR, cache);
         BEATS_ASSERT(cache.size() == 2);
         if (_tcsicmp(cache[0].c_str(), UIParameterAttrStr[eUIPAT_DefaultValue]) == 0)
         {
-            int iValue = _tstoi(cache[1].c_str());
+            int iValue = 0;
+            GetValueByTChar(cache[1].c_str(), &iValue);
             wxVariant var(iValue);
             SetValue(var, true);
-            if (bSerializePhase)
-            {
-                SetValue(&iValue, eVT_DefaultValue);
-            }
+            SetValue(&iValue, eVT_DefaultValue);
         }
         else if (_tcsicmp(cache[0].c_str(), UIParameterAttrStr[eUIPAT_MinValue]) == 0)
         {
@@ -122,6 +120,12 @@ void CIntPropertyDescription::GetValueAsChar( EValueType type, char* pOut )
 {
     int iValue = *(int*)m_valueArray[type];
     sprintf(pOut, "%d", iValue);
+}
+
+bool CIntPropertyDescription::GetValueByTChar(const TCHAR* pIn, void* pOutValue)
+{
+    *(int*)pOutValue = _tstoi(pIn);
+    return true;
 }
 
 void CIntPropertyDescription::Serialize( CSerializer& serializer )

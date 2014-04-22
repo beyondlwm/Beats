@@ -28,7 +28,7 @@ CStringPropertyDescription::~CStringPropertyDescription()
     DestoryValue<TString>();
 }
 
-bool CStringPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>& result, bool bSerializePhase/* = false */)
+bool CStringPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>& result)
 {
     static std::vector<TString> m_spaceFilter;
     if (m_spaceFilter.size() == 0)
@@ -39,7 +39,7 @@ bool CStringPropertyDescription::AnalyseUIParameterImpl(const std::vector<TStrin
     for (size_t i = 0; i < result.size(); ++i)
     {
         cache.clear();
-        CStringHelper::GetInstance()->SplitString(result[i].c_str(), _T(":"), cache, false);
+        CStringHelper::GetInstance()->SplitString(result[i].c_str(), PROPERTY_KEYWORD_SPLIT_STR, cache, false);
         // Manually filter the space of keyword because we specify "bIgnoreSpace = false" to SplitString(to avoid filter the space in the string content).
         cache[0] = CStringHelper::GetInstance()->FilterString(cache[0].c_str(), m_spaceFilter);
         BEATS_ASSERT(cache.size() <= 2);
@@ -47,13 +47,11 @@ bool CStringPropertyDescription::AnalyseUIParameterImpl(const std::vector<TStrin
         {
             if (cache.size() == 2)
             {
-                wxVariant var(cache[1].c_str());
+                TString str;
+                GetValueByTChar(cache[1].c_str(), &str);
+                wxVariant var(str.c_str());
                 SetValue(var, true);
-                if (bSerializePhase)
-                {
-                    TString str(cache[1].c_str());
-                    SetValue(&str, eVT_DefaultValue);
-                }
+                SetValue(&str, eVT_DefaultValue);
             }
         }
         else if (_tcsicmp(cache[0].c_str(), UIParameterAttrStr[eUIPAT_MaxCount]) == 0)
@@ -110,6 +108,12 @@ void CStringPropertyDescription::GetValueAsChar( EValueType type, char* pOut )
 {
     TString* pStr = (TString*)m_valueArray[type];
     CStringHelper::GetInstance()->ConvertToCHAR(pStr->c_str(), pOut, 10240);
+}
+
+bool CStringPropertyDescription::GetValueByTChar(const TCHAR* pIn, void* pOutValue)
+{
+    ((TString*)pOutValue)->assign(pIn);
+    return true;
 }
 
 void CStringPropertyDescription::Serialize( CSerializer& serializer )

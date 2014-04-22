@@ -32,23 +32,21 @@ CDoublePropertyDescription::~CDoublePropertyDescription()
     DestoryValue<double>();
 }
 
-bool CDoublePropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>& result, bool bSerializePhase/* = false */)
+bool CDoublePropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>& result)
 {
     std::vector<TString> cache;
     BEATS_ASSERT(result.size() <= 4);
     for (size_t i = 0; i < result.size(); ++i)
     {
         cache.clear();
-        CStringHelper::GetInstance()->SplitString(result[i].c_str(), _T(":"), cache);
+        CStringHelper::GetInstance()->SplitString(result[i].c_str(), PROPERTY_KEYWORD_SPLIT_STR, cache);
         if (_tcsicmp(cache[0].c_str(), UIParameterAttrStr[eUIPAT_DefaultValue]) == 0)
         {
-            double doubleValue = (double)_tstof(cache[1].c_str());
+            double doubleValue = 0;
+            GetValueByTChar(cache[1].c_str(), &doubleValue);
             wxVariant var(doubleValue);
             SetValue(var, true);
-            if (bSerializePhase)
-            {
-                SetValue(&doubleValue, eVT_DefaultValue);
-            }
+            SetValue(&doubleValue, eVT_DefaultValue);
         }
         else if (_tcsicmp(cache[0].c_str(), UIParameterAttrStr[eUIPAT_MinValue]) == 0)
         {
@@ -122,6 +120,12 @@ void CDoublePropertyDescription::GetValueAsChar( EValueType type, char* pOut )
 {
     double* pValue = (double*)m_valueArray[type];
     sprintf(pOut, "%.17f", *pValue);
+}
+
+bool CDoublePropertyDescription::GetValueByTChar(const TCHAR* pIn, void* pOutValue)
+{
+    *(double*)pOutValue = _tstof(pIn);
+    return true;
 }
 
 void CDoublePropertyDescription::Serialize( CSerializer& serializer )

@@ -14,8 +14,11 @@
 #define COMPONENT_FILE_EXTENSION _T(".bcf")
 #define COMPONENT_FILE_EXTENSION_FILTER _T("Beats Component File(*.bcf)\0*.bcf\0\0")
 #define COMPONENT_PROJECT_EXTENSION _T("Beats Component Project File(*.bcp)\0*.bcp\0\0")
+#define BINARIZE_FILE_NAME _T("AIData.bin")
 #define BINARIZE_FILE_EXTENSION _T(".bin")
 #define BINARIZE_FILE_EXTENSION_FILTER _T("Beats binaray File(*.bin)\0*.bin\0\0")
+#define PROPERTY_PARAM_SPLIT_STR _T(",")
+#define PROPERTY_KEYWORD_SPLIT_STR _T(":")
 #define COMPONENT_SYSTEM_VERSION 4
 
 struct SSerilaizerExtraInfo
@@ -102,8 +105,10 @@ inline void DeserializeVarialble(std::map<T1, T2>& value, CSerializer* pSerializ
     for (size_t i = 0; i < childCount; ++i)
     {
         T1 key;
+        InitValue(key);
         DeserializeVarialble(key, pSerializer);
         T2 myValue;
+        InitValue(myValue);
         DeserializeVarialble(myValue, pSerializer);
         BEATS_ASSERT(value.find(key) == value.end(), _T("A map can't have two same key value!"));
         value[key] = myValue;
@@ -218,7 +223,7 @@ inline const TCHAR* GenEnumParamStr(const TCHAR* enumStringArray[], const TCHAR*
 {
     static TString strEnumParam;
     strEnumParam.clear();
-    strEnumParam.append(UIParameterAttrStr[eUIPAT_EnumStringArray]).append(_T(":"));
+    strEnumParam.append(UIParameterAttrStr[eUIPAT_EnumStringArray]).append(PROPERTY_KEYWORD_SPLIT_STR);
     size_t uCount = sizeof(enumStringArray);
     BEATS_ASSERT(uCount > 0, _T("Enum string array is empty!"));
     for (size_t i = 0; i < uCount; ++i)
@@ -231,7 +236,7 @@ inline const TCHAR* GenEnumParamStr(const TCHAR* enumStringArray[], const TCHAR*
     }
     if(pszParam != NULL)
     {
-        strEnumParam.append(_T(",")).append(pszParam);
+        strEnumParam.append(PROPERTY_PARAM_SPLIT_STR).append(pszParam);
     }    
     return strEnumParam.c_str();
 }
@@ -412,7 +417,8 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
             TCHAR szFilePath[MAX_PATH];\
             GetModuleFileName(NULL, szFilePath, MAX_PATH);\
             PathRemoveFileSpec(szFilePath);\
-            _tcscat(szFilePath, _T("\\AIData.bin"));\
+            _tcscat(szFilePath, _T("\\"));\
+            _tcscat(szFilePath, BINARIZE_FILE_NAME);\
             bool bFileExists = PathFileExists(szFilePath) != FALSE;\
             BEATS_ASSERT(bFileExists, _T("The data file doesn't exists in path : %s"), szFilePath);\
             if(bFileExists)\

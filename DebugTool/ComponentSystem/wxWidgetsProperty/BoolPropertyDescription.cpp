@@ -25,31 +25,21 @@ CBoolPropertyDescription::~CBoolPropertyDescription()
     DestoryValue<bool>();
 }
 
-bool CBoolPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>& result, bool bSerializePhase/* = false */)
+bool CBoolPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>& result)
 {
     BEATS_ASSERT(result.size() <= 1);
     std::vector<TString> cache;
     for (size_t i = 0; i < result.size(); ++i)
     {
         cache.clear();
-        CStringHelper::GetInstance()->SplitString(result[i].c_str(), _T(":"), cache);
-        bool bValue = false;
+        CStringHelper::GetInstance()->SplitString(result[i].c_str(), PROPERTY_KEYWORD_SPLIT_STR, cache);
         if (_tcsicmp(cache[0].c_str(), UIParameterAttrStr[eUIPAT_DefaultValue]) == 0)
         {
-            if (_tcsicmp(cache[1].c_str(), _T("true")) == 0)
-            {
-                bValue = true;
-            }
-            else
-            {
-                BEATS_ASSERT(_tcsicmp(cache[1].c_str(), _T("false")) == 0, _T("Unknown value for bool property %s"), cache[1].c_str());
-            }
-            if (bSerializePhase)
-            {
-                SetValue(&bValue, eVT_DefaultValue);
-            }
-            SetValue(&bValue, eVT_SavedValue);
-            SetValue(&bValue, eVT_CurrentValue);
+            bool bValue = false;
+            GetValueByTChar(cache[1].c_str(), &bValue);
+            wxVariant var(bValue);
+            SetValue(var, true);
+            SetValue(&bValue, eVT_DefaultValue);
         }
         else
         {
@@ -100,6 +90,24 @@ void CBoolPropertyDescription::GetValueAsChar(EValueType type, char* pOut)
 {
     bool bValue = *(bool*)m_valueArray[type];
     sprintf(pOut, "%s", bValue ? "True" : "False");
+}
+
+bool CBoolPropertyDescription::GetValueByTChar(const TCHAR* pIn, void* pOutValue)
+{
+    BEATS_ASSERT(pOutValue != NULL);
+    bool bRet = false;
+    if (_tcsicmp(pIn, _T("true")) == 0)
+    {
+        *(bool*)pOutValue = true;
+        bRet = true;
+    }
+    else
+    {
+        *(bool*)pOutValue = false;
+        bRet = _tcsicmp(pIn, _T("false")) == 0;
+        BEATS_ASSERT(bRet, _T("Unknown value for bool property %s"), pIn);
+    }
+    return bRet;
 }
 
 void CBoolPropertyDescription::Serialize( CSerializer& serializer )

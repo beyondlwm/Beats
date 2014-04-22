@@ -49,24 +49,22 @@ CEnumPropertyDescription::~CEnumPropertyDescription()
     DestoryValue<int>();
 }
 
-bool CEnumPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>& parameterUnit, bool bSerializePhase /*= false*/)
+bool CEnumPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>& parameterUnit)
 {
     for (size_t i = 0; i < parameterUnit.size(); ++i)
     {
         TString parameter = parameterUnit[i];
         std::vector<TString> result;
-        CStringHelper::GetInstance()->SplitString(parameter.c_str(), _T(":"), result);
+        CStringHelper::GetInstance()->SplitString(parameter.c_str(), PROPERTY_KEYWORD_SPLIT_STR, result);
         if (result.size() == 2)
         {
             if (_tcsicmp(result[0].c_str(), UIParameterAttrStr[eUIPAT_DefaultValue]) == 0)
             {
-                int iValue = _tstoi(result[1].c_str());
+                int iValue = 0;
+                GetValueByTChar(result[1].c_str(), &iValue);
                 wxVariant var(iValue);
                 SetValue(var, true);
-                if (bSerializePhase)
-                {
-                    SetValue(&iValue, eVT_DefaultValue);
-                }
+                SetValue(&iValue, eVT_DefaultValue);
             }
             else if (_tcsicmp(result[0].c_str(), UIParameterAttrStr[eUIPAT_EnumStringArray]) == 0)
             {
@@ -136,6 +134,12 @@ void CEnumPropertyDescription::GetValueAsChar( EValueType type, char* pOut )
 {
     int iValue = *(int*)m_valueArray[type];
     sprintf(pOut, "%d", iValue);
+}
+
+bool CEnumPropertyDescription::GetValueByTChar(const TCHAR* pIn, void* pOutValue)
+{
+    *(int*)pOutValue = _tstoi(pIn);
+    return true;
 }
 
 void CEnumPropertyDescription::Serialize( CSerializer& serializer )

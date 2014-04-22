@@ -244,6 +244,12 @@ void CMapPropertyDescription::GetValueAsChar( EValueType type, char* pOut )
     CStringHelper::GetInstance()->ConvertToCHAR(((TString*)GetValue(type))->c_str(), pOut, 128);
 }
 
+bool CMapPropertyDescription::GetValueByTChar(const TCHAR* /*pIn*/, void* /*pOutValue*/)
+{
+    // Do nothing.
+    return true;
+}
+
 void CMapPropertyDescription::Serialize( CSerializer& serializer )
 {
     serializer << m_pKeyPropertyTemplate->GetType();
@@ -257,7 +263,7 @@ void CMapPropertyDescription::Serialize( CSerializer& serializer )
     }
 }
 
-bool CMapPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>& /*parameterUnit*/, bool /*bSerializePhase = false*/)
+bool CMapPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>& /*parameterUnit*/)
 {
     return true;
 }

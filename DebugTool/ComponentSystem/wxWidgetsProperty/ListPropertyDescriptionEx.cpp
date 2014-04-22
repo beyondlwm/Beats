@@ -38,13 +38,13 @@ CListPropertyDescriptionEx::~CListPropertyDescriptionEx()
     DestoryValue<TString>();
 }
 
-bool CListPropertyDescriptionEx::AnalyseUIParameterImpl(const std::vector<TString>& result, bool /* bSerializePhase= false */)
+bool CListPropertyDescriptionEx::AnalyseUIParameterImpl(const std::vector<TString>& result)
 {
     std::vector<TString> cache;
     for (size_t i = 0; i < result.size(); ++i)
     {
         cache.clear();
-        CStringHelper::GetInstance()->SplitString(result[i].c_str(), _T(":"), cache, false);
+        CStringHelper::GetInstance()->SplitString(result[i].c_str(), PROPERTY_KEYWORD_SPLIT_STR, cache, false);
         BEATS_ASSERT(cache.size() == 2 || cache.size() == 1);
         if (_tcsicmp(cache[0].c_str(), UIParameterAttrStr[eUIPAT_MaxCount]) == 0)
         {
@@ -81,17 +81,19 @@ wxPGProperty* CListPropertyDescriptionEx::CreateWxProperty()
 {
     wxPGProperty* pProperty = new wxStringProperty(wxPG_LABEL, wxPG_LABEL);
     pProperty->SetClientData(this);
-    pProperty->SetEditor(CBDTWxApp::GetBDTWxApp()->GetMainFrame()->GetPtrEditor());
-    TCHAR szName[64];
-    GetCurrentName(szName);
-    wxVariant var(szName);
+    if (!m_bFixCount)
+    {
+        pProperty->SetEditor(CBDTWxApp::GetBDTWxApp()->GetMainFrame()->GetPtrEditor());
+    }
+    wxString strName;
+    GetCurrentName(strName);
+    wxVariant var(strName);
     pProperty->SetValue(var);
     wxVariant defaultVar(EMPTY_STRING);
     pProperty->SetDefaultValue(defaultVar);
-    pProperty->SetModifiedStatus(m_pChildren->size() > 0);
+    pProperty->SetModifiedStatus(!IsDataSame(true));
     return pProperty;
 }
-
 
 void CListPropertyDescriptionEx::SetValue( wxVariant& value, bool bSaveValue/* = true*/ )
 {
@@ -119,26 +121,7 @@ bool CListPropertyDescriptionEx::IsDataSame( bool bWithDefaultOrXML )
     {
         bRet = false;
     }
-    return bRet;
-}
-
-CPropertyDescriptionBase* CListPropertyDescriptionEx::CreateInstance()
-{
-    CPropertyDescriptionBase* bRet = NULL;
-    if (m_pChildren->size() < m_uMaxCount)
-    {
-        TCHAR szChildName[32];
-        _stprintf(szChildName, _T("Child_%d"), m_pChildren->size());
-        SBasicPropertyInfo basicInfo = GetBasicInfo();
-        basicInfo.m_displayName.assign(szChildName);
-        basicInfo.m_variableName.assign(szChildName);
-        CPropertyDescriptionBase* pProperty = m_pChildTemplate->Clone(true);
-        pProperty->Initialize();
-        pProperty->SetBasicInfo(basicInfo);
-        pProperty->SetOwner(this->GetOwner());
-        pProperty->SetParent(this);
-        bRet = pProperty;
-    }
+    ResetName();
     return bRet;
 }
 
@@ -171,6 +154,27 @@ void CListPropertyDescriptionEx::SetTemplateProperty(CPropertyDescriptionBase* p
 CPropertyDescriptionBase* CListPropertyDescriptionEx::GetTemplateProperty() const
 {
     return m_pChildTemplate;
+}
+
+CPropertyDescriptionBase* CListPropertyDescriptionEx::CreateInstance()
+{
+    CPropertyDescriptionBase* pRet = NULL;
+    if (m_pChildren->size() < m_uMaxCount)
+    {
+        TCHAR szChildName[32];
+        _stprintf(szChildName, _T("Child_%d"), m_pChildren->size());
+        SBasicPropertyInfo basicInfo = GetBasicInfo();
+        basicInfo.m_displayName.assign(szChildName);
+        basicInfo.m_variableName.assign(szChildName);
+        CPropertyDescriptionBase* pProperty = m_pChildTemplate->Clone(true);
+        pProperty->Initialize();
+        pProperty->SetBasicInfo(basicInfo);
+        pProperty->SetOwner(this->GetOwner());
+        pProperty->SetParent(this);
+        pRet = pProperty;
+    }
+    BEATS_ASSERT(pRet != NULL);
+    return pRet;
 }
 
 bool CListPropertyDescriptionEx::IsContainerProperty()
@@ -221,21 +225,21 @@ void CListPropertyDescriptionEx::ResetChildName()
 
 void CListPropertyDescriptionEx::ResetName()
 {
-    TCHAR szName[64];
-    GetCurrentName(szName);
-    wxVariant var(szName);
+    wxString strName;
+    GetCurrentName(strName);
+    wxVariant var(strName);
     SetValue(var, false);
 }
 
-void CListPropertyDescriptionEx::GetCurrentName( TCHAR* pszName )
+void CListPropertyDescriptionEx::GetCurrentName( wxString& strName )
 {
     if (m_pChildren->size() == 0)
     {
-        _stprintf(pszName, EMPTY_STRING.c_str());
+        strName = EMPTY_STRING;
     }
     else
     {
-        _stprintf(pszName, _T("%dx%s"), m_pChildren->size(), szPropertyTypeStr[(*m_pChildren)[0]->GetType()]);
+        strName = wxString::Format(_T("%dx%s"), m_pChildren->size(), szPropertyTypeStr[(*m_pChildren)[0]->GetType()]);
     }
 }
 
@@ -288,6 +292,12 @@ CPropertyDescriptionBase* CListPropertyDescriptionEx::CreateNewInstance()
 void CListPropertyDescriptionEx::GetValueAsChar( EValueType type, char* pOut )
 {
     CStringHelper::GetInstance()->ConvertToCHAR(((TString*)GetValue(type))->c_str(), pOut, 128);
+}
+
+bool CListPropertyDescriptionEx::GetValueByTChar(const TCHAR* /*pIn*/, void* /*pOutValue*/)
+{
+    // Do nothing.
+    return true;
 }
 
 void CListPropertyDescriptionEx::Serialize( CSerializer& serializer )

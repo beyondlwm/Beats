@@ -32,23 +32,21 @@ CFloatPropertyDescription::~CFloatPropertyDescription()
     DestoryValue<float>();
 }
 
-bool CFloatPropertyDescription::AnalyseUIParameterImpl( const std::vector<TString>& result, bool bSerializePhase/* = false */)
+bool CFloatPropertyDescription::AnalyseUIParameterImpl( const std::vector<TString>& result)
 {
     std::vector<TString> cache;
     for (size_t i = 0; i < result.size(); ++i)
     {
         cache.clear();
-        CStringHelper::GetInstance()->SplitString(result[i].c_str(), _T(":"), cache);
+        CStringHelper::GetInstance()->SplitString(result[i].c_str(), PROPERTY_KEYWORD_SPLIT_STR, cache);
         BEATS_ASSERT(cache.size() == 2);
         if (_tcsicmp(cache[0].c_str(), UIParameterAttrStr[eUIPAT_DefaultValue]) == 0)
         {
-            float fValue = (float)_tstof(cache[1].c_str());
+            float fValue = 0;
+            GetValueByTChar(cache[1].c_str(), &fValue);
             wxVariant var(fValue);
             SetValue(var, true);
-            if (bSerializePhase)
-            {
-                SetValue(&fValue, eVT_DefaultValue);
-            }
+            SetValue(&fValue, eVT_DefaultValue);
         }
         else if (_tcsicmp(cache[0].c_str(), UIParameterAttrStr[eUIPAT_MinValue]) == 0)
         {
@@ -115,6 +113,12 @@ void CFloatPropertyDescription::GetValueAsChar( EValueType type, char* pOut )
 {
     float* pValue = (float*)m_valueArray[type];
     sprintf(pOut, "%f", *pValue);
+}
+
+bool CFloatPropertyDescription::GetValueByTChar(const TCHAR* pIn, void* pOutValue)
+{
+    *(float*)pOutValue = (float)_tstof(pIn);
+    return true;
 }
 
 CPropertyDescriptionBase* CFloatPropertyDescription::CreateNewInstance()

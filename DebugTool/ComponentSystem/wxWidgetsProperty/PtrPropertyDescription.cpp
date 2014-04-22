@@ -42,13 +42,13 @@ CPtrPropertyDescription::~CPtrPropertyDescription()
     DestoryValue<TString>();
 }
 
-bool CPtrPropertyDescription::AnalyseUIParameterImpl( const std::vector<TString>& paramUnit, bool /*bSerializePhase = false */)
+bool CPtrPropertyDescription::AnalyseUIParameterImpl( const std::vector<TString>& paramUnit)
 {
     for (size_t i = 0; i < paramUnit.size(); ++i)
     {
         TString parameter = paramUnit[i];
         std::vector<TString> result;
-        CStringHelper::GetInstance()->SplitString(parameter.c_str(), _T(":"), result);
+        CStringHelper::GetInstance()->SplitString(parameter.c_str(), PROPERTY_KEYWORD_SPLIT_STR, result);
         BEATS_ASSERT(result.size() == 2);
         if (_tcsicmp(result[0].c_str(), UIParameterAttrStr[eUIPAT_DefaultValue]) == 0)
         {
@@ -56,7 +56,6 @@ bool CPtrPropertyDescription::AnalyseUIParameterImpl( const std::vector<TString>
         }
         m_bHasInstance = parameter[0] == _T('+');
     }
-
     return true;
 }
 
@@ -84,7 +83,8 @@ void CPtrPropertyDescription::SetValue( wxVariant& value , bool bSaveValue)
 
 void CPtrPropertyDescription::SetValue( void* pValue, EValueType type )
 {
-    *(TString*)m_valueArray[type] = *(TString*)pValue;
+    TString* pStrValue = (TString*)pValue;
+    *(TString*)m_valueArray[type] = *pStrValue;
 }
 
 size_t CPtrPropertyDescription::GetPtrGuid()
@@ -159,6 +159,8 @@ bool CPtrPropertyDescription::IsDataSame( bool bWithDefaultOrXML )
 void CPtrPropertyDescription::LoadFromXML( TiXmlElement* pNode )
 {
     super::LoadFromXML(pNode);
+    TString* pStrValue = (TString*)m_valueArray[eVT_CurrentValue];
+    m_bHasInstance = pStrValue->length() > 1 && pStrValue->at(0) ==_T('+');
     if (m_bHasInstance)
     {
         CPtrPropertyDescription* pPtrProperty = static_cast<CPtrPropertyDescription*>(this);
@@ -173,6 +175,12 @@ void CPtrPropertyDescription::GetValueAsChar( EValueType type, char* pOut )
 {
     const TCHAR* pValue = ((TString*)m_valueArray[type])->c_str();
     CStringHelper::GetInstance()->ConvertToCHAR(pValue, pOut, 10240);
+}
+
+bool CPtrPropertyDescription::GetValueByTChar(const TCHAR* pIn, void* pOutValue)
+{
+    ((TString*)pOutValue)->assign(pIn);
+    return true;
 }
 
 CPropertyDescriptionBase* CPtrPropertyDescription::Clone(bool bCloneValue)
