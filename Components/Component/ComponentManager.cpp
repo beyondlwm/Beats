@@ -144,7 +144,6 @@ void CComponentManager::DeserializeTemplateData(const TCHAR* pWorkingPath, TCrea
             LoadTemplateDataFromXML(szFilePath);
         }
     }
-
 }
 
 CComponentBase* CComponentManager::GetComponentTemplate( size_t guid ) const
@@ -248,7 +247,19 @@ void CComponentManager::LoadTemplateDataFromSerializer(CSerializer& serializer, 
             pComponentEditorProxy->SetDisplayName(pStrHolder);
             serializer.Read(ppStrHolder);
             pComponentEditorProxy->SetCatalogName(pStrHolder);
-            RegisterTemplate(pComponentEditorProxy);
+            std::map<size_t, CComponentBase*>::iterator iter = m_pComponentTemplateMap->find(pComponentEditorProxy->GetGuid());
+            if (iter == m_pComponentTemplateMap->end())
+            {
+                RegisterTemplate(pComponentEditorProxy);
+            }
+            else
+            {
+                // If this component template is already there, it must be the host of the proxy.
+                // Its REFLECT_GUID can't be 1(a proxy can't be the host of another proxy.)
+                BEATS_ASSERT(iter->second->REFLECT_GUID != 1, _T("A component proxy can't be the host of another proxy!"));
+                pComponentEditorProxy->SetHostComponent(iter->second);
+                iter->second = pComponentEditorProxy;
+            }
             pComponentEditorProxy->Deserialize(serializer);
         }
         else
@@ -560,7 +571,7 @@ void CComponentManager::Import( CSerializer& serializer)
                 serializer.SetReadPos(uStartPos + uDataSize);
             }
         }
-        
+
         // 2. Resolve dependency.
         CComponentManager::GetInstance()->ResolveDependency();
         

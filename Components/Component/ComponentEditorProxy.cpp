@@ -17,6 +17,7 @@ CComponentEditorProxy::CComponentEditorProxy(CComponentGraphic* pGraphics)
 , m_pGraphics(pGraphics)
 , m_pDependenciesDescription(NULL)
 , m_pBeConnectedDependencyLines(NULL)
+, m_pHostComponent(NULL)
 {
     BEATS_ASSERT(false, _T("Do never call this!"));
     m_pGraphics->SetOwner(this);
@@ -33,6 +34,7 @@ CComponentEditorProxy::CComponentEditorProxy(CComponentGraphic* pGraphics, size_
 , m_pGraphics(pGraphics)
 , m_pDependenciesDescription(NULL)
 , m_pBeConnectedDependencyLines(NULL)
+, m_pHostComponent(NULL)
 {
     m_pDependenciesDescription = new std::vector<CDependencyDescription*>;
     m_pBeConnectedDependencyLines = new std::vector<CDependencyDescriptionLine*>;
@@ -44,6 +46,7 @@ CComponentEditorProxy::CComponentEditorProxy(CComponentGraphic* pGraphics, size_
 CComponentEditorProxy::~CComponentEditorProxy()
 {
     ClearProperty();
+    BEATS_SAFE_DELETE(m_pHostComponent);
     BEATS_SAFE_DELETE(m_pProperties);
     BEATS_SAFE_DELETE(m_pSerializeOrder);
     BEATS_SAFE_DELETE(m_pGraphics);
@@ -128,7 +131,13 @@ CComponentBase* CComponentEditorProxy::Clone(bool bCloneValue, CSerializer* /*pS
     }
     pNewInstance->m_pSerializeOrder->assign(m_pSerializeOrder->begin(), m_pSerializeOrder->end());
     pNewInstance->GetGraphics()->CaculateSize();
+
+    if (m_pHostComponent != NULL)
+    {
+        pNewInstance->m_pHostComponent = m_pHostComponent->Clone(bCloneValue, NULL);
+    }
     pNewInstance->Initialize();
+
     return pNewInstance;
 }
 
@@ -212,6 +221,16 @@ void CComponentEditorProxy::SetCatalogName(const TCHAR* pCatalogName)
 CComponentGraphic* CComponentEditorProxy::GetGraphics()
 {
     return m_pGraphics;
+}
+
+void CComponentEditorProxy::SetHostComponent(CComponentBase* pComponent)
+{
+    m_pHostComponent = pComponent;
+}
+
+CComponentBase* CComponentEditorProxy::GetHostComponent() const
+{
+    return m_pHostComponent;
 }
 
 void CComponentEditorProxy::SaveToXML( TiXmlElement* pNode, bool bSaveOnlyNoneNativePart/* = false*/)
@@ -387,9 +406,7 @@ void CComponentEditorProxy::AddDependencyDescription(CDependencyDescription* pDe
             bExisting = _tcscmp((*m_pDependenciesDescription)[i]->GetVariableName(), pDependencyDesc->GetVariableName()) == 0;
             if (bExisting)
             {
-                TCHAR szInfo[10240];
-                _stprintf(szInfo, _T("Component %s id %d got a reduplicated dependency declare of variable %s"), GetClassStr(), GetId(), pDependencyDesc->GetVariableName());
-                MessageBox(NULL, szInfo, _T("Error"), MB_OK);
+                BEATS_ASSERT(false, _T("Component %s id %d got a reduplicated dependency declare of variable %s"), GetClassStr(), GetId(), pDependencyDesc->GetVariableName());
                 break;
             }
         }
@@ -402,7 +419,6 @@ void CComponentEditorProxy::AddDependencyDescription(CDependencyDescription* pDe
             BEATS_ASSERT(pDependencyDesc->GetOwner() == this);
         }
         m_pDependenciesDescription->push_back(pDependencyDesc);
-        //m_pGraphics->CaculateSize();
     }
 }
 
@@ -472,5 +488,9 @@ void CComponentEditorProxy::Initialize()
     for (size_t i = 0; i < (*m_pProperties).size(); ++i)
     {
         (*m_pProperties)[i]->Initialize();
+    }
+    if (m_pHostComponent != NULL)
+    {
+        m_pHostComponent->Initialize();
     }
 }

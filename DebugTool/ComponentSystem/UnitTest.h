@@ -99,9 +99,11 @@ static const TCHAR* TestEnum2Str[] =
 class CTestComponent : public CComponentBase
 {
 public:
-    CTestComponent(){};
-    CTestComponent(CSerializer& serializer);
+    CTestComponent();
     virtual ~CTestComponent();
+
+    virtual void CTestComponent::ReflectData(CSerializer& serializer) override;
+
     DECLARE_REFLECT_GUID(CTestComponent, 0x7391ADF1, CComponentBase)
 
 private:

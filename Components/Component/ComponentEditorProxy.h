@@ -24,6 +24,9 @@ public:
     void SetCatalogName(const TCHAR* pCatalogName);
     CComponentGraphic* GetGraphics();
 
+    void SetHostComponent(CComponentBase* pComponent);
+    CComponentBase* GetHostComponent() const;
+
     void AddProperty(CPropertyDescriptionBase* pProperty);    
     void ClearProperty();
     const std::vector<CPropertyDescriptionBase*>* GetPropertyPool() const;
@@ -67,6 +70,7 @@ private:
     size_t m_uGuid;
     size_t m_uParentGuid;
     CComponentGraphic* m_pGraphics;
+    CComponentBase* m_pHostComponent;
     std::vector<char>* m_pSerializeOrder; // this variable save the order of property/dependency data comes in when deserialize. we have to keep the order when serialize.
     TString m_szClassName;
     TString m_displayName;

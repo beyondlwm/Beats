@@ -6,7 +6,7 @@
 #define DECLARE_REFLECT_GUID(className, guid, parentClassName)\
     DECLARE_REFLECT_GUID_ABSTRACT(className, guid, parentClassName)\
     public:\
-    virtual CComponentBase* Clone(bool /*bCloneFromTemplate*/, CSerializer* pSerializer){CComponentBase* pNewInstance = pSerializer == NULL ? new className : new className(*pSerializer); return pNewInstance;}\
+    virtual CComponentBase* Clone(bool /*bCloneFromTemplate*/, CSerializer* pSerializer){CComponentBase* pNewInstance = new className; if (pSerializer != NULL){pNewInstance->ReflectData(*pSerializer);} return pNewInstance;}\
     private:
 
 #define DECLARE_REFLECT_GUID_ABSTRACT(className, guid, parentClassName)\
@@ -24,7 +24,6 @@ class COMPONENTS_DLL_DECL CComponentBase
 {
 public:
     CComponentBase();
-    CComponentBase(CSerializer& serializer);
     virtual ~CComponentBase();
     DECLARE_REFLECT_GUID(CComponentBase, 0xFBA14097, CComponentBase)
     
@@ -33,6 +32,7 @@ public:
     void SetId(size_t id);
 
     virtual void Initialize();
+    virtual void ReflectData(CSerializer& serializer);
 
 private:
     size_t m_id;

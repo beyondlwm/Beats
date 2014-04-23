@@ -6,7 +6,7 @@
 START_REGISTER_COMPONENT
 REGISTER_COMPONENT(CTestComponent, _T("TestComponents"), _T("Test\\Components"))
 END_REGISTER_COMPONENT
-CTestComponent::CTestComponent(CSerializer& serializer)
+CTestComponent::CTestComponent()
 : m_boolValue(false)
 , m_floatValue(0)
 , m_doubleValue(0)
@@ -17,6 +17,15 @@ CTestComponent::CTestComponent(CSerializer& serializer)
 , m_pNextObj(NULL)
 , m_pNextObj1(NULL)
 , m_pNextObj2(NULL)
+{
+}
+
+CTestComponent::~CTestComponent()
+{
+
+}
+
+void CTestComponent::ReflectData(CSerializer& serializer)
 {
     DECLARE_PROPERTY(serializer, m_floatValue, true, 0xffffffff, _T("生命值"), _T(""), _T(""), _T("DefaultValue: 7.5, SpinStep: 0.7"));
     DECLARE_PROPERTY(serializer, m_doubleValue, true, 0xffffffff, NULL, NULL, NULL, NULL);
@@ -30,10 +39,4 @@ CTestComponent::CTestComponent(CSerializer& serializer)
     DECLARE_DEPENDENCY(serializer, m_pNextObj, _T("目标对象"), eDT_Weak);
     DECLARE_DEPENDENCY(serializer, m_pNextObj1, _T("目标对象2"), eDT_Weak);
     DECLARE_DEPENDENCY(serializer, m_pNextObj2, _T("目标对象3"), eDT_Weak);
-
-}
-
-CTestComponent::~CTestComponent()
-{
-
 }

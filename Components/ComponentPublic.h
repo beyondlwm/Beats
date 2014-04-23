@@ -366,7 +366,9 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
     size_t nCountHolder = serializer.GetWritePos();\
     serializer << nCountHolder;\
     serializer << nCountHolder;\
-    component tmp(serializer);\
+    component* pComponent = new component();\
+    pComponent->ReflectData(serializer);\
+    CComponentManager::GetInstance()->RegisterTemplate(pComponent);\
     size_t curWritePos = serializer.GetWritePos();\
     serializer.SetWritePos(nCountHolder);\
     SSerilaizerExtraInfo* pExtraInfo = (SSerilaizerExtraInfo*)(serializer.GetUserData());\

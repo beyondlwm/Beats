@@ -10,11 +10,6 @@ CComponentBase::CComponentBase()
 {
 }
 
-CComponentBase::CComponentBase(CSerializer& /*serializer*/)
-: m_id(0xFFFFFFFF)
-{
-}
-
 CComponentBase::~CComponentBase()
 {
 }
@@ -30,6 +25,11 @@ void CComponentBase::SetId(size_t id)
 }
 
 void CComponentBase::Initialize()
+{
+
+}
+
+void CComponentBase::ReflectData(CSerializer& /*serializer*/)
 {
 
 }
