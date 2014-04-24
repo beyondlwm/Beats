@@ -7,6 +7,8 @@
 #include "../../Components/Component/ComponentEditorProxy.h"
 #include "../../Components/Component/ComponentManager.h"
 
+#define POINTER_SPLIT_SYMBOL _T("@")
+
 CPtrPropertyDescription::CPtrPropertyDescription(CSerializer* pSerializer)
     : super(ePT_Ptr)
     , m_uComponentGuid(0)
@@ -163,10 +165,20 @@ void CPtrPropertyDescription::LoadFromXML( TiXmlElement* pNode )
     m_bHasInstance = pStrValue->length() > 1 && pStrValue->at(0) ==_T('+');
     if (m_bHasInstance)
     {
-        CPtrPropertyDescription* pPtrProperty = static_cast<CPtrPropertyDescription*>(this);
-        if (pPtrProperty->CreateInstance())
+        int nPos = CStringHelper::GetInstance()->FindFirstString(pStrValue->c_str(), POINTER_SPLIT_SYMBOL, false);
+        const TCHAR* pszValueString = &(pStrValue->c_str()[nPos + _tcslen(POINTER_SPLIT_SYMBOL)]);
+        TCHAR* pEndChar = NULL;
+        int nRadix = 16;
+        size_t uDerivedValue = _tcstoul(pszValueString, &pEndChar, nRadix);
+        BEATS_ASSERT(_tcslen(pEndChar) == 0, _T("Read uint from string %s error, stop at %s"), pszValueString, pEndChar);
+        BEATS_ASSERT(errno == 0, _T("Call _tcstoul failed! string %s radix: %d"), pszValueString, nRadix);
+        if (uDerivedValue != m_uComponentGuid)
         {
-            pPtrProperty->GetInstanceComponent()->LoadFromXML(pNode);
+            m_uDerivedGuid = uDerivedValue;
+        }
+        if (this->CreateInstance())
+        {
+            this->GetInstanceComponent()->LoadFromXML(pNode);
         }
     }
 }
@@ -229,7 +241,7 @@ void CPtrPropertyDescription::UpdateDisplayString(size_t uComponentGuid)
 {
     TString strComponentName = CComponentManager::GetInstance()->QueryComponentName(uComponentGuid);
     BEATS_ASSERT(strComponentName.length() > 0, _T("Can't Find the component name of GUID: 0x%x"), uComponentGuid);
-    wxString value = wxString::Format(_T("%s%s@0x%x"), m_bHasInstance ? _T("+") : _T(""), strComponentName.c_str(), uComponentGuid);
+    wxString value = wxString::Format(_T("%s%s%s0x%x"), m_bHasInstance ? _T("+") : _T(""), strComponentName.c_str(), POINTER_SPLIT_SYMBOL, uComponentGuid);
     TString valueStr(value);
     for (size_t i = eVT_DefaultValue; i < eVT_Count; ++i)
     {
