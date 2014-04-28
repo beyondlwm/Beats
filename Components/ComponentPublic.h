@@ -7,6 +7,7 @@
 
 // To comment or un-comment this macro to decide serializer/deseraize.
 #define EXPORT_TO_EDITOR
+#define EDITOR_MODE
 
 #define EXPORT_STRUCTURE_DATA_FILENAME _T("EDS.bin")
 #define EXPORT_STRUCTURE_DATA_PATCH_XMLFILENAME _T("EDSPatch.XML")
@@ -71,18 +72,99 @@ inline void DeserializeVarialble(T*& value, CSerializer* pSerializer)
         *pSerializer >> uDataSize;
         *pSerializer >> uGuid;
         *pSerializer >> uId;
-        value = dynamic_cast<T*>(CComponentManager::GetInstance()->CreateComponent(uGuid, false, true, 0xFFFFFFFF, false, pSerializer));
+#ifdef EDITOR_MODE
+        if (value == NULL)
+        {
+            CComponentBase* pComponent = CComponentManager::GetInstance()->CreateComponent(uGuid, false, true, 0xFFFFFFFF, false, pSerializer);
+            CComponentEditorProxy* pProxy = dynamic_cast<CComponentEditorProxy*>(pComponent);
+            if (pProxy != NULL)
+            {
+                value = dynamic_cast<T*>(pProxy->GetHostComponent());
+                pProxy->SetHostComponent(NULL);
+                BEATS_SAFE_DELETE(pProxy);
+                value->ReflectData(*pSerializer);
+            }
+            else
+            {
+                value = dynamic_cast<T*>(pComponent);
+            }
+        }
+        else
+        {
+            value->ReflectData(*pSerializer);
+        }
+        BEATS_ASSERT(value != NULL,_T("Deserialize pointer failed! guid:0x%x"), uGuid);
         BEATS_ASSERT(uStartPos + uDataSize == pSerializer->GetReadPos(), 
             _T("Component Data Not Match!\nGot an error when Deserialize a pointer of component 0x%x %s instance id %d\nRequired size: %d, Actual size: %d"), uGuid, value->GetClassStr(), uId, uDataSize, pSerializer->GetReadPos() - uStartPos);
     }
+    else
+    {
+        if (value != NULL)
+        {
+            BEATS_SAFE_DELETE(value);
+        }
+
+#else
+        value = dynamic_cast<T*>(CComponentManager::GetInstance()->CreateComponent(uGuid, false, true, 0xFFFFFFFF, false, pSerializer));
+        BEATS_ASSERT(uStartPos + uDataSize == pSerializer->GetReadPos(), 
+            _T("Component Data Not Match!\nGot an error when Deserialize a pointer of component 0x%x %s instance id %d\nRequired size: %d, Actual size: %d"), uGuid, value->GetClassStr(), uId, uDataSize, pSerializer->GetReadPos() - uStartPos);
+#endif // EDITOR_MODE
+    }
 }
+
+#ifdef EDITOR_MODE
+template<typename T>
+inline void ResizeVector(std::vector<T>& value, size_t uCount)
+{
+    value.resize(uCount);
+}
+
+template<typename T>
+inline void ResizeVector(std::vector<T*>& value, size_t uCount)
+{
+    if (value.size() > uCount)
+    {
+        for (size_t i = 0; i < value.size() - uCount; ++i)
+        {
+            BEATS_ASSERT(dynamic_cast<CComponentBase*>(value.back()) != NULL);
+            BEATS_SAFE_DELETE(value.back());
+            value.pop_back();
+        }
+    }
+    else
+    {
+        value.resize(uCount);
+    }
+}
+
+template<typename T1, typename T2>
+inline void ClearMap(std::map<T1, T2>& value)
+{
+    value.clear();
+}
+
+template<typename T1, typename T2>
+inline void ClearMap(std::map<T1, T2*>& value)
+{
+    for (std::map<T1, T2*>::iterator iter = value.begin(); iter != value.end(); ++iter)
+    {
+        BEATS_SAFE_DELETE(iter->second);
+    }
+    value.clear();
+}
+
+#endif
 
 template<typename T>
 inline void DeserializeVarialble(std::vector<T>& value, CSerializer* pSerializer)
 {
     size_t childCount = 0;
     *pSerializer >> childCount;
+#ifdef EDITOR_MODE
+    ResizeVector(value, childCount);
+#else
     value.resize(childCount);
+#endif
     for (size_t i = 0; i < childCount; ++i)
     {
         DeserializeVarialble(value[i], pSerializer);
@@ -98,6 +180,11 @@ inline void DeserializeVarialble(std::map<T1, T2>& value, CSerializer* pSerializ
     *pSerializer >> keyType;
     *pSerializer >> valueType;
     *pSerializer >> childCount;
+#ifdef EDITOR_MODE
+    ClearMap(value);
+#else
+    BEATS_ASSERT(value.size() == 0, _T("map should be empty when deserialize!"));
+#endif
     for (size_t i = 0; i < childCount; ++i)
     {
         T1 key;
@@ -287,7 +374,9 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
 }
 #define DECLARE_DEPENDENCY_LIST(serializer, ptrProperty, displayName, dependencyType)\
 {\
-    serializer << (bool) false << (bool)true << dependencyType << ptrProperty->REFLECT_GUID << displayName << _T(#ptrProperty);\
+    ptrProperty.resize(1);\
+    serializer << (bool) false << (bool)true << dependencyType << ptrProperty[0]->REFLECT_GUID << displayName << _T(#ptrProperty);\
+    ptrProperty.resize(0);\
     ++(((SSerilaizerExtraInfo*)(serializer.GetUserData()))->m_uDependencyCount);\
 }
 
@@ -398,36 +487,46 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
 #else
 
 #define START_REGISTER_COMPONENT\
-    struct SRegisterLauncher\
-    {\
+struct SRegisterLauncher\
+{\
     ~SRegisterLauncher()\
-        {\
-        CComponentManager::Destroy();\
-        }\
-        SRegisterLauncher()\
-        {\
-            Launch();\
-        }\
-        static void Launch()\
-        {
+{\
+    CComponentManager::Destroy();\
+}\
+    SRegisterLauncher()\
+{\
+    Launch();\
+}\
+    static void Launch()\
+{
+
+#ifdef EDITOR_MODE
 
 #define END_REGISTER_COMPONENT\
-            TCHAR szFilePath[MAX_PATH];\
-            GetModuleFileName(NULL, szFilePath, MAX_PATH);\
-            PathRemoveFileSpec(szFilePath);\
-            _tcscat(szFilePath, _T("\\"));\
-            _tcscat(szFilePath, BINARIZE_FILE_NAME);\
-            bool bFileExists = PathFileExists(szFilePath) != FALSE;\
-            BEATS_ASSERT(bFileExists, _T("The data file doesn't exists in path : %s"), szFilePath);\
-            if(bFileExists)\
-            {\
-                CSerializer serializer(szFilePath);\
-                CComponentManager::GetInstance()->Import(serializer);\
             }\
-        }\
-    };\
-    SRegisterLauncher registerLauncher;\
-    void(*pComponentLauncherFunc)() = &SRegisterLauncher::Launch;
+            };\
+            void(*pComponentLauncherFunc)() = &SRegisterLauncher::Launch;
+
+#else
+
+#define END_REGISTER_COMPONENT\
+    TCHAR szFilePath[MAX_PATH];\
+    GetModuleFileName(NULL, szFilePath, MAX_PATH);\
+    PathRemoveFileSpec(szFilePath);\
+    _tcscat(szFilePath, _T("\\"));\
+    _tcscat(szFilePath, BINARIZE_FILE_NAME);\
+    bool bFileExists = PathFileExists(szFilePath) == TRUE;\
+    BEATS_ASSERT(bFileExists, _T("The data file doesn't exists in path : %s"), szFilePath);\
+    if(bFileExists)\
+{\
+    CSerializer serializer(szFilePath);\
+    CComponentManager::GetInstance()->Import(serializer);\
+                }\
+                }\
+                };\
+                void(*pComponentLauncherFunc)() = &SRegisterLauncher::Launch;
+
+#endif
 
 #define REGISTER_COMPONENT(component, displayName, catalogName)\
     CComponentManager::GetInstance()->RegisterTemplate(new component);

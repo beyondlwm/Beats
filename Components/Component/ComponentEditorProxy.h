@@ -59,6 +59,7 @@ public:
     virtual void Serialize(CSerializer& serializer);
     virtual void Deserialize(CSerializer& serializer);
 
+    virtual void SetId(size_t id);
     virtual void Initialize();
 
 protected:

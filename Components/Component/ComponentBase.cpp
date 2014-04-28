@@ -1,9 +1,5 @@
 #include "stdafx.h"
 #include "componentbase.h"
-#include "../../Utility/Serializer/Serializer.h"
-#include "../DependencyDescription.h"
-#include "../DependencyDescriptionLine.h"
-#include "../Property/PropertyDescriptionBase.h"
 
 CComponentBase::CComponentBase()
 : m_id(0xFFFFFFFF)

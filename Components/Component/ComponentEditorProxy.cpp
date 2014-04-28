@@ -482,6 +482,15 @@ void CComponentEditorProxy::Save()
     }
 }
 
+void CComponentEditorProxy::SetId(size_t id)
+{
+    super::SetId(id);
+    if (m_pHostComponent != NULL)
+    {
+        m_pHostComponent->SetId(id);
+    }
+}
+
 void CComponentEditorProxy::Initialize()
 {
     super::Initialize();

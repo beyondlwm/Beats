@@ -29,7 +29,7 @@ public:
     
 public:
     size_t GetId() const;
-    void SetId(size_t id);
+    virtual void SetId(size_t id);
 
     virtual void Initialize();
     virtual void ReflectData(CSerializer& serializer);
