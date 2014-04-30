@@ -30,7 +30,7 @@ wxPGWindowList wxPtrButtonEditor::CreateControls( wxPropertyGrid* propGrid,
     void* pClientData = property->GetClientData();
     BEATS_ASSERT(pClientData != NULL);
     CPropertyDescriptionBase* pPropertyDescription = static_cast<CPropertyDescriptionBase*>(pClientData);
-    if (pPropertyDescription->GetType() == ePT_Ptr)
+    if (pPropertyDescription->GetType() == eRPT_Ptr)
     {
         CPtrPropertyDescription* pPtrProperty = static_cast<CPtrPropertyDescription*>(pPropertyDescription);
         buttons->Add( pPtrProperty->GetInstanceComponent() == NULL ? _T("+") : _T("-"));
@@ -78,7 +78,7 @@ bool wxPtrButtonEditor::OnEvent( wxPropertyGrid* propGrid,
         }
         if (pButton != NULL)
         {
-            if (pPropertyDescription->GetType() == ePT_Ptr)
+            if (pPropertyDescription->GetType() == eRPT_Ptr)
             {
                 CPtrPropertyDescription* pPtrPropertyDescription = static_cast<CPtrPropertyDescription*>(pPropertyDescription);
                 wxString valueStr = property->GetValueAsString();

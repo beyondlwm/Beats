@@ -4,7 +4,7 @@
 #include "../../../Utility/Serializer/Serializer.h"
 
 CUIntPropertyDescription::CUIntPropertyDescription(CSerializer* pSerializer)
-: super(ePT_UInt)
+: super(eRPT_UInt)
 , m_minValue(0)
 , m_maxValue(ULONG_MAX)
 , m_spinStep(0)

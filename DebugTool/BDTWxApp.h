@@ -42,7 +42,7 @@ public:
     bool Launch(size_t uFuncSwitcher, std::vector<std::string>* pMemHookModuleList);
     bool IsEnable(EBDTFuncType funcType);
     void AddInfoLog(const TCHAR* pLog, const TCHAR* pCatalog = 0, size_t logPos = 0, size_t color = 0);
-    void UpdatePropertyInfo(const TCHAR* pCatalog, const TCHAR* pPropertyName, size_t propertyId, void* value, EPropertyType type);
+    void UpdatePropertyInfo(const TCHAR* pCatalog, const TCHAR* pPropertyName, size_t propertyId, void* value, EReflectPropertyType type);
     void DeleteProperty(const TCHAR* pCatalog, const TCHAR* pPropertyName);
     void RegisterPropertyChangeHandler(TPropertyChangedHandler pFunc);
     CBDTWxFrame* GetMainFrame();

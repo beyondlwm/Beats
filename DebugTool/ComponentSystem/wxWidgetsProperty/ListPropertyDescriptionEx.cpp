@@ -9,14 +9,14 @@
 static const TString EMPTY_STRING = _T("Empty");
 
 CListPropertyDescriptionEx::CListPropertyDescriptionEx(CSerializer* pSerializer)
-: super(ePT_List)
+: super(eRPT_List)
 , m_uMaxCount(INT_MAX)
 , m_bFixCount(false)
 , m_pChildTemplate(NULL)
 {
     if (pSerializer != NULL)
     {
-        EPropertyType childType;
+        EReflectPropertyType childType;
         (*pSerializer) >> childType;
         m_pChildTemplate = CComponentManager::GetInstance()->CreateProperty(childType, pSerializer);
     }

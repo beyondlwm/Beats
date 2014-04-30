@@ -5,7 +5,7 @@
 #include <float.h>
 
 CDoublePropertyDescription::CDoublePropertyDescription(CSerializer* pSerializer)
-: super(ePT_Double)
+: super(eRPT_Double)
 , m_dMinValue(-DBL_MIN)
 , m_dMaxValue(DBL_MAX)
 , m_dSpinStep(0)

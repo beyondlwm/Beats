@@ -1102,7 +1102,7 @@ void CBDTWxFrame::InsertInPropertyGrid(const std::vector<CPropertyDescriptionBas
 
         pPGProperty->SetName(pPropertyBase->GetBasicInfo().m_variableName);
         pPGProperty->SetLabel(pPropertyBase->GetBasicInfo().m_displayName);
-        pPGProperty->ChangeFlag(wxPG_PROP_READONLY, !pPropertyBase->GetBasicInfo().m_bEditable || pPropertyBase->GetType() == ePT_Ptr || pPropertyBase->IsContainerProperty());
+        pPGProperty->ChangeFlag(wxPG_PROP_READONLY, !pPropertyBase->GetBasicInfo().m_bEditable || pPropertyBase->GetType() == eRPT_Ptr || pPropertyBase->IsContainerProperty());
         pPGProperty->SetHelpString(pPropertyBase->GetBasicInfo().m_tip);
         m_pPropertyGridManager->GetGrid()->GetState()->DoInsert(pParent, -1, pPGProperty);
         // This function can only be called after property be inserted to grid, or it will crash. It's a wxwidgets rule.
@@ -1125,7 +1125,7 @@ void CBDTWxFrame::ResetPropertyValue(wxPGProperty* pProperty)
     {
         pProperty->DeleteChildren();
     }
-    if (pPropertyBase->GetType() == ePT_Ptr)
+    if (pPropertyBase->GetType() == eRPT_Ptr)
     {
         CPtrPropertyDescription* pPtrProperty = static_cast<CPtrPropertyDescription*>(pPropertyBase);
         pPtrProperty->DestroyInstance();

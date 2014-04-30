@@ -4,7 +4,7 @@
 #include "../../../Utility/Serializer/Serializer.h"
 
 CBoolPropertyDescription::CBoolPropertyDescription(CSerializer* pSerializer)
-: super(ePT_Bool)
+: super(eRPT_Bool)
 {
     bool bDefaultValue = false;
     if (pSerializer != NULL)

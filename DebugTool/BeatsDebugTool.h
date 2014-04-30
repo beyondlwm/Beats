@@ -29,10 +29,10 @@ extern "C" {
     MY_DLL_DECL float BEATS_PERFORMDETECT_STOP_IMPL_FUNC(int type);
     MY_DLL_DECL void BEATS_PERFORMDETECT_RESET_FUNC();
 
-    MY_DLL_DECL void BEATS_INFOBOARD_UPDATEPROPERTY_UI_IMPL_FUNC(size_t propertyId, const TCHAR* displayName, const TCHAR* pCatalog, void* value, enum EPropertyType type);
+    MY_DLL_DECL void BEATS_INFOBOARD_UPDATEPROPERTY_UI_IMPL_FUNC(size_t propertyId, const TCHAR* displayName, const TCHAR* pCatalog, void* value, enum EReflectPropertyType type);
     MY_DLL_DECL void BEATS_INFOBOARD_DELETEPROPERTY_UI_IMPL_FUNC( const TCHAR* displayName, const TCHAR* pCatalog);
 
-    typedef void(*TPropertyChangedHandler)(EPropertyType, size_t prpertyId, const TCHAR* pCatalog, void* value);
+    typedef void(*TPropertyChangedHandler)(EReflectPropertyType, size_t prpertyId, const TCHAR* pCatalog, void* value);
     MY_DLL_DECL void BEATS_INFOBOARD_REGISTER_PROPERTYCHANGE_HANDLER(TPropertyChangedHandler handlerFunc);
     MY_DLL_DECL void BEATS_INFOBOARD_ADDLOG_IMPL_FUNC(const TCHAR* pCatalog, const TCHAR* log, size_t logPos = 0, size_t fontColor = 0);
 
@@ -178,7 +178,7 @@ public:
     TFuncType3 pBEATS_PERFORMDETECT_START_IMPL;
     typedef float(*TFuncType4)(int);
     TFuncType4 pBEATS_PERFORMDETECT_STOP_IMPL;
-    typedef void(*TFuncType5)(size_t, const TCHAR*, const TCHAR*, void*, EPropertyType);
+    typedef void(*TFuncType5)(size_t, const TCHAR*, const TCHAR*, void*, EReflectPropertyType);
     TFuncType5 pBEATS_INFOBOARD_UPDATEPROPERTY_UI;
     typedef void(*TFuncType6)(const TCHAR*, const TCHAR*, size_t, size_t);
     TFuncType6 pBEATS_INFOBOARD_ADDLOG;
@@ -213,7 +213,7 @@ static CDebugToolLauncher& gDebugToolLauncher = CDebugToolLauncher::GetInstance(
 #define BEATS_PERFORMDETECT_START(type) if(CDebugToolLauncher::GetInstance().m_initialized){int eipValue=0; BEATS_ASSI_GET_EIP(eipValue);CDebugToolLauncher::GetInstance().pBEATS_PERFORMDETECT_START_IMPL(type, false, eipValue);}
 #define BEATS_PERFORMDETECT_RESET() if(CDebugToolLauncher::GetInstance().m_initialized){CDebugToolLauncher::GetInstance().pBEATS_PERFORMDETECT_RESET();}
 
-#define BEATS_INFOBOARD_UPDATEPROPERTY_UI(id, displayName, catalog, property, type) if(CDebugToolLauncher::GetInstance().m_initialized){CDebugToolLauncher::GetInstance().pBEATS_INFOBOARD_UPDATEPROPERTY_UI(id, displayName, catalog, property, (EPropertyType)type);}
+#define BEATS_INFOBOARD_UPDATEPROPERTY_UI(id, displayName, catalog, property, type) if(CDebugToolLauncher::GetInstance().m_initialized){CDebugToolLauncher::GetInstance().pBEATS_INFOBOARD_UPDATEPROPERTY_UI(id, displayName, catalog, property, (EReflectPropertyType)type);}
 #define BEATS_INFOBOARD_DELETEPROPERTY_UI(displayName, catalog) if(CDebugToolLauncher::GetInstance().m_initialized){CDebugToolLauncher::GetInstance().pBEATS_INFOBOARD_DELETEPROPERTY_UI(displayName, catalog);}
 #define BEATS_INFOBOARD_REGISTER_UPDATEPROPERTY_HANDLER(handler) if(CDebugToolLauncher::GetInstance().m_initialized){CDebugToolLauncher::GetInstance().pBEATS_INFOBOARD_REGISTER_UPDATEPROPERTY_HANDLER(handler);}
 #define BEATS_INFOBOARD_ADDLOG(catalog, log, color) if(CDebugToolLauncher::GetInstance().m_initialized){int eipValue=0; BEATS_ASSI_GET_EIP(eipValue);CDebugToolLauncher::GetInstance().pBEATS_INFOBOARD_ADDLOG(catalog, log, eipValue, color);}

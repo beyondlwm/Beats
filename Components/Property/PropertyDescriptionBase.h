@@ -22,13 +22,13 @@ enum EValueType
 class COMPONENTS_DLL_DECL CPropertyDescriptionBase
 {
 public:
-    CPropertyDescriptionBase(EPropertyType type);
+    CPropertyDescriptionBase(EReflectPropertyType type);
     CPropertyDescriptionBase(const CPropertyDescriptionBase& rRef);
 
     virtual ~CPropertyDescriptionBase();
 
-    EPropertyType GetType() const;
-    void SetType(EPropertyType type);
+    EReflectPropertyType GetType() const;
+    void SetType(EReflectPropertyType type);
 
     CComponentEditorProxy* GetOwner() const;
     void SetOwner(CComponentEditorProxy* pOwner);
@@ -102,7 +102,7 @@ protected:
     bool DeserializeBasicInfo(CSerializer& serializer);
 
 protected:
-    EPropertyType m_type;
+    EReflectPropertyType m_type;
     CComponentEditorProxy* m_pOwner;
     SharePtr<SBasicPropertyInfo>* m_pBasicInfo;
     void* m_valueArray[eVT_Count];

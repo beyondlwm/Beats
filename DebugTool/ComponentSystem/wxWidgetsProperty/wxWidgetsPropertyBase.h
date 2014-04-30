@@ -13,7 +13,7 @@ class CWxwidgetsPropertyBase : public CPropertyDescriptionBase
 {
     typedef CPropertyDescriptionBase super;
 public:
-    CWxwidgetsPropertyBase(EPropertyType type);
+    CWxwidgetsPropertyBase(EReflectPropertyType type);
     CWxwidgetsPropertyBase(const CWxwidgetsPropertyBase& rRef);
 
     virtual ~CWxwidgetsPropertyBase();

@@ -10,7 +10,7 @@
 #define POINTER_SPLIT_SYMBOL _T("@")
 
 CPtrPropertyDescription::CPtrPropertyDescription(CSerializer* pSerializer)
-    : super(ePT_Ptr)
+    : super(eRPT_Ptr)
     , m_uComponentGuid(0)
     , m_uDerivedGuid(0)
     , m_pInstance(NULL)

@@ -17,26 +17,26 @@
 #include "wxWidgetsProperty/DoublePropertyDescription.h"
 #include "wxWidgetsProperty/MapPropertyDescription.h"
 
-REGISTER_PROPERTY(bool, ePT_Bool);
-REGISTER_PROPERTY(float, ePT_Float);
-REGISTER_PROPERTY(double, ePT_Double);
-REGISTER_PROPERTY(int, ePT_Int);
-REGISTER_PROPERTY(size_t, ePT_UInt);
-REGISTER_PROPERTY(TString, ePT_Str);
-REGISTER_PROPERTY(CComponentBase*, ePT_Ptr);
-REGISTER_PROPERTY_TEMPLATE1(std::vector, ePT_List);
-REGISTER_PROPERTY_TEMPLATE2(std::map, ePT_Map);
+REGISTER_PROPERTY(bool, eRPT_Bool);
+REGISTER_PROPERTY(float, eRPT_Float);
+REGISTER_PROPERTY(double, eRPT_Double);
+REGISTER_PROPERTY(int, eRPT_Int);
+REGISTER_PROPERTY(size_t, eRPT_UInt);
+REGISTER_PROPERTY(TString, eRPT_Str);
+REGISTER_PROPERTY(CComponentBase*, eRPT_Ptr);
+REGISTER_PROPERTY_TEMPLATE1(std::vector, eRPT_List);
+REGISTER_PROPERTY_TEMPLATE2(std::map, eRPT_Map);
 
-REGISTER_PROPERTY_DESC(ePT_Bool, CBoolPropertyDescription)
-REGISTER_PROPERTY_DESC(ePT_Float, CFloatPropertyDescription)
-REGISTER_PROPERTY_DESC(ePT_Double, CDoublePropertyDescription)
-REGISTER_PROPERTY_DESC(ePT_Int, CIntPropertyDescription)
-REGISTER_PROPERTY_DESC(ePT_Str, CStringPropertyDescription)
-REGISTER_PROPERTY_DESC(ePT_UInt, CUIntPropertyDescription)
-REGISTER_PROPERTY_DESC(ePT_Ptr, CPtrPropertyDescription)
-REGISTER_PROPERTY_DESC(ePT_List, CListPropertyDescriptionEx)
-REGISTER_PROPERTY_DESC(ePT_Enum, CEnumPropertyDescription)
-REGISTER_PROPERTY_DESC(ePT_Map, CMapPropertyDescription)
+REGISTER_PROPERTY_DESC(eRPT_Bool, CBoolPropertyDescription)
+REGISTER_PROPERTY_DESC(eRPT_Float, CFloatPropertyDescription)
+REGISTER_PROPERTY_DESC(eRPT_Double, CDoublePropertyDescription)
+REGISTER_PROPERTY_DESC(eRPT_Int, CIntPropertyDescription)
+REGISTER_PROPERTY_DESC(eRPT_Str, CStringPropertyDescription)
+REGISTER_PROPERTY_DESC(eRPT_UInt, CUIntPropertyDescription)
+REGISTER_PROPERTY_DESC(eRPT_Ptr, CPtrPropertyDescription)
+REGISTER_PROPERTY_DESC(eRPT_List, CListPropertyDescriptionEx)
+REGISTER_PROPERTY_DESC(eRPT_Enum, CEnumPropertyDescription)
+REGISTER_PROPERTY_DESC(eRPT_Map, CMapPropertyDescription)
 
 struct SLuancher
 {

@@ -6,7 +6,7 @@
 #include "../Utility/StringHelper/StringHelper.h"
 
 // To comment or un-comment this macro to decide serializer/deseraize.
-#define EXPORT_TO_EDITOR
+//#define EXPORT_TO_EDITOR
 #define EDITOR_MODE
 
 #define EXPORT_STRUCTURE_DATA_FILENAME _T("EDS.bin")
@@ -37,17 +37,17 @@ struct SSerilaizerExtraInfo
 class CSerializer;
 
 template<typename T>
-inline EPropertyType GetEnumType(T& value, CSerializer* pSerializer)
+inline EReflectPropertyType GetEnumType(T& value, CSerializer* pSerializer)
 {
-    EPropertyType eRet = ePT_Invalid;
+    EReflectPropertyType eRet = eRPT_Invalid;
     const char* pszTypeName = typeid(value).name();
     bool bIsEnum = memcmp(pszTypeName, "enum ", strlen("enum ")) == 0;
     if (bIsEnum)
     {
-        eRet = ePT_Enum;
+        eRet = eRPT_Enum;
         TCHAR szNameBuffer[128];
         CStringHelper::GetInstance()->ConvertToTCHAR(&pszTypeName[strlen("enum ")], szNameBuffer, 128);
-        (*pSerializer) << (size_t)ePT_Enum;
+        (*pSerializer) << (size_t)eRPT_Enum;
         (*pSerializer) << (int)(value) << szNameBuffer;
     }
     BEATS_ASSERT(bIsEnum, _T("Unknown type!"));
@@ -174,8 +174,8 @@ inline void DeserializeVarialble(std::vector<T>& value, CSerializer* pSerializer
 template<typename T1, typename T2>
 inline void DeserializeVarialble(std::map<T1, T2>& value, CSerializer* pSerializer)
 {
-    EPropertyType keyType;
-    EPropertyType valueType;
+    EReflectPropertyType keyType;
+    EReflectPropertyType valueType;
     size_t childCount = 0;
     *pSerializer >> keyType;
     *pSerializer >> valueType;
@@ -199,25 +199,25 @@ inline void DeserializeVarialble(std::map<T1, T2>& value, CSerializer* pSerializ
 }
 
 template<typename T>
-inline EPropertyType GetEnumType(T*& /*value*/, CSerializer* pSerializer)
+inline EReflectPropertyType GetEnumType(T*& /*value*/, CSerializer* pSerializer)
 {
     size_t guid = T::REFLECT_GUID;
     T* pTestParam = (T*)(guid);
-    EPropertyType eReturnType = ePT_Invalid;
+    EReflectPropertyType eReturnType = eRPT_Invalid;
     CComponentBase* pReflect = dynamic_cast<CComponentBase*>(pTestParam);
     if (pReflect != NULL)
     {
-        eReturnType = ePT_Ptr;
-        *pSerializer << (int)ePT_Ptr;
+        eReturnType = eRPT_Ptr;
+        *pSerializer << (int)eRPT_Ptr;
         *pSerializer << T::REFLECT_GUID;
     }
-    BEATS_ASSERT(eReturnType != ePT_Invalid, _T("Unknown type!"));
+    BEATS_ASSERT(eReturnType != eRPT_Invalid, _T("Unknown type!"));
     return eReturnType;
 }
 
 #define REGISTER_PROPERTY(classType, enumType)\
 template<>\
-inline EPropertyType GetEnumType(classType& value, CSerializer* pSerializer)\
+inline EReflectPropertyType GetEnumType(classType& value, CSerializer* pSerializer)\
 {\
     if (pSerializer != NULL)\
     {\
@@ -229,7 +229,7 @@ inline EPropertyType GetEnumType(classType& value, CSerializer* pSerializer)\
 
 #define REGISTER_PROPERTY_SHAREPTR(classType, enumType)\
     template<typename T>\
-    inline EPropertyType GetEnumType(classType<T>& /*value*/, CSerializer* pSerializer)\
+    inline EReflectPropertyType GetEnumType(classType<T>& /*value*/, CSerializer* pSerializer)\
 {\
     if (pSerializer != NULL)\
     {\
@@ -242,7 +242,7 @@ inline EPropertyType GetEnumType(classType& value, CSerializer* pSerializer)\
 
 #define REGISTER_PROPERTY_TEMPLATE1(classType, enumType)\
     template<typename T>\
-    inline EPropertyType GetEnumType(classType<T>& /*value*/, CSerializer* pSerializer)\
+    inline EReflectPropertyType GetEnumType(classType<T>& /*value*/, CSerializer* pSerializer)\
 {\
     if (pSerializer != NULL)\
     {\
@@ -256,7 +256,7 @@ inline EPropertyType GetEnumType(classType& value, CSerializer* pSerializer)\
 
 #define REGISTER_PROPERTY_TEMPLATE2(classType, enumType)\
     template<typename T1, typename T2>\
-    inline EPropertyType GetEnumType(classType<T1, T2>& /*value*/, CSerializer* pSerializer)\
+    inline EReflectPropertyType GetEnumType(classType<T1, T2>& /*value*/, CSerializer* pSerializer)\
 {\
     if (pSerializer != NULL)\
 {\
@@ -341,11 +341,11 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
 #define DECLARE_PROPERTY(serializer, property, editable, color, displayName, catalog, tip, parameter)\
 {\
     serializer << (bool) true;\
-    EPropertyType propertyType = GetEnumType(property, &serializer);\
+    EReflectPropertyType propertyType = GetEnumType(property, &serializer);\
     size_t nPropertyDataSizeHolder = serializer.GetWritePos();\
     serializer << nPropertyDataSizeHolder;\
     const TCHAR* pszParam = parameter;\
-    if (propertyType == ePT_Enum && pszParam != NULL)\
+    if (propertyType == eRPT_Enum && pszParam != NULL)\
     {\
         size_t uEnumStringArrayNameLen = _tcslen(UIParameterAttrStr[eUIPAT_EnumStringArray]);\
         if (_tcslen(pszParam) > uEnumStringArrayNameLen && memcmp(pszParam, UIParameterAttrStr[eUIPAT_EnumStringArray], uEnumStringArrayNameLen) == 0)\

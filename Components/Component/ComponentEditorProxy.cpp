@@ -81,7 +81,7 @@ void CComponentEditorProxy::Deserialize( CSerializer& serializer )
         m_pSerializeOrder->push_back(bIsPropertyOrDependencyData);
         if (bIsPropertyOrDependencyData)
         {
-            EPropertyType ePropertyType;
+            EReflectPropertyType ePropertyType;
             serializer >> ePropertyType;
             CPropertyDescriptionBase* pPropertyBase = CComponentManager::GetInstance()->CreateProperty(ePropertyType, &serializer);
             pPropertyBase->Deserialize(serializer);
@@ -284,7 +284,7 @@ void CComponentEditorProxy::LoadFromXML( TiXmlElement* pNode )
     CComponentProject* pProject = CComponentManager::GetInstance()->GetProject();
     while (pVarElement != NULL)
     {
-        EPropertyType propertyType;
+        EReflectPropertyType propertyType;
         pVarElement->Attribute("Type", (int*)&propertyType);
         const char* szVariableName = pVarElement->Attribute("Variable");
         BEATS_ASSERT(szVariableName != NULL);
@@ -319,7 +319,7 @@ void CComponentEditorProxy::LoadFromXML( TiXmlElement* pNode )
     // Run maintain logic.
     for (size_t i = 0; i < unUsedXMLVariableNode.size(); ++i)
     {
-        EPropertyType propertyType;
+        EReflectPropertyType propertyType;
         unUsedXMLVariableNode[i]->Attribute("Type", (int*)&propertyType);
         const char* szVariableName = unUsedXMLVariableNode[i]->Attribute("Variable");
 

@@ -8,7 +8,7 @@
 SEnumPropertyDataMapWrapper CEnumPropertyDescription::m_enumPropertyDataMap;
 
 CEnumPropertyDescription::CEnumPropertyDescription(CSerializer* pSerializer)
-: super(ePT_Enum)
+: super(eRPT_Enum)
 , m_pPropertyData(NULL)
 {
     int iValue = 0;

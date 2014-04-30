@@ -4,7 +4,7 @@
 #include "../../../Utility/Serializer/Serializer.h"
 
 CIntPropertyDescription::CIntPropertyDescription(CSerializer* pSerializer)
-: super(ePT_Int)
+: super(eRPT_Int)
 , m_minValue(INT_MIN)
 , m_maxValue(INT_MAX)
 , m_spinStep(0)

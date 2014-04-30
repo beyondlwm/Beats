@@ -178,28 +178,28 @@ void CInfoPagePanel::AppendLogText( const TCHAR* pLog, size_t logPos, const wxTe
 // TODO: Here is really a big trouble, Should try to refactor here for a better solution. the problem is:
 // When we want to communicate with the main program, we don't know how to send data to it or receive data from it in a automatical way.
 // so I use the simplest way: mark the type, convert data by the type, then operate.
-void CInfoPagePanel::UpdateProperty( const TCHAR* propertyIdStr, size_t propertyId, void* value, EPropertyType type )
+void CInfoPagePanel::UpdateProperty( const TCHAR* propertyIdStr, size_t propertyId, void* value, EReflectPropertyType type )
 {
     EnterCriticalSection(&m_propertyRequestSection);
     SPropertyRequest request;
     switch (type)
     {
-    case ePT_Bool:
+    case eRPT_Bool:
         request.m_var = (*(bool*)value);
         break;
-    case ePT_Float:
+    case eRPT_Float:
         request.m_var = (double)(*(float*)value);
         break;
-    case ePT_Double:
+    case eRPT_Double:
         request.m_var = (*(double*)value);
         break;
-    case ePT_Str:
+    case eRPT_Str:
         request.m_var = (TCHAR*)value;
         break;
-    case ePT_Int:
+    case eRPT_Int:
         request.m_var = (*(long*)value);
         break;
-    case ePT_UInt:
+    case eRPT_UInt:
         request.m_var = wxULongLong(*(long*)value);
         break;
     default:
@@ -320,7 +320,7 @@ void CInfoPagePanel::OnPropertyChanged( wxPropertyGridEvent& event )
         wxString pStr = pProperty->GetValueAsString();
         wxNotebookBase* pNoteBookBase = (wxNotebookBase*)GetParent();
         size_t* pClientData = (size_t*)pProperty->GetClientData();
-        pFuncHandler((EPropertyType)pClientData[0], pClientData[1], pNoteBookBase->GetPageText(pNoteBookBase->GetSelection()), (void*)pStr.ToStdWstring().c_str());
+        pFuncHandler((EReflectPropertyType)pClientData[0], pClientData[1], pNoteBookBase->GetPageText(pNoteBookBase->GetSelection()), (void*)pStr.ToStdWstring().c_str());
     }
 }
 
@@ -339,20 +339,20 @@ void CInfoPagePanel::OnPropertyGridIdle(wxCommandEvent& /*event*/)
             wxPGProperty* pProperty = NULL;
             switch (m_request[i].m_type)
             {
-            case ePT_Bool:
+            case eRPT_Bool:
                 pProperty = new wxBoolProperty;
                 break;
-            case ePT_Float:
-            case ePT_Double:
+            case eRPT_Float:
+            case eRPT_Double:
                 pProperty = new wxFloatProperty;
                 break;
-            case ePT_Str:
+            case eRPT_Str:
                 pProperty = new wxStringProperty;
                 break;
-            case ePT_Int:
+            case eRPT_Int:
                 pProperty = new wxIntProperty;
                 break;
-            case ePT_UInt:
+            case eRPT_UInt:
                 pProperty = new wxUIntProperty;
                 break;
             default:
@@ -361,7 +361,7 @@ void CInfoPagePanel::OnPropertyGridIdle(wxCommandEvent& /*event*/)
             }
             pProperty->SetValue(m_request[i].m_var);
             // Change string value is not allowed for now.
-            pProperty->ChangeFlag(wxPG_PROP_READONLY, m_request[i].m_type == ePT_Str);
+            pProperty->ChangeFlag(wxPG_PROP_READONLY, m_request[i].m_type == eRPT_Str);
             pProperty->SetName(m_request[i].m_idStr);
             pProperty->SetLabel(m_request[i].m_idStr);
 

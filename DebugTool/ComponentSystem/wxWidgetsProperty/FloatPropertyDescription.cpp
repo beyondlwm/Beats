@@ -5,7 +5,7 @@
 #include <float.h>
 
 CFloatPropertyDescription::CFloatPropertyDescription(CSerializer* pSerializer)
-: super(ePT_Float)
+: super(eRPT_Float)
 , m_fMinValue(-FLT_MAX)
 , m_fMaxValue(FLT_MAX)
 , m_fSpinStep(0)

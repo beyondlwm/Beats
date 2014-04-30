@@ -82,7 +82,7 @@ void CBDTWxFrame::AddInfoLog( const TCHAR* pLog, const TCHAR* pCatalog /*= 0*/, 
     pPanel->AppendLogText(pLog, logPos, &textAttr);
 }
 
-void CBDTWxFrame::SetPropertyInfo(const TCHAR* pCatalog, const TCHAR* pPropertyName, size_t propertyId, void* value, EPropertyType type )
+void CBDTWxFrame::SetPropertyInfo(const TCHAR* pCatalog, const TCHAR* pPropertyName, size_t propertyId, void* value, EReflectPropertyType type )
 {
     CInfoPagePanel* pPanel = GetInfoPage(pCatalog);
     pPanel->UpdateProperty(pPropertyName, propertyId, value, type);
