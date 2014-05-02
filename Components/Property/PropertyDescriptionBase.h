@@ -36,8 +36,11 @@ public:
     CPropertyDescriptionBase* GetParent() const;
     void SetParent(CPropertyDescriptionBase* pParent);
 
+    // m_pBasicInfo is a shareptr, be care that all the basic info will be changed when call
+    // SetBasicInfo, to avoid impact the other basic info ,call ResetBasicInfo.
+    void ResetBasicInfo(const SharePtr<SBasicPropertyInfo>& pInfo);
     void SetBasicInfo(const SBasicPropertyInfo& info);
-    SBasicPropertyInfo& GetBasicInfo() const;
+    const SharePtr<SBasicPropertyInfo>& GetBasicInfo() const;
 
     bool Deserialize(CSerializer& serializer);
 

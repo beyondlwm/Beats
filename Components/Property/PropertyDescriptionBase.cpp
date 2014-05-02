@@ -71,17 +71,19 @@ void CPropertyDescriptionBase::SetParent(CPropertyDescriptionBase* pParent)
     m_pParent = pParent;
 }
 
+void CPropertyDescriptionBase::ResetBasicInfo(const SharePtr<SBasicPropertyInfo>& pInfo)
+{
+    *m_pBasicInfo = pInfo;
+}
+
 void CPropertyDescriptionBase::SetBasicInfo(const SBasicPropertyInfo& info)
 {
-    // this is a copy on write method.
-    BEATS_SAFE_DELETE(m_pBasicInfo);
-    m_pBasicInfo = new SharePtr<SBasicPropertyInfo>(new SBasicPropertyInfo);
     *m_pBasicInfo->Get() = info;
 }
 
-SBasicPropertyInfo& CPropertyDescriptionBase::GetBasicInfo() const
+const SharePtr<SBasicPropertyInfo>& CPropertyDescriptionBase::GetBasicInfo() const
 {
-    return *m_pBasicInfo->Get();
+    return *m_pBasicInfo;
 }
 
 bool CPropertyDescriptionBase::Deserialize( CSerializer& serializer )

@@ -27,7 +27,7 @@ bool STriggerContent::IsOk(CComponentEditorProxy* pComponent)
     const std::vector<CPropertyDescriptionBase*>* pPropertyPool = pComponent->GetPropertyPool();
     for (size_t i = 0; i < pPropertyPool->size(); ++i)
     {
-        const TString& name = (*pPropertyPool)[i]->GetBasicInfo().m_variableName;
+        const TString& name = (*pPropertyPool)[i]->GetBasicInfo()->m_variableName;
         if(name.compare(m_strPropertyName) == 0)
         {
             pProperty = static_cast<CWxwidgetsPropertyBase*>((*pPropertyPool)[i]);

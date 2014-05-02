@@ -163,7 +163,7 @@ CPropertyDescriptionBase* CListPropertyDescriptionEx::CreateInstance()
     {
         TCHAR szChildName[32];
         _stprintf(szChildName, _T("Child_%d"), m_pChildren->size());
-        SBasicPropertyInfo basicInfo = GetBasicInfo();
+        SBasicPropertyInfo basicInfo = *(GetBasicInfo().Get());
         basicInfo.m_displayName.assign(szChildName);
         basicInfo.m_variableName.assign(szChildName);
         CPropertyDescriptionBase* pProperty = m_pChildTemplate->Clone(true);
@@ -218,8 +218,8 @@ void CListPropertyDescriptionEx::ResetChildName()
     {
         TCHAR szChildName[32];
         _stprintf(szChildName, _T("Child_%d"), i);
-        (*m_pChildren)[i]->GetBasicInfo().m_displayName.assign(szChildName);
-        (*m_pChildren)[i]->GetBasicInfo().m_variableName.assign(szChildName);
+        (*m_pChildren)[i]->GetBasicInfo()->m_displayName.assign(szChildName);
+        (*m_pChildren)[i]->GetBasicInfo()->m_variableName.assign(szChildName);
     }
 }
 

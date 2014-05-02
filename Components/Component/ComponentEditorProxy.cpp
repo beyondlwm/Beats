@@ -276,8 +276,8 @@ void CComponentEditorProxy::LoadFromXML( TiXmlElement* pNode )
     std::map<TString, CPropertyDescriptionBase*> unInitializedproperties;
     for (size_t k = 0; k < m_pProperties->size(); ++k)
     {
-        BEATS_ASSERT(unInitializedproperties.find((*m_pProperties)[k]->GetBasicInfo().m_variableName) == unInitializedproperties.end());
-        unInitializedproperties[(*m_pProperties)[k]->GetBasicInfo().m_variableName] = (*m_pProperties)[k];
+        BEATS_ASSERT(unInitializedproperties.find((*m_pProperties)[k]->GetBasicInfo()->m_variableName) == unInitializedproperties.end());
+        unInitializedproperties[(*m_pProperties)[k]->GetBasicInfo()->m_variableName] = (*m_pProperties)[k];
     }
     TiXmlElement* pVarElement = pNode->FirstChildElement("VariableNode");
     std::vector<TiXmlElement*> unUsedXMLVariableNode;
@@ -351,7 +351,7 @@ void CComponentEditorProxy::LoadFromXML( TiXmlElement* pNode )
             {
                 for (size_t j = 0; j < matchTypeProperties.size(); )
                 {
-                    const TString& strVariableName = matchTypeProperties[j]->GetBasicInfo().m_variableName;
+                    const TString& strVariableName = matchTypeProperties[j]->GetBasicInfo()->m_variableName;
                     _stprintf(szInform, _T("是否将 %s 定位到 %s?"), szTCHARVariableName, strVariableName.c_str());
                     TCHAR szTitle[MAX_PATH];
                     _stprintf(szTitle, _T("重定位数据 %d/%d"), j + 1, matchTypeProperties.size());

@@ -37,7 +37,7 @@ void CWxwidgetsPropertyBase::Initialize()
                 const std::vector<CPropertyDescriptionBase*>* pPropertyPool = m_pOwner->GetPropertyPool();
                 for (size_t j = 0; j < pPropertyPool->size(); ++j)
                 {
-                    const TString& name = (*pPropertyPool)[j]->GetBasicInfo().m_variableName;
+                    const TString& name = (*pPropertyPool)[j]->GetBasicInfo()->m_variableName;
                     if (name.compare(triggerContent[i]->GetPropertyName()) == 0)
                     {
                         CWxwidgetsPropertyBase* pProperty = static_cast<CWxwidgetsPropertyBase*>((*pPropertyPool)[j]);
@@ -74,7 +74,7 @@ void CWxwidgetsPropertyBase::SaveToXML( TiXmlElement* pParentNode )
     TiXmlElement* pVariableElement = new TiXmlElement("VariableNode");
     pVariableElement->SetAttribute("Type", m_type);
     char variableName[MAX_PATH] = {0};
-    CStringHelper::GetInstance()->ConvertToCHAR(GetBasicInfo().m_variableName.c_str(), variableName, MAX_PATH);
+    CStringHelper::GetInstance()->ConvertToCHAR(GetBasicInfo()->m_variableName.c_str(), variableName, MAX_PATH);
     pVariableElement->SetAttribute("Variable", variableName);
     char szValue[102400];
     GetValueAsChar(eVT_CurrentValue, szValue);

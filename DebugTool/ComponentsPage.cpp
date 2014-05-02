@@ -626,7 +626,7 @@ void CBDTWxFrame::UpdatePropertyVisiblity(CWxwidgetsPropertyBase* pPropertyBase)
     {
         bool bShouldBeVisible = (*iter)->CheckVisibleTrigger();
         wxPGProperty* pPGProperty = GetPGPropertyByBase(*iter);
-        BEATS_ASSERT(pPGProperty != NULL, _T("Can't find property %s in data grid!"), (*iter)->GetBasicInfo().m_displayName.c_str());
+        BEATS_ASSERT(pPGProperty != NULL, _T("Can't find property %s in data grid!"), (*iter)->GetBasicInfo()->m_displayName.c_str());
         if (pPGProperty != NULL)
         {
             pPGProperty->Hide(!bShouldBeVisible);
@@ -1100,13 +1100,13 @@ void CBDTWxFrame::InsertInPropertyGrid(const std::vector<CPropertyDescriptionBas
         BEATS_ASSERT(pPGProperty != NULL);
         BEATS_ASSERT(pParent != pPGProperty, _T("Can't insert a property in itself"));
 
-        pPGProperty->SetName(pPropertyBase->GetBasicInfo().m_variableName);
-        pPGProperty->SetLabel(pPropertyBase->GetBasicInfo().m_displayName);
-        pPGProperty->ChangeFlag(wxPG_PROP_READONLY, !pPropertyBase->GetBasicInfo().m_bEditable || pPropertyBase->GetType() == eRPT_Ptr || pPropertyBase->IsContainerProperty());
-        pPGProperty->SetHelpString(pPropertyBase->GetBasicInfo().m_tip);
+        pPGProperty->SetName(pPropertyBase->GetBasicInfo()->m_variableName);
+        pPGProperty->SetLabel(pPropertyBase->GetBasicInfo()->m_displayName);
+        pPGProperty->ChangeFlag(wxPG_PROP_READONLY, !pPropertyBase->GetBasicInfo()->m_bEditable || pPropertyBase->GetType() == eRPT_Ptr || pPropertyBase->IsContainerProperty());
+        pPGProperty->SetHelpString(pPropertyBase->GetBasicInfo()->m_tip);
         m_pPropertyGridManager->GetGrid()->GetState()->DoInsert(pParent, -1, pPGProperty);
         // This function can only be called after property be inserted to grid, or it will crash. It's a wxwidgets rule.
-        pPGProperty->SetBackgroundColour(pPropertyBase->GetBasicInfo().m_color);
+        pPGProperty->SetBackgroundColour(pPropertyBase->GetBasicInfo()->m_color);
         InsertInPropertyGrid(pPropertyBase->GetChildren(), pPGProperty);
     }
     // Update the visibility after all the properties have been inserted in the grid.
