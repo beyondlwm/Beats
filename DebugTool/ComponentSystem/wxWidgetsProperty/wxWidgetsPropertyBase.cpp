@@ -6,7 +6,7 @@
 #include "../../../Utility/StringHelper/StringHelper.h"
 #include "../../../Utility/TinyXML/tinyxml.h"
 
-CWxwidgetsPropertyBase::CWxwidgetsPropertyBase(EPropertyType type)
+CWxwidgetsPropertyBase::CWxwidgetsPropertyBase(EReflectPropertyType type)
 : super(type)
 {
 }

@@ -40,7 +40,7 @@ bool STriggerContent::IsOk(CComponentEditorProxy* pComponent)
     {
         switch (pProperty->GetType())
         {
-        case ePT_Bool:
+        case eRPT_Bool:
             {
                 bool bData = _tcsicmp(m_strRefValue.c_str(), _T("true")) == 0;
                 BEATS_ASSERT(bData || (_tcsicmp(m_strRefValue.c_str(), _T("false")) == 0), _T("Unrecognize value for trigger: %s"), m_strRefValue.c_str());
@@ -48,7 +48,7 @@ bool STriggerContent::IsOk(CComponentEditorProxy* pComponent)
                 bRet = ExamByOperator(*(bool*)pProperty->GetValue(eVT_CurrentValue), bData);
             }
             break;
-        case ePT_Float:
+        case eRPT_Float:
             {
                 TCHAR* pEndPtr;
                 float fData = (float)_tcstod(m_strRefValue.c_str(), &pEndPtr);
@@ -57,7 +57,7 @@ bool STriggerContent::IsOk(CComponentEditorProxy* pComponent)
                 bRet = ExamByOperator(*(float*)pProperty->GetValue(eVT_CurrentValue), fData);
             }
             break;
-        case ePT_Double:
+        case eRPT_Double:
             {
                 TCHAR* pEndPtr;
                 double fData = _tcstod(m_strRefValue.c_str(), &pEndPtr);
@@ -65,8 +65,8 @@ bool STriggerContent::IsOk(CComponentEditorProxy* pComponent)
                 BEATS_ASSERT(bConvertSuccess, _T("Convert string to double failed! %s"), m_strRefValue.c_str());
                 bRet = ExamByOperator(*(double*)pProperty->GetValue(eVT_CurrentValue), fData);
             }
-        case ePT_Int:
-        case ePT_Enum:
+        case eRPT_Int:
+        case eRPT_Enum:
             {
                 TCHAR* pEndPtr;
                 int iData = _tcstol(m_strRefValue.c_str(), &pEndPtr, 10);
@@ -75,7 +75,7 @@ bool STriggerContent::IsOk(CComponentEditorProxy* pComponent)
                 bRet = ExamByOperator(*(int*)pProperty->GetValue(eVT_CurrentValue), iData);
             }
             break;
-        case ePT_UInt:
+        case eRPT_UInt:
             {
                 TCHAR* pEndPtr;
                 size_t uData = _tcstoul(m_strRefValue.c_str(), &pEndPtr, 10);

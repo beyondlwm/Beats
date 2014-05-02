@@ -9,18 +9,18 @@
 static const TString EMPTY_STRING = _T("Empty");
 
 CMapPropertyDescription::CMapPropertyDescription(CSerializer* pSerializer)
-    : super(ePT_Map)
+    : super(eRPT_Map)
     , m_pKeyPropertyTemplate(NULL)
     , m_pValuePropertyTemplate(NULL)
     , m_uValuePtrGuid(0xFFFFFFFF)
 {
     if (pSerializer != NULL)
     {
-        EPropertyType keyType;
+        EReflectPropertyType keyType;
         (*pSerializer) >> keyType;
-        BEATS_ASSERT(keyType != ePT_Ptr, _T("Key can't be ePT_Ptr! It's not implemented yet!"));
+        BEATS_ASSERT(keyType != eRPT_Ptr, _T("Key can't be ePT_Ptr! It's not implemented yet!"));
         m_pKeyPropertyTemplate = CComponentManager::GetInstance()->CreateProperty(keyType, pSerializer);
-        EPropertyType valueType;
+        EReflectPropertyType valueType;
         (*pSerializer) >> valueType;
         m_pValuePropertyTemplate = CComponentManager::GetInstance()->CreateProperty(valueType, pSerializer);
     }
@@ -105,7 +105,7 @@ CPropertyDescriptionBase* CMapPropertyDescription::CreateInstance()
     basicInfo.m_variableName.assign(szChildName);
     basicInfo.m_bEditable = false;
 
-    CPropertyDescriptionBase* pRet = CComponentManager::GetInstance()->CreateProperty(ePT_Str, NULL);
+    CPropertyDescriptionBase* pRet = CComponentManager::GetInstance()->CreateProperty(eRPT_Str, NULL);
     pRet->Initialize();
     pRet->SetBasicInfo(basicInfo);
     pRet->SetOwner(this->GetOwner());
@@ -190,8 +190,8 @@ void CMapPropertyDescription::LoadFromXML( TiXmlElement* pNode )
     {
         int iVarType = 0;
         pVarElement->Attribute("Type", &iVarType);
-        BEATS_ASSERT(iVarType == ePT_Str);
-        if (iVarType == ePT_Str)
+        BEATS_ASSERT(iVarType == eRPT_Str);
+        if (iVarType == eRPT_Str)
         {
             CPropertyDescriptionBase* pNewProperty = AddChild(NULL);
             BEATS_ASSERT(pNewProperty != 0, _T("Create property failed when load from xml for list property description."));

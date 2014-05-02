@@ -4,7 +4,7 @@
 #include "../../Utility/SharePtr/SharePtr.h"
 #include "../Component/ComponentEditorProxy.h"
 
-CPropertyDescriptionBase::CPropertyDescriptionBase(EPropertyType type)
+CPropertyDescriptionBase::CPropertyDescriptionBase(EReflectPropertyType type)
 : m_pOwner(NULL)
 , m_pParent(NULL)
 , m_pChildren(new std::vector<CPropertyDescriptionBase*>())
@@ -40,12 +40,12 @@ CPropertyDescriptionBase::~CPropertyDescriptionBase()
     BEATS_SAFE_DELETE(m_pChildren);
 }
 
-EPropertyType CPropertyDescriptionBase::GetType() const
+EReflectPropertyType CPropertyDescriptionBase::GetType() const
 {
     return m_type;
 }
 
-void CPropertyDescriptionBase::SetType(EPropertyType type)
+void CPropertyDescriptionBase::SetType(EReflectPropertyType type)
 {
     m_type = type;
 }

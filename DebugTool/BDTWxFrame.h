@@ -113,7 +113,7 @@ public:
     //Info
     void AddInfoLog(const TCHAR* pLog, const TCHAR* pCatalog = 0, size_t logPos = 0, size_t color = 0);
     CInfoPagePanel* GetInfoPage(const TCHAR* pPageName, bool bAutoAdd = true);
-    void SetPropertyInfo(const TCHAR* pCatalog, const TCHAR* pPropertyName, size_t propertyId, void* value, EPropertyType type);
+    void SetPropertyInfo(const TCHAR* pCatalog, const TCHAR* pPropertyName, size_t propertyId, void* value, EReflectPropertyType type);
     void DeleteProperty(const TCHAR* pCatalog, const TCHAR* pPropertyName);
     void RegisterPropertyChangedHandler(TPropertyChangedHandler pFunc);
     TPropertyChangedHandler GetPropertyChangedHandler();

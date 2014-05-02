@@ -1,25 +1,25 @@
 #ifndef BEATS_COMPONENTS_PROPERTY_PROPERTYPUBLIC_H__INCLUDE
 #define BEATS_COMPONENTS_PROPERTY_PROPERTYPUBLIC_H__INCLUDE
 
-enum EPropertyType
+enum EReflectPropertyType
 {
-    ePT_Invalid,
-    ePT_Bool,
-    ePT_Float,
-    ePT_Double,
-    ePT_Int,
-    ePT_UInt,
-    ePT_Str,
-    ePT_GUID,
-    ePT_List,
-    ePT_Map,
-    ePT_Ptr,
-    ePT_Color,
-    ePT_File,
-    ePT_Enum,
+    eRPT_Invalid,
+    eRPT_Bool,
+    eRPT_Float,
+    eRPT_Double,
+    eRPT_Int,
+    eRPT_UInt,
+    eRPT_Str,
+    eRPT_GUID,
+    eRPT_List,
+    eRPT_Map,
+    eRPT_Ptr,
+    eRPT_Color,
+    eRPT_File,
+    eRPT_Enum,
 
-    ePT_Count,
-    ePT_ForceTo32Bit = 0xFFFFFFFF
+    eRPT_Count,
+    eRPT_ForceTo32Bit = 0xFFFFFFFF
 
 };
 

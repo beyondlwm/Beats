@@ -254,7 +254,7 @@ void CBDTWxApp::AddInfoLog( const TCHAR* pLog, const TCHAR* pCatalog /*= 0*/, si
     m_pBDTWxFrame->AddInfoLog(pLog, pCatalog, logPos, color);
 }
 
-void CBDTWxApp::UpdatePropertyInfo(const TCHAR* pCatalog, const TCHAR* pPropertyName, size_t propertyId, void* value, EPropertyType type )
+void CBDTWxApp::UpdatePropertyInfo(const TCHAR* pCatalog, const TCHAR* pPropertyName, size_t propertyId, void* value, EReflectPropertyType type )
 {
     m_pBDTWxFrame->SetPropertyInfo(pCatalog, pPropertyName, propertyId, value, type);
 }

@@ -211,7 +211,7 @@ extern "C"
         }
     }
 
-    MY_DLL_DECL void BEATS_INFOBOARD_UPDATEPROPERTY_UI_IMPL_FUNC( size_t propertyId, const TCHAR* displayName, const TCHAR* pCatalog, void* value, EPropertyType type )
+    MY_DLL_DECL void BEATS_INFOBOARD_UPDATEPROPERTY_UI_IMPL_FUNC( size_t propertyId, const TCHAR* displayName, const TCHAR* pCatalog, void* value, EReflectPropertyType type )
     {
         if (CBDTWxApp::m_bInit && CBDTWxApp::GetBDTWxApp()->IsFrameValid() && CBDTWxApp::GetBDTWxApp()->IsEnable(eBDTFT_InfoBoard))
         {

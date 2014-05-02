@@ -4,7 +4,7 @@
 #include "../../../Utility/Serializer/Serializer.h"
 
 CColorPropertyDescription::CColorPropertyDescription(CSerializer* pSerializer)
-    : super(ePT_UInt)
+    : super(eRPT_UInt)
 {
     size_t value = 0;
     unsigned char r,g,b,a;

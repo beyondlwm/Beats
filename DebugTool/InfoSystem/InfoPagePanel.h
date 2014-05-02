@@ -11,14 +11,14 @@ class CLogListCtrl;
 class wxPropertyGridEvent;
 class CWxwidgetsPropertyBase;
 struct SFilterCondition;
-enum EPropertyType;
+enum EReflectPropertyType;
 
 struct SPropertyRequest
 {
     size_t m_id;
     wxVariant m_var;
     TString m_idStr;
-    EPropertyType m_type;
+    EReflectPropertyType m_type;
 };
 
 class CInfoPagePanel : public wxPanel
@@ -35,7 +35,7 @@ public:
 
     virtual ~CInfoPagePanel();
     void AppendLogText(const TCHAR* pLog, size_t logPos, const wxTextAttr* textAttr = NULL);
-    void UpdateProperty(const TCHAR* propertyIdStr, size_t propertyId, void* value, EPropertyType type);
+    void UpdateProperty(const TCHAR* propertyIdStr, size_t propertyId, void* value, EReflectPropertyType type);
     void DeleteProperty(const TCHAR* pPropertyName);
 private:
     bool ShouldHideProperty(wxPGProperty* property, const wxArrayString& filters, const wxString& searchStr, bool& hideByFilterOrSearch);

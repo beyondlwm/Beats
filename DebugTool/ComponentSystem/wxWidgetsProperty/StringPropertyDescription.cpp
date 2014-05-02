@@ -4,7 +4,7 @@
 #include "../../../Utility/Serializer/Serializer.h"
 
 CStringPropertyDescription::CStringPropertyDescription(CSerializer* pSerializer)
-: super(ePT_Str)
+: super(eRPT_Str)
 , m_maxLength(0)
 {
     TString strValue;
