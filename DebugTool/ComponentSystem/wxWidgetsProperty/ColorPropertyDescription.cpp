@@ -111,20 +111,29 @@ CPropertyDescriptionBase* CColorPropertyDescription::CreateNewInstance()
 void CColorPropertyDescription::GetValueAsChar( EValueType type, char* pOut )
 {
     size_t iValue = *(size_t*)m_valueArray[type];
-    sprintf(pOut, "%u", iValue);
+    sprintf(pOut, "0x%x", iValue);
 }
 
 bool CColorPropertyDescription::GetValueByTChar(const TCHAR* pIn, void* pOutValue)
 {
     TCHAR* pEndChar = NULL;
-    size_t uValue = _tcstoul(pIn, &pEndChar, 10);
+    _set_errno(0);
+    size_t uValue = _tcstoul(pIn, &pEndChar, 16);
     BEATS_ASSERT(_tcslen(pEndChar) == 0, _T("Read uint from string %s error, stop at %s"), pIn, pEndChar);
-    BEATS_ASSERT(errno == 0, _T("Call _tcstoul failed! string %s radix: 10"), pIn);
+    BEATS_ASSERT(errno == 0, _T("Call _tcstoul failed! string %s radix: 16"), pIn);
     *(size_t*)pOutValue = uValue;
     return true;
 }
 
 void CColorPropertyDescription::Serialize( CSerializer& serializer )
 {
-    serializer << *(size_t*)m_valueArray[(eVT_SavedValue)];
+    size_t uColor = *(size_t*)m_valueArray[(eVT_SavedValue)];
+
+    char r = uColor >> 24;
+    char g = (uColor >> 16) & 0x000000FF;
+    char b = (uColor >> 8) & 0x000000FF;
+    char a = uColor & 0x000000FF;
+
+    uColor = r | g | b | a;
+    serializer << uColor;
 }

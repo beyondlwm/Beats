@@ -4,6 +4,7 @@
 #include <string>
 #include "Property/PropertyPublic.h"
 #include "../Utility/StringHelper/StringHelper.h"
+#include "Component/ComponentEditorProxy.h"
 
 // To comment or un-comment this macro to decide serializer/deseraize.
 //#define EXPORT_TO_EDITOR
@@ -487,18 +488,18 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
 #else
 
 #define START_REGISTER_COMPONENT\
-struct SRegisterLauncher\
-{\
+    struct SRegisterLauncher\
+    {\
     ~SRegisterLauncher()\
-{\
+    {\
     CComponentManager::Destroy();\
-}\
+    }\
     SRegisterLauncher()\
-{\
+    {\
     Launch();\
-}\
+    }\
     static void Launch()\
-{
+    {
 
 #ifdef EDITOR_MODE
 
