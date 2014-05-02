@@ -73,6 +73,9 @@ void CPropertyDescriptionBase::SetParent(CPropertyDescriptionBase* pParent)
 
 void CPropertyDescriptionBase::SetBasicInfo(const SBasicPropertyInfo& info)
 {
+    // this is a copy on write method.
+    BEATS_SAFE_DELETE(m_pBasicInfo);
+    m_pBasicInfo = new SharePtr<SBasicPropertyInfo>(new SBasicPropertyInfo);
     *m_pBasicInfo->Get() = info;
 }
 
