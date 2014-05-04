@@ -195,7 +195,6 @@ public:
         return m_refCount;
     }
 
-private:
     void Destroy()
     {
         bool bCanDestroy = m_refCount != NULL && m_pObject != NULL && *m_refCount > 0;
@@ -221,6 +220,8 @@ private:
             }
         }
     }
+
+private:
     template<class ClassType2>
     const SharePtr<ClassType>&  CopyImpl (const SharePtr<ClassType2>& value)
     {
