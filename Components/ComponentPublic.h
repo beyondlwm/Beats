@@ -388,19 +388,21 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
         {\
             size_t uLineCount = 0;\
             serializer >> uLineCount;\
-            BEATS_ASSERT(uLineCount <= 1);\
+            BEATS_ASSERT(uLineCount <= 1, _T("Data error:\nWe want a dependency data, but got %d line count!"), uLineCount);\
+            ptrProperty = NULL;\
             if (uLineCount == 1)\
             {\
                 size_t uInstanceId, uGuid;\
                 serializer >> uInstanceId >> uGuid;\
                 CComponentManager::GetInstance()->AddDependencyResolver(NULL, 0 , uGuid, uInstanceId, &ptrProperty, false);\
             }\
-}
+        }
 
 #define DECLARE_DEPENDENCY_LIST(serializer, ptrProperty, displayName, dependencyType)\
         {\
             size_t uLineCount = 0;\
             serializer >> uLineCount;\
+            ptrProperty.clear();\
             for (size_t i = 0; i < uLineCount; ++i)\
             {\
                 size_t uInstanceId, uGuid;\

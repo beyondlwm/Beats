@@ -99,6 +99,7 @@ public:
     void Import(CSerializer& serializer);
 
     void AddDependencyResolver( CDependencyDescription* pDescription, size_t uIndex, size_t uGuid, size_t uInstanceId, void* pVariableAddress, bool bIsList, TAddDependencyFunc pFunc = NULL);
+    void ResolveDependency();
     void RegisterPropertyCreator(size_t enumType, TCreatePropertyFunc func);
     CPropertyDescriptionBase* CreateProperty(size_t propertyType, CSerializer* serializer);
 
@@ -106,7 +107,6 @@ public:
 private:
     void LoadTemplateDataFromXML(const TCHAR* pWorkingPath);
     void LoadTemplateDataFromSerializer(CSerializer& serializer, TCreateComponentEditorProxyFunc func, TCreateGraphicFunc pGraphicFunc);
-    void ResolveDependency();
 
 private:
     CIdManager* m_pIdManager;

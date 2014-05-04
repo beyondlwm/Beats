@@ -26,8 +26,9 @@ public:
 
     void SetHostComponent(CComponentBase* pComponent);
     CComponentBase* GetHostComponent() const;
+    void UpdateHostComponent();
 
-    void AddProperty(CPropertyDescriptionBase* pProperty);    
+    void AddProperty(CPropertyDescriptionBase* pProperty);
     void ClearProperty();
     const std::vector<CPropertyDescriptionBase*>* GetPropertyPool() const;
 

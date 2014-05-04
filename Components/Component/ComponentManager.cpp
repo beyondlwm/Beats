@@ -352,6 +352,17 @@ void CComponentManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /*= fa
                 }
             }
             ResolveDependency();
+            const std::map<size_t, std::map<size_t, CComponentBase*>*>* pInstanceMap = CComponentManager::GetInstance()->GetComponentInstanceMap();
+            for (std::map<size_t, std::map<size_t, CComponentBase*>*>::const_iterator iter = pInstanceMap->begin(); iter != pInstanceMap->end(); ++iter)
+            {
+                for (std::map<size_t, CComponentBase*>::const_iterator subIter = iter->second->begin(); subIter != iter->second->end(); ++subIter)
+                {
+                    CComponentEditorProxy* pProxyInstance = dynamic_cast<CComponentEditorProxy*>(subIter->second);
+                    BEATS_ASSERT(pProxyInstance != NULL);
+                    // We need to update the host component after the proxy's dependencies have been resolved.
+                    pProxyInstance->UpdateHostComponent();
+                }
+            }
             if (bOpenAsCopy)
             {
                 std::vector<CComponentBase*> allInstance;
@@ -638,7 +649,7 @@ void CComponentManager::ResolveDependency()
         if (pDependencyResolver->pDescription != NULL)
         {
             BEATS_WARNING(pComponentToBeLink != NULL, 
-                _T("Component %s id %d can't resolve its dependency %s to component guid %d id %d, have you deleted that component recently?"),
+                _T("Component %s id %d can't resolve its dependency %s to component guid 0x%x id %d, have you deleted that component recently?"),
                 pDependencyResolver->pDescription->GetOwner()->GetClassStr(), 
                 pDependencyResolver->pDescription->GetOwner()->GetId(),
                 pDependencyResolver->pDescription->GetDisplayName(),

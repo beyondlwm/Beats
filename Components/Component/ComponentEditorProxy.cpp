@@ -233,6 +233,23 @@ CComponentBase* CComponentEditorProxy::GetHostComponent() const
     return m_pHostComponent;
 }
 
+void CComponentEditorProxy::UpdateHostComponent()
+{
+    if (m_pHostComponent)
+    {
+        CSerializer serializer;
+        Serialize(serializer);
+        size_t uTotalSize = 0;
+        size_t uGuid = 0;
+        size_t uId = 0;
+        serializer >> uTotalSize;
+        serializer >> uGuid;
+        serializer >> uId;
+        m_pHostComponent->ReflectData(serializer);
+        CComponentManager::GetInstance()->ResolveDependency();
+    }
+}
+
 void CComponentEditorProxy::SaveToXML( TiXmlElement* pNode, bool bSaveOnlyNoneNativePart/* = false*/)
 {
     TiXmlElement* pInstanceElement = new TiXmlElement("Instance");
