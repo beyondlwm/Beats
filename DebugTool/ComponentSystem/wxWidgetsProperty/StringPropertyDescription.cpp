@@ -116,7 +116,7 @@ bool CStringPropertyDescription::GetValueByTChar(const TCHAR* pIn, void* pOutVal
     return true;
 }
 
-void CStringPropertyDescription::Serialize( CSerializer& serializer )
+void CStringPropertyDescription::Serialize( CSerializer& serializer , EValueType eValueType/* = eVT_SavedValue*/)
 {
-    serializer << *(TString*)m_valueArray[(eVT_SavedValue)];
+    serializer << *(TString*)m_valueArray[eValueType];
 }

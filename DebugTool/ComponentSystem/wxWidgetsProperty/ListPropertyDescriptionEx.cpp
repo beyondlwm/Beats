@@ -300,11 +300,11 @@ bool CListPropertyDescriptionEx::GetValueByTChar(const TCHAR* /*pIn*/, void* /*p
     return true;
 }
 
-void CListPropertyDescriptionEx::Serialize( CSerializer& serializer )
+void CListPropertyDescriptionEx::Serialize( CSerializer& serializer , EValueType eValueType/* = eVT_SavedValue*/)
 {
     serializer << m_pChildren->size();
     for (size_t i = 0; i < m_pChildren->size(); ++i)
     {
-        (*m_pChildren)[i]->Serialize(serializer);
+        (*m_pChildren)[i]->Serialize(serializer, eValueType);
     }
 }

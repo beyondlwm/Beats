@@ -128,7 +128,7 @@ bool CIntPropertyDescription::GetValueByTChar(const TCHAR* pIn, void* pOutValue)
     return true;
 }
 
-void CIntPropertyDescription::Serialize( CSerializer& serializer )
+void CIntPropertyDescription::Serialize( CSerializer& serializer , EValueType eValueType/* = eVT_SavedValue*/)
 {
-    serializer << *(int*)m_valueArray[(eVT_SavedValue)];
+    serializer << *(int*)m_valueArray[eValueType];
 }

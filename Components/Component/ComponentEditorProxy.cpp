@@ -141,7 +141,7 @@ CComponentBase* CComponentEditorProxy::Clone(bool bCloneValue, CSerializer* /*pS
     return pNewInstance;
 }
 
-void CComponentEditorProxy::Serialize( CSerializer& serializer )
+void CComponentEditorProxy::Serialize( CSerializer& serializer, EValueType eValueType)
 {
     size_t startPos = serializer.GetWritePos();
     size_t totalSize = 0;
@@ -154,7 +154,7 @@ void CComponentEditorProxy::Serialize( CSerializer& serializer )
     {
         if ((*m_pSerializeOrder)[i] > 0)
         {
-            (*m_pProperties)[uPropertyCounter]->Serialize(serializer);
+            (*m_pProperties)[uPropertyCounter]->Serialize(serializer, eValueType);
             ++uPropertyCounter;
         }
         else
@@ -238,7 +238,7 @@ void CComponentEditorProxy::UpdateHostComponent()
     if (m_pHostComponent)
     {
         CSerializer serializer;
-        Serialize(serializer);
+        Serialize(serializer, eVT_CurrentValue);
         size_t uTotalSize = 0;
         size_t uGuid = 0;
         size_t uId = 0;

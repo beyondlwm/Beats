@@ -127,7 +127,7 @@ CPropertyDescriptionBase* CFloatPropertyDescription::CreateNewInstance()
     return pNewProperty;
 }
 
-void CFloatPropertyDescription::Serialize( CSerializer& serializer )
+void CFloatPropertyDescription::Serialize( CSerializer& serializer , EValueType eValueType/* = eVT_SavedValue*/)
 {
-    serializer << *(float*)m_valueArray[(eVT_SavedValue)];
+    serializer << *(float*)m_valueArray[eValueType];
 }

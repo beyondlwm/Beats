@@ -1,8 +1,9 @@
 #ifndef BEATS_COMPONENTS_COMPONENT_COMPONENTPROXY_H__INCLUDE
 #define BEATS_COMPONENTS_COMPONENT_COMPONENTPROXY_H__INCLUDE
 
-#include "ComponentBase.h"
 #include "../expdef.h"
+#include "../Property/PropertyPublic.h"
+#include "ComponentBase.h"
 class CComponentGraphic;
 class TiXmlElement;
 class CDependencyDescription;
@@ -57,7 +58,7 @@ public:
 
     virtual void SaveToXML(TiXmlElement* pNode, bool bSaveOnlyNoneNativePart = false);
     virtual void LoadFromXML(TiXmlElement* pNode);
-    virtual void Serialize(CSerializer& serializer);
+    virtual void Serialize(CSerializer& serializer, EValueType eValueType);
     virtual void Deserialize(CSerializer& serializer);
 
     virtual void SetId(size_t id);

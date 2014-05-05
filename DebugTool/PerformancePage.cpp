@@ -360,6 +360,7 @@ void CBDTWxFrame::AddPerformNode( const SPerformanceRecord* pRecordToAdd )
     {
         parentsNeedToAddAlso.push_back(validParentInTree);
         validParentInTree = validParentInTree->pParent;
+        size_t validParentId = validParentInTree == NULL ? 0 : validParentInTree->id;
         iter = m_performTreeItemMap.find(validParentId);
     }
     wxTreeItemId parentId = validParentInTree == NULL ? m_performTreeItemMap[0] : iter->second;

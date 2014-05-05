@@ -128,7 +128,7 @@ bool CDoublePropertyDescription::GetValueByTChar(const TCHAR* pIn, void* pOutVal
     return true;
 }
 
-void CDoublePropertyDescription::Serialize( CSerializer& serializer )
+void CDoublePropertyDescription::Serialize( CSerializer& serializer , EValueType eValueType/* = eVT_SavedValue*/)
 {
-    serializer << *(double*)m_valueArray[(eVT_SavedValue)];
+    serializer << *(double*)m_valueArray[eValueType];
 }

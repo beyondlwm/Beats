@@ -11,7 +11,7 @@ template<typename T>
 }
 
  template<typename T>
- CSerializer& CSerializer::operator >> (const T& data)
+ CSerializer& CSerializer::operator >> (const T& /*data*/)
  {
      BEATS_ASSERT(false, _T("Deserialize to a const value is not allowed!"));
      return (*this);

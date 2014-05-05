@@ -110,7 +110,7 @@ bool CBoolPropertyDescription::GetValueByTChar(const TCHAR* pIn, void* pOutValue
     return bRet;
 }
 
-void CBoolPropertyDescription::Serialize( CSerializer& serializer )
+void CBoolPropertyDescription::Serialize( CSerializer& serializer , EValueType eValueType/* = eVT_SavedValue*/)
 {
-    serializer << *(bool*)m_valueArray[(eVT_SavedValue)];
+    serializer << *(bool*)m_valueArray[eValueType];
 }

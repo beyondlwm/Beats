@@ -132,7 +132,7 @@ bool CUIntPropertyDescription::GetValueByTChar(const TCHAR* pIn, void* pOutValue
     return true;
 }
 
-void CUIntPropertyDescription::Serialize( CSerializer& serializer )
+void CUIntPropertyDescription::Serialize( CSerializer& serializer , EValueType eValueType/* = eVT_SavedValue*/)
 {
-    serializer << *(size_t*)m_valueArray[(eVT_SavedValue)];
+    serializer << *(size_t*)m_valueArray[eValueType];
 }

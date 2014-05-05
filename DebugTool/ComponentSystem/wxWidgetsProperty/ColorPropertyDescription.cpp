@@ -125,9 +125,9 @@ bool CColorPropertyDescription::GetValueByTChar(const TCHAR* pIn, void* pOutValu
     return true;
 }
 
-void CColorPropertyDescription::Serialize( CSerializer& serializer )
+void CColorPropertyDescription::Serialize( CSerializer& serializer, EValueType eValueType/* = eVT_SavedValue*/)
 {
-    size_t uColor = *(size_t*)m_valueArray[(eVT_SavedValue)];
+    size_t uColor = *(size_t*)m_valueArray[eValueType];
 
     char r = uColor >> 24;
     char g = (uColor >> 16) & 0x000000FF;

@@ -99,4 +99,14 @@ static const TCHAR* UIParameterAttrStr[] =
     _T("EnumUIString"),
 };
 
+enum EValueType
+{
+    eVT_DefaultValue, //Value comes from code serialization.
+    eVT_SavedValue,      //Value comes from current saved data.
+    eVT_CurrentValue, //Value comes from editor view.
+
+    eVT_Count,
+    eVT_Force32Bit = 0xFFFFFFFF
+};
+
 #endif

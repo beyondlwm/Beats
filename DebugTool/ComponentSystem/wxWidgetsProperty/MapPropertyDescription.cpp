@@ -250,7 +250,7 @@ bool CMapPropertyDescription::GetValueByTChar(const TCHAR* /*pIn*/, void* /*pOut
     return true;
 }
 
-void CMapPropertyDescription::Serialize( CSerializer& serializer )
+void CMapPropertyDescription::Serialize( CSerializer& serializer , EValueType eValueType/* = eVT_SavedValue*/)
 {
     serializer << m_pKeyPropertyTemplate->GetType();
     serializer << m_pValuePropertyTemplate->GetType();
@@ -258,8 +258,8 @@ void CMapPropertyDescription::Serialize( CSerializer& serializer )
     for (size_t i = 0; i < m_pChildren->size(); ++i)
     {
         BEATS_ASSERT((*m_pChildren)[i]->GetChildrenCount() == 2, _T("An element of map must contain two children!"));
-        (*m_pChildren)[i]->GetChild(0)->Serialize(serializer);
-        (*m_pChildren)[i]->GetChild(1)->Serialize(serializer);
+        (*m_pChildren)[i]->GetChild(0)->Serialize(serializer, eValueType);
+        (*m_pChildren)[i]->GetChild(1)->Serialize(serializer, eValueType);
     }
 }
 

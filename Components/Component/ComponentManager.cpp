@@ -534,7 +534,7 @@ void CComponentManager::Export(const std::vector<TString>& fileList, const TCHAR
             {
                 ++uComponentCount;
                 CComponentEditorProxy* pProxy = static_cast<CComponentEditorProxy*>(subIter->second);
-                pProxy->Serialize(serializer);
+                pProxy->Serialize(serializer, eVT_SavedValue);
             }
         }
         size_t uCurWritePos = serializer.GetWritePos();

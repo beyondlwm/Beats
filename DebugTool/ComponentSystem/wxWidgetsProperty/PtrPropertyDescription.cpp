@@ -216,12 +216,12 @@ CPropertyDescriptionBase* CPtrPropertyDescription::CreateNewInstance()
     return pNewProperty;
 }
 
-void CPtrPropertyDescription::Serialize( CSerializer& serializer )
+void CPtrPropertyDescription::Serialize( CSerializer& serializer , EValueType eValueType/* = eVT_SavedValue*/)
 {
     serializer << (m_pInstance != NULL);
     if (m_pInstance != NULL)
     {
-        m_pInstance->Serialize(serializer);
+        m_pInstance->Serialize(serializer, eValueType);
     }
 }
 

@@ -9,15 +9,7 @@ class CSerializer;
 class TiXmlElement;
 template<typename T>
 class SharePtr;
-enum EValueType
-{
-    eVT_DefaultValue, //Value comes from code serialization.
-    eVT_SavedValue,      //Value comes from current saved data.
-    eVT_CurrentValue, //Value comes from editor view.
 
-    eVT_Count,
-    eVT_Force32Bit = 0xFFFFFFFF
-};
 
 class COMPONENTS_DLL_DECL CPropertyDescriptionBase
 {
@@ -99,7 +91,7 @@ public:
 
     virtual void SaveToXML(TiXmlElement* pParentNode) = 0;
     virtual void LoadFromXML(TiXmlElement* pNode) = 0;
-    virtual void Serialize(CSerializer& serializer) = 0;
+    virtual void Serialize(CSerializer& serializer, EValueType eValueType = eVT_SavedValue) = 0;
 
 protected:
     bool DeserializeBasicInfo(CSerializer& serializer);

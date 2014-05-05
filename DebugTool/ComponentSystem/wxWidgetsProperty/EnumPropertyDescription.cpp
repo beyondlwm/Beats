@@ -142,7 +142,7 @@ bool CEnumPropertyDescription::GetValueByTChar(const TCHAR* pIn, void* pOutValue
     return true;
 }
 
-void CEnumPropertyDescription::Serialize( CSerializer& serializer )
+void CEnumPropertyDescription::Serialize( CSerializer& serializer , EValueType eValueType/* = eVT_SavedValue*/)
 {
-    serializer << *(int*)m_valueArray[(eVT_SavedValue)];
+    serializer << *(int*)m_valueArray[eValueType];
 }

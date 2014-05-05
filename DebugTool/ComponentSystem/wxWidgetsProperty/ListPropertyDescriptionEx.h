@@ -34,7 +34,7 @@ public:
     virtual void GetValueAsChar(EValueType type, char* pOut) override;
     virtual bool GetValueByTChar(const TCHAR* pIn, void* pOutValue) override;
     virtual void LoadFromXML(TiXmlElement* pNode);
-    virtual void Serialize(CSerializer& serializer);
+    virtual void Serialize(CSerializer& serializer, EValueType eValueType = eVT_SavedValue) override;
 
 private:
     void ResetChildName();
