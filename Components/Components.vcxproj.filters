@@ -63,6 +63,12 @@
     <ClInclude Include="stdafx.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Component\ComponentManagerBase.h">
+      <Filter>源文件\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Component\ComponentProxyManager.h">
+      <Filter>源文件\Component</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Components.cpp">
@@ -97,6 +103,12 @@
     </ClCompile>
     <ClCompile Include="DependencyDescriptionLine.cpp">
       <Filter>源文件\Dependency</Filter>
+    </ClCompile>
+    <ClCompile Include="Component\ComponentManagerBase.cpp">
+      <Filter>源文件\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Component\ComponentProxyManager.cpp">
+      <Filter>源文件\Component</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

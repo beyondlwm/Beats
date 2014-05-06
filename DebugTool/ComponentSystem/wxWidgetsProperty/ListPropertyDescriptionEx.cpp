@@ -4,7 +4,7 @@
 #include "../../BDTWxApp.h"
 #include "../../BDTWxFrame.h"
 #include "ListPropertyDescriptionEx.h"
-#include "../../Components/Component/ComponentManager.h"
+#include "../../Components/Component/ComponentProxyManager.h"
 
 static const TString EMPTY_STRING = _T("Empty");
 
@@ -18,7 +18,7 @@ CListPropertyDescriptionEx::CListPropertyDescriptionEx(CSerializer* pSerializer)
     {
         EReflectPropertyType childType;
         (*pSerializer) >> childType;
-        m_pChildTemplate = CComponentManager::GetInstance()->CreateProperty(childType, pSerializer);
+        m_pChildTemplate = CComponentProxyManager::GetInstance()->CreateProperty(childType, pSerializer);
     }
     InitializeValue(EMPTY_STRING);
 }

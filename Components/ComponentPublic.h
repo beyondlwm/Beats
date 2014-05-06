@@ -291,7 +291,7 @@ inline void InitValue(const T& param)
     {\
         SRegister_Creator_##enumType()\
         {\
-            CComponentManager::GetInstance()->RegisterPropertyCreator(enumType, CreateProperty_##propertyDescriptionType);\
+            CComponentProxyManager::GetInstance()->RegisterPropertyCreator(enumType, CreateProperty_##propertyDescriptionType);\
         }\
     }enumType##_creator_launcher;
 

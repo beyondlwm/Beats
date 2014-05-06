@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "wxPtrButtonEditor.h"
-#include "../../Components/Component/ComponentManager.h"
+#include "../../Components/Component/ComponentProxyManager.h"
 #include "../../Components/Component/ComponentEditorProxy.h"
 #include "../../DebugTool/BDTWxApp.h"
 #include "../../DebugTool/BDTWxFrame.h"
@@ -87,9 +87,9 @@ bool wxPtrButtonEditor::OnEvent( wxPropertyGrid* propGrid,
                 {
                     size_t ptrGuid = pPtrPropertyDescription->GetPtrGuid();
                     std::vector<size_t> derivedClassGuid;
-                    CComponentManager::GetInstance()->QueryDerivedClass(ptrGuid, derivedClassGuid, true);
+                    CComponentProxyManager::GetInstance()->QueryDerivedClass(ptrGuid, derivedClassGuid, true);
 
-                    CComponentBase* pBase = CComponentManager::GetInstance()->GetComponentTemplate(ptrGuid);
+                    CComponentBase* pBase = CComponentProxyManager::GetInstance()->GetComponentTemplate(ptrGuid);
                     bValueChanged = derivedClassGuid.size() == 0;
                     if (!bValueChanged)
                     {
@@ -100,7 +100,7 @@ bool wxPtrButtonEditor::OnEvent( wxPropertyGrid* propGrid,
                         }
                         for (auto i : derivedClassGuid)
                         {
-                            pBase = CComponentManager::GetInstance()->GetComponentTemplate(i);
+                            pBase = CComponentProxyManager::GetInstance()->GetComponentTemplate(i);
                             choice.Add(pBase->GetClassStr(), pBase->GetGuid());
                         }
                         wxString strSelectItem = ::wxGetSingleChoice(wxT("TypeChoice"), wxT("Caption"), choice.GetLabels(),

@@ -6,7 +6,7 @@
 #include <wx/numdlg.h>
 #include <d3dx9.h>
 #include <shlwapi.h>
-#include "../Components/Component/ComponentManager.h"
+#include "../Components/Component/ComponentProxyManager.h"
 #include "../Components/Component/ComponentProject.h"
 #include "../Components/Component/ComponentProjectData.h"
 #include "../Components/ComponentPublic.h"
@@ -319,8 +319,8 @@ CComponentGraphic* CreateComponentGraphics()
 
 void CBDTWxFrame::InitComponentsPage()
 {
-    CComponentManager::GetInstance()->DeserializeTemplateData(CBDTWxApp::GetBDTWxApp()->GetWorkingPath().c_str(), CreateComponentProxy, CreateComponentGraphics);
-    const std::map<size_t, CComponentBase*>* pComponentsMap = CComponentManager::GetInstance()->GetComponentTemplateMap();
+    CComponentProxyManager::GetInstance()->DeserializeTemplateData(CBDTWxApp::GetBDTWxApp()->GetWorkingPath().c_str(), CreateComponentProxy, CreateComponentGraphics);
+    const std::map<size_t, CComponentBase*>* pComponentsMap = CComponentProxyManager::GetInstance()->GetComponentTemplateMap();
     for (std::map<size_t, CComponentBase*>::const_iterator componentIter = pComponentsMap->begin(); componentIter != pComponentsMap->end(); ++componentIter )
     {
         CComponentEditorProxy* pComponent = static_cast<CComponentEditorProxy*>(componentIter->second);
@@ -369,7 +369,7 @@ void CBDTWxFrame::OnComponentStartDrag( wxTreeEvent& event )
     CComponentTreeItemData* pData = static_cast<CComponentTreeItemData*>(m_pComponentTreeControl->GetItemData(event.GetItem()));
     if (pData != NULL && !pData->IsDirectory())
     {
-        m_pComponentRenderWindow->SetDraggingComponent(static_cast<CComponentEditorProxy*>(CComponentManager::GetInstance()->GetComponentTemplate(pData->GetGUID())));
+        m_pComponentRenderWindow->SetDraggingComponent(static_cast<CComponentEditorProxy*>(CComponentProxyManager::GetInstance()->GetComponentTemplate(pData->GetGUID())));
         event.Allow();
         BEATS_PRINT(_T("StartDrag at Pos: %d %d\n"), event.GetPoint().x, event.GetPoint().y);
     }
@@ -380,7 +380,7 @@ void CBDTWxFrame::OnComponentEndDrag( wxTreeEvent& event )
     if (m_pComponentRenderWindow->IsMouseInWindow())
     {
         CComponentEditorProxy* pDraggingComponent = m_pComponentRenderWindow->GetDraggingComponent();
-        CComponentEditorProxy* pNewComponent = static_cast<CComponentEditorProxy*>(CComponentManager::GetInstance()->CreateComponent(pDraggingComponent->GetGuid(), true));
+        CComponentEditorProxy* pNewComponent = static_cast<CComponentEditorProxy*>(CComponentProxyManager::GetInstance()->CreateComponent(pDraggingComponent->GetGuid(), true));
         int x = 0;
         int y = 0;
         pDraggingComponent->GetGraphics()->GetPosition(&x, &y);
@@ -441,13 +441,13 @@ void CBDTWxFrame::OnComponentFileEndDrag( wxTreeEvent& event )
         const TCHAR* pDraggingFileName = m_pComponentRenderWindow->GetDraggingFileName();
         if (pDraggingFileName != NULL && PathFileExists(pDraggingFileName))
         {
-            const TString& strCurWorkingFile = CComponentManager::GetInstance()->GetCurrentWorkingFilePath();
+            const TString& strCurWorkingFile = CComponentProxyManager::GetInstance()->GetCurrentWorkingFilePath();
             if (!strCurWorkingFile.empty())
             {
                 int iRet = wxMessageBox(wxString::Format(_T("是否要将组件从\n%s\n拷贝到\n%s？"), pDraggingFileName, strCurWorkingFile.c_str()), _T("自动添加组件"), wxYES_NO);
                 if (iRet == wxYES)
                 {
-                    CComponentManager::GetInstance()->OpenFile(pDraggingFileName, true);
+                    CComponentProxyManager::GetInstance()->OpenFile(pDraggingFileName, true);
                     m_pComponentRenderWindow->UpdateAllDependencyLine();
                 }
             }
@@ -472,7 +472,7 @@ void CBDTWxFrame::OnTemplateComponentItemChanged(wxTreeEvent& event)
         CComponentTreeItemData* pData = static_cast<CComponentTreeItemData*>(m_pComponentTreeControl->GetItemData(id));
         if (pData != NULL && !pData->IsDirectory())
         {
-            CComponentEditorProxy* pComponent = static_cast<CComponentEditorProxy*>(CComponentManager::GetInstance()->GetComponentTemplate(pData->GetGUID()));
+            CComponentEditorProxy* pComponent = static_cast<CComponentEditorProxy*>(CComponentProxyManager::GetInstance()->GetComponentTemplate(pData->GetGUID()));
             SelecteComponent(pComponent);
         }
     }
@@ -484,7 +484,7 @@ void CBDTWxFrame::OnRightClickComponentFileList( wxTreeEvent& event )
     m_pComponentFileTreeControl->SelectItem(event.GetItem());
     CComponentFileTreeItemData* pData = (CComponentFileTreeItemData*)(m_pComponentFileTreeControl->GetItemData(event.GetItem()));
     BEATS_ASSERT(pData);
-    if (CComponentManager::GetInstance()->GetProject()->GetRootDirectory() != NULL)
+    if (CComponentProxyManager::GetInstance()->GetProject()->GetRootDirectory() != NULL)
     {
         m_pComponentFileMenu->Enable(eFLMS_AddFile, pData->IsDirectory());
         m_pComponentFileMenu->Enable(eFLMS_AddFileFolder, pData->IsDirectory());
@@ -511,7 +511,7 @@ void CBDTWxFrame::OnActivateComponentFile(wxTreeEvent& event)
 {
     wxTreeItemId itemId = event.GetItem();
     CComponentFileTreeItemData* pData = (CComponentFileTreeItemData*)m_pComponentFileTreeControl->GetItemData(itemId);
-    const TString& curWorkingFile = CComponentManager::GetInstance()->GetCurrentWorkingFilePath();
+    const TString& curWorkingFile = CComponentProxyManager::GetInstance()->GetCurrentWorkingFilePath();
     if (pData->IsDirectory())
     {
         m_pComponentFileTreeControl->Toggle(itemId);
@@ -774,7 +774,7 @@ void CBDTWxFrame::OnComponentFileListMenuClicked( wxMenuEvent& event )
                 wxTreeItemId parentItem = m_pComponentFileTreeControl->GetItemParent(item);
                 CComponentFileTreeItemData* pCurItemData = static_cast<CComponentFileTreeItemData*>(m_pComponentFileTreeControl->GetItemData(item));
                 CComponentFileTreeItemData* pParentItemData = NULL;
-                CComponentProject* pProject = CComponentManager::GetInstance()->GetProject();
+                CComponentProject* pProject = CComponentProxyManager::GetInstance()->GetProject();
                 if (parentItem.IsOk())
                 {
                     pParentItemData = static_cast<CComponentFileTreeItemData*>(m_pComponentFileTreeControl->GetItemData(parentItem));
@@ -800,7 +800,7 @@ void CBDTWxFrame::OnComponentFileListMenuClicked( wxMenuEvent& event )
                 else
                 {
                     BEATS_ASSERT(item == m_pComponentFileTreeControl->GetRootItem(), _T("Only root doesn't have a parent!"));
-                    CComponentManager::GetInstance()->CloseFile();
+                    CComponentProxyManager::GetInstance()->CloseFile();
                     pProject->GetRootDirectory()->DeleteAll(true);
                     m_pComponentFileTreeControl->DeleteChildren(item);// Never delete the root item.
                 }
@@ -808,7 +808,7 @@ void CBDTWxFrame::OnComponentFileListMenuClicked( wxMenuEvent& event )
             break;
         case eFLMS_OpenFileDirectory:
             {
-                TString path = CComponentManager::GetInstance()->GetProject()->GetProjectFilePath();
+                TString path = CComponentProxyManager::GetInstance()->GetProject()->GetProjectFilePath();
                 CComponentFileTreeItemData* pCurItemData = static_cast<CComponentFileTreeItemData*>(m_pComponentFileTreeControl->GetItemData(item));
                 if (m_pComponentFileTreeControl->GetRootItem() != item)
                 {
@@ -866,7 +866,7 @@ void CBDTWxFrame::DeleteItemInComponentFileList( wxTreeItemId itemId, bool bDele
 void CBDTWxFrame::OpenComponentFile( const TCHAR* pFilePath )
 {
     BEATS_ASSERT(pFilePath != NULL && pFilePath[0] != 0, _T("Invalid file path"));
-    CComponentManager::GetInstance()->OpenFile(pFilePath);
+    CComponentProxyManager::GetInstance()->OpenFile(pFilePath);
     m_pComponentRenderWindowSizer->GetStaticBox()->SetLabel(wxString::Format(_T("渲染区    当前文件:%s"), pFilePath));
     size_t uPageCount = m_pComponentPageNoteBook->GetPageCount();
     int iComponentListPageIndex = -1;
@@ -886,7 +886,7 @@ void CBDTWxFrame::OpenComponentFile( const TCHAR* pFilePath )
 
 void CBDTWxFrame::CloseComponentFile(bool bRemindSave /*= true*/)
 {
-    CComponentManager* pComponentManager = CComponentManager::GetInstance();
+    CComponentProxyManager* pComponentManager = CComponentProxyManager::GetInstance();
     const TString& strCurWorkingFile = pComponentManager->GetCurrentWorkingFilePath();
     if (strCurWorkingFile.length() > 0)
     {
@@ -927,7 +927,7 @@ void CBDTWxFrame::ResolveIdConflict(const std::map<size_t, std::vector<size_t>>&
         int iRet = MessageBox(NULL, szConflictInfo, _T("解决ID冲突"), MB_YESNO);
         if (iRet == IDYES)
         {
-            CComponentProject* pProject = CComponentManager::GetInstance()->GetProject();
+            CComponentProject* pProject = CComponentProxyManager::GetInstance()->GetProject();
             size_t lAnswer = 0;
             std::map<size_t, std::vector<size_t>>::const_iterator iter = conflictIdMap.begin();
             for (; iter != conflictIdMap.end(); ++iter)
@@ -956,14 +956,14 @@ void CBDTWxFrame::ResolveIdConflict(const std::map<size_t, std::vector<size_t>>&
 
 void CBDTWxFrame::OnComponentSaveButtonClick(wxCommandEvent& /*event*/)
 {
-    CComponentProject* pProject = CComponentManager::GetInstance()->GetProject();
+    CComponentProject* pProject = CComponentProxyManager::GetInstance()->GetProject();
     if (pProject->GetRootDirectory() != NULL)
     {
         TString szSavePath = CBDTWxApp::GetBDTWxApp()->GetWorkingPath();
         szSavePath.append(_T("\\")).append(EXPORT_STRUCTURE_DATA_PATCH_XMLFILENAME);
-        CComponentManager::GetInstance()->SaveTemplate(szSavePath.c_str());
+        CComponentProxyManager::GetInstance()->SaveTemplate(szSavePath.c_str());
         // Save Instance File
-        CComponentProject* pProject = CComponentManager::GetInstance()->GetProject();
+        CComponentProject* pProject = CComponentProxyManager::GetInstance()->GetProject();
         TString strProjectFullPath = pProject->GetProjectFilePath();
         if (strProjectFullPath.length() == 0)
         {
@@ -980,11 +980,11 @@ void CBDTWxFrame::OnComponentSaveButtonClick(wxCommandEvent& /*event*/)
             if (pProjectFile)
             {
                 fclose(pProjectFile);
-                CComponentManager::GetInstance()->GetProject()->SaveProject();
-                const TString curWorkingFile = CComponentManager::GetInstance()->GetCurrentWorkingFilePath();
+                CComponentProxyManager::GetInstance()->GetProject()->SaveProject();
+                const TString curWorkingFile = CComponentProxyManager::GetInstance()->GetCurrentWorkingFilePath();
                 if (curWorkingFile.length() > 0)
                 {
-                    CComponentManager::GetInstance()->SaveToFile(curWorkingFile.c_str());
+                    CComponentProxyManager::GetInstance()->SaveToFile(curWorkingFile.c_str());
                 }
             }
             UpdatePropertyGrid();
@@ -994,7 +994,7 @@ void CBDTWxFrame::OnComponentSaveButtonClick(wxCommandEvent& /*event*/)
 
 void CBDTWxFrame::OnOperateFileButtonClick(wxCommandEvent& /*event*/)
 {
-    CComponentProject* pProject = CComponentManager::GetInstance()->GetProject();
+    CComponentProject* pProject = CComponentProxyManager::GetInstance()->GetProject();
     TString strProjectFullPath = pProject->GetProjectFilePath();
 
     if (strProjectFullPath.length() == 0)
@@ -1036,7 +1036,7 @@ void CBDTWxFrame::OnExportButtonClick(wxCommandEvent& /*event*/)
         {
             szBinaryPath.append(BINARIZE_FILE_EXTENSION);
         }
-        CComponentManager::GetInstance()->Export(filesToExport, szBinaryPath.c_str());
+        CComponentProxyManager::GetInstance()->Export(filesToExport, szBinaryPath.c_str());
         //Export function will cause these operation: open->export->close->change file->open->...->restore open the origin file.
         //So we will update the dependency line as if we have just open a new file.
         m_pComponentRenderWindow->UpdateAllDependencyLine();
@@ -1163,7 +1163,7 @@ void CBDTWxFrame::InitializeComponentTree(CComponentProjectDirectory* pProjectDa
     const std::set<size_t>& files = pProjectData->GetFileList();
     for (std::set<size_t>::const_iterator iter = files.begin(); iter != files.end(); ++iter)
     {
-        TString strComopnentFileName = CComponentManager::GetInstance()->GetProject()->GetComponentFileName(*iter);
+        TString strComopnentFileName = CComponentProxyManager::GetInstance()->GetProject()->GetComponentFileName(*iter);
         CComponentFileTreeItemData* pData = new CComponentFileTreeItemData(NULL, strComopnentFileName);
         wxString pFileName = wxFileNameFromPath(strComopnentFileName);
         wxTreeItemId newFileId = m_pComponentFileTreeControl->AppendItem(id, pFileName, eTCIT_File, -1, pData);
@@ -1176,7 +1176,7 @@ void CBDTWxFrame::OpenProjectFile( const TCHAR* pPath )
 {
     if (pPath != NULL && _tcslen(pPath) > 0)
     {
-        CComponentProject* pProject = CComponentManager::GetInstance()->GetProject();
+        CComponentProject* pProject = CComponentProxyManager::GetInstance()->GetProject();
         std::map<size_t, std::vector<size_t>> conflictIdMap;
         CComponentProjectDirectory* pProjectData = pProject->LoadProject(pPath, conflictIdMap);
         bool bEmptyProject = pProjectData == NULL;
@@ -1196,11 +1196,11 @@ void CBDTWxFrame::OpenProjectFile( const TCHAR* pPath )
 void CBDTWxFrame::CloseProjectFile()
 {
     SelecteComponent(NULL);
-    if (CComponentManager::GetInstance()->GetCurrentWorkingFilePath().length() > 0)
+    if (CComponentProxyManager::GetInstance()->GetCurrentWorkingFilePath().length() > 0)
     {
         CloseComponentFile();
     }
-    CComponentManager::GetInstance()->GetProject()->CloseProject();
+    CComponentProxyManager::GetInstance()->GetProject()->CloseProject();
     wxTreeItemId rootItem = m_pComponentFileTreeControl->GetRootItem();
     m_pComponentFileTreeControl->DeleteChildren(rootItem);
     CComponentFileTreeItemData* pRootItemData = static_cast<CComponentFileTreeItemData*>(m_pComponentFileTreeControl->GetItemData(rootItem));

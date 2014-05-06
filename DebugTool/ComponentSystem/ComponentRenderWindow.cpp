@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ComponentRenderWindow.h"
 #include "../../Components/Component/ComponentEditorProxy.h"
-#include "../../Components/Component/ComponentManager.h"
+#include "../../Components/Component/ComponentProxyManager.h"
 #include "../../Components/Component/ComponentGraphic.h"
 #include "../../Components/DependencyDescription.h"
 #include "../../Components/DependencyDescriptionLine.h"
@@ -324,7 +324,7 @@ void CComponentRenderWindow::RenderGridLine()
 void CComponentRenderWindow::RenderComponents()
 {
     //1. Render all component instance.
-    const std::map<size_t, std::map<size_t, CComponentBase*>*>* pInstanceMap = CComponentManager::GetInstance()->GetInstance()->GetComponentInstanceMap();
+    const std::map<size_t, std::map<size_t, CComponentBase*>*>* pInstanceMap = CComponentProxyManager::GetInstance()->GetInstance()->GetComponentInstanceMap();
     std::map<size_t, std::map<size_t, CComponentBase*>*>::const_iterator iter = pInstanceMap->begin();
     for (; iter != pInstanceMap->end(); ++iter)
     {
@@ -582,7 +582,7 @@ void CComponentRenderWindow::OnMouseLeftUp(wxMouseEvent& /*event*/)
 
 void CComponentRenderWindow::OnMouseRightUp( wxMouseEvent& event )
 {
-    if (CComponentManager::GetInstance()->GetProject()->GetRootDirectory() != NULL)
+    if (CComponentProxyManager::GetInstance()->GetProject()->GetRootDirectory() != NULL)
     {
         wxPoint pos = event.GetPosition();
         CComponentEditorProxy* pClickedComponent = HitTestForComponent(pos);
@@ -662,7 +662,7 @@ CComponentEditorProxy* CComponentRenderWindow::HitTestForComponent( wxPoint pos,
     bool bFoundResult = false;
     CComponentEditorProxy* pClickedComponent = NULL;
     // Find the component for select. reverse iterator the instance map, because the last one will always be rendered at the top, so we will select top first.
-    const std::map<size_t, std::map<size_t, CComponentBase*>*>* pInstanceMap = CComponentManager::GetInstance()->GetInstance()->GetComponentInstanceMap();
+    const std::map<size_t, std::map<size_t, CComponentBase*>*>* pInstanceMap = CComponentProxyManager::GetInstance()->GetInstance()->GetComponentInstanceMap();
     std::map<size_t, std::map<size_t, CComponentBase*>*>::const_reverse_iterator iter = pInstanceMap->rbegin();
     for (; iter != pInstanceMap->rend() && !bFoundResult; ++iter)
     {
@@ -751,7 +751,7 @@ void CComponentRenderWindow::OnComponentMenuClicked( wxMenuEvent& event )
     case eCMT_Paste:
         {
             BEATS_ASSERT(pComponentProxy == NULL && m_pCopyComponent != NULL, _T("Impossible to paste component from menu when there is a component selected or no copy component."));
-            CComponentEditorProxy* pNewComponentEditorProxy = static_cast<CComponentEditorProxy*>(CComponentManager::GetInstance()->CreateComponentByRef(m_pCopyComponent, true));
+            CComponentEditorProxy* pNewComponentEditorProxy = static_cast<CComponentEditorProxy*>(CComponentProxyManager::GetInstance()->CreateComponentByRef(m_pCopyComponent, true));
             wxPoint mouseWindowPos = wxGetMousePosition();
             mouseWindowPos = ScreenToClient(mouseWindowPos);
             D3DXVECTOR2 mouseWorldPos;
@@ -766,12 +766,12 @@ void CComponentRenderWindow::OnComponentMenuClicked( wxMenuEvent& event )
             int iComponentId = wxGetNumberFromUser(_T("搜索组件"), _T("组件ID"), _T("搜索组件"), 0, 0xFFFFFFFF, 0x7FFFFFFE);
             if (m_pMainFrame != NULL && iComponentId != 0xFFFFFFFF)
             {
-                CComponentProject* pProject = CComponentManager::GetInstance()->GetProject();
+                CComponentProject* pProject = CComponentProxyManager::GetInstance()->GetProject();
                 size_t uFileId = pProject->QueryFileId(iComponentId, false);
                 if (uFileId != 0xFFFFFFFF)
                 {
                     TString filePath = pProject->GetComponentFileName(uFileId);
-                    if (filePath.compare(CComponentManager::GetInstance()->GetCurrentWorkingFilePath()) != 0)
+                    if (filePath.compare(CComponentProxyManager::GetInstance()->GetCurrentWorkingFilePath()) != 0)
                     {
                         TCHAR szInfo[1024];
                         _stprintf(szInfo, _T("搜索到ID为%d的组件位于文件%s,是否跳转到该组件?"), iComponentId, filePath.c_str());
@@ -779,13 +779,13 @@ void CComponentRenderWindow::OnComponentMenuClicked( wxMenuEvent& event )
                         if (iAnswer == IDYES)
                         {
                             m_pMainFrame->ActivateFile(filePath.c_str());
-                            CComponentBase* pComponent = CComponentManager::GetInstance()->GetComponentInstance(iComponentId);
+                            CComponentBase* pComponent = CComponentProxyManager::GetInstance()->GetComponentInstance(iComponentId);
                             m_pMainFrame->SelecteComponent(static_cast<CComponentEditorProxy*>(pComponent));
                         }
                     }
                     else
                     {
-                        CComponentBase* pComponent = CComponentManager::GetInstance()->GetComponentInstance(iComponentId);
+                        CComponentBase* pComponent = CComponentProxyManager::GetInstance()->GetComponentInstance(iComponentId);
                         m_pMainFrame->SelecteComponent(static_cast<CComponentEditorProxy*>(pComponent));
                     }
 
@@ -824,7 +824,7 @@ void CComponentRenderWindow::DeleteSelectedComponent()
         int iResult = wxMessageBox(_T("真的要删除这个组件吗？"), _T("删除确认"), wxYES_NO | wxCENTRE);
         if (iResult == wxYES)
         {
-            CComponentManager::GetInstance()->DeleteComponent(pSelectedComponent);
+            CComponentProxyManager::GetInstance()->DeleteComponent(pSelectedComponent);
             m_pMainFrame->SelecteComponent(NULL);
         }
     }
@@ -844,7 +844,7 @@ void CComponentRenderWindow::DeleteSelectedDependencyLine()
 
 void CComponentRenderWindow::UpdateAllDependencyLine()
 {
-    const std::map<size_t, std::map<size_t, CComponentBase*>*>* pInstanceMap = CComponentManager::GetInstance()->GetInstance()->GetComponentInstanceMap();
+    const std::map<size_t, std::map<size_t, CComponentBase*>*>* pInstanceMap = CComponentProxyManager::GetInstance()->GetInstance()->GetComponentInstanceMap();
     std::map<size_t, std::map<size_t, CComponentBase*>*>::const_reverse_iterator iter = pInstanceMap->rbegin();
     for (; iter != pInstanceMap->rend(); ++iter)
     {

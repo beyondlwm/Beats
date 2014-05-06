@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ComponentProjectData.h"
 #include "ComponentProject.h"
-#include "ComponentManager.h"
+#include "ComponentProxyManager.h"
 
 CComponentProjectDirectory::CComponentProjectDirectory(CComponentProjectDirectory* pParent, const TString& strName)
 : m_pParent(pParent)
@@ -24,7 +24,7 @@ CComponentProjectDirectory::~CComponentProjectDirectory()
 
 bool CComponentProjectDirectory::AddFile(const TString& strFileName, std::map<size_t, std::vector<size_t>>& conflictMap)
 {
-    CComponentProject* pProject = CComponentManager::GetInstance()->GetProject();
+    CComponentProject* pProject = CComponentProxyManager::GetInstance()->GetProject();
     size_t uFileId = pProject->RegisterFile(strFileName, conflictMap);
     BEATS_ASSERT(m_pFilesSet->find(uFileId) == m_pFilesSet->end());
     m_pFilesSet->insert(uFileId);
@@ -58,7 +58,7 @@ bool CComponentProjectDirectory::DeleteFile(size_t uFileId)
     {
         m_pFilesSet->erase(uFileId);
 
-        CComponentManager* pComopnentManager = CComponentManager::GetInstance();
+        CComponentProxyManager* pComopnentManager = CComponentProxyManager::GetInstance();
         CComponentProject* pProject = pComopnentManager->GetProject();
         TString strFileName = pProject->GetComponentFileName(uFileId);
         bool bDeleteCurWorkingFile = strFileName.compare(pComopnentManager->GetCurrentWorkingFilePath()) == 0;

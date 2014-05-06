@@ -4,7 +4,7 @@
 #include "../../BDTWxApp.h"
 #include "../../BDTWxFrame.h"
 #include "MapPropertyDescription.h"
-#include "../../Components/Component/ComponentManager.h"
+#include "../../Components/Component/ComponentProxyManager.h"
 
 static const TString EMPTY_STRING = _T("Empty");
 
@@ -19,10 +19,10 @@ CMapPropertyDescription::CMapPropertyDescription(CSerializer* pSerializer)
         EReflectPropertyType keyType;
         (*pSerializer) >> keyType;
         BEATS_ASSERT(keyType != eRPT_Ptr, _T("Key can't be ePT_Ptr! It's not implemented yet!"));
-        m_pKeyPropertyTemplate = CComponentManager::GetInstance()->CreateProperty(keyType, pSerializer);
+        m_pKeyPropertyTemplate = CComponentProxyManager::GetInstance()->CreateProperty(keyType, pSerializer);
         EReflectPropertyType valueType;
         (*pSerializer) >> valueType;
-        m_pValuePropertyTemplate = CComponentManager::GetInstance()->CreateProperty(valueType, pSerializer);
+        m_pValuePropertyTemplate = CComponentProxyManager::GetInstance()->CreateProperty(valueType, pSerializer);
     }
     InitializeValue(EMPTY_STRING);
 }
@@ -105,7 +105,7 @@ CPropertyDescriptionBase* CMapPropertyDescription::CreateInstance()
     basicInfo.m_variableName.assign(szChildName);
     basicInfo.m_bEditable = false;
 
-    CPropertyDescriptionBase* pRet = CComponentManager::GetInstance()->CreateProperty(eRPT_Str, NULL);
+    CPropertyDescriptionBase* pRet = CComponentProxyManager::GetInstance()->CreateProperty(eRPT_Str, NULL);
     pRet->Initialize();
     pRet->SetBasicInfo(basicInfo);
     pRet->SetOwner(this->GetOwner());

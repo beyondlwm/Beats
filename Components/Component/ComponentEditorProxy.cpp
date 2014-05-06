@@ -5,7 +5,7 @@
 #include "../../Utility/StringHelper/StringHelper.h"
 #include "../Property/PropertyDescriptionBase.h"
 #include "../DependencyDescriptionLine.h"
-#include "../Component/ComponentManager.h"
+#include "../Component/ComponentProxyManager.h"
 #include "../Component/ComponentProject.h"
 #include "../DependencyDescription.h"
 #include "ComponentGraphic.h"
@@ -83,7 +83,7 @@ void CComponentEditorProxy::Deserialize( CSerializer& serializer )
         {
             EReflectPropertyType ePropertyType;
             serializer >> ePropertyType;
-            CPropertyDescriptionBase* pPropertyBase = CComponentManager::GetInstance()->CreateProperty(ePropertyType, &serializer);
+            CPropertyDescriptionBase* pPropertyBase = CComponentProxyManager::GetInstance()->CreateProperty(ePropertyType, &serializer);
             pPropertyBase->Deserialize(serializer);
             this->AddProperty(pPropertyBase);
             ++uPropertyCounter;
@@ -246,7 +246,7 @@ void CComponentEditorProxy::UpdateHostComponent()
         serializer >> uGuid;
         serializer >> uId;
         m_pHostComponent->ReflectData(serializer);
-        CComponentManager::GetInstance()->ResolveDependency();
+        CComponentProxyManager::GetInstance()->ResolveDependency();
     }
 }
 
@@ -298,7 +298,7 @@ void CComponentEditorProxy::LoadFromXML( TiXmlElement* pNode )
     }
     TiXmlElement* pVarElement = pNode->FirstChildElement("VariableNode");
     std::vector<TiXmlElement*> unUsedXMLVariableNode;
-    CComponentProject* pProject = CComponentManager::GetInstance()->GetProject();
+    CComponentProject* pProject = CComponentProxyManager::GetInstance()->GetProject();
     while (pVarElement != NULL)
     {
         EReflectPropertyType propertyType;

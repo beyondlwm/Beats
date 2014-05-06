@@ -68,9 +68,12 @@ bool CEnumPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>
             }
             else if (_tcsicmp(result[0].c_str(), UIParameterAttrStr[eUIPAT_EnumStringArray]) == 0)
             {
-                BEATS_ASSERT(m_pPropertyData->m_displayString.size() == 0, _T("We have promised that every enum property will export one enum string array! See DECLARE_PROPERTY!"));
-                BEATS_ASSERT(result[1].length() > 0, _T("enum string array should not be empty!"));
-                CStringHelper::GetInstance()->SplitString(result[1].c_str(), _T("@"), m_pPropertyData->m_displayString);
+                if (m_pPropertyData != NULL)
+                {
+                    BEATS_ASSERT(m_pPropertyData->m_displayString.size() == 0, _T("We have promised that every enum property will export one enum string array! See DECLARE_PROPERTY!"));
+                    BEATS_ASSERT(result[1].length() > 0, _T("enum string array should not be empty!"));
+                    CStringHelper::GetInstance()->SplitString(result[1].c_str(), _T("@"), m_pPropertyData->m_displayString);
+                }
             }
             else
             {

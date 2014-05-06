@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Component/ComponentManager.h"
+#include "Component/ComponentProxyManager.h"
 #include "Component/ComponentEditorProxy.h"
 #include "DependencyDescription.h"
 #include "DependencyDescriptionLine.h"
@@ -150,11 +150,11 @@ void CDependencyDescription::LoadFromXML( TiXmlElement* pNode )
                 const char* szId = pDependencyNodeElement->Attribute("Id");
                 size_t uId = (size_t)atoi(szId); 
 
-                CComponentEditorProxy* pComponent = static_cast<CComponentEditorProxy*>(CComponentManager::GetInstance()->GetComponentInstance(uId, uGuid));
+                CComponentEditorProxy* pComponent = static_cast<CComponentEditorProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(uId, uGuid));
                 AddDependency(pComponent);
                 if (pComponent == NULL)
                 {
-                    CComponentManager::GetInstance()->AddDependencyResolver(this, m_dependencyLine.size() - 1, uGuid, uId, NULL, m_bIsListType);
+                    CComponentProxyManager::GetInstance()->AddDependencyResolver(this, m_dependencyLine.size() - 1, uGuid, uId, NULL, m_bIsListType);
                 }
                 pDependencyNodeElement = pDependencyNodeElement->NextSiblingElement("DependencyNode");
             }
@@ -239,7 +239,7 @@ bool CDependencyDescription::IsMatch( CComponentEditorProxy* pDependencyComponen
     if (!bMatch)
     {
         std::vector<size_t> result;
-        CComponentManager::GetInstance()->QueryDerivedClass(m_uDependencyGuid, result, true);
+        CComponentProxyManager::GetInstance()->QueryDerivedClass(m_uDependencyGuid, result, true);
         for (size_t i = 0; i < result.size(); ++i)
         {
             if (result[i] == uCurGuid)

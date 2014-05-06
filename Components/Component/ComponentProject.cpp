@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ComponentProject.h"
 #include "ComponentProjectData.h"
-#include "ComponentManager.h"
+#include "ComponentProxyManager.h"
 #include "../../Utility/StringHelper/StringHelper.h"
 #include "../../Utility/TinyXML/tinyxml.h"
 #include "../../Utility/IdManager/IdManager.h"
@@ -71,8 +71,8 @@ CComponentProjectDirectory* CComponentProject::LoadProject(const TCHAR* pszProje
 bool CComponentProject::CloseProject()
 {
     bool bRet = false;
-    CComponentManager::GetInstance()->CloseFile();
-    CComponentManager::GetInstance()->GetIdManager()->Reset();
+    CComponentProxyManager::GetInstance()->CloseFile();
+    CComponentProxyManager::GetInstance()->GetIdManager()->Reset();
     if (m_pProjectData != NULL)
     {
         bRet = true;
@@ -167,7 +167,7 @@ void CComponentProject::ResolveIdForFile(size_t uFileId, size_t idToResolve, boo
         bool loadSuccess = document.LoadFile(TIXML_ENCODING_LEGACY);
         if (loadSuccess)
         {
-            int iNewID = CComponentManager::GetInstance()->GetIdManager()->GenerateId();
+            int iNewID = CComponentProxyManager::GetInstance()->GetIdManager()->GenerateId();
             TiXmlElement* pRootElement = document.RootElement();
             TiXmlElement* pComponentListNode = pRootElement->FirstChildElement("Components");
             std::vector<CComponentEditorProxy*> copyOpenComponents;
@@ -276,7 +276,7 @@ size_t CComponentProject::RegisterFile(const TString& strFileName, std::map<size
     std::map<size_t, std::vector<size_t>> result;
     AnalyseFile(strFileName, result);
 
-    CIdManager* pIdManager = CComponentManager::GetInstance()->GetIdManager();
+    CIdManager* pIdManager = CComponentProxyManager::GetInstance()->GetIdManager();
 
     for (std::map<size_t, std::vector<size_t>>::const_iterator subIter = result.begin(); subIter != result.end(); ++subIter)
     {
@@ -292,8 +292,8 @@ size_t CComponentProject::RegisterFile(const TString& strFileName, std::map<size
                     // If we can't find the conflict id in the static records, it must be in the dynamic records.
                     if (m_pComponentToFileMap->find(id) == m_pComponentToFileMap->end())
                     {
-                        BEATS_ASSERT(CComponentManager::GetInstance()->GetComponentInstance(id) != NULL, _T("It's impossible that can't find the component id in neither static and dynamic records."));
-                        uOriginalPosOfFile = GetComponentFileId(CComponentManager::GetInstance()->GetCurrentWorkingFilePath());
+                        BEATS_ASSERT(CComponentProxyManager::GetInstance()->GetComponentInstance(id) != NULL, _T("It's impossible that can't find the component id in neither static and dynamic records."));
+                        uOriginalPosOfFile = GetComponentFileId(CComponentProxyManager::GetInstance()->GetCurrentWorkingFilePath());
                     }
                     else
                     {
@@ -370,7 +370,7 @@ bool CComponentProject::UnregisterFile(size_t uFileId)
     bool bRet = true;
     (*m_pComponentFiles)[uFileId].clear(); // Don't erase it, we must keep the order un-change.
     std::vector<size_t>& componentIds = (*m_pFileToComponentMap)[uFileId];
-    CIdManager* pIdManager = CComponentManager::GetInstance()->GetIdManager();
+    CIdManager* pIdManager = CComponentProxyManager::GetInstance()->GetIdManager();
     for (size_t i = 0; i < componentIds.size(); ++i)
     {
         size_t uComponentId = componentIds[i];
@@ -466,12 +466,12 @@ size_t CComponentProject::QueryFileId(size_t uComponentId, bool bOnlyInProjectFi
     if (!bOnlyInProjectFile)
     {
         // 2. If the component is in the file which we are working on, research it since its dynamic records.
-        size_t uCurrentWorkingFileID = GetComponentFileId(CComponentManager::GetInstance()->GetCurrentWorkingFilePath());
+        size_t uCurrentWorkingFileID = GetComponentFileId(CComponentProxyManager::GetInstance()->GetCurrentWorkingFilePath());
         if (uCurrentWorkingFileID != 0xFFFFFFFF)
         {
             if (uRet == 0xFFFFFFFF || uRet == uCurrentWorkingFileID)
             {
-                CComponentBase* pComponent = CComponentManager::GetInstance()->GetComponentInstance(uComponentId);
+                CComponentBase* pComponent = CComponentProxyManager::GetInstance()->GetComponentInstance(uComponentId);
                 // Can't find the data in static records since we may add the new component dynamically OR
                 // Find the data in static records but we have delete it dynamically.
                 uRet = pComponent != NULL ? uCurrentWorkingFileID : 0xFFFFFFFF;

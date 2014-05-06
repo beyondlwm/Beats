@@ -4,6 +4,7 @@
 #include "../../Utility/Serializer/Serializer.h"
 
 #include "../../Components/Component/ComponentBase.h"
+#include "../../Components/Component/ComponentProxyManager.h"
 #include "../../Components/Component/ComponentManager.h"
 #include "wxWidgetsProperty/wxWidgetsPropertyBase.h"
 #include "wxWidgetsProperty/BoolPropertyDescription.h"
@@ -43,7 +44,7 @@ struct SLuancher
     SLuancher()
     {
         std::vector<TString> scanPath;
-        scanPath.push_back(_T("E:/Work/Project/EraFable/SGame"));
+        scanPath.push_back(_T("E:/Project/Beats_GitHub/DebugTool/ComponentSystem"));
         CEnumStrGenerator::GetInstance()->Init(scanPath);
     }
     ~SLuancher()
@@ -53,8 +54,8 @@ struct SLuancher
         {
             CEnumStrGenerator::Destroy();
         }
-               
-        CComponentManager::Destroy();
+
+        CComponentProxyManager::Destroy();
     }
 }launchme;
 enum ETestEnum

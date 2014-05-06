@@ -5,7 +5,7 @@
 #include "../../BDTWxApp.h"
 #include "../../BDTWxFrame.h"
 #include "../../Components/Component/ComponentEditorProxy.h"
-#include "../../Components/Component/ComponentManager.h"
+#include "../../Components/Component/ComponentProxyManager.h"
 
 #define POINTER_SPLIT_SYMBOL _T("@")
 
@@ -115,7 +115,7 @@ bool CPtrPropertyDescription::CreateInstance()
     if ( m_pInstance == NULL)
     {
         size_t uInstanceGuid = m_uDerivedGuid == 0 ? m_uComponentGuid : m_uDerivedGuid;
-        m_pInstance = static_cast<CComponentEditorProxy*>(CComponentManager::GetInstance()->CreateComponent(uInstanceGuid, false, true));
+        m_pInstance = static_cast<CComponentEditorProxy*>(CComponentProxyManager::GetInstance()->CreateComponent(uInstanceGuid, false, true));
         const std::vector<CPropertyDescriptionBase*>* propertyPool = m_pInstance->GetPropertyPool();
         for (size_t i = 0; i < propertyPool->size(); ++i)
         {
@@ -239,7 +239,7 @@ void CPtrPropertyDescription::Initialize()
 
 void CPtrPropertyDescription::UpdateDisplayString(size_t uComponentGuid)
 {
-    TString strComponentName = CComponentManager::GetInstance()->QueryComponentName(uComponentGuid);
+    TString strComponentName = CComponentProxyManager::GetInstance()->QueryComponentName(uComponentGuid);
     BEATS_ASSERT(strComponentName.length() > 0, _T("Can't Find the component name of GUID: 0x%x"), uComponentGuid);
     wxString value = wxString::Format(_T("%s%s%s0x%x"), m_bHasInstance ? _T("+") : _T(""), strComponentName.c_str(), POINTER_SPLIT_SYMBOL, uComponentGuid);
     TString valueStr(value);
