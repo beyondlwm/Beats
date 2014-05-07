@@ -3,9 +3,11 @@
 #include "../../Utility/Serializer/Serializer.h"
 #include "../../Utility/TinyXML/tinyxml.h"
 #include "../../Utility/StringHelper/StringHelper.h"
+#include "../../Utility/IdManager/IdManager.h"
 #include "../Property/PropertyDescriptionBase.h"
 #include "../DependencyDescriptionLine.h"
 #include "../Component/ComponentProxyManager.h"
+#include "../Component/ComponentManager.h"
 #include "../Component/ComponentProject.h"
 #include "../DependencyDescription.h"
 #include "ComponentGraphic.h"
@@ -46,10 +48,11 @@ CComponentEditorProxy::CComponentEditorProxy(CComponentGraphic* pGraphics, size_
 CComponentEditorProxy::~CComponentEditorProxy()
 {
     ClearProperty();
-    BEATS_SAFE_DELETE(m_pHostComponent);
-    BEATS_SAFE_DELETE(m_pProperties);
-    BEATS_SAFE_DELETE(m_pSerializeOrder);
-    BEATS_SAFE_DELETE(m_pGraphics);
+    BEATS_ASSERT(m_pHostComponent == NULL || m_pHostComponent->GetId() == GetId());
+    if (GetId() != 0xFFFFFFFF)
+    {
+        CComponentManager::GetInstance()->DeleteComponent(m_pHostComponent);
+    }
     for (size_t i = 0; i < m_pDependenciesDescription->size(); ++i)
     {
         BEATS_SAFE_DELETE((*m_pDependenciesDescription)[i]);
@@ -60,10 +63,19 @@ CComponentEditorProxy::~CComponentEditorProxy()
     while (m_pBeConnectedDependencyLines->size() > 0)
     {
         CDependencyDescriptionLine* pLine = (*m_pBeConnectedDependencyLines)[0];
+        CComponentEditorProxy* pProxyNeedUpdate = pLine->GetOwnerDependency()->GetOwner();
+        // Delete the line before update the proxy, or the proxy doesn't know this dependency is deleted!
         BEATS_SAFE_DELETE(pLine);
+        if (pProxyNeedUpdate != NULL)
+        {
+            pProxyNeedUpdate->UpdateHostComponent();
+        }
     }
     BEATS_SAFE_DELETE(m_pBeConnectedDependencyLines);
 
+    BEATS_SAFE_DELETE(m_pProperties);
+    BEATS_SAFE_DELETE(m_pSerializeOrder);
+    BEATS_SAFE_DELETE(m_pGraphics);
 }
 
 void CComponentEditorProxy::Deserialize( CSerializer& serializer )
@@ -134,7 +146,8 @@ CComponentBase* CComponentEditorProxy::Clone(bool bCloneValue, CSerializer* /*pS
 
     if (m_pHostComponent != NULL)
     {
-        pNewInstance->m_pHostComponent = m_pHostComponent->Clone(bCloneValue, NULL);
+        // please do manual manage because we don't know the id yet! we will register host component after we get the id!
+        pNewInstance->m_pHostComponent = CComponentManager::GetInstance()->CreateComponentByRef(m_pHostComponent, bCloneValue, true);
     }
     pNewInstance->Initialize();
 
@@ -246,7 +259,7 @@ void CComponentEditorProxy::UpdateHostComponent()
         serializer >> uGuid;
         serializer >> uId;
         m_pHostComponent->ReflectData(serializer);
-        CComponentProxyManager::GetInstance()->ResolveDependency();
+        CComponentManager::GetInstance()->ResolveDependency();
     }
 }
 
@@ -502,9 +515,12 @@ void CComponentEditorProxy::Save()
 void CComponentEditorProxy::SetId(size_t id)
 {
     super::SetId(id);
+    BEATS_ASSERT(m_pHostComponent->GetId() == 0xFFFFFFFF, _T("The host component has got an id already!"));
     if (m_pHostComponent != NULL)
     {
         m_pHostComponent->SetId(id);
+        CComponentManager::GetInstance()->RegisterInstance(m_pHostComponent);
+        CComponentManager::GetInstance()->GetIdManager()->ReserveId(id);
     }
 }
 
