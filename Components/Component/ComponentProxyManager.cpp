@@ -385,6 +385,16 @@ void CComponentProxyManager::ResolveDependency()
     BEATS_SAFE_DELETE_VECTOR(*m_pDependencyResolver);
 }
 
+const TString& CComponentProxyManager::GetCurrReflectVariableName() const
+{
+    return m_strCurrReflectVariableName;
+}
+
+void CComponentProxyManager::SetCurrReflectVariableName(const TString& strName)
+{
+    m_strCurrReflectVariableName = strName;
+}
+
 void CComponentProxyManager::LoadTemplateDataFromXML(const TCHAR* pszPath)
 {
     char tmp[MAX_PATH] = {0};

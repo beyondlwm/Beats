@@ -73,43 +73,16 @@ inline void DeserializeVarialble(T*& value, CSerializer* pSerializer)
         *pSerializer >> uDataSize;
         *pSerializer >> uGuid;
         *pSerializer >> uId;
-#ifdef EDITOR_MODE
         if (value == NULL)
         {
-            CComponentBase* pComponent = CComponentManager::GetInstance()->CreateComponent(uGuid, false, true, 0xFFFFFFFF, false, pSerializer);
-            CComponentEditorProxy* pProxy = dynamic_cast<CComponentEditorProxy*>(pComponent);
-            if (pProxy != NULL)
-            {
-                value = dynamic_cast<T*>(pProxy->GetHostComponent());
-                pProxy->SetHostComponent(NULL);
-                BEATS_SAFE_DELETE(pProxy);
-                value->ReflectData(*pSerializer);
-            }
-            else
-            {
-                value = dynamic_cast<T*>(pComponent);
-            }
+            value = dynamic_cast<T*>(CComponentManager::GetInstance()->CreateComponent(uGuid, false, true, 0xFFFFFFFF, false, pSerializer));
+            BEATS_ASSERT(uStartPos + uDataSize == pSerializer->GetReadPos(), 
+                _T("Component Data Not Match!\nGot an error when Deserialize a pointer of component 0x%x %s instance id %d\nRequired size: %d, Actual size: %d"), uGuid, value->GetClassStr(), uId, uDataSize, pSerializer->GetReadPos() - uStartPos);
         }
         else
         {
             value->ReflectData(*pSerializer);
         }
-        BEATS_ASSERT(value != NULL,_T("Deserialize pointer failed! guid:0x%x"), uGuid);
-        BEATS_ASSERT(uStartPos + uDataSize == pSerializer->GetReadPos(), 
-            _T("Component Data Not Match!\nGot an error when Deserialize a pointer of component 0x%x %s instance id %d\nRequired size: %d, Actual size: %d"), uGuid, value->GetClassStr(), uId, uDataSize, pSerializer->GetReadPos() - uStartPos);
-    }
-    else
-    {
-        if (value != NULL)
-        {
-            BEATS_SAFE_DELETE(value);
-        }
-
-#else
-        value = dynamic_cast<T*>(CComponentManager::GetInstance()->CreateComponent(uGuid, false, true, 0xFFFFFFFF, false, pSerializer));
-        BEATS_ASSERT(uStartPos + uDataSize == pSerializer->GetReadPos(), 
-            _T("Component Data Not Match!\nGot an error when Deserialize a pointer of component 0x%x %s instance id %d\nRequired size: %d, Actual size: %d"), uGuid, value->GetClassStr(), uId, uDataSize, pSerializer->GetReadPos() - uStartPos);
-#endif // EDITOR_MODE
     }
 }
 
@@ -295,12 +268,6 @@ inline void InitValue(const T& param)
         }\
     }enumType##_creator_launcher;
 
-#define REGISTER_PROPERTY_ENUM(propertyClass)\
-CPropertyDescriptionBase* GetEnumPropertyDesc(int defaultValue)\
-{\
-    return new propertyClass(defaultValue);\
-}
-
 #ifdef EXPORT_TO_EDITOR
 
 inline const TCHAR* GenEnumParamStr(const TCHAR* enumStringArray[], const TCHAR* pszParam = NULL)
@@ -385,9 +352,52 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
 }
 
 #else
-#define DECLARE_PROPERTY(serializer, property, editable, color, displayName, catalog, tip, parameter) DeserializeVarialble(property, &serializer);
+#ifndef EDITOR_MODE
+    #define DECLARE_PROPERTY(serializer, property, editable, color, displayName, catalog, tip, parameter) DeserializeVarialble(property, &serializer);
 
-#define DECLARE_DEPENDENCY(serializer, ptrProperty, displayName, dependencyType)\
+    #define DECLARE_DEPENDENCY(serializer, ptrProperty, displayName, dependencyType)\
+    {\
+        size_t uLineCount = 0;\
+        serializer >> uLineCount;\
+        BEATS_ASSERT(uLineCount <= 1, _T("Data error:\nWe want a dependency data, but got %d line count!"), uLineCount);\
+        ptrProperty = NULL;\
+        if (uLineCount == 1)\
+        {\
+            size_t uInstanceId, uGuid;\
+            serializer >> uInstanceId >> uGuid;\
+            CComponentManager::GetInstance()->AddDependencyResolver(NULL, 0 , uGuid, uInstanceId, &ptrProperty, false);\
+        }\
+    }
+
+    #define DECLARE_DEPENDENCY_LIST(serializer, ptrProperty, displayName, dependencyType)\
+    {\
+        size_t uLineCount = 0;\
+        serializer >> uLineCount;\
+        ptrProperty.clear();\
+        for (size_t i = 0; i < uLineCount; ++i)\
+        {\
+            size_t uInstanceId, uGuid;\
+            serializer >> uInstanceId >> uGuid;\
+            CComponentManager::GetInstance()->AddDependencyResolver(NULL, i , uGuid, uInstanceId, &ptrProperty, true);\
+        }\
+    }
+
+#else
+
+    #define DECLARE_PROPERTY(serializer, property, editable, color, displayName, catalog, tip, parameter) \
+    {\
+        const TString strCurVariableName = CComponentProxyManager::GetInstance()->GetCurrReflectVariableName();\
+        if (strCurVariableName.length() == 0 || strCurVariableName.compare(_T(#property)) == 0)\
+        {\
+            CComponentProxyManager::GetInstance()->SetCurrReflectVariableName(TString(_T("")));\
+            DeserializeVarialble(property, &serializer);\
+            CComponentProxyManager::GetInstance()->SetCurrReflectVariableName(strCurVariableName);\
+        }\
+    }
+
+    #define DECLARE_DEPENDENCY(serializer, ptrProperty, displayName, dependencyType)\
+    {\
+        if (CComponentProxyManager::GetInstance()->GetCurrReflectVariableName().length() == 0 ||CComponentProxyManager::GetInstance()->GetCurrReflectVariableName().compare(_T(#ptrProperty)) == 0)\
         {\
             size_t uLineCount = 0;\
             serializer >> uLineCount;\
@@ -399,9 +409,12 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
                 serializer >> uInstanceId >> uGuid;\
                 CComponentManager::GetInstance()->AddDependencyResolver(NULL, 0 , uGuid, uInstanceId, &ptrProperty, false);\
             }\
-        }
+        }\
+    }
 
-#define DECLARE_DEPENDENCY_LIST(serializer, ptrProperty, displayName, dependencyType)\
+    #define DECLARE_DEPENDENCY_LIST(serializer, ptrProperty, displayName, dependencyType)\
+    {\
+        if (CComponentProxyManager::GetInstance()->GetCurrReflectVariableName().length() == 0 ||CComponentProxyManager::GetInstance()->GetCurrReflectVariableName().compare(_T(#ptrProperty)) == 0)\
         {\
             size_t uLineCount = 0;\
             serializer >> uLineCount;\
@@ -412,9 +425,12 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
                 serializer >> uInstanceId >> uGuid;\
                 CComponentManager::GetInstance()->AddDependencyResolver(NULL, i , uGuid, uInstanceId, &ptrProperty, true);\
             }\
-        }
+        }\
+    }
+#endif
 
 #endif
+
 
 #ifdef EXPORT_TO_EDITOR
 

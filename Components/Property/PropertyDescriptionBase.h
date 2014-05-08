@@ -69,6 +69,7 @@ public:
     }
 
     void* GetValue(EValueType type) const;
+    void SetValueWithType(void* pValue, EValueType type);
 
     virtual void Initialize();
     virtual bool IsContainerProperty();
@@ -78,7 +79,6 @@ public:
 
     virtual void GetValueAsChar(EValueType type, char* pOut) = 0;
     virtual bool GetValueByTChar(const TCHAR* pIn, void* pOutValue) = 0;
-    virtual void SetValue(void* pDefaultValue, EValueType type) = 0;
 
     // It's very important to know what this function mean.
     // Compare current data(property value in your property grid) to Default Value(which is determined in code of macro DECLARE_PROPERTY) and
@@ -92,6 +92,7 @@ public:
     virtual void SaveToXML(TiXmlElement* pParentNode) = 0;
     virtual void LoadFromXML(TiXmlElement* pNode) = 0;
     virtual void Serialize(CSerializer& serializer, EValueType eValueType = eVT_SavedValue) = 0;
+    virtual bool CopyValue(void* pSourceValue, void* pTargetValue) = 0;
 
 protected:
     bool DeserializeBasicInfo(CSerializer& serializer);

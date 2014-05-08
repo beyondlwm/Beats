@@ -39,7 +39,7 @@ bool CBoolPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>
             GetValueByTChar(cache[1].c_str(), &bValue);
             wxVariant var(bValue);
             SetValue(var, true);
-            SetValue(&bValue, eVT_DefaultValue);
+            SetValueWithType(&bValue, eVT_DefaultValue);
         }
         else
         {
@@ -62,16 +62,21 @@ wxPGProperty* CBoolPropertyDescription::CreateWxProperty()
 void CBoolPropertyDescription::SetValue( wxVariant& value, bool bSaveValue /*= true*/)
 {
     bool bNewValue = value.GetBool();
-    SetValue(&bNewValue, eVT_CurrentValue);
+    SetValueWithType(&bNewValue, eVT_CurrentValue);
     if (bSaveValue)
     {
-        SetValue(&bNewValue, eVT_SavedValue);
+        SetValueWithType(&bNewValue, eVT_SavedValue);
     }
 }
 
-void CBoolPropertyDescription::SetValue( void* pValue, EValueType type )
+bool CBoolPropertyDescription::CopyValue( void* pSourceValue, void* pTargetValue )
 {
-    *(bool*)m_valueArray[type] = *(bool*)pValue;
+    bool bRet = *(bool*)pTargetValue != *(bool*)pSourceValue;
+    if (bRet)
+    {
+        *(bool*)pTargetValue = *(bool*)pSourceValue;
+    }
+    return bRet;
 }
 
 bool CBoolPropertyDescription::IsDataSame(bool bWithDefaultOrXML)

@@ -76,17 +76,22 @@ wxPGProperty* CPtrPropertyDescription::CreateWxProperty()
 void CPtrPropertyDescription::SetValue( wxVariant& value , bool bSaveValue)
 {
     TString bNewValue = value.GetString();
-    SetValue(&bNewValue, eVT_CurrentValue);
+    SetValueWithType(&bNewValue, eVT_CurrentValue);
     if (bSaveValue)
     {
-        SetValue(&bNewValue, eVT_SavedValue);
+        SetValueWithType(&bNewValue, eVT_SavedValue);
     }
 }
 
-void CPtrPropertyDescription::SetValue( void* pValue, EValueType type )
+bool CPtrPropertyDescription::CopyValue(void* pSourceValue, void* pTargetValue)
 {
-    TString* pStrValue = (TString*)pValue;
-    *(TString*)m_valueArray[type] = *pStrValue;
+    TString* pStrValue = (TString*)pSourceValue;
+    bool bRet = *(TString*)pTargetValue != *pStrValue;
+    if (bRet)
+    {
+        *(TString*)pTargetValue = *pStrValue;
+    }
+    return bRet;
 }
 
 size_t CPtrPropertyDescription::GetPtrGuid()
@@ -245,6 +250,6 @@ void CPtrPropertyDescription::UpdateDisplayString(size_t uComponentGuid)
     TString valueStr(value);
     for (size_t i = eVT_DefaultValue; i < eVT_Count; ++i)
     {
-        SetValue((void*)&valueStr, (EValueType)i);
+        SetValueWithType(&valueStr, (EValueType)i);
     }
 }

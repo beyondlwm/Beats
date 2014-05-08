@@ -504,6 +504,21 @@ const std::vector<CPropertyDescriptionBase*>* CComponentEditorProxy::GetProperty
     return m_pProperties;
 }
 
+CPropertyDescriptionBase* CComponentEditorProxy::GetPropertyDescription(const TCHAR* pszVariableName) const
+{
+    CPropertyDescriptionBase* pProperty = NULL;
+    for (size_t i = 0; i < m_pProperties->size(); ++i)
+    {
+        const TString& name = (*m_pProperties)[i]->GetBasicInfo()->m_variableName;
+        if(name.compare(pszVariableName) == 0)
+        {
+            pProperty = (*m_pProperties)[i];
+            break;
+        }
+    }
+    return pProperty;
+}
+
 void CComponentEditorProxy::Save()
 {
     for (size_t i = 0; i < (*m_pProperties).size(); ++i)

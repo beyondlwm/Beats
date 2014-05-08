@@ -62,16 +62,21 @@ wxPGProperty* CMapPropertyDescription::CreateWxProperty()
 void CMapPropertyDescription::SetValue( wxVariant& value, bool bSaveValue/* = true*/ )
 {
     TString strNewValue = value.GetString();
-    SetValue(&strNewValue, eVT_CurrentValue);
+    SetValueWithType(&strNewValue, eVT_CurrentValue);
     if (bSaveValue)
     {
-        SetValue(&strNewValue, eVT_SavedValue);
+        SetValueWithType(&strNewValue, eVT_SavedValue);
     }
 }
 
-void CMapPropertyDescription::SetValue( void* pValue, EValueType type )
+bool CMapPropertyDescription::CopyValue(void* pSourceValue, void* pTargetValue)
 {
-    *(TString*)m_valueArray[type] = *(TString*)pValue;
+    bool bRet = *(TString*)pTargetValue != *(TString*)pSourceValue;
+    if (bRet)
+    {
+        *(TString*)pTargetValue = *(TString*)pSourceValue;
+    }
+    return bRet;
 }
 
 bool CMapPropertyDescription::IsDataSame( bool bWithDefaultOrXML )

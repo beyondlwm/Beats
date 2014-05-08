@@ -51,7 +51,7 @@ bool CColorPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString
             wxVariant var(color);
             SetValue(var, true);
             uValue = var.GetULongLong().GetLo();
-            SetValue(&uValue, eVT_DefaultValue);
+            SetValueWithType(&uValue, eVT_DefaultValue);
         }
         else
         {
@@ -84,16 +84,21 @@ void CColorPropertyDescription::SetValue( wxVariant& value, bool bSaveValue /*= 
     wxColor colourValue;
     colourValue << value ;
     size_t uNewValue = (colourValue.Red() << 24) + (colourValue.Green() << 16) + (colourValue.Blue() << 8) + colourValue.Alpha();
-    SetValue(&uNewValue, eVT_CurrentValue);
+    SetValueWithType(&uNewValue, eVT_CurrentValue);
     if (bSaveValue)
     {
-        SetValue(&uNewValue, eVT_SavedValue);
+        SetValueWithType(&uNewValue, eVT_SavedValue);
     }
 }
 
-void CColorPropertyDescription::SetValue( void* pValue, EValueType type )
+bool CColorPropertyDescription::CopyValue(void* pSourceValue, void* pTargetValue)
 {
-    *(size_t*)m_valueArray[type] = *(size_t*)pValue;
+    bool bRet = *(size_t*)pTargetValue != *(size_t*)pSourceValue;
+    if (bRet)
+    {
+        *(size_t*)pTargetValue = *(size_t*)pSourceValue;
+    }
+    return bRet;
 }
 
 bool CColorPropertyDescription::IsDataSame( bool bWithDefaultOrXML )

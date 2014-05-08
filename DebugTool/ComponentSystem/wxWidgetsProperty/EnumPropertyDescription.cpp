@@ -64,7 +64,7 @@ bool CEnumPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>
                 GetValueByTChar(result[1].c_str(), &iValue);
                 wxVariant var(iValue);
                 SetValue(var, true);
-                SetValue(&iValue, eVT_DefaultValue);
+                SetValueWithType(&iValue, eVT_DefaultValue);
             }
             else if (_tcsicmp(result[0].c_str(), UIParameterAttrStr[eUIPAT_EnumStringArray]) == 0)
             {
@@ -109,16 +109,21 @@ wxPGProperty* CEnumPropertyDescription::CreateWxProperty()
 void CEnumPropertyDescription::SetValue(wxVariant& value, bool bSaveValue /*= true*/)
 {
     int iNewValue = value.GetInteger();
-    SetValue(&iNewValue, eVT_CurrentValue);
+    SetValueWithType(&iNewValue, eVT_CurrentValue);
     if (bSaveValue)
     {
-        SetValue(&iNewValue, eVT_SavedValue);
+        SetValueWithType(&iNewValue, eVT_SavedValue);
     }
 }
 
-void CEnumPropertyDescription::SetValue( void* pValue, EValueType type )
+bool CEnumPropertyDescription::CopyValue(void* pSourceValue, void* pTargetValue)
 {
-    *(int*)m_valueArray[type] = *(int*)pValue;
+    bool bRet = *(int*)pTargetValue != *(int*)pSourceValue;
+    if (bRet)
+    {
+        *(int*)pTargetValue = *(int*)pSourceValue;
+    }
+    return bRet;
 }
 
 bool CEnumPropertyDescription::IsDataSame( bool bWithDefaultOrXML )

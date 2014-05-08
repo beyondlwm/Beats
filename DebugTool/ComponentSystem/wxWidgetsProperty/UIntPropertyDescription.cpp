@@ -48,7 +48,7 @@ bool CUIntPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>
             wxVariant var((wxLongLong)uValue);
             SetValue(var, true);
             uValue = var.GetULongLong().GetLo();
-            SetValue(&uValue, eVT_DefaultValue);
+            SetValueWithType(&uValue, eVT_DefaultValue);
         }
         else if (_tcsicmp(cache[0].c_str(), UIParameterAttrStr[eUIPAT_MinValue]) == 0)
         {
@@ -92,16 +92,21 @@ wxPGProperty* CUIntPropertyDescription::CreateWxProperty()
 void CUIntPropertyDescription::SetValue( wxVariant& value, bool bSaveValue /*= true*/ )
 {
     size_t uNewValue = value.GetULongLong().GetLo();
-    SetValue(&uNewValue, eVT_CurrentValue);
+    SetValueWithType(&uNewValue, eVT_CurrentValue);
     if (bSaveValue)
     {
-        SetValue(&uNewValue, eVT_SavedValue);
+        SetValueWithType(&uNewValue, eVT_SavedValue);
     }
 }
 
-void CUIntPropertyDescription::SetValue( void* pValue, EValueType type )
+bool CUIntPropertyDescription::CopyValue(void* pSourceValue, void* pTargetValue)
 {
-    *(size_t*)m_valueArray[type] = *(size_t*)pValue;
+    bool bRet = *(size_t*)pTargetValue != *(size_t*)pSourceValue;
+    if (bRet)
+    {
+        *(size_t*)pTargetValue = *(size_t*)pSourceValue;
+    }
+    return bRet;
 }
 
 bool CUIntPropertyDescription::IsDataSame( bool bWithDefaultOrXML )

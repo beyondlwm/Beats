@@ -32,6 +32,7 @@ public:
     void AddProperty(CPropertyDescriptionBase* pProperty);
     void ClearProperty();
     const std::vector<CPropertyDescriptionBase*>* GetPropertyPool() const;
+    CPropertyDescriptionBase* GetPropertyDescription(const TCHAR* pszVariableName) const;
 
     CDependencyDescription* GetDependency(size_t uIndex);
     const std::vector<CDependencyDescription*>& GetDependencies();

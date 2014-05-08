@@ -46,7 +46,7 @@ bool CFloatPropertyDescription::AnalyseUIParameterImpl( const std::vector<TStrin
             GetValueByTChar(cache[1].c_str(), &fValue);
             wxVariant var(fValue);
             SetValue(var, true);
-            SetValue(&fValue, eVT_DefaultValue);
+            SetValueWithType(&fValue, eVT_DefaultValue);
         }
         else if (_tcsicmp(cache[0].c_str(), UIParameterAttrStr[eUIPAT_MinValue]) == 0)
         {
@@ -91,16 +91,21 @@ wxPGProperty* CFloatPropertyDescription::CreateWxProperty()
 void CFloatPropertyDescription::SetValue( wxVariant& value, bool bSaveValue /*= true*/ )
 {
     float fNewValue = (float)value.GetDouble();
-    SetValue(&fNewValue, eVT_CurrentValue);
+    SetValueWithType(&fNewValue, eVT_CurrentValue);
     if (bSaveValue)
     {
-        SetValue(&fNewValue, eVT_SavedValue);
+        SetValueWithType(&fNewValue, eVT_SavedValue);
     }
 }
 
-void CFloatPropertyDescription::SetValue( void* pValue, EValueType type )
+bool CFloatPropertyDescription::CopyValue(void* pSourceValue, void* pTargetValue)
 {
-    *(float*)m_valueArray[type] = *(float*)pValue;
+    bool bRet = *(float*)pTargetValue != *(float*)pSourceValue;
+    if (bRet)
+    {
+        *(float*)pTargetValue = *(float*)pSourceValue;
+    }
+    return bRet;
 }
 
 bool CFloatPropertyDescription::IsDataSame( bool bWithDefaultOrXML )

@@ -38,6 +38,9 @@ public:
     void DeserializeTemplateData(const TCHAR* pWorkingPath, TCreateComponentEditorProxyFunc func, TCreateGraphicFunc pGraphicFunc);
     virtual void ResolveDependency() override;
 
+    const TString& GetCurrReflectVariableName() const;
+    void SetCurrReflectVariableName(const TString& strName);
+
 private:
     void LoadTemplateDataFromXML(const TCHAR* pWorkingPath);
     void LoadTemplateDataFromSerializer(CSerializer& serializer, TCreateComponentEditorProxyFunc func, TCreateGraphicFunc pGraphicFunc);
@@ -45,6 +48,7 @@ private:
 private:
     CComponentProject* m_pProject;
     TString m_currentWorkingFilePath;
+    TString m_strCurrReflectVariableName;
     std::map<size_t, TCreatePropertyFunc>* m_pPropertyCreatorMap;
     std::map<size_t, TString> m_abstractComponentNameMap;
     // This map save the inherit relationship for all components. so when we instance a component pointer, we can decide which instance to generate.

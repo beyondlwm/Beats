@@ -3,6 +3,7 @@
 #include "../../Utility/Serializer/Serializer.h"
 #include "../../Utility/SharePtr/SharePtr.h"
 #include "../Component/ComponentEditorProxy.h"
+#include "../Component/ComponentProxyManager.h"
 
 CPropertyDescriptionBase::CPropertyDescriptionBase(EReflectPropertyType type)
 : m_pOwner(NULL)
@@ -188,9 +189,9 @@ std::vector<CPropertyDescriptionBase*>& CPropertyDescriptionBase::GetChildren()
 CPropertyDescriptionBase* CPropertyDescriptionBase::Clone(bool bCloneValue)
 {
     CPropertyDescriptionBase* pNewProperty = this->CreateNewInstance();
-    pNewProperty->SetValue(m_valueArray[eVT_DefaultValue], eVT_DefaultValue);
-    pNewProperty->SetValue(bCloneValue ? m_valueArray[eVT_SavedValue] : m_valueArray[eVT_DefaultValue], eVT_SavedValue);
-    pNewProperty->SetValue(bCloneValue ? m_valueArray[eVT_CurrentValue] : m_valueArray[eVT_DefaultValue], eVT_CurrentValue);
+    pNewProperty->SetValueWithType(m_valueArray[eVT_DefaultValue], eVT_DefaultValue);
+    pNewProperty->SetValueWithType(bCloneValue ? m_valueArray[eVT_SavedValue] : m_valueArray[eVT_DefaultValue], eVT_SavedValue);
+    pNewProperty->SetValueWithType(bCloneValue ? m_valueArray[eVT_CurrentValue] : m_valueArray[eVT_DefaultValue], eVT_CurrentValue);
     return pNewProperty;
 }
 
@@ -199,10 +200,9 @@ void* CPropertyDescriptionBase::GetValue( EValueType type ) const
     return m_valueArray[type];
 }
 
-
 void CPropertyDescriptionBase::Save()
 {
-    SetValue(m_valueArray[eVT_CurrentValue], eVT_SavedValue);
+    SetValueWithType(m_valueArray[eVT_CurrentValue], eVT_SavedValue);
 }
 
 void CPropertyDescriptionBase::Initialize()
@@ -213,4 +213,20 @@ void CPropertyDescriptionBase::Initialize()
 bool CPropertyDescriptionBase::IsContainerProperty()
 {
     return false;
+}
+
+void CPropertyDescriptionBase::SetValueWithType(void* pValue, EValueType type)
+{
+    if (CopyValue(pValue, m_valueArray[type]))
+    {
+        if (type == eVT_CurrentValue && GetOwner() && GetOwner()->GetHostComponent())
+        {
+            static CSerializer serializer;
+            serializer.Reset();
+            this->Serialize(serializer, eVT_CurrentValue);
+            CComponentProxyManager::GetInstance()->SetCurrReflectVariableName((*m_pBasicInfo)->m_variableName);
+            GetOwner()->GetHostComponent()->ReflectData(serializer);
+            CComponentProxyManager::GetInstance()->SetCurrReflectVariableName(TString(_T("")));
+        }
+    }
 }

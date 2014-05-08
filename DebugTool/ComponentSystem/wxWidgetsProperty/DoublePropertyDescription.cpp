@@ -46,7 +46,7 @@ bool CDoublePropertyDescription::AnalyseUIParameterImpl(const std::vector<TStrin
             GetValueByTChar(cache[1].c_str(), &doubleValue);
             wxVariant var(doubleValue);
             SetValue(var, true);
-            SetValue(&doubleValue, eVT_DefaultValue);
+            SetValueWithType(&doubleValue, eVT_DefaultValue);
         }
         else if (_tcsicmp(cache[0].c_str(), UIParameterAttrStr[eUIPAT_MinValue]) == 0)
         {
@@ -92,16 +92,21 @@ wxPGProperty* CDoublePropertyDescription::CreateWxProperty()
 void CDoublePropertyDescription::SetValue( wxVariant& value, bool bSaveValue /*= true*/ )
 {
     double bNewValue = value.GetDouble();
-    SetValue(&bNewValue, eVT_CurrentValue);
+    SetValueWithType(&bNewValue, eVT_CurrentValue);
     if (bSaveValue)
     {
-        SetValue(&bNewValue, eVT_SavedValue);
+        SetValueWithType(&bNewValue, eVT_SavedValue);
     }
 }
 
-void CDoublePropertyDescription::SetValue( void* pValue, EValueType type )
+bool CDoublePropertyDescription::CopyValue(void* pSourceValue, void* pTargetValue)
 {
-    *(double*)m_valueArray[type] = *(double*)pValue;
+    bool bRet = *(double*)pTargetValue != *(double*)pSourceValue;
+    if (bRet)
+    {
+        *(double*)pTargetValue = *(double*)pSourceValue;
+    }
+    return bRet;
 }
 
 bool CDoublePropertyDescription::IsDataSame( bool bWithDefaultOrXML )

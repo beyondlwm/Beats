@@ -51,7 +51,7 @@ bool CStringPropertyDescription::AnalyseUIParameterImpl(const std::vector<TStrin
                 GetValueByTChar(cache[1].c_str(), &str);
                 wxVariant var(str.c_str());
                 SetValue(var, true);
-                SetValue(&str, eVT_DefaultValue);
+                SetValueWithType(&str, eVT_DefaultValue);
             }
         }
         else if (_tcsicmp(cache[0].c_str(), UIParameterAttrStr[eUIPAT_MaxCount]) == 0)
@@ -80,16 +80,21 @@ wxPGProperty* CStringPropertyDescription::CreateWxProperty()
 void CStringPropertyDescription::SetValue( wxVariant& value, bool bSaveValue /*= true*/ )
 {
     TString strNewValue = value.GetString();
-    SetValue(&strNewValue, eVT_CurrentValue);
+    SetValueWithType(&strNewValue, eVT_CurrentValue);
     if (bSaveValue)
     {
-        SetValue(&strNewValue, eVT_SavedValue);
+        SetValueWithType(&strNewValue, eVT_SavedValue);
     }
 }
 
-void CStringPropertyDescription::SetValue( void* pValue, EValueType type )
+bool CStringPropertyDescription::CopyValue(void* pSourceValue, void* pTargetValue)
 {
-    *(TString*)m_valueArray[type] = *(TString*)pValue;
+    bool bRet = *(TString*)pTargetValue != *(TString*)pSourceValue;
+    if (bRet)
+    {
+        *(TString*)pTargetValue = *(TString*)pSourceValue;
+    }
+    return bRet;
 }
 
 bool CStringPropertyDescription::IsDataSame( bool bWithDefaultOrXML )

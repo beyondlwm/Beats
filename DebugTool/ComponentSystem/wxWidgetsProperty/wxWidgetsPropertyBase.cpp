@@ -34,17 +34,9 @@ void CWxwidgetsPropertyBase::Initialize()
             // 0 means or 1 means and.
             if(triggerContent[i] != NULL && (int)triggerContent[i] != 1)
             {
-                const std::vector<CPropertyDescriptionBase*>* pPropertyPool = m_pOwner->GetPropertyPool();
-                for (size_t j = 0; j < pPropertyPool->size(); ++j)
-                {
-                    const TString& name = (*pPropertyPool)[j]->GetBasicInfo()->m_variableName;
-                    if (name.compare(triggerContent[i]->GetPropertyName()) == 0)
-                    {
-                        CWxwidgetsPropertyBase* pProperty = static_cast<CWxwidgetsPropertyBase*>((*pPropertyPool)[j]);
-                        pProperty->AddEffectProperties(this);
-                        break;
-                    }
-                }
+                CWxwidgetsPropertyBase* pProperty = static_cast<CWxwidgetsPropertyBase*>(m_pOwner->GetPropertyDescription(triggerContent[i]->GetPropertyName().c_str()));
+                BEATS_ASSERT(pProperty != NULL);
+                pProperty->AddEffectProperties(this);
             }
         }
     }

@@ -23,17 +23,7 @@ STriggerContent::~STriggerContent()
 
 bool STriggerContent::IsOk(CComponentEditorProxy* pComponent)
 {
-    CWxwidgetsPropertyBase* pProperty = NULL;
-    const std::vector<CPropertyDescriptionBase*>* pPropertyPool = pComponent->GetPropertyPool();
-    for (size_t i = 0; i < pPropertyPool->size(); ++i)
-    {
-        const TString& name = (*pPropertyPool)[i]->GetBasicInfo()->m_variableName;
-        if(name.compare(m_strPropertyName) == 0)
-        {
-            pProperty = static_cast<CWxwidgetsPropertyBase*>((*pPropertyPool)[i]);
-            break;
-        }
-    }
+    CWxwidgetsPropertyBase* pProperty = static_cast<CWxwidgetsPropertyBase*>(pComponent->GetPropertyDescription(m_strPropertyName.c_str()));
     bool bRet = pProperty != NULL;
     BEATS_ASSERT(bRet, _T("Can't Find Property %s at component %s in the trigger content!"), m_strPropertyName.c_str(), pComponent->GetDisplayName().c_str());
     if (bRet)

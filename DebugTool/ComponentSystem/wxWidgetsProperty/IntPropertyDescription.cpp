@@ -46,7 +46,7 @@ bool CIntPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>&
             GetValueByTChar(cache[1].c_str(), &iValue);
             wxVariant var(iValue);
             SetValue(var, true);
-            SetValue(&iValue, eVT_DefaultValue);
+            SetValueWithType(&iValue, eVT_DefaultValue);
         }
         else if (_tcsicmp(cache[0].c_str(), UIParameterAttrStr[eUIPAT_MinValue]) == 0)
         {
@@ -92,16 +92,21 @@ wxPGProperty* CIntPropertyDescription::CreateWxProperty()
 void CIntPropertyDescription::SetValue( wxVariant& value, bool bSaveValue /*= true*/ )
 {
     int iNewValue = value.GetInteger();
-    SetValue(&iNewValue, eVT_CurrentValue);
+    SetValueWithType(&iNewValue, eVT_CurrentValue);
     if (bSaveValue)
     {
-        SetValue(&iNewValue, eVT_SavedValue);
+        SetValueWithType(&iNewValue, eVT_SavedValue);
     }    
 }
 
-void CIntPropertyDescription::SetValue( void* pValue, EValueType type )
+bool CIntPropertyDescription::CopyValue(void* pSourceValue, void* pTargetValue)
 {
-    *(int*)m_valueArray[type] = *(int*)pValue;
+    bool bRet = *(int*)pTargetValue != *(int*)pSourceValue;
+    if (bRet)
+    {
+        *(int*)pTargetValue = *(int*)pSourceValue;
+    }
+    return bRet;
 }
 
 bool CIntPropertyDescription::IsDataSame( bool bWithDefaultOrXML )
