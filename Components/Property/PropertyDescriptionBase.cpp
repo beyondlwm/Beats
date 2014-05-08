@@ -219,13 +219,19 @@ void CPropertyDescriptionBase::SetValueWithType(void* pValue, EValueType type)
 {
     if (CopyValue(pValue, m_valueArray[type]))
     {
+        CPropertyDescriptionBase* pRootProperty = this;
+        while (pRootProperty->GetParent() != NULL)
+        {
+            pRootProperty = pRootProperty->GetParent();
+        }
         if (type == eVT_CurrentValue && GetOwner() && GetOwner()->GetHostComponent())
         {
             static CSerializer serializer;
             serializer.Reset();
-            this->Serialize(serializer, eVT_CurrentValue);
-            CComponentProxyManager::GetInstance()->SetCurrReflectVariableName((*m_pBasicInfo)->m_variableName);
-            GetOwner()->GetHostComponent()->ReflectData(serializer);
+            pRootProperty->Serialize(serializer, eVT_CurrentValue);
+            const TString& strVariableName = pRootProperty->GetBasicInfo()->m_variableName;
+            CComponentProxyManager::GetInstance()->SetCurrReflectVariableName(strVariableName);
+            pRootProperty->GetOwner()->GetHostComponent()->ReflectData(serializer);
             CComponentProxyManager::GetInstance()->SetCurrReflectVariableName(TString(_T("")));
         }
     }

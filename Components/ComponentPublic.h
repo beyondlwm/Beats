@@ -392,6 +392,10 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
             CComponentProxyManager::GetInstance()->SetCurrReflectVariableName(TString(_T("")));\
             DeserializeVarialble(property, &serializer);\
             CComponentProxyManager::GetInstance()->SetCurrReflectVariableName(strCurVariableName);\
+            if (strCurVariableName.length() > 0)\
+            {\
+                return;\
+            }\
         }\
     }
 

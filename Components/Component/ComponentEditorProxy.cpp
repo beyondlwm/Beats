@@ -48,11 +48,6 @@ CComponentEditorProxy::CComponentEditorProxy(CComponentGraphic* pGraphics, size_
 CComponentEditorProxy::~CComponentEditorProxy()
 {
     ClearProperty();
-    BEATS_ASSERT(m_pHostComponent == NULL || m_pHostComponent->GetId() == GetId());
-    if (GetId() != 0xFFFFFFFF)
-    {
-        CComponentManager::GetInstance()->DeleteComponent(m_pHostComponent);
-    }
     for (size_t i = 0; i < m_pDependenciesDescription->size(); ++i)
     {
         BEATS_SAFE_DELETE((*m_pDependenciesDescription)[i]);
@@ -76,6 +71,12 @@ CComponentEditorProxy::~CComponentEditorProxy()
     BEATS_SAFE_DELETE(m_pProperties);
     BEATS_SAFE_DELETE(m_pSerializeOrder);
     BEATS_SAFE_DELETE(m_pGraphics);
+    BEATS_ASSERT(m_pHostComponent == NULL || m_pHostComponent->GetId() == GetId());
+    if (GetId() != 0xFFFFFFFF)
+    {
+        CComponentManager::GetInstance()->DeleteComponent(m_pHostComponent);
+    }
+
 }
 
 void CComponentEditorProxy::Deserialize( CSerializer& serializer )
@@ -174,15 +175,7 @@ void CComponentEditorProxy::Serialize( CSerializer& serializer, EValueType eValu
         {
             CDependencyDescription* pDependencyDesc = (*m_pDependenciesDescription)[uDepedencyCoutner];
             BEATS_ASSERT(pDependencyDesc != NULL);
-            size_t uLineCount = pDependencyDesc->GetDependencyLineCount();
-            serializer << uLineCount;
-            for (size_t j = 0; j < uLineCount; ++j)
-            {
-                CComponentBase* pConnectedComponent = pDependencyDesc->GetDependencyLine(j)->GetConnectedComponent();
-                BEATS_ASSERT(pConnectedComponent != NULL);
-                serializer << pConnectedComponent->GetId();
-                serializer << pConnectedComponent->GetGuid();
-            }
+            pDependencyDesc->Serialize(serializer);
             ++uDepedencyCoutner;
         }
     }

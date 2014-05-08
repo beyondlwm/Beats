@@ -1,10 +1,12 @@
 #include "stdafx.h"
+#include "Component/ComponentManager.h"
 #include "Component/ComponentProxyManager.h"
 #include "Component/ComponentEditorProxy.h"
 #include "DependencyDescription.h"
 #include "DependencyDescriptionLine.h"
 #include "../Utility/TinyXML/tinyxml.h"
 #include "../Utility/StringHelper/StringHelper.h"
+#include "../Utility/Serializer/Serializer.h"
 
 CDependencyDescription::CDependencyDescription(EDependencyType type, size_t dependencyGuid, CComponentEditorProxy* pOwner, size_t uIndex, bool bIsList)
 : m_type(type)
@@ -70,6 +72,7 @@ CDependencyDescriptionLine* CDependencyDescription::AddDependency( CComponentEdi
         BEATS_ASSERT(m_dependencyLine.size() == 0 || m_bIsListType);
         pRet = new CDependencyDescriptionLine(this, m_dependencyLine.size(), pComponentInstance);
         m_dependencyLine.push_back(pRet);
+        OnDependencyChanged();
     }
     return pRet;
 }
@@ -92,6 +95,7 @@ void CDependencyDescription::RemoveDependencyByIndex( size_t uIndex )
     {
         m_dependencyLine[i]->SetIndex(i);
     }
+    OnDependencyChanged();
 }
 
 void CDependencyDescription::SaveToXML( TiXmlElement* pParentNode )
@@ -250,6 +254,45 @@ bool CDependencyDescription::IsMatch( CComponentEditorProxy* pDependencyComponen
         }
     }
     return bMatch;
+}
+
+void CDependencyDescription::Serialize(CSerializer& serializer)
+{
+    size_t uLineCount = this->GetDependencyLineCount();
+    serializer << uLineCount;
+    for (size_t j = 0; j < uLineCount; ++j)
+    {
+        CComponentBase* pConnectedComponent = this->GetDependencyLine(j)->GetConnectedComponent();
+        BEATS_ASSERT(pConnectedComponent != NULL);
+        serializer << pConnectedComponent->GetId();
+        serializer << pConnectedComponent->GetGuid();
+    }
+}
+
+void CDependencyDescription::OnDependencyChanged()
+{
+    bool bIsReady = true;
+    for (size_t i = 0; i < m_dependencyLine.size(); ++i)
+    {
+        if (m_dependencyLine[i]->GetConnectedComponent() == NULL)
+        {
+            bIsReady = false;
+            break;
+        }
+    }
+    if (bIsReady)
+    {
+        if (GetOwner()->GetHostComponent())
+        {
+            static CSerializer serializer;
+            serializer.Reset();
+            Serialize(serializer);
+            CComponentProxyManager::GetInstance()->SetCurrReflectVariableName(m_variableName);
+            GetOwner()->GetHostComponent()->ReflectData(serializer);
+            CComponentManager::GetInstance()->ResolveDependency();
+            CComponentProxyManager::GetInstance()->SetCurrReflectVariableName(TString(_T("")));
+        }
+    }
 }
 
 size_t CDependencyDescription::GetDependencyGuid() const

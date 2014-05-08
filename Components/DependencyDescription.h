@@ -50,6 +50,10 @@ public:
     size_t GetSelectedDependencyIndex() const;
     void SetSelectedDependencyIndex(size_t index);
     bool IsMatch(CComponentEditorProxy* pDependencyComponent);
+    void Serialize(CSerializer& serializer);
+
+private:
+    void OnDependencyChanged();
 
 private:
     EDependencyType m_type;
