@@ -224,7 +224,10 @@ void CPropertyDescriptionBase::SetValueWithType(void* pValue, EValueType type)
         {
             pRootProperty = pRootProperty->GetParent();
         }
-        if (type == eVT_CurrentValue && GetOwner() && GetOwner()->GetHostComponent())
+        if (type == eVT_CurrentValue 
+            && GetOwner() 
+            && GetOwner()->GetHostComponent() 
+            && GetOwner()->GetHostComponent()->GetId() != 0xFFFFFFFF)
         {
             static CSerializer serializer;
             serializer.Reset();

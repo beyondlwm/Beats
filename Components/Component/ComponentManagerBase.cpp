@@ -73,6 +73,7 @@ bool CComponentManagerBase::UnregisterInstance(CComponentBase* pNewInstance)
     iter->second->erase(subIter);
     if (iter->second->size() == 0)
     {
+        BEATS_SAFE_DELETE(iter->second);
         m_pComponentInstanceMap->erase(iter);
     }
     return true;

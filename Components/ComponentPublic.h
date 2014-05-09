@@ -308,7 +308,7 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
 
 #define DECLARE_PROPERTY(serializer, property, editable, color, displayName, catalog, tip, parameter)\
 {\
-    BEATS_ASSERT(serializer.GetUserData() != NULL, _T("Serializer doesn't contain an user data!\nPlease make sure you enalbe EDITOR_MODE when launch editor!"));\
+    BEATS_ASSERT(serializer.GetUserData() != NULL, _T("Serializer doesn't contain an user data!\nPlease make sure you enalbe EDITOR_MODE and Disable EXPORT_TO_EDITOR when launch editor!"));\
     serializer << (bool) true;\
     EReflectPropertyType propertyType = GetEnumType(property, &serializer);\
     size_t nPropertyDataSizeHolder = serializer.GetWritePos();\
@@ -338,13 +338,13 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
 }
 #define DECLARE_DEPENDENCY(serializer, ptrProperty, displayName, dependencyType)\
 {\
-    BEATS_ASSERT(serializer.GetUserData() != NULL, _T("Serializer doesn't contain an user data!\nPlease make sure you enalbe EDITOR_MODE when launch editor!"));\
+    BEATS_ASSERT(serializer.GetUserData() != NULL, _T("Serializer doesn't contain an user data!\nPlease make sure you enalbe EDITOR_MODE and Disable EXPORT_TO_EDITOR when launch editor!"));\
     serializer << (bool) false << (bool)false << dependencyType << ptrProperty->REFLECT_GUID << displayName << _T(#ptrProperty);\
     ++(((SSerilaizerExtraInfo*)(serializer.GetUserData()))->m_uDependencyCount);\
 }
 #define DECLARE_DEPENDENCY_LIST(serializer, ptrProperty, displayName, dependencyType)\
 {\
-    BEATS_ASSERT(serializer.GetUserData() != NULL, _T("Serializer doesn't contain an user data!\nPlease make sure you enalbe EDITOR_MODE when launch editor!"));\
+    BEATS_ASSERT(serializer.GetUserData() != NULL, _T("Serializer doesn't contain an user data!\nPlease make sure you enalbe EDITOR_MODE and Disable EXPORT_TO_EDITOR when launch editor!"));\
     ptrProperty.resize(1);\
     serializer << (bool) false << (bool)true << dependencyType << ptrProperty[0]->REFLECT_GUID << displayName << _T(#ptrProperty);\
     ptrProperty.resize(0);\
@@ -462,6 +462,8 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
         serializer << nComponentCounter;\
         serializer.SetWritePos(nNewCurWritePos);\
         CComponentManager::GetInstance()->SerializeTemplateData(serializer);\
+        MessageBox(NULL, _T("导出Eds.bin成功，请退出"), _T("导出成功"), MB_OK);\
+        _exit(0);\
         }\
     };\
     SRegisterLauncher registerLauncher;\
