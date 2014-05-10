@@ -121,7 +121,7 @@ CPropertyDescriptionBase* CDoublePropertyDescription::CreateNewInstance()
     return pNewProperty;
 }
 
-void CDoublePropertyDescription::GetValueAsChar( EValueType type, char* pOut )
+void CDoublePropertyDescription::GetValueAsChar( EValueType type, char* pOut ) const
 {
     double* pValue = (double*)m_valueArray[type];
     sprintf(pOut, "%.17f", *pValue);

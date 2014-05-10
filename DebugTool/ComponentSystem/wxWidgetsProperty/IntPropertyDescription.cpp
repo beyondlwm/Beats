@@ -121,7 +121,7 @@ CPropertyDescriptionBase* CIntPropertyDescription::CreateNewInstance()
     return pNewProperty;
 }
 
-void CIntPropertyDescription::GetValueAsChar( EValueType type, char* pOut )
+void CIntPropertyDescription::GetValueAsChar( EValueType type, char* pOut ) const
 {
     int iValue = *(int*)m_valueArray[type];
     sprintf(pOut, "%d", iValue);

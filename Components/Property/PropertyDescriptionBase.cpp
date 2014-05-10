@@ -215,9 +215,9 @@ bool CPropertyDescriptionBase::IsContainerProperty()
     return false;
 }
 
-void CPropertyDescriptionBase::SetValueWithType(void* pValue, EValueType type)
+void CPropertyDescriptionBase::SetValueWithType(void* pValue, EValueType type, bool bForceUpdateHostComponent/* = false*/)
 {
-    if (CopyValue(pValue, m_valueArray[type]))
+    if (CopyValue(pValue, m_valueArray[type]) || bForceUpdateHostComponent)
     {
         CPropertyDescriptionBase* pRootProperty = this;
         while (pRootProperty->GetParent() != NULL)

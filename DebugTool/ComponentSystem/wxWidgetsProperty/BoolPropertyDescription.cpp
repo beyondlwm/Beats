@@ -91,7 +91,7 @@ CPropertyDescriptionBase* CBoolPropertyDescription::CreateNewInstance()
     return pNewProperty;
 }
 
-void CBoolPropertyDescription::GetValueAsChar(EValueType type, char* pOut)
+void CBoolPropertyDescription::GetValueAsChar(EValueType type, char* pOut) const
 {
     bool bValue = *(bool*)m_valueArray[type];
     sprintf(pOut, "%s", bValue ? "True" : "False");

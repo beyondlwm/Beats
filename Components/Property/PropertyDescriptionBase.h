@@ -69,7 +69,7 @@ public:
     }
 
     void* GetValue(EValueType type) const;
-    void SetValueWithType(void* pValue, EValueType type);
+    void SetValueWithType(void* pValue, EValueType type, bool bForceUpdateHostComponent = false);
 
     virtual void Initialize();
     virtual bool IsContainerProperty();
@@ -77,7 +77,7 @@ public:
     virtual CPropertyDescriptionBase* Clone(bool bCloneValue);
     virtual CPropertyDescriptionBase* CreateNewInstance() = 0;
 
-    virtual void GetValueAsChar(EValueType type, char* pOut) = 0;
+    virtual void GetValueAsChar(EValueType type, char* pOut) const = 0  ;
     virtual bool GetValueByTChar(const TCHAR* pIn, void* pOutValue) = 0;
 
     // It's very important to know what this function mean.

@@ -244,7 +244,7 @@ CPropertyDescriptionBase* CMapPropertyDescription::CreateNewInstance()
     return pNewProperty;
 }
 
-void CMapPropertyDescription::GetValueAsChar( EValueType type, char* pOut )
+void CMapPropertyDescription::GetValueAsChar( EValueType type, char* pOut ) const
 {
     CStringHelper::GetInstance()->ConvertToCHAR(((TString*)GetValue(type))->c_str(), pOut, 128);
 }

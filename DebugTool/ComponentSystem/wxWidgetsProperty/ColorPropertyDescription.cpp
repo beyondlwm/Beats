@@ -113,7 +113,7 @@ CPropertyDescriptionBase* CColorPropertyDescription::CreateNewInstance()
     return pNewProperty;
 }
 
-void CColorPropertyDescription::GetValueAsChar( EValueType type, char* pOut )
+void CColorPropertyDescription::GetValueAsChar( EValueType type, char* pOut ) const
 {
     size_t iValue = *(size_t*)m_valueArray[type];
     sprintf(pOut, "0x%x", iValue);

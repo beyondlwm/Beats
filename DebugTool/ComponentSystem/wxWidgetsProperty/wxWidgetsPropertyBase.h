@@ -23,6 +23,8 @@ public:
     void AddEffectProperties(CWxwidgetsPropertyBase* pProperty);
     std::set<CWxwidgetsPropertyBase*>& GetEffectProperties();
     bool CheckVisibleTrigger();
+    wxEnumProperty* GetComboProperty() const;
+    wxEnumProperty* CreateComboProperty() const;
 
     virtual wxPGProperty* CreateWxProperty() = 0;
     virtual void SetValue(wxVariant& value, bool bSaveValue = true) = 0;
@@ -32,6 +34,7 @@ public:
     virtual bool AnalyseUIParameterImpl(const std::vector<TString>& parameterUnit) = 0;
 
 private:
+    wxEnumProperty* m_pComboProperty;
     SharePtr<CPropertyTrigger> m_pVisibleWhenTrigger;
     std::set<CWxwidgetsPropertyBase*> m_effctProperties;
 };

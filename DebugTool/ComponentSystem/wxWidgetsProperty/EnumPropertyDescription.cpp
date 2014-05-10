@@ -138,7 +138,7 @@ CPropertyDescriptionBase* CEnumPropertyDescription::CreateNewInstance()
     return pNewProperty;
 }
 
-void CEnumPropertyDescription::GetValueAsChar( EValueType type, char* pOut )
+void CEnumPropertyDescription::GetValueAsChar( EValueType type, char* pOut ) const
 {
     int iValue = *(int*)m_valueArray[type];
     sprintf(pOut, "%d", iValue);

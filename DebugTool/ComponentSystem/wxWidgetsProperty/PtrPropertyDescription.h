@@ -30,7 +30,7 @@ public:
     virtual CPropertyDescriptionBase* CreateNewInstance();
 
     virtual bool CopyValue(void* pSourceValue, void* pTargetValue) override;
-    virtual void GetValueAsChar(EValueType type, char* pOut) override;
+    virtual void GetValueAsChar(EValueType type, char* pOut) const override;
     virtual bool GetValueByTChar(const TCHAR* pIn, void* pOutValue) override;
     virtual void Serialize(CSerializer& serializer, EValueType eValueType = eVT_SavedValue) override;
     virtual void Initialize();

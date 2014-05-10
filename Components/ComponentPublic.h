@@ -270,6 +270,28 @@ inline void InitValue(const T& param)
 
 #ifdef EXPORT_TO_EDITOR
 
+inline const TCHAR* GenEnumParamStr(const std::vector<TString>& enumStringArray, const TCHAR* pszParam = NULL)
+{
+    static TString strEnumParam;
+    strEnumParam.clear();
+    strEnumParam.append(UIParameterAttrStr[eUIPAT_EnumStringArray]).append(PROPERTY_KEYWORD_SPLIT_STR);
+    size_t uCount = enumStringArray.size();
+    BEATS_ASSERT(uCount > 0, _T("Enum string array is empty!"));
+    for (size_t i = 0; i < uCount; ++i)
+    {
+        strEnumParam.append(enumStringArray[i]);
+        if (i < uCount - 1)
+        {
+            strEnumParam.append(_T("@"));
+        }
+    }
+    if(pszParam != NULL)
+    {
+        strEnumParam.append(PROPERTY_PARAM_SPLIT_STR).append(pszParam);
+    }    
+    return strEnumParam.c_str();
+}
+
 inline const TCHAR* GenEnumParamStr(const TCHAR* enumStringArray[], const TCHAR* pszParam = NULL)
 {
     static TString strEnumParam;

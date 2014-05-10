@@ -8,6 +8,7 @@
 
 CWxwidgetsPropertyBase::CWxwidgetsPropertyBase(EReflectPropertyType type)
 : super(type)
+, m_pComboProperty(NULL)
 {
 }
 
@@ -15,7 +16,11 @@ CWxwidgetsPropertyBase::CWxwidgetsPropertyBase(const CWxwidgetsPropertyBase& rRe
 : super(rRef)
 , m_pVisibleWhenTrigger(rRef.m_pVisibleWhenTrigger)
 {
-
+    m_pComboProperty = rRef.CreateComboProperty();
+    if (m_pComboProperty != NULL)
+    {
+        m_pComboProperty->SetClientData(this);
+    }
 }
 
 CWxwidgetsPropertyBase::~CWxwidgetsPropertyBase()
@@ -59,6 +64,67 @@ std::set<CWxwidgetsPropertyBase*>& CWxwidgetsPropertyBase::GetEffectProperties()
 bool CWxwidgetsPropertyBase::CheckVisibleTrigger()
 {
     return m_pVisibleWhenTrigger.Get() == NULL || m_pVisibleWhenTrigger->IsOk(GetOwner());
+}
+
+wxEnumProperty* CWxwidgetsPropertyBase::GetComboProperty() const
+{
+    return m_pComboProperty;
+}
+
+wxEnumProperty* CWxwidgetsPropertyBase::CreateComboProperty() const
+{
+    wxEnumProperty* pRet = NULL;
+    if (m_pComboProperty != NULL)
+    {
+        const wxPGChoices& choices = m_pComboProperty->GetChoices();
+        wxArrayString labels = choices.GetLabels();
+        BEATS_ASSERT(labels.size() > 0, _T("There must at least one choice for combo property!"));
+        pRet = new wxEnumProperty(wxPG_LABEL, wxPG_LABEL, labels);
+        bool bMatched = false;
+        char szBuffer[1024];
+        this->GetValueAsChar(eVT_DefaultValue, szBuffer);
+        for (size_t i = 0; i < labels.size(); ++i)
+        {
+            if (labels[i].CompareTo(wxString(szBuffer)) == 0)
+            {
+                bMatched = true;
+                break;
+            }
+        }
+        if (bMatched)
+        {
+            wxVariant var(szBuffer);
+            pRet->SetDefaultValue(var);
+        }
+        else
+        {
+            wxVariant var(labels[0]);
+            pRet->SetDefaultValue(var);
+        }
+
+        this->GetValueAsChar(eVT_CurrentValue, szBuffer);
+        for (size_t i = 0; i < labels.size(); ++i)
+        {
+            if (labels[i].CompareTo(wxString(szBuffer)) == 0)
+            {
+                bMatched = true;
+                break;
+            }
+        }
+        if (bMatched)
+        {
+            wxVariant curVar(szBuffer);
+            pRet->SetValue(curVar);
+        }
+        else
+        {
+            wxVariant var(labels[0]);
+            pRet->SetValue(var);
+        }
+        pRet->SetClientData((void*)this);
+    }
+    
+    return pRet;
 }
 
 void CWxwidgetsPropertyBase::SaveToXML( TiXmlElement* pParentNode )
@@ -108,6 +174,27 @@ void CWxwidgetsPropertyBase::AnalyseUIParameter( const TCHAR* parameter )
                 {
                     m_pVisibleWhenTrigger = new CPropertyTrigger(cache[1]);
                     bHandled = true;
+                }
+                else if (cache[0].compare(UIParameterAttrStr[eUIPAT_EnumStringArray]) == 0)
+                {
+                     if (m_type != eRPT_Enum)
+                     {
+                         wxArrayString labels;
+                         std::vector<TString> comboLabels;
+                         pStringHelper->SplitString(cache[1].c_str(), _T("@"), comboLabels);
+                         for (size_t i = 0; i < comboLabels.size(); ++i)
+                         {
+                             labels.push_back(comboLabels[i].c_str());
+                         }
+                         m_pComboProperty = new wxEnumProperty(wxPG_LABEL, wxPG_LABEL, labels);
+                         m_pComboProperty->SetClientData(this);
+                         wxVariant var(labels[0]);
+                         m_pComboProperty->SetDefaultValue(var);
+                         wxVariant curVar(labels[0]);
+                         m_pComboProperty->SetValue(curVar);
+                         m_pComboProperty->SetModifiedStatus(!IsDataSame(true));
+                         bHandled = true;
+                     }
                 }
             }
             if (bHandled)

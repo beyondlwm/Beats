@@ -121,7 +121,7 @@ CPropertyDescriptionBase* CUIntPropertyDescription::CreateNewInstance()
     return pNewProperty;
 }
 
-void CUIntPropertyDescription::GetValueAsChar( EValueType type, char* pOut )
+void CUIntPropertyDescription::GetValueAsChar( EValueType type, char* pOut ) const
 {
     size_t uValue = *(size_t*)m_valueArray[type];
     sprintf(pOut, "%u", uValue);

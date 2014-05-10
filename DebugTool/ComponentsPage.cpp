@@ -319,6 +319,7 @@ CComponentGraphic* CreateComponentGraphics()
 
 void CBDTWxFrame::InitComponentsPage()
 {
+    pComponentLauncherFunc();
     CComponentProxyManager::GetInstance()->DeserializeTemplateData(CBDTWxApp::GetBDTWxApp()->GetWorkingPath().c_str(), CreateComponentProxy, CreateComponentGraphics);
     const std::map<size_t, CComponentBase*>* pComponentsMap = CComponentProxyManager::GetInstance()->GetComponentTemplateMap();
     for (std::map<size_t, CComponentBase*>::const_iterator componentIter = pComponentsMap->begin(); componentIter != pComponentsMap->end(); ++componentIter )
@@ -607,8 +608,19 @@ void CBDTWxFrame::OnComponentPropertyChangedImpl(wxPGProperty* pProperty)
     {
         CWxwidgetsPropertyBase* pPropertyBase = static_cast<CWxwidgetsPropertyBase*>(pClientData);
         BEATS_ASSERT(pPropertyBase != NULL);
-        wxVariant var = pProperty->GetValue();
-        pPropertyBase->SetValue(var, false);
+        if (pPropertyBase->GetComboProperty() != NULL)
+        {
+            int nSelection = pProperty->GetValue().GetInteger();
+            wxString label = pProperty->GetChoices().GetLabel(nSelection);
+            pPropertyBase->GetValueByTChar(label, pPropertyBase->GetValue(eVT_CurrentValue));
+            // Force update the host component, becuase we have set to the current value by GetValueByTChar.
+            pPropertyBase->SetValueWithType(pPropertyBase->GetValue(eVT_CurrentValue), eVT_CurrentValue, true);
+        }
+        else
+        {
+            wxVariant var = pProperty->GetValue();
+            pPropertyBase->SetValue(var, false);
+        }
         bool bModified = !pPropertyBase->IsDataSame(true);
         pProperty->SetModifiedStatus(bModified);
         UpdatePropertyVisiblity(pPropertyBase);
@@ -1096,7 +1108,8 @@ void CBDTWxFrame::InsertInPropertyGrid(const std::vector<CPropertyDescriptionBas
     for (size_t i = 0; i < pProperties.size(); ++i)
     {
         CWxwidgetsPropertyBase* pPropertyBase = const_cast<CWxwidgetsPropertyBase*>(static_cast<CWxwidgetsPropertyBase*>(pProperties[i]));
-        wxPGProperty* pPGProperty = pPropertyBase->CreateWxProperty();
+        wxEnumProperty* pComboProperty = pPropertyBase->GetComboProperty();
+        wxPGProperty* pPGProperty =  pComboProperty ? pPropertyBase->CreateComboProperty() : pPropertyBase->CreateWxProperty();
         BEATS_ASSERT(pPGProperty != NULL);
         BEATS_ASSERT(pParent != pPGProperty, _T("Can't insert a property in itself"));
 

@@ -109,7 +109,7 @@ CPropertyDescriptionBase* CStringPropertyDescription::CreateNewInstance()
     return pNewProperty;
 }
 
-void CStringPropertyDescription::GetValueAsChar( EValueType type, char* pOut )
+void CStringPropertyDescription::GetValueAsChar( EValueType type, char* pOut ) const
 {
     TString* pStr = (TString*)m_valueArray[type];
     CStringHelper::GetInstance()->ConvertToCHAR(pStr->c_str(), pOut, 10240);

@@ -114,7 +114,7 @@ bool CFloatPropertyDescription::IsDataSame( bool bWithDefaultOrXML )
     return bRet;
 }
 
-void CFloatPropertyDescription::GetValueAsChar( EValueType type, char* pOut )
+void CFloatPropertyDescription::GetValueAsChar( EValueType type, char* pOut ) const
 {
     float* pValue = (float*)m_valueArray[type];
     sprintf(pOut, "%f", *pValue);

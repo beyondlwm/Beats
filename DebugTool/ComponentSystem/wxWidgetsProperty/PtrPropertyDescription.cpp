@@ -188,7 +188,7 @@ void CPtrPropertyDescription::LoadFromXML( TiXmlElement* pNode )
     }
 }
 
-void CPtrPropertyDescription::GetValueAsChar( EValueType type, char* pOut )
+void CPtrPropertyDescription::GetValueAsChar( EValueType type, char* pOut ) const
 {
     const TCHAR* pValue = ((TString*)m_valueArray[type])->c_str();
     CStringHelper::GetInstance()->ConvertToCHAR(pValue, pOut, 10240);

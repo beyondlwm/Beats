@@ -294,7 +294,7 @@ CPropertyDescriptionBase* CListPropertyDescriptionEx::CreateNewInstance()
     return pNewProperty;
 }
 
-void CListPropertyDescriptionEx::GetValueAsChar( EValueType type, char* pOut )
+void CListPropertyDescriptionEx::GetValueAsChar( EValueType type, char* pOut ) const
 {
     CStringHelper::GetInstance()->ConvertToCHAR(((TString*)GetValue(type))->c_str(), pOut, 128);
 }
