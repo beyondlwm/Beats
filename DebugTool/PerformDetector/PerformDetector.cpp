@@ -50,6 +50,20 @@ void CPerformDetector::StartDetectNode( int type, size_t id )
         else
         {
             pRecord = iter->second;
+            // A new parent node appeared! reset the relationship!
+            if (pRecord->pParent != m_pCurRecord)
+            {
+                for( std::vector<SPerformanceRecord*>::iterator iter = pRecord->pParent->children.begin(); iter != pRecord->pParent->children.end(); ++iter)
+                {
+                    if (*iter == pRecord)
+                    {
+                        pRecord->pParent->children.erase(iter);
+                        break;
+                    }
+                }
+                pRecord->pParent = m_pCurRecord;
+                m_pCurRecord->children.push_back(pRecord);
+            }
         }
         m_pCurRecord = pRecord;
 
