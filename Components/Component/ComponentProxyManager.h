@@ -43,12 +43,16 @@ public:
 
     const std::map<size_t, TString>& GetAbstractComponentNameMap() const;
 
+    void SetCurrentReflectVariableAddr(void* pAddr);
+    void* GetCurrentReflectVariableAddr() const;
+
 private:
     void LoadTemplateDataFromXML(const TCHAR* pWorkingPath);
     void LoadTemplateDataFromSerializer(CSerializer& serializer, TCreateComponentEditorProxyFunc func, TCreateGraphicFunc pGraphicFunc);
 
 private:
     CComponentProject* m_pProject;
+    void* m_pCurrentReflectVariableAddr;
     TString m_currentWorkingFilePath;
     TString m_strCurrReflectVariableName;
     std::map<size_t, TCreatePropertyFunc>* m_pPropertyCreatorMap;

@@ -14,6 +14,7 @@
 CComponentProxyManager* CComponentProxyManager::m_pInstance = NULL;
 
 CComponentProxyManager::CComponentProxyManager()
+    : m_pCurrentReflectVariableAddr(NULL)
 {
     m_pProject = new CComponentProject;
     m_pPropertyCreatorMap = new std::map<size_t, TCreatePropertyFunc>();
@@ -398,6 +399,16 @@ void CComponentProxyManager::SetCurrReflectVariableName(const TString& strName)
 const std::map<size_t, TString>& CComponentProxyManager::GetAbstractComponentNameMap() const
 {
     return m_abstractComponentNameMap;
+}
+
+void CComponentProxyManager::SetCurrentReflectVariableAddr(void* pAddr)
+{
+    m_pCurrentReflectVariableAddr = pAddr;
+}
+
+void* CComponentProxyManager::GetCurrentReflectVariableAddr() const
+{
+    return m_pCurrentReflectVariableAddr;
 }
 
 void CComponentProxyManager::LoadTemplateDataFromXML(const TCHAR* pszPath)

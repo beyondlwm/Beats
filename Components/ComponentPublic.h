@@ -414,6 +414,7 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
             CComponentProxyManager::GetInstance()->SetCurrReflectVariableName(TString(_T("")));\
             DeserializeVarialble(property, &serializer);\
             CComponentProxyManager::GetInstance()->SetCurrReflectVariableName(strCurVariableName);\
+            CComponentProxyManager::GetInstance()->SetCurrentReflectVariableAddr(&ptrProperty);\
             if (strCurVariableName.length() > 0)\
             {\
                 return;\
@@ -435,6 +436,7 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
                 serializer >> uInstanceId >> uGuid;\
                 CComponentManager::GetInstance()->AddDependencyResolver(NULL, 0 , uGuid, uInstanceId, &ptrProperty, false);\
             }\
+            CComponentProxyManager::GetInstance()->SetCurrentReflectVariableAddr(&ptrProperty);\
         }\
     }
 
@@ -451,6 +453,7 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
                 serializer >> uInstanceId >> uGuid;\
                 CComponentManager::GetInstance()->AddDependencyResolver(NULL, i , uGuid, uInstanceId, &ptrProperty, true);\
             }\
+            CComponentProxyManager::GetInstance()->SetCurrentReflectVariableAddr(&ptrProperty);\
         }\
     }
 #endif

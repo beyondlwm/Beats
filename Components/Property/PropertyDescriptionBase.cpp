@@ -224,18 +224,21 @@ void CPropertyDescriptionBase::SetValueWithType(void* pValue, EValueType type, b
         {
             pRootProperty = pRootProperty->GetParent();
         }
-        if (type == eVT_CurrentValue 
-            && GetOwner() 
-            && GetOwner()->GetHostComponent() 
-            && GetOwner()->GetHostComponent()->GetId() != 0xFFFFFFFF)
+        if (type == eVT_CurrentValue && GetOwner())
         {
-            static CSerializer serializer;
-            serializer.Reset();
-            pRootProperty->Serialize(serializer, eVT_CurrentValue);
-            const TString& strVariableName = pRootProperty->GetBasicInfo()->m_variableName;
-            CComponentProxyManager::GetInstance()->SetCurrReflectVariableName(strVariableName);
-            pRootProperty->GetOwner()->GetHostComponent()->ReflectData(serializer);
-            CComponentProxyManager::GetInstance()->SetCurrReflectVariableName(TString(_T("")));
+            CComponentBase* pHostComponent = GetOwner()->GetHostComponent();
+            if (pHostComponent && pHostComponent->GetId() != 0xFFFFFFFF)
+            {
+                static CSerializer serializer;
+                serializer.Reset();
+                pRootProperty->Serialize(serializer, eVT_CurrentValue);
+                const TString& strVariableName = pRootProperty->GetBasicInfo()->m_variableName;
+                CComponentProxyManager::GetInstance()->SetCurrReflectVariableName(strVariableName);
+                pHostComponent->ReflectData(serializer);
+                CComponentProxyManager::GetInstance()->SetCurrReflectVariableName(TString(_T("")));
+                pHostComponent->OnPropertyChanged(CComponentProxyManager::GetInstance()->GetCurrentReflectVariableAddr());
+                CComponentProxyManager::GetInstance()->SetCurrentReflectVariableAddr(NULL);
+            }
         }
     }
 }

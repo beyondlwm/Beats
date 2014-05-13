@@ -33,6 +33,7 @@ public:
 
     virtual void Initialize();
     virtual void ReflectData(CSerializer& serializer);
+    virtual void OnPropertyChanged(void* pVariableAddr);
 
 private:
     size_t m_id;
