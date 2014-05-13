@@ -16,8 +16,8 @@
             BEATS_WARNING(condition, __VA_ARGS__)\
             TCHAR strBuffer[10240];\
             _stprintf_s(strBuffer, __VA_ARGS__, _T(""));\
-            TCHAR errorInfo[32];\
-            _stprintf_s(errorInfo, _T("\nErrorID:%d"), GetLastError());\
+            TCHAR errorInfo[512];\
+            _stprintf_s(errorInfo, _T("\nErrorID:%d at %s %d"), GetLastError(), _T(__FILE__), __LINE__);\
             _tcscat_s(strBuffer, errorInfo);\
             int iRet = MessageBox(NULL, strBuffer, _T("Beats assert"), MB_ABORTRETRYIGNORE | MB_ICONERROR);\
             if(iRet == IDABORT)\

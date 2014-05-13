@@ -86,22 +86,23 @@ bool wxPtrButtonEditor::OnEvent( wxPropertyGrid* propGrid,
                 if (pButton->GetLabel().CmpNoCase(_T("+")) == 0)
                 {
                     size_t ptrGuid = pPtrPropertyDescription->GetPtrGuid();
-                    std::vector<size_t> derivedClassGuid;
-                    CComponentProxyManager::GetInstance()->QueryDerivedClass(ptrGuid, derivedClassGuid, true);
-
-                    CComponentBase* pBase = CComponentProxyManager::GetInstance()->GetComponentTemplate(ptrGuid);
-                    bValueChanged = derivedClassGuid.size() == 0;
+                    std::vector<size_t> instanceClassGuid;
+                    CComponentProxyManager::GetInstance()->QueryDerivedClass(ptrGuid, instanceClassGuid, true);
+                    bValueChanged = instanceClassGuid.size() == 0;
                     if (!bValueChanged)
                     {
+                        instanceClassGuid.insert(instanceClassGuid.begin(), ptrGuid);
                         wxPGChoices choice;
-                        if (pBase != NULL)
+                        for (auto i : instanceClassGuid)
                         {
-                            choice.Add(pBase->GetClassStr(), pBase->GetGuid());
-                        }
-                        for (auto i : derivedClassGuid)
-                        {
-                            pBase = CComponentProxyManager::GetInstance()->GetComponentTemplate(i);
-                            choice.Add(pBase->GetClassStr(), pBase->GetGuid());
+                            CComponentBase* pBase = CComponentProxyManager::GetInstance()->GetComponentTemplate(i);
+                            if (pBase != NULL)//If it is NULL, it must be an abstract class.
+                            {
+                                choice.Add(pBase->GetClassStr(), pBase->GetGuid());
+                            }
+                            BEATS_ASSERT(pBase != NULL || 
+                                CComponentProxyManager::GetInstance()->GetAbstractComponentNameMap().find(i) != CComponentProxyManager::GetInstance()->GetAbstractComponentNameMap().end(),
+                                _T("We can't get a template component with guid %d while it can't be found in abstract class map!"), i);
                         }
                         wxString strSelectItem = ::wxGetSingleChoice(wxT("TypeChoice"), wxT("Caption"), choice.GetLabels(),
                             NULL, wxDefaultCoord, wxDefaultCoord, false, wxCHOICE_WIDTH, wxCHOICE_HEIGHT);

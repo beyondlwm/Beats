@@ -41,6 +41,8 @@ public:
     const TString& GetCurrReflectVariableName() const;
     void SetCurrReflectVariableName(const TString& strName);
 
+    const std::map<size_t, TString>& GetAbstractComponentNameMap() const;
+
 private:
     void LoadTemplateDataFromXML(const TCHAR* pWorkingPath);
     void LoadTemplateDataFromSerializer(CSerializer& serializer, TCreateComponentEditorProxyFunc func, TCreateGraphicFunc pGraphicFunc);

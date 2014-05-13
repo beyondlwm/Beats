@@ -122,11 +122,15 @@ bool CSerializer::Serialize( const TCHAR* pFilePath, const TCHAR* pszMode /* = _
     if (pFile != NULL)
     {
         fseek(pFile, 0, SEEK_END);
-        size_t fileSize = ftell(pFile);
+        size_t uFileSize = ftell(pFile);
         fseek(pFile, 0, SEEK_SET);
-        ValidateBuffer(fileSize);
-        fread(m_pWritePtr, m_size - GetWritePos(), sizeof(BYTE), pFile);
-        m_pWritePtr = static_cast<BYTE*>(m_pWritePtr) + fileSize;
+        BEATS_WARNING(uFileSize > 0, _T("Trying to serialize an empty file: %s"), pFilePath);
+        if (uFileSize > 0)
+        {
+            ValidateBuffer(uFileSize);
+            fread(m_pWritePtr, m_size - GetWritePos(), sizeof(BYTE), pFile);
+            m_pWritePtr = static_cast<BYTE*>(m_pWritePtr) + uFileSize;
+        }
         fclose(pFile);
     }
 
@@ -135,24 +139,27 @@ bool CSerializer::Serialize( const TCHAR* pFilePath, const TCHAR* pszMode /* = _
 
 bool CSerializer::Serialize( FILE* pFile, size_t startPos /*= 0*/, size_t dataLength /*= 0*/ )
 {
+    bool bRet = false;
     BEATS_ASSERT(pFile != NULL);
     size_t curPos = ftell(pFile);
     fseek(pFile, 0, SEEK_END);
-    size_t fileSize = ftell(pFile);
-    BEATS_ASSERT(fileSize > startPos);
-    bool bRet = false;
-    if (fileSize > startPos)
+    size_t uFileSize = ftell(pFile);
+    BEATS_WARNING(uFileSize > 0, _T("Trying to serialize an empty file!"));
+    if (uFileSize > 0)
     {
-        fseek(pFile, (long)startPos, SEEK_SET);
-        dataLength = ((dataLength != 0) && (fileSize - startPos > dataLength)) ? dataLength : fileSize - startPos;
-        Create(dataLength);
-        fread(m_pBuffer, 1, dataLength, pFile);
-        m_pWritePtr = static_cast<BYTE*>(m_pBuffer) + dataLength;
-        fclose(pFile);
-        bRet = true;
+        BEATS_ASSERT(uFileSize > startPos);
+        if (uFileSize > startPos)
+        {
+            fseek(pFile, (long)startPos, SEEK_SET);
+            dataLength = ((dataLength != 0) && (uFileSize - startPos > dataLength)) ? dataLength : uFileSize - startPos;
+            Create(dataLength);
+            fread(m_pBuffer, 1, dataLength, pFile);
+            m_pWritePtr = static_cast<BYTE*>(m_pBuffer) + dataLength;
+            fclose(pFile);
+            bRet = true;
+        }
+        fseek(pFile, (long)curPos, SEEK_SET);
     }
-    fseek(pFile, (long)curPos, SEEK_SET);
-
     return bRet;
 }
 
@@ -221,7 +228,7 @@ void CSerializer::Deserialize(CSerializer& serializer, size_t uDataSize/* = 0xFF
 
 void CSerializer::ValidateBuffer(size_t size)
 {
-    BEATS_ASSERT(size > 0, _T("size can't be less than zero£¡"));
+    BEATS_ASSERT(size > 0, _T("size can't be less than zero£¡ current size: %d"), size);
     bool overFlow = false;
     size_t wrottenCount = GetWritePos();
     while (wrottenCount + size > m_size)

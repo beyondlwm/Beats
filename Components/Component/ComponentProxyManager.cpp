@@ -395,6 +395,11 @@ void CComponentProxyManager::SetCurrReflectVariableName(const TString& strName)
     m_strCurrReflectVariableName = strName;
 }
 
+const std::map<size_t, TString>& CComponentProxyManager::GetAbstractComponentNameMap() const
+{
+    return m_abstractComponentNameMap;
+}
+
 void CComponentProxyManager::LoadTemplateDataFromXML(const TCHAR* pszPath)
 {
     char tmp[MAX_PATH] = {0};
