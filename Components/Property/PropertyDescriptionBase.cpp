@@ -219,21 +219,29 @@ void CPropertyDescriptionBase::SetValueWithType(void* pValue, EValueType type, b
 {
     if (CopyValue(pValue, m_valueArray[type]) || bForceUpdateHostComponent)
     {
-        CPropertyDescriptionBase* pRootProperty = this;
-        while (pRootProperty->GetParent() != NULL)
-        {
-            pRootProperty = pRootProperty->GetParent();
-        }
         if (type == eVT_CurrentValue && GetOwner())
         {
-            CComponentBase* pHostComponent = GetOwner()->GetHostComponent();
-            if (pHostComponent && pHostComponent->GetId() != 0xFFFFFFFF)
+            // Some property is not the real property, such as container property.
+            CPropertyDescriptionBase* pRealProperty = this;
+            while (pRealProperty->GetParent() != NULL && pRealProperty->GetOwner() == pRealProperty->GetParent()->GetOwner())
+            {
+                pRealProperty = pRealProperty->GetParent();
+            }
+
+            CComponentBase* pHostComponent = pRealProperty->GetOwner()->GetHostComponent();
+            CPropertyDescriptionBase* pRootProperty = this;
+            while (pRootProperty->GetParent() != NULL)
+            {
+                pRootProperty = pRootProperty->GetParent();
+            }
+            bool bIsTemplateProperty = pRootProperty->GetOwner()->GetId() == 0xFFFFFFFF;
+
+            if (pHostComponent && !bIsTemplateProperty)
             {
                 static CSerializer serializer;
                 serializer.Reset();
-                pRootProperty->Serialize(serializer, eVT_CurrentValue);
-                CComponentProxyManager::GetInstance()->SetCurrReflectDescription(this);
-                BEATS_ASSERT(CComponentProxyManager::GetInstance()->GetCurrReflectDependency() == NULL);
+                pRealProperty->Serialize(serializer, eVT_CurrentValue);
+                CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pRealProperty);
                 pHostComponent->ReflectData(serializer);
                 CComponentProxyManager::GetInstance()->SetCurrReflectDescription(NULL);
             }
