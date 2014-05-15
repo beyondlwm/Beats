@@ -232,12 +232,10 @@ void CPropertyDescriptionBase::SetValueWithType(void* pValue, EValueType type, b
                 static CSerializer serializer;
                 serializer.Reset();
                 pRootProperty->Serialize(serializer, eVT_CurrentValue);
-                const TString& strVariableName = pRootProperty->GetBasicInfo()->m_variableName;
-                CComponentProxyManager::GetInstance()->SetCurrReflectVariableName(strVariableName);
+                CComponentProxyManager::GetInstance()->SetCurrReflectDescription(this);
+                BEATS_ASSERT(CComponentProxyManager::GetInstance()->GetCurrReflectDependency() == NULL);
                 pHostComponent->ReflectData(serializer);
-                CComponentProxyManager::GetInstance()->SetCurrReflectVariableName(TString(_T("")));
-                pHostComponent->OnPropertyChanged(CComponentProxyManager::GetInstance()->GetCurrentReflectVariableAddr());
-                CComponentProxyManager::GetInstance()->SetCurrentReflectVariableAddr(NULL);
+                CComponentProxyManager::GetInstance()->SetCurrReflectDescription(NULL);
             }
         }
     }

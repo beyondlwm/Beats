@@ -408,52 +408,87 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
 
     #define DECLARE_PROPERTY(serializer, property, editable, color, displayName, catalog, tip, parameter) \
     {\
-        const TString strCurVariableName = CComponentProxyManager::GetInstance()->GetCurrReflectVariableName();\
-        if (strCurVariableName.length() == 0 || strCurVariableName.compare(_T(#property)) == 0)\
+        CPropertyDescriptionBase* pDescriptionBase = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();\
+        CDependencyDescription* pDependencyDescription = CComponentProxyManager::GetInstance()->GetCurrReflectDependency();\
+        if (pDependencyDescription == NULL)\
         {\
-            CComponentProxyManager::GetInstance()->SetCurrReflectVariableName(TString(_T("")));\
-            DeserializeVarialble(property, &serializer);\
-            CComponentProxyManager::GetInstance()->SetCurrReflectVariableName(strCurVariableName);\
-            CComponentProxyManager::GetInstance()->SetCurrentReflectVariableAddr(&ptrProperty);\
-            if (strCurVariableName.length() > 0)\
+            if (pDescriptionBase == NULL || pDescriptionBase->GetBasicInfo()->m_variableName.compare(_T(#property)) == 0)\
             {\
-                return;\
+                bool bNeedHandleSync = true;\
+                if (pDescriptionBase != NULL)\
+                {\
+                    bNeedHandleSync = !this->OnPropertyChange(&property, pDescriptionBase->GetValue(eVT_CurrentValue));\
+                }\
+                if (bNeedHandleSync)\
+                {\
+                    CComponentProxyManager::GetInstance()->SetCurrReflectDescription(NULL);\
+                    DeserializeVarialble(property, &serializer);\
+                    CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pDescriptionBase);\
+                }\
+                if (pDescriptionBase != NULL)\
+                {\
+                    return;\
+                }\
             }\
         }\
     }
 
     #define DECLARE_DEPENDENCY(serializer, ptrProperty, displayName, dependencyType)\
     {\
-        if (CComponentProxyManager::GetInstance()->GetCurrReflectVariableName().length() == 0 ||CComponentProxyManager::GetInstance()->GetCurrReflectVariableName().compare(_T(#ptrProperty)) == 0)\
+        CPropertyDescriptionBase* pDescriptionBase = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();\
+        CDependencyDescription* pDependency = CComponentProxyManager::GetInstance()->GetCurrReflectDependency();\
+        if (pDescriptionBase  == NULL)\
         {\
-            size_t uLineCount = 0;\
-            serializer >> uLineCount;\
-            BEATS_ASSERT(uLineCount <= 1, _T("Data error:\nWe want a dependency data, but got %d line count!"), uLineCount);\
-            ptrProperty = NULL;\
-            if (uLineCount == 1)\
+            if (pDependency == NULL || _tcscmp(pDependency->GetVariableName(), _T(#ptrProperty)) == 0)\
             {\
-                size_t uInstanceId, uGuid;\
-                serializer >> uInstanceId >> uGuid;\
-                CComponentManager::GetInstance()->AddDependencyResolver(NULL, 0 , uGuid, uInstanceId, &ptrProperty, false);\
+                size_t uLineCount = 0;\
+                serializer >> uLineCount;\
+                BEATS_ASSERT(uLineCount <= 1, _T("Data error:\nWe want a dependency data, but got %d line count!"), uLineCount);\
+                if (uLineCount == 1)\
+                {\
+                    size_t uInstanceId, uGuid;\
+                    serializer >> uInstanceId >> uGuid;\
+                    bool bNeedSnyc = true;\
+                    if (pDependency != NULL)\
+                    {\
+                        bNeedSnyc = !this->OnPropertyChange(&ptrProperty, CComponentManager::GetInstance()->GetComponentInstance(uInstanceId, uGuid));\
+                    }\
+                    if (bNeedSnyc)\
+                    {\
+                        ptrProperty = NULL;\
+                        CComponentManager::GetInstance()->AddDependencyResolver(NULL, 0 , uGuid, uInstanceId, &ptrProperty, false);\
+                    }\
+                }\
             }\
-            CComponentProxyManager::GetInstance()->SetCurrentReflectVariableAddr(&ptrProperty);\
         }\
     }
 
     #define DECLARE_DEPENDENCY_LIST(serializer, ptrProperty, displayName, dependencyType)\
     {\
-        if (CComponentProxyManager::GetInstance()->GetCurrReflectVariableName().length() == 0 ||CComponentProxyManager::GetInstance()->GetCurrReflectVariableName().compare(_T(#ptrProperty)) == 0)\
+        CPropertyDescriptionBase* pDescriptionBase = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();\
+        CDependencyDescription* pDependencyList = CComponentProxyManager::GetInstance()->GetCurrReflectDependency();\
+        if (pDescriptionBase == NULL)\
         {\
-            size_t uLineCount = 0;\
-            serializer >> uLineCount;\
-            ptrProperty.clear();\
-            for (size_t i = 0; i < uLineCount; ++i)\
+            if (pDependencyList == NULL || _tcscmp(pDependencyList->GetVariableName(), _T(#ptrProperty)) == 0)\
             {\
-                size_t uInstanceId, uGuid;\
-                serializer >> uInstanceId >> uGuid;\
-                CComponentManager::GetInstance()->AddDependencyResolver(NULL, i , uGuid, uInstanceId, &ptrProperty, true);\
+                bool bNeedSnyc = true;\
+                if (pDependencyList != NULL)\
+                {\
+                    bNeedSnyc = !this->OnPropertyChange(&ptrProperty, pDependencyList);\
+                }\
+                if (bNeedSnyc)\
+                {\
+                    size_t uLineCount = 0;\
+                    serializer >> uLineCount;\
+                    ptrProperty.clear();\
+                    for (size_t i = 0; i < uLineCount; ++i)\
+                    {\
+                        size_t uInstanceId, uGuid;\
+                        serializer >> uInstanceId >> uGuid;\
+                        CComponentManager::GetInstance()->AddDependencyResolver(NULL, i , uGuid, uInstanceId, &ptrProperty, true);\
+                    }\
+                }\
             }\
-            CComponentProxyManager::GetInstance()->SetCurrentReflectVariableAddr(&ptrProperty);\
         }\
     }
 #endif

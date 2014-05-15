@@ -14,7 +14,8 @@
 CComponentProxyManager* CComponentProxyManager::m_pInstance = NULL;
 
 CComponentProxyManager::CComponentProxyManager()
-    : m_pCurrentReflectVariableAddr(NULL)
+    : m_pCurrReflectPropertyDescription(NULL)
+    , m_pCurrReflectDependency(NULL)
 {
     m_pProject = new CComponentProject;
     m_pPropertyCreatorMap = new std::map<size_t, TCreatePropertyFunc>();
@@ -340,7 +341,7 @@ void CComponentProxyManager::DeserializeTemplateData(const TCHAR* pWorkingPath, 
     FILE* pComponentFile = _tfopen(szFilePath, _T("rb+"));
     if (pComponentFile == NULL)
     {
-        MessageBox(NULL, _T("找不到UI文件!\n无法初始化组件系统!"), _T("Error"), MB_OK);
+        MessageBox(NULL, _T("找不到导出的EDS文件!\n无法初始化组件系统!"), _T("Error"), MB_OK);
     }
     else
     {    
@@ -386,29 +387,29 @@ void CComponentProxyManager::ResolveDependency()
     BEATS_SAFE_DELETE_VECTOR(*m_pDependencyResolver);
 }
 
-const TString& CComponentProxyManager::GetCurrReflectVariableName() const
+CPropertyDescriptionBase* CComponentProxyManager::GetCurrReflectDescription() const
 {
-    return m_strCurrReflectVariableName;
+    return m_pCurrReflectPropertyDescription;
 }
 
-void CComponentProxyManager::SetCurrReflectVariableName(const TString& strName)
+void CComponentProxyManager::SetCurrReflectDescription(CPropertyDescriptionBase* pPropertyDescription)
 {
-    m_strCurrReflectVariableName = strName;
+    m_pCurrReflectPropertyDescription = pPropertyDescription;
+}
+
+CDependencyDescription* CComponentProxyManager::GetCurrReflectDependency() const
+{
+    return m_pCurrReflectDependency;
+}
+
+void CComponentProxyManager::SetCurrReflectDependency(CDependencyDescription* pDependency)
+{
+    m_pCurrReflectDependency = pDependency;
 }
 
 const std::map<size_t, TString>& CComponentProxyManager::GetAbstractComponentNameMap() const
 {
     return m_abstractComponentNameMap;
-}
-
-void CComponentProxyManager::SetCurrentReflectVariableAddr(void* pAddr)
-{
-    m_pCurrentReflectVariableAddr = pAddr;
-}
-
-void* CComponentProxyManager::GetCurrentReflectVariableAddr() const
-{
-    return m_pCurrentReflectVariableAddr;
 }
 
 void CComponentProxyManager::LoadTemplateDataFromXML(const TCHAR* pszPath)

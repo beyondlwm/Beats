@@ -38,13 +38,12 @@ public:
     void DeserializeTemplateData(const TCHAR* pWorkingPath, TCreateComponentEditorProxyFunc func, TCreateGraphicFunc pGraphicFunc);
     virtual void ResolveDependency() override;
 
-    const TString& GetCurrReflectVariableName() const;
-    void SetCurrReflectVariableName(const TString& strName);
+    CPropertyDescriptionBase* GetCurrReflectDescription() const;
+    void SetCurrReflectDescription(CPropertyDescriptionBase* pPropertyDescription);
+    CDependencyDescription* GetCurrReflectDependency() const;
+    void SetCurrReflectDependency(CDependencyDescription* pDependency);
 
     const std::map<size_t, TString>& GetAbstractComponentNameMap() const;
-
-    void SetCurrentReflectVariableAddr(void* pAddr);
-    void* GetCurrentReflectVariableAddr() const;
 
 private:
     void LoadTemplateDataFromXML(const TCHAR* pWorkingPath);
@@ -54,7 +53,8 @@ private:
     CComponentProject* m_pProject;
     void* m_pCurrentReflectVariableAddr;
     TString m_currentWorkingFilePath;
-    TString m_strCurrReflectVariableName;
+    CPropertyDescriptionBase* m_pCurrReflectPropertyDescription;
+    CDependencyDescription* m_pCurrReflectDependency;
     std::map<size_t, TCreatePropertyFunc>* m_pPropertyCreatorMap;
     std::map<size_t, TString> m_abstractComponentNameMap;
     // This map save the inherit relationship for all components. so when we instance a component pointer, we can decide which instance to generate.

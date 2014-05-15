@@ -287,10 +287,11 @@ void CDependencyDescription::OnDependencyChanged()
             static CSerializer serializer;
             serializer.Reset();
             Serialize(serializer);
-            CComponentProxyManager::GetInstance()->SetCurrReflectVariableName(m_variableName);
+            CComponentProxyManager::GetInstance()->SetCurrReflectDependency(this);
+            BEATS_ASSERT(CComponentProxyManager::GetInstance()->GetCurrReflectDescription() == NULL);
             GetOwner()->GetHostComponent()->ReflectData(serializer);
             CComponentManager::GetInstance()->ResolveDependency();
-            CComponentProxyManager::GetInstance()->SetCurrReflectVariableName(TString(_T("")));
+            CComponentProxyManager::GetInstance()->SetCurrReflectDependency(NULL);
         }
     }
 }

@@ -30,7 +30,7 @@ void CComponentBase::ReflectData(CSerializer& /*serializer*/)
 
 }
 
-void CComponentBase::OnPropertyChanged(void* /*pVariableAddr*/)
+bool CComponentBase::OnPropertyChange(void* /*pVariableAddr*/, void* /*pNewValueToBeSet*/)
 {
-
+    return false;
 }

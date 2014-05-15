@@ -33,7 +33,11 @@ public:
 
     virtual void Initialize();
     virtual void ReflectData(CSerializer& serializer);
-    virtual void OnPropertyChanged(void* pVariableAddr);
+    // Editor mode only!
+    // The return value means if user has sync the variable manually, or system will do this assign.
+    // If it is a property, the pNewValueToBeSet means the value data.
+    // if it is a dependency or dependency list, it is a pointer to CDependencyDescription.
+    virtual bool OnPropertyChange(void* pVariableAddr, void* pNewValueToBeSet);
 
 private:
     size_t m_id;
