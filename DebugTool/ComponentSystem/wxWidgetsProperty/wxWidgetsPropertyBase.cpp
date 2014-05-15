@@ -127,6 +127,18 @@ wxEnumProperty* CWxwidgetsPropertyBase::CreateComboProperty() const
     return pRet;
 }
 
+void CWxwidgetsPropertyBase::SetComboPropertyLabels(const std::vector<TString>& labels)
+{
+    BEATS_ASSERT(m_pComboProperty != NULL, _T("Can't set combo property labels to a CWxwidgetsPropertyBase (%s) which doesn't have a combo property!"), GetBasicInfo()->m_variableName.c_str());
+    BEATS_ASSERT(labels.size() > 0, _T("Can't set an empty labels to a combo property(%s)!"), GetBasicInfo()->m_variableName.c_str());
+    wxPGChoices choices;
+    for (size_t i = 0; i < labels.size(); ++i)
+    {
+        choices.Add(labels[i].c_str());
+    }
+    m_pComboProperty->SetChoices(choices);
+}
+
 void CWxwidgetsPropertyBase::SaveToXML( TiXmlElement* pParentNode )
 {
     TiXmlElement* pVariableElement = new TiXmlElement("VariableNode");
