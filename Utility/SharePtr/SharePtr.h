@@ -35,6 +35,7 @@ public:
         : m_pObject(NULL)
         , m_refCount(NULL)
 #ifdef SHARE_PTR_TRACE
+        , m_uRefrencePos(0)
         , m_pRefrencePosSet(NULL)
 #endif
     {
@@ -44,6 +45,7 @@ public:
         : m_pObject(pObject)
         , m_refCount (NULL)
 #ifdef SHARE_PTR_TRACE
+        , m_uRefrencePos(0)
         , m_pRefrencePosSet(NULL)
 #endif
     {
@@ -106,6 +108,7 @@ public:
         : m_pObject(NULL)
         , m_refCount(NULL)
 #ifdef SHARE_PTR_TRACE
+        , m_uRefrencePos(0)
         , m_pRefrencePosSet(NULL)
 #endif
     {
@@ -117,6 +120,7 @@ public:
         : m_pObject(NULL)
         , m_refCount(NULL)
 #ifdef SHARE_PTR_TRACE
+        , m_uRefrencePos(0)
         , m_pRefrencePosSet(NULL)
 #endif
     {

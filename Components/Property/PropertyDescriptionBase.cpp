@@ -215,6 +215,11 @@ bool CPropertyDescriptionBase::IsContainerProperty()
     return false;
 }
 
+void CPropertyDescriptionBase::SetValueList(const std::vector<TString>& valueList)
+{
+    // Do nothing.
+}
+
 void CPropertyDescriptionBase::SetValueWithType(void* pValue, EValueType type, bool bForceUpdateHostComponent/* = false*/)
 {
     if (CopyValue(pValue, m_valueArray[type]) || bForceUpdateHostComponent)

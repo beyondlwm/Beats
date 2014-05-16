@@ -127,16 +127,32 @@ wxEnumProperty* CWxwidgetsPropertyBase::CreateComboProperty() const
     return pRet;
 }
 
-void CWxwidgetsPropertyBase::SetComboPropertyLabels(const std::vector<TString>& labels)
+void CWxwidgetsPropertyBase::SetValueList(const std::vector<TString>& valueList)
 {
-    BEATS_ASSERT(m_pComboProperty != NULL, _T("Can't set combo property labels to a CWxwidgetsPropertyBase (%s) which doesn't have a combo property!"), GetBasicInfo()->m_variableName.c_str());
-    BEATS_ASSERT(labels.size() > 0, _T("Can't set an empty labels to a combo property(%s)!"), GetBasicInfo()->m_variableName.c_str());
-    wxPGChoices choices;
-    for (size_t i = 0; i < labels.size(); ++i)
+    wxArrayString labels;
+    for (size_t i = 0; i < valueList.size(); ++i)
     {
-        choices.Add(labels[i].c_str());
+        labels.push_back(valueList[i].c_str());
     }
-    m_pComboProperty->SetChoices(choices);
+    if (m_pComboProperty == NULL)
+    {
+        m_pComboProperty = new wxEnumProperty(wxPG_LABEL, wxPG_LABEL, labels);
+        m_pComboProperty->SetClientData(this);
+        wxVariant var(valueList[0]);
+        m_pComboProperty->SetDefaultValue(var);
+        wxVariant curVar(valueList[0]);
+        m_pComboProperty->SetValue(curVar);
+        m_pComboProperty->SetModifiedStatus(!IsDataSame(true));
+    }
+    else
+    {
+        wxPGChoices choices;
+        for (size_t i = 0; i < valueList.size(); ++i)
+        {
+            choices.Add(valueList[i].c_str());
+        }
+        m_pComboProperty->SetChoices(choices);
+    }
 }
 
 void CWxwidgetsPropertyBase::SaveToXML( TiXmlElement* pParentNode )
@@ -191,20 +207,9 @@ void CWxwidgetsPropertyBase::AnalyseUIParameter( const TCHAR* parameter )
                 {
                      if (m_type != eRPT_Enum)
                      {
-                         wxArrayString labels;
                          std::vector<TString> comboLabels;
                          pStringHelper->SplitString(cache[1].c_str(), _T("@"), comboLabels);
-                         for (size_t i = 0; i < comboLabels.size(); ++i)
-                         {
-                             labels.push_back(comboLabels[i].c_str());
-                         }
-                         m_pComboProperty = new wxEnumProperty(wxPG_LABEL, wxPG_LABEL, labels);
-                         m_pComboProperty->SetClientData(this);
-                         wxVariant var(labels[0]);
-                         m_pComboProperty->SetDefaultValue(var);
-                         wxVariant curVar(labels[0]);
-                         m_pComboProperty->SetValue(curVar);
-                         m_pComboProperty->SetModifiedStatus(!IsDataSame(true));
+                         SetValueList(comboLabels);
                          bHandled = true;
                      }
                 }

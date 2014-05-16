@@ -25,8 +25,8 @@ public:
     bool CheckVisibleTrigger();
     wxEnumProperty* GetComboProperty() const;
     wxEnumProperty* CreateComboProperty() const;
-    void SetComboPropertyLabels(const std::vector<TString>& labels);
 
+    virtual void SetValueList(const std::vector<TString>& valueList) override;
     virtual wxPGProperty* CreateWxProperty() = 0;
     virtual void SetValue(wxVariant& value, bool bSaveValue = true) = 0;
     virtual void SaveToXML(TiXmlElement* pParentNode);
