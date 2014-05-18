@@ -76,7 +76,10 @@ CComponentEditorProxy::~CComponentEditorProxy()
     {
         CComponentManager::GetInstance()->DeleteComponent(m_pHostComponent);
     }
-
+    else
+    {
+        BEATS_SAFE_DELETE(m_pHostComponent);
+    }
 }
 
 void CComponentEditorProxy::Deserialize( CSerializer& serializer )

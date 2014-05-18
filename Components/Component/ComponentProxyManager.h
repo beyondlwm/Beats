@@ -40,6 +40,9 @@ public:
 
     CPropertyDescriptionBase* GetCurrReflectDescription() const;
     void SetCurrReflectDescription(CPropertyDescriptionBase* pPropertyDescription);
+    void SetReflectCheckFlag(bool bFlag);
+    bool GetReflectCheckFlag() const;
+
     CDependencyDescription* GetCurrReflectDependency() const;
     void SetCurrReflectDependency(CDependencyDescription* pDependency);
 
@@ -50,8 +53,8 @@ private:
     void LoadTemplateDataFromSerializer(CSerializer& serializer, TCreateComponentEditorProxyFunc func, TCreateGraphicFunc pGraphicFunc);
 
 private:
+    bool m_bReflectCheckFlag;
     CComponentProject* m_pProject;
-    void* m_pCurrentReflectVariableAddr;
     TString m_currentWorkingFilePath;
     CPropertyDescriptionBase* m_pCurrReflectPropertyDescription;
     CDependencyDescription* m_pCurrReflectDependency;

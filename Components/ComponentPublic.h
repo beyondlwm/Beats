@@ -75,15 +75,32 @@ inline void DeserializeVarialble(T*& value, CSerializer* pSerializer)
         *pSerializer >> uId;
         if (value == NULL)
         {
+#ifdef EDITOR_MODE
+            CPtrPropertyDescription* pPtrProperty = dynamic_cast<CPtrPropertyDescription*>(CComponentProxyManager::GetInstance()->GetCurrReflectDescription());
+            BEATS_ASSERT(pPtrProperty != NULL && pPtrProperty->GetInstanceComponent() != NULL &&  pPtrProperty->GetInstanceComponent()->GetHostComponent() != NULL);
+            value = dynamic_cast<T*>(pPtrProperty->GetInstanceComponent()->GetHostComponent());
+            BEATS_ASSERT(value != NULL);
+#else
             value = dynamic_cast<T*>(CComponentManager::GetInstance()->CreateComponent(uGuid, false, true, 0xFFFFFFFF, false, pSerializer));
             BEATS_ASSERT(uStartPos + uDataSize == pSerializer->GetReadPos(), 
                 _T("Component Data Not Match!\nGot an error when Deserialize a pointer of component 0x%x %s instance id %d\nRequired size: %d, Actual size: %d"), uGuid, value->GetClassStr(), uId, uDataSize, pSerializer->GetReadPos() - uStartPos);
+#endif
         }
         else
         {
+#ifdef EDITOR_MODE
             value->ReflectData(*pSerializer);
+#else
+            BEATS_ASSERT(false, _T("A pointer should be initialize to NULL before it is deserialized!"));
+#endif
         }
     }
+#ifdef EDITOR_MODE
+    else
+    {
+        value = NULL;
+    }
+#endif`
 }
 
 #ifdef EDITOR_MODE
@@ -408,11 +425,12 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
 
     #define DECLARE_PROPERTY(serializer, property, editable, color, displayName, catalog, tip, parameter) \
     {\
-        CPropertyDescriptionBase* pDescriptionBase = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();\
         CDependencyDescription* pDependencyDescription = CComponentProxyManager::GetInstance()->GetCurrReflectDependency();\
         if (pDependencyDescription == NULL)\
         {\
-            if (pDescriptionBase == NULL || pDescriptionBase->GetBasicInfo()->m_variableName.compare(_T(#property)) == 0)\
+            CPropertyDescriptionBase* pDescriptionBase = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();\
+            bool bReflectCheckFlag = CComponentProxyManager::GetInstance()->GetReflectCheckFlag();\
+            if (!bReflectCheckFlag || pDescriptionBase->GetBasicInfo()->m_variableName.compare(_T(#property)) == 0)\
             {\
                 bool bNeedHandleSync = true;\
                 if (pDescriptionBase != NULL)\
@@ -421,9 +439,9 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
                 }\
                 if (bNeedHandleSync)\
                 {\
-                    CComponentProxyManager::GetInstance()->SetCurrReflectDescription(NULL);\
+                    CComponentProxyManager::GetInstance()->SetReflectCheckFlag(false);\
                     DeserializeVarialble(property, &serializer);\
-                    CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pDescriptionBase);\
+                    CComponentProxyManager::GetInstance()->SetReflectCheckFlag(bReflectCheckFlag);\
                 }\
                 if (pDescriptionBase != NULL)\
                 {\

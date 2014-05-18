@@ -16,6 +16,7 @@ CComponentProxyManager* CComponentProxyManager::m_pInstance = NULL;
 CComponentProxyManager::CComponentProxyManager()
     : m_pCurrReflectPropertyDescription(NULL)
     , m_pCurrReflectDependency(NULL)
+    , m_bReflectCheckFlag(true)
 {
     m_pProject = new CComponentProject;
     m_pPropertyCreatorMap = new std::map<size_t, TCreatePropertyFunc>();
@@ -395,6 +396,16 @@ CPropertyDescriptionBase* CComponentProxyManager::GetCurrReflectDescription() co
 void CComponentProxyManager::SetCurrReflectDescription(CPropertyDescriptionBase* pPropertyDescription)
 {
     m_pCurrReflectPropertyDescription = pPropertyDescription;
+}
+
+void CComponentProxyManager::SetReflectCheckFlag(bool bFlag)
+{
+    m_bReflectCheckFlag = bFlag;
+}
+
+bool CComponentProxyManager::GetReflectCheckFlag() const
+{
+    return m_bReflectCheckFlag;
 }
 
 CDependencyDescription* CComponentProxyManager::GetCurrReflectDependency() const

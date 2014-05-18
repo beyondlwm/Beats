@@ -86,10 +86,11 @@ void CPtrPropertyDescription::SetValue( wxVariant& value , bool bSaveValue)
 bool CPtrPropertyDescription::CopyValue(void* pSourceValue, void* pTargetValue)
 {
     TString* pStrValue = (TString*)pSourceValue;
-    bool bRet = *(TString*)pTargetValue != *pStrValue;
+    TString* pStrTarget = (TString*)pTargetValue;
+    bool bRet =  *pStrTarget != *pStrValue;
     if (bRet)
     {
-        *(TString*)pTargetValue = *pStrValue;
+        *pStrTarget = *pStrValue;
     }
     return bRet;
 }

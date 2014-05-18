@@ -139,7 +139,6 @@ bool wxPtrButtonEditor::OnEvent( wxPropertyGrid* propGrid,
                     pPtrPropertyDescription->GetChildren().clear();
                     BEATS_ASSERT(bDeleteInstance);
                     buttons->GetButton(0)->SetLabel(_T("+"));
-                    valueStr.Remove(0, 1); // Remove the "+" prefix
                     bValueChanged = true;
                 }
                 if (bValueChanged)
