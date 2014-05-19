@@ -158,7 +158,13 @@ inline void DeserializeVarialble(std::vector<T>& value, CSerializer* pSerializer
 #endif
     for (size_t i = 0; i < childCount; ++i)
     {
+        CPropertyDescriptionBase* pCurrReflectProperty = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();
+        BEATS_ASSERT(pCurrReflectProperty != NULL);
+        CPropertyDescriptionBase* pSubProperty = pCurrReflectProperty->GetChild(i);
+        BEATS_ASSERT(pSubProperty != NULL);
+        CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pSubProperty);
         DeserializeVarialble(value[i], pSerializer);
+        CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pCurrReflectProperty);
     }
 }
 
@@ -180,12 +186,23 @@ inline void DeserializeVarialble(std::map<T1, T2>& value, CSerializer* pSerializ
     {
         T1 key;
         InitValue(key);
+        CPropertyDescriptionBase* pCurrReflectProperty = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();
+        BEATS_ASSERT(pCurrReflectProperty != NULL);
+        CPropertyDescriptionBase* pSubProperty = pCurrReflectProperty->GetChild(i);
+        BEATS_ASSERT(pSubProperty != NULL);
+        CPropertyDescriptionBase* pKeyProperty = pSubProperty->GetChild(0);
+        BEATS_ASSERT(pKeyProperty != NULL);
+        CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pKeyProperty);
         DeserializeVarialble(key, pSerializer);
         T2 myValue;
         InitValue(myValue);
+        CPropertyDescriptionBase* pValueProperty = pSubProperty->GetChild(1);
+        BEATS_ASSERT(pValueProperty != NULL);
+        CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pValueProperty);
         DeserializeVarialble(myValue, pSerializer);
         BEATS_ASSERT(value.find(key) == value.end(), _T("A map can't have two same key value!"));
         value[key] = myValue;
+        CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pCurrReflectProperty);
     }
 }
 
@@ -435,7 +452,7 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
                 bool bNeedHandleSync = true;\
                 if (pDescriptionBase != NULL)\
                 {\
-                    bNeedHandleSync = !this->OnPropertyChange(&property, pDescriptionBase->GetValue(eVT_CurrentValue));\
+                    bNeedHandleSync = !this->OnPropertyChange(&property, &serializer);\
                 }\
                 if (bNeedHandleSync)\
                 {\

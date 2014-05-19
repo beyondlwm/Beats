@@ -220,6 +220,11 @@ void CPropertyDescriptionBase::SetValueList(const std::vector<TString>& valueLis
     // Do nothing.
 }
 
+CComponentEditorProxy* CPropertyDescriptionBase::GetInstanceComponent() const
+{
+    return NULL;
+}
+
 void CPropertyDescriptionBase::SetValueWithType(void* pValue, EValueType type, bool bForceUpdateHostComponent/* = false*/)
 {
     if (CopyValue(pValue, m_valueArray[type]) || bForceUpdateHostComponent)

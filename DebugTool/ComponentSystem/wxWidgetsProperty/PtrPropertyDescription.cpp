@@ -110,7 +110,7 @@ size_t CPtrPropertyDescription::GetDerivedGuid() const
     return m_uDerivedGuid;
 }
 
-CComponentEditorProxy* CPtrPropertyDescription::GetInstanceComponent()
+CComponentEditorProxy* CPtrPropertyDescription::GetInstanceComponent() const
 {
     return m_pInstance;
 }

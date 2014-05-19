@@ -15,11 +15,12 @@ public:
     size_t GetPtrGuid();
     void SetDerivedGuid(size_t uDerivedGuid);
     size_t GetDerivedGuid() const;
-    CComponentEditorProxy* GetInstanceComponent();
     bool CreateInstance();
     bool DestroyInstance();
 
     virtual void SetValue(wxVariant& value, bool bSaveValue);
+
+    virtual CComponentEditorProxy* GetInstanceComponent() const override;
 
     virtual bool AnalyseUIParameterImpl(const std::vector<TString>& parameterUnit);
     virtual wxPGProperty* CreateWxProperty();

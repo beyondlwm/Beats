@@ -16,7 +16,7 @@ CComponentProxyManager* CComponentProxyManager::m_pInstance = NULL;
 CComponentProxyManager::CComponentProxyManager()
     : m_pCurrReflectPropertyDescription(NULL)
     , m_pCurrReflectDependency(NULL)
-    , m_bReflectCheckFlag(true)
+    , m_bReflectCheckFlag(false)
 {
     m_pProject = new CComponentProject;
     m_pPropertyCreatorMap = new std::map<size_t, TCreatePropertyFunc>();
