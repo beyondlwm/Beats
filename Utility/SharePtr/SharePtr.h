@@ -199,7 +199,7 @@ public:
         return m_refCount;
     }
 
-    void Destroy()
+    void Destroy(bool bSimulate = false)
     {
         bool bCanDestroy = m_refCount != NULL && m_pObject != NULL && *m_refCount > 0;
         if (bCanDestroy)
@@ -217,7 +217,10 @@ public:
             if (*m_refCount == 0)
             {
                 BEATS_SAFE_DELETE(m_refCount);
-                BEATS_SAFE_DELETE(m_pObject);
+                if (!bSimulate)
+                {
+                    BEATS_SAFE_DELETE(m_pObject);
+                }
 #ifdef SHARE_PTR_TRACE
                 BEATS_SAFE_DELETE(m_pRefrencePosSet);
 #endif

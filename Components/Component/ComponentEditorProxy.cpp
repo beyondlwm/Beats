@@ -526,7 +526,6 @@ void CComponentEditorProxy::Save()
 void CComponentEditorProxy::SetId(size_t id)
 {
     super::SetId(id);
-    BEATS_ASSERT(m_pHostComponent->GetId() == 0xFFFFFFFF, _T("The host component has got an id already!"));
     if (m_pHostComponent != NULL)
     {
         m_pHostComponent->SetId(id);

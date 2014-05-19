@@ -39,7 +39,7 @@ CPtrPropertyDescription::~CPtrPropertyDescription()
 {
     if (GetInstanceComponent() != NULL)
     {
-        DestroyInstance();
+        DestroyInstance(false);
     }
     DestoryValue<TString>();
 }
@@ -134,7 +134,7 @@ bool CPtrPropertyDescription::CreateInstance()
     return bRet;
 }
 
-bool CPtrPropertyDescription::DestroyInstance()
+bool CPtrPropertyDescription::DestroyInstance(bool bUpdateDisplayString/* = true*/)
 {
     bool bRet = false;
 
@@ -145,7 +145,10 @@ bool CPtrPropertyDescription::DestroyInstance()
         bRet = true;
     }
     SetDerivedGuid(0);
-    UpdateDisplayString(m_uComponentGuid);
+    if (bUpdateDisplayString)
+    {
+        UpdateDisplayString(m_uComponentGuid);
+    }
 
     return bRet;
 }

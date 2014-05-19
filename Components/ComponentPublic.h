@@ -76,14 +76,21 @@ inline void DeserializeVarialble(T*& value, CSerializer* pSerializer)
         if (value == NULL)
         {
 #ifdef EDITOR_MODE
-            CPtrPropertyDescription* pPtrProperty = dynamic_cast<CPtrPropertyDescription*>(CComponentProxyManager::GetInstance()->GetCurrReflectDescription());
-            BEATS_ASSERT(pPtrProperty != NULL && pPtrProperty->GetInstanceComponent() != NULL &&  pPtrProperty->GetInstanceComponent()->GetHostComponent() != NULL);
-            value = dynamic_cast<T*>(pPtrProperty->GetInstanceComponent()->GetHostComponent());
-            BEATS_ASSERT(value != NULL);
-#else
-            value = dynamic_cast<T*>(CComponentManager::GetInstance()->CreateComponent(uGuid, false, true, 0xFFFFFFFF, false, pSerializer));
-            BEATS_ASSERT(uStartPos + uDataSize == pSerializer->GetReadPos(), 
-                _T("Component Data Not Match!\nGot an error when Deserialize a pointer of component 0x%x %s instance id %d\nRequired size: %d, Actual size: %d"), uGuid, value->GetClassStr(), uId, uDataSize, pSerializer->GetReadPos() - uStartPos);
+            CPropertyDescriptionBase* pProperty = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();
+            if (pProperty != NULL)
+            {
+                BEATS_ASSERT(pProperty != NULL && pProperty->GetInstanceComponent() != NULL &&  pProperty->GetInstanceComponent()->GetHostComponent() != NULL);
+                value = dynamic_cast<T*>(pProperty->GetInstanceComponent()->GetHostComponent());
+                BEATS_ASSERT(value != NULL);
+            }
+            else
+            {
+#endif
+                value = dynamic_cast<T*>(CComponentManager::GetInstance()->CreateComponent(uGuid, false, true, 0xFFFFFFFF, false, pSerializer));
+                BEATS_ASSERT(uStartPos + uDataSize == pSerializer->GetReadPos(), 
+                    _T("Component Data Not Match!\nGot an error when Deserialize a pointer of component 0x%x %s instance id %d\nRequired size: %d, Actual size: %d"), uGuid, value->GetClassStr(), uId, uDataSize, pSerializer->GetReadPos() - uStartPos);
+#ifdef EDITOR_MODE
+            }
 #endif
         }
         else
@@ -100,7 +107,7 @@ inline void DeserializeVarialble(T*& value, CSerializer* pSerializer)
     {
         value = NULL;
     }
-#endif`
+#endif
 }
 
 #ifdef EDITOR_MODE
@@ -117,8 +124,7 @@ inline void ResizeVector(std::vector<T*>& value, size_t uCount)
     {
         for (size_t i = 0; i < value.size() - uCount; ++i)
         {
-            BEATS_ASSERT(dynamic_cast<CComponentBase*>(value.back()) != NULL);
-            BEATS_SAFE_DELETE(value.back());
+            BEATS_ASSERT(value.back() == NULL || dynamic_cast<CComponentBase*>(value.back()) != NULL);
             value.pop_back();
         }
     }
@@ -158,13 +164,20 @@ inline void DeserializeVarialble(std::vector<T>& value, CSerializer* pSerializer
 #endif
     for (size_t i = 0; i < childCount; ++i)
     {
+#ifdef EDITOR_MODE
         CPropertyDescriptionBase* pCurrReflectProperty = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();
-        BEATS_ASSERT(pCurrReflectProperty != NULL);
-        CPropertyDescriptionBase* pSubProperty = pCurrReflectProperty->GetChild(i);
-        BEATS_ASSERT(pSubProperty != NULL);
-        CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pSubProperty);
+        if (pCurrReflectProperty != NULL)
+        {
+            BEATS_ASSERT(pCurrReflectProperty != NULL);
+            CPropertyDescriptionBase* pSubProperty = pCurrReflectProperty->GetChild(i);
+            BEATS_ASSERT(pSubProperty != NULL);
+            CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pSubProperty);
+        }
+#endif
         DeserializeVarialble(value[i], pSerializer);
+#ifdef EDITOR_MODE
         CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pCurrReflectProperty);
+#endif
     }
 }
 
@@ -186,26 +199,37 @@ inline void DeserializeVarialble(std::map<T1, T2>& value, CSerializer* pSerializ
     {
         T1 key;
         InitValue(key);
+#ifdef EDITOR_MODE
         CPropertyDescriptionBase* pCurrReflectProperty = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();
-        BEATS_ASSERT(pCurrReflectProperty != NULL);
-        CPropertyDescriptionBase* pSubProperty = pCurrReflectProperty->GetChild(i);
-        BEATS_ASSERT(pSubProperty != NULL);
-        CPropertyDescriptionBase* pKeyProperty = pSubProperty->GetChild(0);
-        BEATS_ASSERT(pKeyProperty != NULL);
-        CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pKeyProperty);
+        if (pCurrReflectProperty != NULL)
+        {
+            CPropertyDescriptionBase* pSubProperty = pCurrReflectProperty->GetChild(i);
+            BEATS_ASSERT(pSubProperty != NULL);
+            CPropertyDescriptionBase* pKeyProperty = pSubProperty->GetChild(0);
+            BEATS_ASSERT(pKeyProperty != NULL);
+            CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pKeyProperty);
+        }
+#endif
         DeserializeVarialble(key, pSerializer);
         T2 myValue;
         InitValue(myValue);
-        CPropertyDescriptionBase* pValueProperty = pSubProperty->GetChild(1);
-        BEATS_ASSERT(pValueProperty != NULL);
-        CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pValueProperty);
+#ifdef EDITOR_MODE
+        if (pCurrReflectProperty != NULL)
+        {
+            CPropertyDescriptionBase* pSubProperty = pCurrReflectProperty->GetChild(i);
+            CPropertyDescriptionBase* pValueProperty = pSubProperty->GetChild(1);
+            BEATS_ASSERT(pValueProperty != NULL);
+            CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pValueProperty);
+        }
+#endif
         DeserializeVarialble(myValue, pSerializer);
         BEATS_ASSERT(value.find(key) == value.end(), _T("A map can't have two same key value!"));
         value[key] = myValue;
+#ifdef EDITOR_MODE
         CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pCurrReflectProperty);
+#endif
     }
 }
-
 template<typename T>
 inline EReflectPropertyType GetEnumType(T*& /*value*/, CSerializer* pSerializer)
 {
