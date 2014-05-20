@@ -75,6 +75,10 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /
                     BEATS_ASSERT(pProxyInstance != NULL);
                     // We need to update the host component after the proxy's dependencies have been resolved.
                     pProxyInstance->UpdateHostComponent();
+                    if (pProxyInstance->GetHostComponent() != NULL)
+                    {
+                        pProxyInstance->GetHostComponent()->Initialize();
+                    }
                 }
             }
             if (bOpenAsCopy)

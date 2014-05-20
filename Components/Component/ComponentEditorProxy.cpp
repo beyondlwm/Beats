@@ -541,8 +541,4 @@ void CComponentEditorProxy::Initialize()
     {
         (*m_pProperties)[i]->Initialize();
     }
-    if (m_pHostComponent != NULL)
-    {
-        m_pHostComponent->Initialize();
-    }
 }

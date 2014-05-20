@@ -4,11 +4,11 @@
 #include <mutex>
 
 #ifdef _DEBUG
+#include "dbghelp.h"
 #define SHARE_PTR_TRACE
 #endif
 
 #ifdef SHARE_PTR_TRACE
-#include "dbghelp.h"
 #include "../StringHelper/StringHelper.h"
 #include <Shlwapi.h>
 #include <set>
@@ -100,7 +100,6 @@ public:
 #endif
             m_refCount = new long(1);
         }
-        BEATS_ASSERT(pObject != NULL, _T("Object can't be NULL for share pointer!"));
     }
 
     //Copy constructor.
@@ -220,6 +219,10 @@ public:
                 if (!bSimulate)
                 {
                     BEATS_SAFE_DELETE(m_pObject);
+                }
+                else
+                {
+                    m_pObject = NULL;
                 }
 #ifdef SHARE_PTR_TRACE
                 BEATS_SAFE_DELETE(m_pRefrencePosSet);

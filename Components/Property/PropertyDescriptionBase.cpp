@@ -215,7 +215,7 @@ bool CPropertyDescriptionBase::IsContainerProperty()
     return false;
 }
 
-void CPropertyDescriptionBase::SetValueList(const std::vector<TString>& valueList)
+void CPropertyDescriptionBase::SetValueList(const std::vector<TString>& /*valueList*/)
 {
     // Do nothing.
 }
@@ -252,8 +252,10 @@ void CPropertyDescriptionBase::SetValueWithType(void* pValue, EValueType type, b
                 serializer.Reset();
                 pRealProperty->Serialize(serializer, eVT_CurrentValue);
                 CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pRealProperty);
+                CComponentProxyManager::GetInstance()->SetReflectCheckFlag(true);
                 pHostComponent->ReflectData(serializer);
                 CComponentProxyManager::GetInstance()->SetCurrReflectDescription(NULL);
+                CComponentProxyManager::GetInstance()->SetReflectCheckFlag(false);
             }
         }
     }
