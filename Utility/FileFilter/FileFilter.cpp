@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "FileFilter.h"
 #include <Shlwapi.h>
-#include "../Serializer/Serializer.h"
-#include "../StringHelper/StringHelper.h"
+#include "Serializer/Serializer.h"
+#include "StringHelper/StringHelper.h"
 
 CFileFilter::CFileFilter()
 : m_cCheckHidden(-1)

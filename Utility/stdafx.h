@@ -32,7 +32,7 @@
 #include <map>
 #include <vector>
 
-#include "../Beats/PublicDef.h"
+#include "Beats/PublicDef.h"
 #include "Math/MathPublic.h"
 
 

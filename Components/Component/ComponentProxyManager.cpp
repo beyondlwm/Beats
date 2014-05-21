@@ -2,14 +2,14 @@
 #include "ComponentProxyManager.h"
 #include "ComponentManager.h"
 #include "ComponentProject.h"
-#include "../../Utility/TinyXML/tinyxml.h"
-#include "../../Utility/Serializer/Serializer.h"
-#include "../../Utility/StringHelper/StringHelper.h"
-#include "../../Utility/UtilityManager.h"
-#include "../../Utility/IdManager/IdManager.h"
+#include "TinyXML/tinyxml.h"
+#include "Serializer/Serializer.h"
+#include "StringHelper/StringHelper.h"
+#include "UtilityManager.h"
+#include "IdManager/IdManager.h"
 #include "ComponentGraphic.h"
-#include "../DependencyDescriptionLine.h"
-#include "../DependencyDescription.h"
+#include "DependencyDescriptionLine.h"
+#include "DependencyDescription.h"
 
 CComponentProxyManager* CComponentProxyManager::m_pInstance = NULL;
 

@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "FileEncoderBase.h"
-#include "../UtilityManager.h"
-#include "../MD5/md5.h"
+#include "UtilityManager.h"
+#include "MD5/md5.h"
 
 static const size_t Read_Buffer_Size = 1024 * 1024 * 10; // 10M
 

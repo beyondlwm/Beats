@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "BytesFlipEncoder.h"
-#include "../UtilityManager.h"
+#include "UtilityManager.h"
 
 static const size_t Read_Buffer_Size = 1024 * 1024 * 10; // 10M
 

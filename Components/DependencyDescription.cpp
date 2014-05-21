@@ -4,9 +4,9 @@
 #include "Component/ComponentEditorProxy.h"
 #include "DependencyDescription.h"
 #include "DependencyDescriptionLine.h"
-#include "../Utility/TinyXML/tinyxml.h"
-#include "../Utility/StringHelper/StringHelper.h"
-#include "../Utility/Serializer/Serializer.h"
+#include "Utility/TinyXML/tinyxml.h"
+#include "Utility/StringHelper/StringHelper.h"
+#include "Utility/Serializer/Serializer.h"
 
 CDependencyDescription::CDependencyDescription(EDependencyType type, size_t dependencyGuid, CComponentEditorProxy* pOwner, size_t uIndex, bool bIsList)
 : m_type(type)

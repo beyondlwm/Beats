@@ -5,11 +5,11 @@
 
 #ifdef _DEBUG
 #include "dbghelp.h"
-#define SHARE_PTR_TRACE
+//#define SHARE_PTR_TRACE
 #endif
 
 #ifdef SHARE_PTR_TRACE
-#include "../StringHelper/StringHelper.h"
+#include "StringHelper/StringHelper.h"
 #include <Shlwapi.h>
 #include <set>
 #pragma comment(lib, "shlwapi.lib")

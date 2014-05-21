@@ -4,8 +4,8 @@
 #include "Component/ComponentGraphic.h"
 #include "Component/ComponentEditorProxy.h"
 #include <math.h>
-#include "../Utility/Math/Matrix4.h"
-#include "../Utility/Math/MathPublic.h"
+#include "Utility/Math/Matrix4.h"
+#include "Utility/Math/MathPublic.h"
 
 CDependencyDescriptionLine::CDependencyDescriptionLine( CDependencyDescription* pOwner, size_t uIndex, CComponentEditorProxy* pTo )
 : m_bIsSelected(false)

@@ -2,7 +2,8 @@
 #define BEATS_COMPONENTS_COMPONENT_COMPONENTPROXY_H__INCLUDE
 
 #include "../expdef.h"
-#include "../Property/PropertyPublic.h"
+
+#include "Property/PropertyPublic.h"
 #include "ComponentBase.h"
 class CComponentGraphic;
 class TiXmlElement;

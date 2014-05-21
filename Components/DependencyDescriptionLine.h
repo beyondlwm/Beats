@@ -2,6 +2,7 @@
 #define BEATS_COMPONENTS_DEPENDENCYDESCRIPTIONLINE_H__INCLUDE
 
 #include "expdef.h"
+
 class CDependencyDescription;
 class CComponentEditorProxy;
 struct SVertex;

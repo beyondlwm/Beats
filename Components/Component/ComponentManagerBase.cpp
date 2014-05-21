@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "ComponentManagerBase.h"
-#include "../../Utility/IdManager/IdManager.h"
+#include "IdManager/IdManager.h"
 
 void DefaultAddDependencyFunc(void* pContainer, void* pDependency)
 {

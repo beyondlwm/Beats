@@ -34,7 +34,7 @@
 #else
 #define TString std::string
 #endif
-#include "../Beats/PublicDef.h"
+#include "Beats/PublicDef.h"
 #include "ComponentPublic.h"
-#include "../Utility/SharePtr/SharePtr.h"
-// TODO: 在此处引用程序需要的其他头文件
+#include "Utility/SharePtr/SharePtr.h"
+

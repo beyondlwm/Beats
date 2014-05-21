@@ -2,9 +2,9 @@
 #include "ComponentProject.h"
 #include "ComponentProjectData.h"
 #include "ComponentProxyManager.h"
-#include "../../Utility/StringHelper/StringHelper.h"
-#include "../../Utility/TinyXML/tinyxml.h"
-#include "../../Utility/IdManager/IdManager.h"
+#include "StringHelper/StringHelper.h"
+#include "TinyXML/tinyxml.h"
+#include "IdManager/IdManager.h"
 #include <Shlwapi.h>
 #include <string>
 

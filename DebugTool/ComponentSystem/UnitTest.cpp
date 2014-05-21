@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "UnitTest.h"
-#include "../../Components/ComponentPublic.h"
-#include "../../Components/DependencyDescription.h"
+#include "ComponentPublic.h"
+#include "DependencyDescription.h"
 #include <shlwapi.h>
 START_REGISTER_COMPONENT
 REGISTER_COMPONENT(CTestComponent, _T("TestComponents"), _T("Test\\Components"))

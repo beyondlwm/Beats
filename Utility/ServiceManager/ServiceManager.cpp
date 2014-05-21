@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "ServiceManager.h"
-#include "../UtilityManager.h"
+#include "UtilityManager.h"
 #include <process.h>
 #include <shlwapi.h>
 

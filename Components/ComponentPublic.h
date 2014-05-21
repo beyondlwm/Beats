@@ -3,7 +3,7 @@
 
 #include <string>
 #include "Property/PropertyPublic.h"
-#include "../Utility/StringHelper/StringHelper.h"
+#include "Utility/StringHelper/StringHelper.h"
 #include "Component/ComponentEditorProxy.h"
 
 // To comment or un-comment this macro to decide serializer/deserialize.

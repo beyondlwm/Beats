@@ -2,6 +2,7 @@
 #define BEATS_COMPONENTS_COMPONENT_COMPONENTMANAGER_H__INCLUDE
 
 #include "../expdef.h"
+
 #include "ComponentManagerBase.h"
 
 class CComponentBase;

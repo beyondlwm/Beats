@@ -7,7 +7,7 @@
 #include <wx/srchctrl.h>
 #include <wx/listctrl.h>
 #include <wx/propgrid/manager.h>
-#include "../ComponentSystem/wxWidgetsProperty/wxWidgetsPropertyBase.h"
+#include "../../Components/Property/PropertyPublic.h"
 
 CInfoPagePanel::CInfoPagePanel( wxWindow *parent, 
                                wxWindowID winid /*= wxID_ANY*/, 

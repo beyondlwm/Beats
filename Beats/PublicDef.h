@@ -1,7 +1,7 @@
 #ifndef BEATS_PUBLICDEF_H__INCLUDE
 #define BEATS_PUBLICDEF_H__INCLUDE
 
-#include <tchar.h>
+#include "BeatsTchar.h"
 
 //////////////////////////////////////////////////////////////////////////
 //Assert

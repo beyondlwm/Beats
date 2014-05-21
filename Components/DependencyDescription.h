@@ -2,6 +2,7 @@
 #define BEATS_COMPONENTS_DEPENDENCYDESCRIPTION_H__INCLUDE
 
 #include "expdef.h"
+
 class CDependencyDescriptionLine;
 class CComponentEditorProxy;
 class TiXmlElement;

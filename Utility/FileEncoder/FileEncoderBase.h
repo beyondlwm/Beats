@@ -1,7 +1,7 @@
 #ifndef BEATS_UTILITY_FILEENCODER_FILEENCODERBASE_H__INCLUDE
 #define BEATS_UTILITY_FILEENCODER_FILEENCODERBASE_H__INCLUDE
 
-#include "../Serializer/Serializer.h"
+#include "Serializer/Serializer.h"
 
 enum EFileEncodeType
 {

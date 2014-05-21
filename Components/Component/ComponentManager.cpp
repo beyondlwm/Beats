@@ -2,10 +2,10 @@
 #include "ComponentManager.h"
 #include "ComponentBase.h"
 #include "ComponentEditorProxy.h"
-#include "../../Utility/Serializer/Serializer.h"
-#include "../../Utility/StringHelper/StringHelper.h"
-#include "../../Utility/UtilityManager.h"
-#include "../../Utility/IdManager/IdManager.h"
+#include "Serializer/Serializer.h"
+#include "StringHelper/StringHelper.h"
+#include "UtilityManager.h"
+#include "IdManager/IdManager.h"
 
 CComponentManager* CComponentManager::m_pInstance = NULL;
 

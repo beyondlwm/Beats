@@ -58,7 +58,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\Beats\lib\wxWidgets-2.9.3\include\msvc;..\Vld\include;..\windebuggingtool\inc;..\Beats\lib\wxWidgets-2.9.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Beats\lib\wxWidgets-2.9.3\include\msvc;..;..\Vld\include;..\windebuggingtool\inc;..\Beats\lib\wxWidgets-2.9.3\include;..\Utility;..\Components;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;DEBUGTOOL_EXPORTS;_CRT_SECURE_NO_WARNINGS;LWM_WXWIDGETS_HACK;_CRT_SECURE_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>true</MinimalRebuild>
@@ -82,7 +82,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\Beats\lib\wxWidgets-2.9.3\include\msvc;..\windebuggingtool\inc;..\Beats\lib\wxWidgets-2.9.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Beats\lib\wxWidgets-2.9.3\include\msvc;..\windebuggingtool\inc;..\Beats\lib\wxWidgets-2.9.3\include;..;..\Utility;..\Components;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;DEBUGTOOL_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS;LWM_WXWIDGETS_HACK;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -197,11 +197,9 @@
   <ItemGroup>
     <ProjectReference Include="..\Components\Components.vcxproj">
       <Project>{76da9627-5c15-4c56-b18b-e0bac35227c2}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
     <ProjectReference Include="..\Utility\Utility.vcxproj">
       <Project>{48a78754-df9e-4aaf-b95a-1ff9b3b51705}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

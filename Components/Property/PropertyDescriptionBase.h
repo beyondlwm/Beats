@@ -1,8 +1,8 @@
 #ifndef BEATS_COMPONENTS_PROPERTY_PROPERTYDESCRIPTIONBASE_H__INCLUDE
 #define BEATS_COMPONENTS_PROPERTY_PROPERTYDESCRIPTIONBASE_H__INCLUDE
 
-#include "PropertyPublic.h"
 #include "../expdef.h"
+#include "PropertyPublic.h"
 
 class CComponentEditorProxy;
 class CSerializer;

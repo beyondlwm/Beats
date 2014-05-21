@@ -1,198 +1,181 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Source Files\Serializer">
-      <UniqueIdentifier>{42301c51-6928-491c-80a9-ed78687b3b35}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Math">
-      <UniqueIdentifier>{0dcd5694-b325-4851-9250-c47df65d72a1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\SharePtr">
-      <UniqueIdentifier>{af2ca671-10f4-4986-b2a9-66dd5beae7c1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\TinyXML">
-      <UniqueIdentifier>{7cc5df7a-ff6b-4ddd-92b5-7918f0cc7668}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\FileEncoder">
-      <UniqueIdentifier>{e20dd239-04f1-4974-9e71-447836002988}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\StringHelper">
-      <UniqueIdentifier>{29894d6b-3f62-4748-9bda-9793008fa94e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\EnumStrGenerator">
-      <UniqueIdentifier>{3c4ba699-492d-453d-b7ae-ecbacb8a8b17}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\IdManager">
-      <UniqueIdentifier>{a085b986-8a6b-40a7-9c00-5854f1d97ed7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\ServiceManager">
-      <UniqueIdentifier>{8eda5bb3-e428-4643-bdd6-3e4e890b9651}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\MD5">
-      <UniqueIdentifier>{3acd9329-ecdd-4214-bf88-88cf70d8c010}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\FileFilter">
-      <UniqueIdentifier>{212d3869-8d99-49b6-a7a4-dd96ae674996}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\MailManager">
-      <UniqueIdentifier>{e4b612e0-b23f-4921-ab45-a2e3cb57fdd5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="EnumStrGenerator\EnumStrGenerator.cpp">
-      <Filter>Source Files\EnumStrGenerator</Filter>
+      <Filter>EnumStrGenerator</Filter>
     </ClCompile>
     <ClCompile Include="FileEncoder\BytesFlipEncoder.cpp">
-      <Filter>Source Files\FileEncoder</Filter>
+      <Filter>FileEncoder</Filter>
     </ClCompile>
     <ClCompile Include="FileEncoder\BytesOrderEncoder.cpp">
-      <Filter>Source Files\FileEncoder</Filter>
+      <Filter>FileEncoder</Filter>
     </ClCompile>
     <ClCompile Include="FileEncoder\FileEncoderBase.cpp">
-      <Filter>Source Files\FileEncoder</Filter>
+      <Filter>FileEncoder</Filter>
     </ClCompile>
     <ClCompile Include="FileFilter\FileFilter.cpp">
-      <Filter>Source Files\FileFilter</Filter>
+      <Filter>FileFilter</Filter>
     </ClCompile>
     <ClCompile Include="IdManager\IdManager.cpp">
-      <Filter>Source Files\IdManager</Filter>
+      <Filter>IdManager</Filter>
     </ClCompile>
     <ClCompile Include="MailManager\base64.cpp">
-      <Filter>Source Files\MailManager</Filter>
+      <Filter>MailManager</Filter>
     </ClCompile>
     <ClCompile Include="MailManager\MailManager.cpp">
-      <Filter>Source Files\MailManager</Filter>
+      <Filter>MailManager</Filter>
     </ClCompile>
     <ClCompile Include="Math\Matrix3.cpp">
-      <Filter>Source Files\Math</Filter>
+      <Filter>Math</Filter>
     </ClCompile>
     <ClCompile Include="Math\Matrix4.cpp">
-      <Filter>Source Files\Math</Filter>
+      <Filter>Math</Filter>
     </ClCompile>
     <ClCompile Include="Math\Vector2.cpp">
-      <Filter>Source Files\Math</Filter>
+      <Filter>Math</Filter>
     </ClCompile>
     <ClCompile Include="Math\Vector3.cpp">
-      <Filter>Source Files\Math</Filter>
+      <Filter>Math</Filter>
     </ClCompile>
     <ClCompile Include="Math\Vector4.cpp">
-      <Filter>Source Files\Math</Filter>
+      <Filter>Math</Filter>
     </ClCompile>
     <ClCompile Include="MD5\md5.cpp">
-      <Filter>Source Files\MD5</Filter>
+      <Filter>MD5</Filter>
     </ClCompile>
     <ClCompile Include="Serializer\Serializer.cpp">
-      <Filter>Source Files\Serializer</Filter>
+      <Filter>Serializer</Filter>
     </ClCompile>
     <ClCompile Include="ServiceManager\ServiceManager.cpp">
-      <Filter>Source Files\ServiceManager</Filter>
+      <Filter>ServiceManager</Filter>
     </ClCompile>
-    <ClCompile Include="UtilityManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
+    <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="StringHelper\StringHelper.cpp">
-      <Filter>Source Files\StringHelper</Filter>
+      <Filter>StringHelper</Filter>
     </ClCompile>
     <ClCompile Include="TinyXML\tinystr.cpp">
-      <Filter>Source Files\TinyXML</Filter>
+      <Filter>TinyXML</Filter>
     </ClCompile>
     <ClCompile Include="TinyXML\tinyxml.cpp">
-      <Filter>Source Files\TinyXML</Filter>
+      <Filter>TinyXML</Filter>
     </ClCompile>
     <ClCompile Include="TinyXML\tinyxmlerror.cpp">
-      <Filter>Source Files\TinyXML</Filter>
+      <Filter>TinyXML</Filter>
     </ClCompile>
     <ClCompile Include="TinyXML\tinyxmlparser.cpp">
-      <Filter>Source Files\TinyXML</Filter>
+      <Filter>TinyXML</Filter>
     </ClCompile>
+    <ClCompile Include="UtilityManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="EnumStrGenerator\EnumStrGenerator.h">
-      <Filter>Source Files\EnumStrGenerator</Filter>
+      <Filter>EnumStrGenerator</Filter>
     </ClInclude>
     <ClInclude Include="FileEncoder\BytesFlipEncoder.h">
-      <Filter>Source Files\FileEncoder</Filter>
+      <Filter>FileEncoder</Filter>
     </ClInclude>
     <ClInclude Include="FileEncoder\BytesOrderEncoder.h">
-      <Filter>Source Files\FileEncoder</Filter>
+      <Filter>FileEncoder</Filter>
     </ClInclude>
     <ClInclude Include="FileEncoder\FileEncoderBase.h">
-      <Filter>Source Files\FileEncoder</Filter>
+      <Filter>FileEncoder</Filter>
     </ClInclude>
     <ClInclude Include="FileFilter\FileFilter.h">
-      <Filter>Source Files\FileFilter</Filter>
+      <Filter>FileFilter</Filter>
     </ClInclude>
     <ClInclude Include="IdManager\IdManager.h">
-      <Filter>Source Files\IdManager</Filter>
+      <Filter>IdManager</Filter>
     </ClInclude>
     <ClInclude Include="MailManager\base64.h">
-      <Filter>Source Files\MailManager</Filter>
+      <Filter>MailManager</Filter>
     </ClInclude>
     <ClInclude Include="MailManager\MailManager.h">
-      <Filter>Source Files\MailManager</Filter>
+      <Filter>MailManager</Filter>
     </ClInclude>
     <ClInclude Include="Math\MathPublic.h">
-      <Filter>Source Files\Math</Filter>
+      <Filter>Math</Filter>
     </ClInclude>
     <ClInclude Include="Math\Matrix3.h">
-      <Filter>Source Files\Math</Filter>
+      <Filter>Math</Filter>
     </ClInclude>
     <ClInclude Include="Math\Matrix4.h">
-      <Filter>Source Files\Math</Filter>
+      <Filter>Math</Filter>
     </ClInclude>
     <ClInclude Include="Math\Vector2.h">
-      <Filter>Source Files\Math</Filter>
+      <Filter>Math</Filter>
     </ClInclude>
     <ClInclude Include="Math\Vector3.h">
-      <Filter>Source Files\Math</Filter>
+      <Filter>Math</Filter>
     </ClInclude>
     <ClInclude Include="Math\Vector4.h">
-      <Filter>Source Files\Math</Filter>
+      <Filter>Math</Filter>
     </ClInclude>
     <ClInclude Include="MD5\md5.h">
-      <Filter>Source Files\MD5</Filter>
+      <Filter>MD5</Filter>
     </ClInclude>
     <ClInclude Include="Serializer\Serializer.h">
-      <Filter>Source Files\Serializer</Filter>
-    </ClInclude>
-    <ClInclude Include="Serializer\Serializer.hpp">
-      <Filter>Source Files\Serializer</Filter>
+      <Filter>Serializer</Filter>
     </ClInclude>
     <ClInclude Include="ServiceManager\ServiceManager.h">
-      <Filter>Source Files\ServiceManager</Filter>
-    </ClInclude>
-    <ClInclude Include="UtilityManager.h">
-      <Filter>Source Files</Filter>
+      <Filter>ServiceManager</Filter>
     </ClInclude>
     <ClInclude Include="SharePtr\SharePtr.h">
-      <Filter>Source Files\SharePtr</Filter>
+      <Filter>SharePtr</Filter>
     </ClInclude>
+    <ClInclude Include="stdafx.h" />
     <ClInclude Include="StringHelper\StringHelper.h">
-      <Filter>Source Files\StringHelper</Filter>
+      <Filter>StringHelper</Filter>
     </ClInclude>
     <ClInclude Include="TinyXML\tinystr.h">
-      <Filter>Source Files\TinyXML</Filter>
+      <Filter>TinyXML</Filter>
     </ClInclude>
     <ClInclude Include="TinyXML\tinyxml.h">
-      <Filter>Source Files\TinyXML</Filter>
+      <Filter>TinyXML</Filter>
     </ClInclude>
+    <ClInclude Include="UtilityManager.h" />
+    <ClInclude Include="Serializer\Serializer.hpp">
+      <Filter>Serializer</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="EnumStrGenerator">
+      <UniqueIdentifier>{F1C8A173-F6D7-4FB9-B45C-7FE8173F5C53}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FileEncoder">
+      <UniqueIdentifier>{6732C45B-443C-4E7D-8A3A-AFDC10CACE20}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FileFilter">
+      <UniqueIdentifier>{97E8F488-CF26-451E-A1AB-6DDC4853B044}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IdManager">
+      <UniqueIdentifier>{B6FF7E6B-1088-4D71-BCE6-3B83E9034ED2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MailManager">
+      <UniqueIdentifier>{3AF1CC59-C34F-47E3-8458-D6417AF0FF1B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Math">
+      <UniqueIdentifier>{9CD9C212-2EA3-4B94-9018-D2FEBA6A9D34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MD5">
+      <UniqueIdentifier>{E2244AA3-B268-493A-A237-F50F7E3BD8A4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Serializer">
+      <UniqueIdentifier>{B6921939-8568-4CB5-A4BC-522A52884C53}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ServiceManager">
+      <UniqueIdentifier>{A4F6ACAC-489E-4FF1-9362-FAA743AAB6A1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="StringHelper">
+      <UniqueIdentifier>{E55F377F-2C57-418B-B1B4-0A91EF2A66FE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TinyXML">
+      <UniqueIdentifier>{0C026A9D-9B26-4256-89FD-7F9B2CA8E9EC}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SharePtr">
+      <UniqueIdentifier>{18851E76-626D-42CA-9546-0F41563495D5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "PropertyDescriptionBase.h"
-#include "../../Utility/Serializer/Serializer.h"
-#include "../../Utility/SharePtr/SharePtr.h"
-#include "../Component/ComponentEditorProxy.h"
-#include "../Component/ComponentProxyManager.h"
+#include "Serializer/Serializer.h"
+#include "SharePtr/SharePtr.h"
+#include "Component/ComponentEditorProxy.h"
+#include "Component/ComponentProxyManager.h"
 
 CPropertyDescriptionBase::CPropertyDescriptionBase(EReflectPropertyType type)
 : m_pOwner(NULL)

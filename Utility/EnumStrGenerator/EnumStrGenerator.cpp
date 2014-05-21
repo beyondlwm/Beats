@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "EnumStrGenerator.h"
-#include "../Serializer/Serializer.h"
-#include "../StringHelper/StringHelper.h"
+#include "Serializer/Serializer.h"
+#include "StringHelper/StringHelper.h"
 #include <shlwapi.h>
 #pragma comment(lib, "shlwapi.lib")
 

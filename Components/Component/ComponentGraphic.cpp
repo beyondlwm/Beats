@@ -2,8 +2,8 @@
 
 #include "ComponentEditorProxy.h"
 #include "ComponentGraphic.h"
-#include "../DependencyDescriptionLine.h"
-#include "../DependencyDescription.h"
+#include "DependencyDescriptionLine.h"
+#include "DependencyDescription.h"
 
 CComponentGraphic::CComponentGraphic()
 : m_pOwner(NULL)
