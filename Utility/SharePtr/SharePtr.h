@@ -3,16 +3,18 @@
 
 #include <mutex>
 
-#ifdef _DEBUG
-#include "dbghelp.h"
-//#define SHARE_PTR_TRACE
-#endif
+#if (BEATS_PLATFORM == PLATFORM_WIN32)
+    #ifdef _DEBUG
+    #include "dbghelp.h"
+    //#define SHARE_PTR_TRACE
+    #endif
 
-#ifdef SHARE_PTR_TRACE
-#include "StringHelper/StringHelper.h"
-#include <Shlwapi.h>
-#include <set>
-#pragma comment(lib, "shlwapi.lib")
+    #ifdef SHARE_PTR_TRACE
+    #include "StringHelper/StringHelper.h"
+    #include <Shlwapi.h>
+    #include <set>
+    #pragma comment(lib, "shlwapi.lib")
+    #endif
 #endif
 
 template<typename ClassType>

@@ -1,9 +1,10 @@
 #ifndef BEATS_TCHAR_H__INCLUDE
 #define BEATS_TCHAR_H__INCLUDE
 
-#if (FC_PLATFORM != PLATFORM_WIN32)
+#if (BEATS_PLATFORM != PLATFORM_WIN32)
 #ifdef _UNICODE
 #define TCHAR wchar_t
+#define TString std::wstring
 
 //note: descriptions with * in front have replacement functions
 
@@ -50,6 +51,7 @@
 
 #else //if defined(_ASCII)
 #define TCHAR char
+#define TString std::string
 
 //formatting functions
 #define _sntprintf snprintf    
