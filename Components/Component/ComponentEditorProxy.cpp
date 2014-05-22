@@ -150,7 +150,7 @@ CComponentBase* CComponentEditorProxy::Clone(bool bCloneValue, CSerializer* /*pS
     pNewInstance->SetId(id);
     if (m_pHostComponent != NULL)
     {
-        pNewInstance->m_pHostComponent = CComponentManager::GetInstance()->CreateComponentByRef(m_pHostComponent, bCloneValue, false, id);
+        pNewInstance->m_pHostComponent = CComponentManager::GetInstance()->CreateComponentByRef(m_pHostComponent, bCloneValue, false, id, false);
         pNewInstance->UpdateHostComponent();
         pNewInstance->m_pHostComponent->Initialize();
     }
