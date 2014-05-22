@@ -209,7 +209,7 @@ CPropertyDescriptionBase* CPtrPropertyDescription::Clone(bool bCloneValue)
     CPtrPropertyDescription* pNewProperty = static_cast<CPtrPropertyDescription*>(super::Clone(bCloneValue));
     if (m_pInstance != NULL && bCloneValue)
     {
-        pNewProperty->m_pInstance = static_cast<CComponentEditorProxy*>(m_pInstance->Clone(true, NULL));
+        pNewProperty->m_pInstance = static_cast<CComponentEditorProxy*>(m_pInstance->Clone(true, NULL, 0xFFFFFFFF));
         for (size_t i = 0; i < m_pInstance->GetPropertyPool()->size(); ++i)
         {
             CPropertyDescriptionBase* pProperty = (*m_pInstance->GetPropertyPool())[i];

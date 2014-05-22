@@ -1,0 +1,6 @@
+#ifndef BEATS_BEATSTYPEDEF_H__INCLUDE
+#define BEATS_BEATSTYPEDEF_H__INCLUDE
+
+
+
+#endif // !1

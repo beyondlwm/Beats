@@ -6,6 +6,7 @@
 #pragma once
 #include "BeatsPlatFormConfig.h"
 #include "BeatsTchar.h"
+#include "BeatsTypeDef.h"
 
 #if (BEATS_PLATFORM == PLATFORM_WIN32)
     // 如果必须将位于下面指定平台之前的平台作为目标，请修改下列定义。

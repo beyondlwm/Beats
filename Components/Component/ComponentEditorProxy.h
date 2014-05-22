@@ -50,7 +50,7 @@ public:
     virtual const TCHAR* GetClassStr() const;
     void Save();
 
-    virtual CComponentBase* Clone(bool bCloneValue, CSerializer* pSerializer);
+    virtual CComponentBase* Clone(bool bCloneValue, CSerializer* pSerializer, size_t id) override;
 
     ///*
     //    We have two ways for interaction:
@@ -63,7 +63,6 @@ public:
     virtual void Serialize(CSerializer& serializer, EValueType eValueType);
     virtual void Deserialize(CSerializer& serializer);
 
-    virtual void SetId(size_t id);
     virtual void Initialize();
 
 protected:

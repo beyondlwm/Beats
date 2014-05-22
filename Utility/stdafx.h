@@ -6,6 +6,7 @@
 #pragma once
 #include "BeatsPlatFormConfig.h"
 #include "BeatsTchar.h"
+#include "BeatsTypeDef.h"
 #if (BEATS_PLATFORM == PLATFORM_WIN32)
     // Modify the following defines if you have to target a platform prior to the ones specified below.
     // Refer to MSDN for the latest info on corresponding values for different platforms.

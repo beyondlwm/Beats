@@ -744,7 +744,7 @@ void CComponentRenderWindow::OnComponentMenuClicked( wxMenuEvent& event )
             if (pComponentProxy != m_pCopyComponent)
             {
                 BEATS_SAFE_DELETE(m_pCopyComponent);
-                m_pCopyComponent = static_cast<CComponentEditorProxy*>(pComponentProxy->Clone(true, NULL));
+                m_pCopyComponent = static_cast<CComponentEditorProxy*>(pComponentProxy->Clone(true, NULL, 0xFFFFFFFF));
             }
         }
         break;

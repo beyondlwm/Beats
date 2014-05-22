@@ -6,6 +6,10 @@
 #define TCHAR wchar_t
 #define TString std::wstring
 
+#define __T(x)      L ## x
+#define _T(x)       __T(x)
+
+
 //note: descriptions with * in front have replacement functions
 
 //formatting functions
@@ -52,6 +56,7 @@
 #else //if defined(_ASCII)
 #define TCHAR char
 #define TString std::string
+#define __T(x)      x
 
 //formatting functions
 #define _sntprintf snprintf    

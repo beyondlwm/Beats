@@ -126,7 +126,7 @@ void CComponentEditorProxy::Deserialize( CSerializer& serializer )
     }
 }
 
-CComponentBase* CComponentEditorProxy::Clone(bool bCloneValue, CSerializer* /*pSerializer*/)
+CComponentBase* CComponentEditorProxy::Clone(bool bCloneValue, CSerializer* /*pSerializer*/, size_t id)
 {
     CComponentEditorProxy* pNewInstance = new CComponentEditorProxy(m_pGraphics->Clone(), m_uGuid, m_uParentGuid, m_szClassName.c_str());
     pNewInstance->SetDisplayName(m_displayName.c_str());
@@ -147,11 +147,10 @@ CComponentBase* CComponentEditorProxy::Clone(bool bCloneValue, CSerializer* /*pS
     }
     pNewInstance->m_pSerializeOrder->assign(m_pSerializeOrder->begin(), m_pSerializeOrder->end());
     pNewInstance->GetGraphics()->CaculateSize();
-
+    pNewInstance->SetId(id);
     if (m_pHostComponent != NULL)
     {
-        // please do manual manage because we don't know the id yet! we will register host component after we get the id!
-        pNewInstance->m_pHostComponent = CComponentManager::GetInstance()->CreateComponentByRef(m_pHostComponent, bCloneValue, true);
+        pNewInstance->m_pHostComponent = CComponentManager::GetInstance()->CreateComponentByRef(m_pHostComponent, bCloneValue, false, id);
         pNewInstance->UpdateHostComponent();
         pNewInstance->m_pHostComponent->Initialize();
     }
@@ -522,17 +521,6 @@ void CComponentEditorProxy::Save()
     for (size_t i = 0; i < (*m_pProperties).size(); ++i)
     {
         (*m_pProperties)[i]->Save();
-    }
-}
-
-void CComponentEditorProxy::SetId(size_t id)
-{
-    super::SetId(id);
-    if (m_pHostComponent != NULL)
-    {
-        m_pHostComponent->SetId(id);
-        CComponentManager::GetInstance()->RegisterInstance(m_pHostComponent);
-        CComponentManager::GetInstance()->GetIdManager()->ReserveId(id);
     }
 }
 

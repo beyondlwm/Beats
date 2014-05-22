@@ -4,9 +4,9 @@
 template<typename T>
  CSerializer& CSerializer::operator>>( T& data )
 {
-    BEATS_ASSERT((static_cast<BYTE*>(m_pReadPtr) + sizeof(T) <= static_cast<BYTE*>(m_pWritePtr)), _T("Deserialize overflow!"));
+    BEATS_ASSERT((static_cast<T_BYTE*>(m_pReadPtr) + sizeof(T) <= static_cast<T_BYTE*>(m_pWritePtr)), _T("Deserialize overflow!"));
     memcpy(&data, m_pReadPtr, sizeof(T));
-    m_pReadPtr = static_cast<BYTE*>(m_pReadPtr) + sizeof(T);
+    m_pReadPtr = static_cast<T_BYTE*>(m_pReadPtr) + sizeof(T);
     return (*this);
 }
 
@@ -22,7 +22,7 @@ template<typename T>
 {
     ValidateBuffer(sizeof(T));
     memcpy(m_pWritePtr, &data, sizeof(T));
-    m_pWritePtr = static_cast<BYTE*>(m_pWritePtr) + sizeof(T);
+    m_pWritePtr = static_cast<T_BYTE*>(m_pWritePtr) + sizeof(T);
     return (*this);
 }
 
@@ -47,7 +47,7 @@ inline CSerializer& CSerializer::operator<<( const std::string& str )
     size_t size = ((str.length() + 1) * sizeof(char));
     ValidateBuffer(size);
     strcpy_s(static_cast<char*>(m_pWritePtr), (m_size - GetWritePos()) / sizeof(char), data);
-    m_pWritePtr = static_cast<BYTE*>(m_pWritePtr) + size;
+    m_pWritePtr = static_cast<T_BYTE*>(m_pWritePtr) + size;
     return (*this);
 }
 
@@ -57,30 +57,30 @@ inline CSerializer& CSerializer::operator>>( std::string& data )
     char* pData = static_cast<char*>(m_pReadPtr);
     data.assign(pData);
     size_t size = (data.length() + 1) * sizeof(char);
-    BEATS_ASSERT((static_cast<BYTE*>(m_pReadPtr) + size) <= (static_cast<BYTE*>(m_pBuffer) + m_size), _T("overflow in reading buffer!"));
-    m_pReadPtr = static_cast<BYTE*>(m_pReadPtr) + size;
+    BEATS_ASSERT((static_cast<T_BYTE*>(m_pReadPtr) + size) <= (static_cast<T_BYTE*>(m_pBuffer) + m_size), _T("overflow in reading buffer!"));
+    m_pReadPtr = static_cast<T_BYTE*>(m_pReadPtr) + size;
     return (*this);
 }
 
 template<>
 inline CSerializer& CSerializer::operator<<( const std::wstring& str )
 {
-    const WCHAR* data = str.c_str();
-    size_t size = ((str.length() + 1) * sizeof(WCHAR));
+    const wchar_t* data = str.c_str();
+    size_t size = ((str.length() + 1) * sizeof(wchar_t));
     ValidateBuffer(size);
-    wcscpy_s(static_cast<WCHAR*>(m_pWritePtr), (m_size - GetWritePos()) / sizeof(WCHAR), data);
-    m_pWritePtr = static_cast<BYTE*>(m_pWritePtr) + size;
+    wcscpy_s(static_cast<wchar_t*>(m_pWritePtr), (m_size - GetWritePos()) / sizeof(wchar_t), data);
+    m_pWritePtr = static_cast<T_BYTE*>(m_pWritePtr) + size;
     return (*this);
 }
 
 template<>
 inline CSerializer& CSerializer::operator>>( std::wstring& data )
 {
-    WCHAR* pData = static_cast<WCHAR*>(m_pReadPtr);
+    wchar_t* pData = static_cast<wchar_t*>(m_pReadPtr);
     data.assign(pData);
-    size_t size = (data.length() + 1) * sizeof(WCHAR);
-    BEATS_ASSERT((static_cast<BYTE*>(m_pReadPtr) + size) <= (static_cast<BYTE*>(m_pBuffer) + m_size), _T("overflow in reading buffer!"));
-    m_pReadPtr = static_cast<BYTE*>(m_pReadPtr) + size;
+    size_t size = (data.length() + 1) * sizeof(wchar_t);
+    BEATS_ASSERT((static_cast<T_BYTE*>(m_pReadPtr) + size) <= (static_cast<T_BYTE*>(m_pBuffer) + m_size), _T("overflow in reading buffer!"));
+    m_pReadPtr = static_cast<T_BYTE*>(m_pReadPtr) + size;
     return (*this);
 }
 
@@ -96,9 +96,9 @@ inline CSerializer& CSerializer::operator >> (char* data)
 {
     BEATS_ASSERT(data != NULL, _T("Data pointer is NULL!"));
     size_t size = (strlen(static_cast<char*>(m_pReadPtr)) + 1) * sizeof(char);
-    BEATS_ASSERT(static_cast<BYTE*>(m_pReadPtr) + size <= static_cast<BYTE*>(m_pWritePtr), _T("Deserialize out of bound!"));
+    BEATS_ASSERT(static_cast<T_BYTE*>(m_pReadPtr) + size <= static_cast<T_BYTE*>(m_pWritePtr), _T("Deserialize out of bound!"));
     memcpy(data, m_pReadPtr, size);
-    m_pReadPtr = static_cast<BYTE*>(m_pReadPtr) + size;
+    m_pReadPtr = static_cast<T_BYTE*>(m_pReadPtr) + size;
     return (*this);
 }
 
@@ -107,9 +107,9 @@ inline CSerializer& CSerializer::operator >> (wchar_t* data)
 {
     BEATS_ASSERT(data != NULL, _T("Data is null to deserialize."));
     size_t size = (wcslen(static_cast<wchar_t*>(m_pReadPtr)) + 1) * sizeof(wchar_t);
-    BEATS_ASSERT(static_cast<BYTE*>(m_pReadPtr) + size <= static_cast<BYTE*>(m_pWritePtr), _T("Deserialize out of bound!"));
+    BEATS_ASSERT(static_cast<T_BYTE*>(m_pReadPtr) + size <= static_cast<T_BYTE*>(m_pWritePtr), _T("Deserialize out of bound!"));
     memcpy(data, m_pReadPtr, size);
-    m_pReadPtr = static_cast<BYTE*>(m_pReadPtr) + size;
+    m_pReadPtr = static_cast<T_BYTE*>(m_pReadPtr) + size;
     return (*this);
 }
 
@@ -118,7 +118,7 @@ template<typename T>
 inline CSerializer& CSerializer::Read(T& pOut)
 {
     pOut = (T)m_pReadPtr;
-    m_pReadPtr = static_cast<BYTE*>(m_pReadPtr) + sizeof(*pOut);
+    m_pReadPtr = static_cast<T_BYTE*>(m_pReadPtr) + sizeof(*pOut);
     return (*this);
 }
 
@@ -127,7 +127,7 @@ inline CSerializer& CSerializer::Read(char**& pOut)
 {
     BEATS_ASSERT(pOut != NULL, _T("Out pointer of serializer read is NULL!"));
     *pOut = (char*)m_pReadPtr;
-    m_pReadPtr = static_cast<BYTE*>(m_pReadPtr) + sizeof(char) * (strlen(*pOut) + 1);
+    m_pReadPtr = static_cast<T_BYTE*>(m_pReadPtr) + sizeof(char) * (strlen(*pOut) + 1);
     return (*this);
 }
 
@@ -136,7 +136,7 @@ inline CSerializer& CSerializer::Read(wchar_t**& pOut)
 {
     BEATS_ASSERT(pOut != NULL, _T("Out pointer of serializer read is NULL!"));
     *pOut = (wchar_t*)m_pReadPtr;
-    m_pReadPtr = static_cast<BYTE*>(m_pReadPtr) + sizeof(wchar_t) * (wcslen(*pOut) + 1);
+    m_pReadPtr = static_cast<T_BYTE*>(m_pReadPtr) + sizeof(wchar_t) * (wcslen(*pOut) + 1);
     return (*this);
 }
 

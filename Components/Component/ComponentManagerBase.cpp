@@ -109,25 +109,27 @@ CComponentBase* CComponentManagerBase::CreateComponent( size_t guid, bool bClone
 CComponentBase* CComponentManagerBase::CreateComponentByRef( CComponentBase* pComponentRef, bool bCloneValue, bool bManualManage /*= false*/, size_t specifiedInstanceId /*= 0xFFFFFFFF*/, bool bCheckRequestId /*= true*/, CSerializer* pData /*= NULL*/ )
 {
     BEATS_ASSERT(pComponentRef != NULL, _T("Create an unknown component by NULL ref"));
-    // TODO: bCloneValue only makes sense when this is a CComponentEditorProxy.
-    CComponentBase* pNewInstance = static_cast<CComponentBase*>(pComponentRef->Clone(bCloneValue, pData));
     if (!bManualManage)
     {
-        size_t id = specifiedInstanceId;
         if (specifiedInstanceId != 0xFFFFFFFF)
         {
             m_pIdManager->ReserveId(specifiedInstanceId, bCheckRequestId);
         }
         else
         {
-            id = m_pIdManager->GenerateId();
+            specifiedInstanceId = m_pIdManager->GenerateId();
         }
-        pNewInstance->SetId( id );
-        RegisterInstance(pNewInstance);
     }
     else
     {
         BEATS_ASSERT(specifiedInstanceId == 0xFFFFFFFF, _T("If you want to manage component instance by yourself, don't require instance id!"));
+    }
+
+    // TODO: bCloneValue only makes sense when this is a CComponentEditorProxy.
+    CComponentBase* pNewInstance = static_cast<CComponentBase*>(pComponentRef->Clone(bCloneValue, pData, specifiedInstanceId));
+    if (!bManualManage)
+    {
+        RegisterInstance(pNewInstance);
     }
     return pNewInstance;
 }
