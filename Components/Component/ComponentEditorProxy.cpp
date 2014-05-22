@@ -152,6 +152,8 @@ CComponentBase* CComponentEditorProxy::Clone(bool bCloneValue, CSerializer* /*pS
     {
         // please do manual manage because we don't know the id yet! we will register host component after we get the id!
         pNewInstance->m_pHostComponent = CComponentManager::GetInstance()->CreateComponentByRef(m_pHostComponent, bCloneValue, true);
+        pNewInstance->UpdateHostComponent();
+        pNewInstance->m_pHostComponent->Initialize();
     }
     pNewInstance->Initialize();
 

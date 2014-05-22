@@ -109,6 +109,7 @@ CComponentBase* CComponentManagerBase::CreateComponent( size_t guid, bool bClone
 CComponentBase* CComponentManagerBase::CreateComponentByRef( CComponentBase* pComponentRef, bool bCloneValue, bool bManualManage /*= false*/, size_t specifiedInstanceId /*= 0xFFFFFFFF*/, bool bCheckRequestId /*= true*/, CSerializer* pData /*= NULL*/ )
 {
     BEATS_ASSERT(pComponentRef != NULL, _T("Create an unknown component by NULL ref"));
+    // TODO: bCloneValue only makes sense when this is a CComponentEditorProxy.
     CComponentBase* pNewInstance = static_cast<CComponentBase*>(pComponentRef->Clone(bCloneValue, pData));
     if (!bManualManage)
     {
