@@ -337,19 +337,16 @@ void CUtilityManager::SerializeDirectory( SDirectory* pDirectory, CSerializer& s
     }
 }
 
-bool CUtilityManager::WriteDataToFile(HANDLE hFile, void* pData, size_t uDataLength, size_t uRetryCount/* = 20*/)
+bool CUtilityManager::WriteDataToFile(FILE* pFile, void* pData, size_t uDataLength, size_t uRetryCount/* = 20*/)
 {
-    BEATS_ASSERT(hFile != INVALID_HANDLE_VALUE, _T("File handle is invalid in CUtilityManager::WriteDataToFile"));
+    BEATS_ASSERT(pFile != NULL, _T("File handle is invalid in CUtilityManager::WriteDataToFile"));
     BEATS_ASSERT(pData != NULL, _T("Data is NULL in CUtilityManager::WriteDataToFile"));
     BEATS_ASSERT(uDataLength > 0, _T("uDataLength is 0 in CUtilityManager::WriteDataToFile"));
     size_t uCounter = 0;
     while (uCounter < uDataLength && uRetryCount > 0)
     {
         DWORD uWriteCounter = 0;
-        if (WriteFile(hFile, (BYTE*)pData + uCounter, (DWORD)(uDataLength - uCounter), &uWriteCounter, NULL) == FALSE)
-        {
-            break;
-        }
+        uWriteCounter = fwrite((unsigned char*)pData + uCounter, sizeof(unsigned char), uDataLength - uCounter, pFile);
         uCounter += uWriteCounter;
         --uRetryCount;
     }
@@ -357,19 +354,16 @@ bool CUtilityManager::WriteDataToFile(HANDLE hFile, void* pData, size_t uDataLen
     return uCounter == uDataLength;
 }
 
-bool CUtilityManager::ReadDataFromFile(HANDLE hFile, void* pData, size_t uDataLength, size_t uRetryCount/* = 20*/)
+bool CUtilityManager::ReadDataFromFile(FILE* pFile, void* pData, size_t uDataLength, size_t uRetryCount/* = 20*/)
 {
-    BEATS_ASSERT(hFile != INVALID_HANDLE_VALUE, _T("File handle is invalid in CUtilityManager::WriteDataToFile"));
+    BEATS_ASSERT(pFile != NULL, _T("File handle is invalid in CUtilityManager::WriteDataToFile"));
     BEATS_ASSERT(pData != NULL, _T("Data is NULL in CUtilityManager::WriteDataToFile"));
     BEATS_ASSERT(uDataLength > 0, _T("uDataLength is 0 in CUtilityManager::WriteDataToFile"));
     size_t uCounter = 0;
     while (uCounter < uDataLength && uRetryCount > 0)
     {
         DWORD uReadCounter = 0;
-        if (ReadFile(hFile, (BYTE*)pData + uCounter, (DWORD)(uDataLength - uCounter), &uReadCounter, NULL) == FALSE)
-        {
-            break;
-        }
+        uReadCounter = fread((unsigned char*)pData + uCounter, sizeof(unsigned char), uDataLength - uCounter, pFile);
         uCounter += uReadCounter;
         --uRetryCount;
     }

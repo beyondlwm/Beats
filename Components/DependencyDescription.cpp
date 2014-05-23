@@ -47,6 +47,12 @@ CDependencyDescriptionLine* CDependencyDescription::SetDependency( size_t uIndex
         m_dependencyLine[uIndex]->SetConnectComponent(pComponent);
         pRet = m_dependencyLine[uIndex];
     }
+    if (!m_bIsListType)
+    {
+        m_changeAction = eDCA_Change;
+        m_pChangeActionProxy = pComponent;
+        OnDependencyChanged();
+    }
     return pRet;
 }
 
@@ -72,6 +78,8 @@ CDependencyDescriptionLine* CDependencyDescription::AddDependency( CComponentEdi
         BEATS_ASSERT(m_dependencyLine.size() == 0 || m_bIsListType);
         pRet = new CDependencyDescriptionLine(this, m_dependencyLine.size(), pComponentInstance);
         m_dependencyLine.push_back(pRet);
+        m_changeAction = eDCA_Add;
+        m_pChangeActionProxy = pComponentInstance;
         OnDependencyChanged();
     }
     return pRet;
@@ -89,12 +97,14 @@ void CDependencyDescription::RemoveDependencyByIndex( size_t uIndex )
     std::vector<CDependencyDescriptionLine*>::iterator iter = m_dependencyLine.begin();
     advance(iter, uIndex);
     BEATS_ASSERT(*iter == m_dependencyLine[uIndex]);
+    m_pChangeActionProxy = (*iter)->GetConnectedComponent();
     m_dependencyLine.erase(iter);
 
     for (size_t i = uIndex; i < m_dependencyLine.size(); ++i)
     {
         m_dependencyLine[i]->SetIndex(i);
     }
+    m_changeAction = eDCA_Delete;
     OnDependencyChanged();
 }
 
@@ -267,6 +277,12 @@ void CDependencyDescription::Serialize(CSerializer& serializer)
         serializer << pConnectedComponent->GetId();
         serializer << pConnectedComponent->GetGuid();
     }
+}
+
+void CDependencyDescription::GetCurrActionParam(EDependencyChangeAction& action, CComponentEditorProxy*& pProxy)
+{
+    action = m_changeAction;
+    pProxy = m_pChangeActionProxy;
 }
 
 void CDependencyDescription::OnDependencyChanged()

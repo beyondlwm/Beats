@@ -26,7 +26,7 @@ struct SBytesFlipEncodeHeader : public SEncodeHeader
 };
 
 /*
-This encoder used to flip some BYTE of the data with random position.
+This encoder used to flip some unsigned char of the data with random position.
 we flip random count of data BYTES with SetFlipCountRange, and we will ignore next random count of data BYTES with SetStepRange.
 it means if you want to flip all data BYTES, you should SetStepRange(0, 0).
 */
@@ -46,10 +46,10 @@ public:
 private:
     bool CheckParameter();
 
-    virtual bool EncodeImpl(CSerializer* pSourceFile, CSerializer* pEncodeFile);
-    virtual bool EncodeImpl(HANDLE hSourceFile, HANDLE hEncodeFile);
-    virtual bool DecodeImpl(CSerializer* pEncodeFile, size_t uStartPos, CSerializer* pDecodeFile);
-    virtual bool DecodeImpl(HANDLE hEncodeFile, long long uStartPos, HANDLE hDecodeFile);
+    virtual bool EncodeImpl(CSerializer* pSourceFile, CSerializer* pEncodeFile) override;
+    virtual bool EncodeImpl(FILE* hSourceFile, FILE* hEncodeFile) override;
+    virtual bool DecodeImpl(CSerializer* pEncodeFile, size_t uStartPos, CSerializer* pDecodeFile) override;
+    virtual bool DecodeImpl(FILE* hEncodeFile, long long uStartPos, FILE* hDecodeFile) override;
 
     virtual SEncodeHeader* GetEncodeHeader();
 

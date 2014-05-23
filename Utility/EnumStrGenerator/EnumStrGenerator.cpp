@@ -284,7 +284,7 @@ bool CEnumStrGenerator::IsEnumKeyword( CSerializer* pSerailizer )
     //Check front.
     if (pSerailizer->GetReadPos() > 1)
     {
-        BYTE byteData = pSerailizer->GetBuffer()[pSerailizer->GetReadPos() - 1];
+        unsigned char byteData = pSerailizer->GetBuffer()[pSerailizer->GetReadPos() - 1];
         if (byteData != '\n' && byteData != ' ' && byteData != '\t')
         {
             bRet = false;
@@ -293,7 +293,7 @@ bool CEnumStrGenerator::IsEnumKeyword( CSerializer* pSerailizer )
     if (bRet)
     {
         //Check after, there must be some characters after enum.
-        BYTE byteData = pSerailizer->GetBuffer()[pSerailizer->GetReadPos() + strlen(ENUM_KEYWORD_STR)];
+        unsigned char byteData = pSerailizer->GetBuffer()[pSerailizer->GetReadPos() + strlen(ENUM_KEYWORD_STR)];
         if (byteData != '\n' && byteData != ' ' && byteData != '\t' && byteData != '{')
         {
             bRet = false;

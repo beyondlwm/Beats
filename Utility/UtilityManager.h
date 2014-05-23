@@ -108,8 +108,8 @@ public:
     unsigned long long BuildDirectoryToList(SDirectory* pDirectory, std::vector<WIN32_FIND_DATA*>& listToAppend);
     void SerializeDirectory(SDirectory* pDirectory, CSerializer& serializer);
     void DeserializeDirectory(SDirectory* pDirectory, CSerializer& serializer, long long* pTotalDataSize = NULL, size_t* pFileCount = NULL);
-    bool WriteDataToFile(HANDLE hFile, void* pData, size_t uDataLength, size_t uRetryCount = 20);
-    bool ReadDataFromFile(HANDLE hFile, void* pData, size_t uDataLength, size_t uRetryCount = 20);
+    bool WriteDataToFile(FILE* pFile, void* pData, size_t uDataLength, size_t uRetryCount = 20);
+    bool ReadDataFromFile(FILE* pFile, void* pData, size_t uDataLength, size_t uRetryCount = 20);
 
     // System Module
     bool GetProcessModule(size_t uProcessId, std::vector<TString>& modulePath);

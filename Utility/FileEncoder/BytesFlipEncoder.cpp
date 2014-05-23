@@ -49,8 +49,8 @@ bool CBytesFlipEncoder::EncodeImpl(CSerializer* pSourceSerializer, CSerializer* 
             {
                 unsigned short uFlipCount = (unsigned short)(((double)rand() / RAND_MAX) * uFlipDeltaValue + m_header.m_iFlipCountMin);
                 unsigned short uFlipSizeEachTime = (unsigned short)min(uFlipCount, pSourceSerializer->GetWritePos() - pSourceSerializer->GetReadPos());
-                BYTE* pSourceData = (BYTE*)pSourceSerializer->GetReadPtr();
-                BYTE* pEncodeData = (BYTE*)pEncodeSerializer->GetWritePtr();
+                unsigned char* pSourceData = (unsigned char*)pSourceSerializer->GetReadPtr();
+                unsigned char* pEncodeData = (unsigned char*)pEncodeSerializer->GetWritePtr();
                 for (size_t i = 0; i < uFlipSizeEachTime; ++i)
                 {
                     pEncodeData[i] = ~pSourceData[i];
@@ -75,7 +75,7 @@ bool CBytesFlipEncoder::EncodeImpl(CSerializer* pSourceSerializer, CSerializer* 
     return bRet;
 }
 
-bool CBytesFlipEncoder::EncodeImpl(HANDLE hSourceFile, HANDLE hEncodeFile)
+bool CBytesFlipEncoder::EncodeImpl(FILE* pSourceFile, FILE* pEncodeFile)
 {
     bool bRet = CheckParameter();
     if (bRet)
@@ -84,18 +84,18 @@ bool CBytesFlipEncoder::EncodeImpl(HANDLE hSourceFile, HANDLE hEncodeFile)
         unsigned short uFlipDeltaValue = m_header.m_iFlipCountMax - m_header.m_iFlipCountMin;
         unsigned short uStepDeltaValue = m_header.m_iStepMax - m_header.m_iStepMin;
         long long uTotalReadCounter = 0;
-        BYTE* pBuffer = new BYTE[Read_Buffer_Size];
+        unsigned char* pBuffer = new unsigned char[Read_Buffer_Size];
         while (uTotalReadCounter < m_header.m_uOriDataSize && bRet)
         {
             unsigned short uFlipCount = (unsigned short)(((double)rand() / RAND_MAX) * uFlipDeltaValue + m_header.m_iFlipCountMin);
             unsigned short uFlipSizeEachTime = (unsigned short)min(uFlipCount, m_header.m_uOriDataSize - uTotalReadCounter);
-            if (CUtilityManager::GetInstance()->ReadDataFromFile(hSourceFile, pBuffer, uFlipSizeEachTime))
+            if (CUtilityManager::GetInstance()->ReadDataFromFile(pSourceFile, pBuffer, uFlipSizeEachTime))
             {
                 for (unsigned short i = 0; i < uFlipSizeEachTime; ++i)
                 {
                     pBuffer[i] = ~pBuffer[i];
                 }
-                if (CUtilityManager::GetInstance()->WriteDataToFile(hEncodeFile, pBuffer, uFlipSizeEachTime))
+                if (CUtilityManager::GetInstance()->WriteDataToFile(pEncodeFile, pBuffer, uFlipSizeEachTime))
                 {
                     uTotalReadCounter += uFlipSizeEachTime;
                     // Do step logic.
@@ -107,8 +107,8 @@ bool CBytesFlipEncoder::EncodeImpl(HANDLE hSourceFile, HANDLE hEncodeFile)
                     }
                     if (uStepCount > 0)
                     {
-                        CUtilityManager::GetInstance()->ReadDataFromFile(hSourceFile, pBuffer, uStepCount);
-                        CUtilityManager::GetInstance()->WriteDataToFile(hEncodeFile, pBuffer, uStepCount);
+                        CUtilityManager::GetInstance()->ReadDataFromFile(pSourceFile, pBuffer, uStepCount);
+                        CUtilityManager::GetInstance()->WriteDataToFile(pEncodeFile, pBuffer, uStepCount);
 
                         uTotalReadCounter += uStepCount;
                     }
@@ -131,12 +131,12 @@ bool CBytesFlipEncoder::DecodeImpl(CSerializer* pEncodeSerializer, size_t uStart
     return bRet;
 }
 
-bool CBytesFlipEncoder::DecodeImpl(HANDLE hEncodeFile, long long uStartPos, HANDLE hDecodeFile)
+bool CBytesFlipEncoder::DecodeImpl(FILE* pEncodeFile, long long uStartPos, FILE* pDecodeFile)
 {
-    LARGE_INTEGER offset;
-    offset.QuadPart = uStartPos + m_header.m_uHeaderSize;
-    SetFilePointerEx(hEncodeFile, offset, NULL, FILE_BEGIN);
-    bool bRet = EncodeImpl(hEncodeFile, hDecodeFile);
+    long long offset;
+    offset = uStartPos + m_header.m_uHeaderSize;
+    _fseeki64(pEncodeFile, offset, FILE_BEGIN);
+    bool bRet = EncodeImpl(pEncodeFile, pDecodeFile);
     return bRet;
 }
 

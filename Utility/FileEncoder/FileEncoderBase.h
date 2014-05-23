@@ -52,13 +52,13 @@ public:
 private:
 
     bool ReadEncodeHeader(CSerializer* pEncodeSerializer, size_t uStartPos);
-    bool ReadEncodeHeader(HANDLE hEncodeFile, long long uStartPos);
+    bool ReadEncodeHeader(FILE* hEncodeFile, long long uStartPos);
 
     virtual bool EncodeImpl(CSerializer* pSourceFile, CSerializer* pEncodeFile) = 0;
-    virtual bool EncodeImpl(HANDLE hSourceFile, HANDLE hEncodeFile) = 0;
+    virtual bool EncodeImpl(FILE* hSourceFile, FILE* hEncodeFile) = 0;
 
     virtual bool DecodeImpl(CSerializer* pEncodeFile, size_t uStartPos, CSerializer* pDecodeFile) = 0;
-    virtual bool DecodeImpl(HANDLE hEncodeFile, long long uStartPos, HANDLE hDecodeFile) = 0;
+    virtual bool DecodeImpl(FILE* hEncodeFile, long long uStartPos, FILE* hDecodeFile) = 0;
 
     virtual SEncodeHeader* GetEncodeHeader() = 0;
 };

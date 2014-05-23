@@ -19,6 +19,16 @@ enum EDependencyType
     eDT_Force32Bit = 0xFFFFFFFF
 };
 
+enum EDependencyChangeAction
+{
+    eDCA_Add,
+    eDCA_Delete,
+    eDCA_Change,
+
+    eDCA_Count,
+    eDCA_Force32Bit = 0xFFFFFFFF
+};
+
 class COMPONENTS_DLL_DECL CDependencyDescription
 {
 public:
@@ -53,11 +63,16 @@ public:
     bool IsMatch(CComponentEditorProxy* pDependencyComponent);
     void Serialize(CSerializer& serializer);
 
+    //Get the last dependency change action record.
+    void GetCurrActionParam(EDependencyChangeAction& action, CComponentEditorProxy*& pProxy);
+
 private:
     void OnDependencyChanged();
 
 private:
     EDependencyType m_type;
+    EDependencyChangeAction m_changeAction;
+    CComponentEditorProxy* m_pChangeActionProxy;
     size_t m_uIndex;
     CComponentEditorProxy* m_pOwner;
     size_t m_uDependencyGuid;

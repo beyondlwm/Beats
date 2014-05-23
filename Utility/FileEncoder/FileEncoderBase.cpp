@@ -2,6 +2,7 @@
 #include "FileEncoderBase.h"
 #include "UtilityManager.h"
 #include "MD5/md5.h"
+#include <sys/stat.h>
 
 static const size_t Read_Buffer_Size = 1024 * 1024 * 10; // 10M
 
@@ -18,10 +19,10 @@ bool CFileEncoderBase::Encode(const TCHAR* pszSourceFilePath, const TCHAR* pszEn
 {
     bool bRet = false;
     BEATS_ASSERT(pszSourceFilePath != NULL, _T("Source file path can't be NULL"));
-    HANDLE hSourceFileHandle = CreateFile(pszSourceFilePath, FILE_ALL_ACCESS, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    FILE* pSourceFile = _tfopen(pszSourceFilePath, _T("rb+"));
 
-    BEATS_ASSERT(INVALID_HANDLE_VALUE != hSourceFileHandle, _T("Read File %s Failed in CFileEncoderBase::Encode"), pszSourceFilePath);
-    if (INVALID_HANDLE_VALUE != hSourceFileHandle)
+    BEATS_ASSERT(NULL != pSourceFile, _T("Read File %s Failed in CFileEncoderBase::Encode"), pszSourceFilePath);
+    if (NULL != pSourceFile)
     {
         TCHAR newFileName[MAX_PATH];
         if (pszEncodeFilePath == NULL)
@@ -29,33 +30,39 @@ bool CFileEncoderBase::Encode(const TCHAR* pszSourceFilePath, const TCHAR* pszEn
             _stprintf(newFileName, _T("%s_encode"), pszSourceFilePath);
             pszEncodeFilePath = newFileName;
         }
-        HANDLE hEncodeFileHandle = CreateFile(pszEncodeFilePath, FILE_ALL_ACCESS, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-        BEATS_ASSERT(INVALID_HANDLE_VALUE != hEncodeFileHandle, _T("Create File %s Failed in CFileEncoderBase::Encode"), pszEncodeFilePath);
-        if (hEncodeFileHandle != INVALID_HANDLE_VALUE)
+        FILE* pEncodeFile = _tfopen(pszEncodeFilePath, _T("wb+"));
+        BEATS_ASSERT(NULL != pEncodeFile, _T("Create File %s Failed in CFileEncoderBase::Encode"), pszEncodeFilePath);
+        if (NULL != pEncodeFile)
         {
             SEncodeHeader* pHeader = GetEncodeHeader();
             BEATS_ASSERT(pHeader->m_type == this->GetType(), _T("Header type doesn't match, header type %d encoder type %d"), pHeader->m_type, this->GetType());
 
-            LARGE_INTEGER uFileSize;
-            if (GetFileSizeEx(hSourceFileHandle, &uFileSize) == TRUE)
+            struct _stati64 sourceFs;
+            int nSourceFsRet = _fstat64(_fileno(pSourceFile), &sourceFs );
+            BEATS_ASSERT(nSourceFsRet == 0);
+            if (nSourceFsRet == 0)
             {
-                pHeader->m_uOriDataSize = uFileSize.QuadPart;
+                pHeader->m_uOriDataSize = sourceFs.st_size;
                 // 1. Write header info at the beginning first for take the place, these data will be rewrite after EncodeFileImpl.
-                CUtilityManager::GetInstance()->WriteDataToFile(hEncodeFileHandle, pHeader, pHeader->m_uHeaderSize);
+                CUtilityManager::GetInstance()->WriteDataToFile(pEncodeFile, pHeader, pHeader->m_uHeaderSize);
 
-                EncodeImpl(hSourceFileHandle, hEncodeFileHandle);
-                if (GetFileSizeEx(hEncodeFileHandle, &uFileSize) == TRUE)
+                EncodeImpl(pSourceFile, pEncodeFile);
+                fflush(pEncodeFile);
+                struct _stati64 encodeFs;
+                int nEncodeRet = _fstat64(_fileno(pEncodeFile), &encodeFs );
+                BEATS_ASSERT(nEncodeRet == 0);
+                if (nEncodeRet == 0)
                 {
                     // 2. Rewrite header
-                    pHeader->m_uEncodeDataSize = uFileSize.QuadPart;
-                    SetFilePointer(hEncodeFileHandle, 0, NULL, FILE_BEGIN);
-                    bRet = CUtilityManager::GetInstance()->WriteDataToFile(hEncodeFileHandle, pHeader, pHeader->m_uHeaderSize);
+                    pHeader->m_uEncodeDataSize = encodeFs.st_size;
+                    fseek(pEncodeFile, 0, FILE_BEGIN);
+                    bRet = CUtilityManager::GetInstance()->WriteDataToFile(pEncodeFile, pHeader, pHeader->m_uHeaderSize);
                     BEATS_ASSERT(bRet, _T("write encode file failed!"));
                 }
             }
-            CloseHandle(hEncodeFileHandle);
+            fclose(pEncodeFile);
         }
-        CloseHandle(hSourceFileHandle);
+        fclose(pSourceFile);
     }
     return bRet;
 }
@@ -94,10 +101,10 @@ bool CFileEncoderBase::Decode(const TCHAR* pszSourceFilePath, long long uStartPo
 {
     bool bRet = false;
     BEATS_ASSERT(pszSourceFilePath != NULL && pszSourceFilePath[0] != 0, _T("Source file path is invalid"));
-    HANDLE hEncodeFileHandle = CreateFile(pszSourceFilePath, FILE_ALL_ACCESS, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    FILE* pEncodeFile = _tfopen(pszSourceFilePath, _T("rb+"));
 
-    BEATS_ASSERT(INVALID_HANDLE_VALUE != hEncodeFileHandle, _T("Read File %s Failed in CFileEncoderBase::Encode"), pszSourceFilePath);
-    if (INVALID_HANDLE_VALUE != hEncodeFileHandle)
+    BEATS_ASSERT(NULL != pEncodeFile, _T("Read File %s Failed in CFileEncoderBase::Encode"), pszSourceFilePath);
+    if (NULL != pEncodeFile)
     {
         TCHAR newFileName[MAX_PATH];
         if (pszDecodeFilePath == NULL)
@@ -105,18 +112,18 @@ bool CFileEncoderBase::Decode(const TCHAR* pszSourceFilePath, long long uStartPo
             _stprintf(newFileName, _T("%s_decode"), pszSourceFilePath);
             pszDecodeFilePath = newFileName;
         }
-        HANDLE hDecodeFileHandle = CreateFile(pszDecodeFilePath, FILE_ALL_ACCESS, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-        BEATS_ASSERT(INVALID_HANDLE_VALUE != hDecodeFileHandle, _T("Create File %s Failed in CFileEncoderBase::Encode"), pszDecodeFilePath);
-        if (hDecodeFileHandle != INVALID_HANDLE_VALUE)
+        FILE* pDecodeFile = _tfopen(pszDecodeFilePath, _T("wb+"));
+        BEATS_ASSERT(NULL != pDecodeFile, _T("Create File %s Failed in CFileEncoderBase::Encode"), pszDecodeFilePath);
+        if (pDecodeFile != NULL)
         {
-            bool bValidateFile = ReadEncodeHeader(hEncodeFileHandle, uStartPos);
+            bool bValidateFile = ReadEncodeHeader(pEncodeFile, uStartPos);
             if (bValidateFile)
             {
-                bRet = DecodeImpl(hEncodeFileHandle, uStartPos, hDecodeFileHandle);
+                bRet = DecodeImpl(pEncodeFile, uStartPos, pDecodeFile);
             }
-            CloseHandle(hDecodeFileHandle);
+            fclose(pDecodeFile);
         }
-        CloseHandle(hEncodeFileHandle);
+        fclose(pEncodeFile);
     }
     return bRet;
 }
@@ -171,22 +178,24 @@ bool CFileEncoderBase::ReadEncodeHeader(CSerializer* pEncodeSerializer, size_t u
     return bRet;
 }
 
-bool CFileEncoderBase::ReadEncodeHeader(HANDLE hEncodeFile, long long uStartPos)
+bool CFileEncoderBase::ReadEncodeHeader(FILE* pEncodeFile, long long uStartPos)
 {
     bool bRet = false;
 
     // 1. Read basic info of header
-    if (INVALID_HANDLE_VALUE != hEncodeFile)
+    if (NULL != pEncodeFile)
     {
-        LARGE_INTEGER uFileSize;
-        if (GetFileSizeEx(hEncodeFile, &uFileSize) == TRUE)
+        struct _stati64 encodeFs;
+        int nEncodeFsRet = _fstat64(_fileno(pEncodeFile), &encodeFs );
+
+        if (nEncodeFsRet == 0)
         {
-            BEATS_ASSERT(uStartPos < uFileSize.QuadPart, _T("Invalid start pos in ReadEncodeHeader! start pos %lld, file size: %lld"), uStartPos, uFileSize.QuadPart);
-            LARGE_INTEGER startDistance;
-            startDistance.QuadPart = uStartPos;
-            SetFilePointerEx(hEncodeFile, startDistance, NULL, FILE_BEGIN);
+            BEATS_ASSERT(uStartPos < encodeFs.st_size, _T("Invalid start pos in ReadEncodeHeader! start pos %lld, file size: %lld"), uStartPos, encodeFs.st_size);
+            long long startDistance;
+            startDistance = uStartPos;
+            _fseeki64(pEncodeFile, startDistance, FILE_BEGIN);
             SEncodeHeader* pHeader = GetEncodeHeader();
-            bRet = CUtilityManager::GetInstance()->ReadDataFromFile(hEncodeFile, pHeader, sizeof(SEncodeHeader));
+            bRet = CUtilityManager::GetInstance()->ReadDataFromFile(pEncodeFile, pHeader, sizeof(SEncodeHeader));
             BEATS_ASSERT(bRet, _T("Read encode file header failed!"));
             if (bRet)
             {
@@ -194,14 +203,14 @@ bool CFileEncoderBase::ReadEncodeHeader(HANDLE hEncodeFile, long long uStartPos)
                 BEATS_ASSERT(bExamType, _T("Analyse failed, this file is encoded by type %d, current is %d"), pHeader->m_type, GetType());
                 if (bExamType)
                 {
-                    long long uEncodeFileSize = uFileSize.QuadPart;
+                    long long uEncodeFileSize = encodeFs.st_size;
                     bool bExamEncodeDataSize = (uEncodeFileSize - uStartPos) >= pHeader->m_uEncodeDataSize;
                     BEATS_ASSERT(bExamEncodeDataSize, _T("Analyse failed, this file's size is too short!"));
                     if (bExamEncodeDataSize)
                     {
                         // 2. Reload the header according to the basic info.
-                        SetFilePointerEx(hEncodeFile, startDistance, NULL, FILE_BEGIN);
-                        bRet = CUtilityManager::GetInstance()->ReadDataFromFile(hEncodeFile, pHeader, pHeader->m_uHeaderSize);
+                        _fseeki64(pEncodeFile, startDistance, FILE_BEGIN);
+                        bRet = CUtilityManager::GetInstance()->ReadDataFromFile(pEncodeFile, pHeader, pHeader->m_uHeaderSize);
                     }
                 }
             }
@@ -221,8 +230,8 @@ bool CFileEncoderBase::UnitTest()
     static const TCHAR* pszEncodeFileName = _T("BytesOrderEncoderUnitTestFileEncode.del");
     static const TCHAR* pszDecodeFileName = _T("BytesOrderEncoderUnitTestFileDecode.del");
 
-    HANDLE hSourceFile = CreateFile(pszSourceFileName, FILE_ALL_ACCESS, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-    if (hSourceFile != INVALID_HANDLE_VALUE)
+    FILE* pSourceFile = _tfopen(pszSourceFileName, _T("wb+"));
+    if (pSourceFile != NULL)
     {
         srand(GetTickCount());
         size_t* pBuffer = new size_t[Read_Buffer_Size];
@@ -231,10 +240,10 @@ bool CFileEncoderBase::UnitTest()
             pBuffer[i] = rand();
         }
         sourceMd5.Update(pBuffer, sizeof(size_t) * Read_Buffer_Size);
-        bRet = CUtilityManager::GetInstance()->WriteDataToFile(hSourceFile, pBuffer, Read_Buffer_Size * sizeof(size_t));
+        bRet = CUtilityManager::GetInstance()->WriteDataToFile(pSourceFile, pBuffer, Read_Buffer_Size * sizeof(size_t));
         BEATS_ASSERT(bRet, _T("Write data to file %s failed! Create source file failed in CBytesOrderEncoder::UnitTest"), pszSourceFileName);
         BEATS_SAFE_DELETE_ARRAY(pBuffer);
-        CloseHandle(hSourceFile);
+        fclose(pSourceFile);
     }
 
     //2. Encode it with serializer.

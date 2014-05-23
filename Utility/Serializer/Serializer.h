@@ -1,8 +1,6 @@
 #ifndef BEATS_UTILITY_SERIALIZER_SERIALISZER_H__INCLUDE
 #define BEATS_UTILITY_SERIALIZER_SERIALISZER_H__INCLUDE
 
-typedef unsigned char T_BYTE;
-
 static const size_t DefaultSerializerBufferSize = 256;
 struct SBufferData
 {
@@ -47,8 +45,8 @@ public:
     void* GetWritePtr() const;
     size_t GetBufferSize() const;
     void Reset();
-    const T_BYTE* GetBuffer() const;
-    void SetBuffer(const T_BYTE* buffer, size_t uBufferLength);
+    const unsigned char* GetBuffer() const;
+    void SetBuffer(const unsigned char* buffer, size_t uBufferLength);
 
     void Serialize(const void* pData, size_t size);
     bool Serialize(const TCHAR* pFilePath, const TCHAR* pszMode = _T("rb"));

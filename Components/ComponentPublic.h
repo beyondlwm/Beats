@@ -518,6 +518,10 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
                         CComponentManager::GetInstance()->AddDependencyResolver(NULL, 0 , uGuid, uInstanceId, &ptrProperty, false);\
                     }\
                 }\
+                else\
+                {\
+                  ptrProperty = NULL;\
+                }\
             }\
         }\
     }

@@ -78,7 +78,12 @@ CComponentEditorProxy::~CComponentEditorProxy()
     }
     else
     {
-        BEATS_SAFE_DELETE(m_pHostComponent);
+        //Don't delete host component for template component, because we will do it later in destrctor of CComponentManager.
+        bool bIsPtrProperty = CComponentProxyManager::GetInstance()->GetComponentTemplate(this->GetGuid()) != this;
+        if (bIsPtrProperty)
+        {
+            BEATS_SAFE_DELETE(m_pHostComponent);
+        }
     }
 }
 
@@ -150,7 +155,7 @@ CComponentBase* CComponentEditorProxy::Clone(bool bCloneValue, CSerializer* /*pS
     pNewInstance->SetId(id);
     if (m_pHostComponent != NULL)
     {
-        pNewInstance->m_pHostComponent = CComponentManager::GetInstance()->CreateComponentByRef(m_pHostComponent, bCloneValue, false, id, false);
+        pNewInstance->m_pHostComponent = CComponentManager::GetInstance()->CreateComponentByRef(m_pHostComponent, bCloneValue, id == 0xFFFFFFFF, id);
         pNewInstance->UpdateHostComponent();
         pNewInstance->m_pHostComponent->Initialize();
     }

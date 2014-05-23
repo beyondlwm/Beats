@@ -34,9 +34,9 @@ public:
 
 private:
     virtual bool EncodeImpl(CSerializer* pSourceFile, CSerializer* pEncodeFile);
-    virtual bool EncodeImpl(HANDLE hSourceFile, HANDLE hEncodeFile);
+    virtual bool EncodeImpl(FILE* hSourceFile, FILE* hEncodeFile);
     virtual bool DecodeImpl(CSerializer* pEncodeFile, size_t uStartPos, CSerializer* pDecodeFile);
-    virtual bool DecodeImpl(HANDLE hEncodeFile, long long uStartPos, HANDLE hDecodeFile);
+    virtual bool DecodeImpl(FILE* hEncodeFile, long long uStartPos, FILE* hDecodeFile);
 
     virtual SEncodeHeader* GetEncodeHeader();
 
