@@ -32,7 +32,7 @@ CComponentEditorProxy::CComponentEditorProxy(CComponentGraphic* pGraphics)
 CComponentEditorProxy::CComponentEditorProxy(CComponentGraphic* pGraphics, size_t uGuid, size_t uParentGuid, const TCHAR* pszClassName)
 : m_uGuid(uGuid)
 , m_uParentGuid(uParentGuid)
-, m_szClassName(pszClassName)
+, m_strClassName(pszClassName)
 , m_pGraphics(pGraphics)
 , m_pDependenciesDescription(NULL)
 , m_pBeConnectedDependencyLines(NULL)
@@ -133,9 +133,9 @@ void CComponentEditorProxy::Deserialize( CSerializer& serializer )
 
 CComponentBase* CComponentEditorProxy::Clone(bool bCloneValue, CSerializer* /*pSerializer*/, size_t id)
 {
-    CComponentEditorProxy* pNewInstance = new CComponentEditorProxy(m_pGraphics->Clone(), m_uGuid, m_uParentGuid, m_szClassName.c_str());
-    pNewInstance->SetDisplayName(m_displayName.c_str());
-    pNewInstance->SetCatalogName(m_catalogName.c_str());
+    CComponentEditorProxy* pNewInstance = new CComponentEditorProxy(m_pGraphics->Clone(), m_uGuid, m_uParentGuid, m_strClassName.c_str());
+    pNewInstance->SetDisplayName(m_strDisplayName.c_str());
+    pNewInstance->SetCatalogName(m_strCatalogName.c_str());
     BEATS_ASSERT(pNewInstance->GetGuid() == GetGuid(), _T("Can't assign between two different type (0x%x and 0x%x) of Reflect Base!"), pNewInstance->GetGuid(), GetGuid());
     pNewInstance->ClearProperty();
     for (size_t i = 0; i < (*m_pProperties).size(); ++i)
@@ -206,22 +206,22 @@ size_t CComponentEditorProxy::GetParentGuid()
 
 const TCHAR* CComponentEditorProxy::GetClassStr() const
 {
-    return m_szClassName.c_str();
+    return m_strClassName.c_str();
 }
 
 const TString& CComponentEditorProxy::GetDisplayName() const
 {
-    return m_displayName;
+    return m_strDisplayName;
 }
 
 void CComponentEditorProxy::SetDisplayName(const TCHAR* pDisplayName)
 {
-    m_displayName.assign(pDisplayName);
+    m_strDisplayName.assign(pDisplayName);
 }
 
 const TString& CComponentEditorProxy::GetCatalogName() const
 {
-    return m_catalogName;
+    return m_strCatalogName;
 }
 
 void CComponentEditorProxy::SetCatalogName(const TCHAR* pCatalogName)
@@ -230,7 +230,17 @@ void CComponentEditorProxy::SetCatalogName(const TCHAR* pCatalogName)
     {
         pCatalogName = _T("");
     }
-    m_catalogName.assign(pCatalogName);
+    m_strCatalogName.assign(pCatalogName);
+}
+
+const TString& CComponentEditorProxy::GetUserDefineDisplayName() const
+{
+    return m_strUserDefineDisplayName;
+}
+
+void CComponentEditorProxy::SetUserDefineDisplayName(const TCHAR* pszUserDefineDisplayName)
+{
+    m_strUserDefineDisplayName.assign(pszUserDefineDisplayName);
 }
 
 CComponentGraphic* CComponentEditorProxy::GetGraphics()
@@ -277,7 +287,12 @@ void CComponentEditorProxy::SaveToXML( TiXmlElement* pNode, bool bSaveOnlyNoneNa
     }
     pInstanceElement->SetAttribute("PosX", posX);
     pInstanceElement->SetAttribute("PosY", posY);
-
+    if (m_strUserDefineDisplayName.length() > 0)
+    {
+        char szBuffer[MAX_PATH];
+        CStringHelper::GetInstance()->ConvertToCHAR(m_strUserDefineDisplayName.c_str(), szBuffer, MAX_PATH);
+        pInstanceElement->SetAttribute("UserDefineName", szBuffer);
+    }
     for (size_t i = 0; i < m_pProperties->size(); ++i)
     {
         if (!bSaveOnlyNoneNativePart || !(*m_pProperties)[i]->IsDataSame(true))
@@ -304,6 +319,13 @@ void CComponentEditorProxy::LoadFromXML( TiXmlElement* pNode )
     if (pNode->Attribute("PosX", &x) && pNode->Attribute("PosY", &y))
     {
         m_pGraphics->SetPosition(x, y);
+    }
+    const char* pszUserDefineName = pNode->Attribute("UserDefineName");
+    if (pszUserDefineName != NULL)
+    {
+        TCHAR szBuffer[MAX_PATH];
+        CStringHelper::GetInstance()->ConvertToTCHAR(pszUserDefineName, szBuffer, MAX_PATH);
+        m_strUserDefineDisplayName.assign(szBuffer);
     }
     std::map<TString, CPropertyDescriptionBase*> unInitializedproperties;
     for (size_t k = 0; k < m_pProperties->size(); ++k)

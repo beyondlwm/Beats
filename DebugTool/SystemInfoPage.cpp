@@ -4,8 +4,7 @@
 #include <Psapi.h>
 #include <process.h>
 #include <Dbghelp.h>
-#include <shlwapi.h>
-#pragma comment(lib, "shlwapi.lib")
+#include <boost/filesystem.hpp>
 
 void CBDTWxFrame::CreateSystemInfoPage()
 {
@@ -185,9 +184,10 @@ void CBDTWxFrame::OnModuleLoadTypeChanged( wxCommandEvent& event )
     std::map<size_t, TString>::iterator iter = operateMap.begin();
     for (; iter != operateMap.end(); ++iter)
     {
+        boost::filesystem::path curPath(iter->second.c_str());
         m_pModuleList->AppendAndEnsureVisible(m_pModuleShowFullPath->IsChecked() ? 
             iter->second.c_str():
-        PathFindFileName(iter->second.c_str()));
+            curPath.filename().c_str());
     }
 }
 
@@ -274,7 +274,8 @@ void CBDTWxFrame::InitSymbolList()
 {
     for (std::map<size_t, TString>::iterator iter = m_staticLinkDllModu.begin(); iter != m_staticLinkDllModu.end(); ++iter)
     {
-        TString dllName = PathFindFileName(iter->second.c_str());
+        boost::filesystem::path curPath(iter->second.c_str());
+        TString dllName = curPath.filename().c_str();
         if (dllName.length() > 0)
         {
             IMAGE_SECTION_HEADER* section = NULL;
@@ -361,8 +362,9 @@ void CBDTWxFrame::FillModuleList( bool isDynamicList, bool fullpath )
     std::map<size_t, TString>::iterator iter = operateMap.begin();
     for (; iter != operateMap.end(); ++iter)
     {
+        boost::filesystem::path curPath(iter->second.c_str());
         m_pModuleList->AppendAndEnsureVisible(fullpath ? 
                                                 iter->second.c_str():
-                                                PathFindFileName(iter->second.c_str()));
+                                                curPath.filename().c_str());
     }
 }

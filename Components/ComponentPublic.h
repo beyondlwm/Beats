@@ -664,7 +664,7 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
     TCHAR szFilePath[MAX_PATH];\
     GetModuleFileName(NULL, szFilePath, MAX_PATH);\
     PathRemoveFileSpec(szFilePath);\
-    _tcscat(szFilePath, _T("\\"));\
+    _tcscat(szFilePath, _T("/"));\
     _tcscat(szFilePath, BINARIZE_FILE_NAME);\
     bool bFileExists = PathFileExists(szFilePath) == TRUE;\
     BEATS_ASSERT(bFileExists, _T("The data file doesn't exists in path : %s"), szFilePath);\

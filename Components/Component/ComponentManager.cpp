@@ -24,7 +24,7 @@ void CComponentManager::SerializeTemplateData(CSerializer& serializer)
 {
     TCHAR workingPath[MAX_PATH];
     GetModuleFileName(NULL, workingPath, MAX_PATH);
-    int iStrPos = CStringHelper::GetInstance()->FindLastString(workingPath, _T("\\"), false);
+    int iStrPos = CStringHelper::GetInstance()->FindLastString(workingPath, _T("/"), false);
     BEATS_ASSERT(iStrPos >= 0);
     workingPath[iStrPos] = 0;
 

@@ -7,7 +7,6 @@
 #include "FileFilter/FileFilter.h"
 #include "MD5/md5.h"
 #include <Commdlg.h>
-#include <shlwapi.h>
 #include <psapi.h>
 #include <shlobj.h>
 #include <cderr.h>
@@ -159,7 +158,7 @@ bool CUtilityManager::AcquireMuiltyFilePath(bool bAllowDirectory, HWND hwnd, std
                 for (size_t i = 1; i < files.size(); ++i)
                 {
                     TString& strFileFullPath = result[i - 1];
-                    strFileFullPath.append(files[0]).append(_T("\\")).append(files[i]);
+                    strFileFullPath.append(files[0]).append(_T("/")).append(files[i]);
                 }
             }
         }
@@ -184,7 +183,7 @@ bool CUtilityManager::AcquireDirectory(HWND hwnd, TString& strDirectoryPath, con
         SHGetPathFromIDList(idl,szBuffer);
         strDirectoryPath = szBuffer;
         bRet = strDirectoryPath.length() > 0;
-        strDirectoryPath.append(_T("\\"));
+        strDirectoryPath.append(_T("/"));
     }
     return bRet;
 }
@@ -206,7 +205,7 @@ bool CUtilityManager::FillDirectory(SDirectory& fileList, bool bFillSubDirectory
     if( lastCharacter != _T('\\') &&
         lastCharacter != _T('/'))
     {
-        directoryPath.append(_T("\\"));
+        directoryPath.append(_T("/"));
     }
     TString directoryPathMatch = directoryPath;
     directoryPathMatch.append(_T("*"));
@@ -223,7 +222,7 @@ bool CUtilityManager::FillDirectory(SDirectory& fileList, bool bFillSubDirectory
                     _tcscmp(FindFileData.cFileName, _T("..")) != 0)
                 {
                     TString strSubDirectoryPath = directoryPath;
-                    strSubDirectoryPath.append(FindFileData.cFileName).append(_T("\\"));
+                    strSubDirectoryPath.append(FindFileData.cFileName).append(_T("/"));
                     SDirectory* pSubDir = new SDirectory(&fileList, strSubDirectoryPath.c_str());
                     pSubDir->SetData(FindFileData);
                     fileList.m_pDirectories->push_back(pSubDir);

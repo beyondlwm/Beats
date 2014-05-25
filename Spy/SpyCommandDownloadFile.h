@@ -4,7 +4,6 @@
 #include "SpyCommandBase.h"
 #include "../Utility/UtilityManager.h"
 #include <WinSock2.h>
-#include <Shlwapi.h>
 #include <string>
 
 enum EDownloadMissionStep
@@ -44,15 +43,15 @@ struct SClientDownloadMissionContext
             if (pDirectory->m_data.cFileName[0] != 0) // This is a directory.
             {
                 TString strNewDirectoryPath = m_saveRootPath;
-                if (*strNewDirectoryPath.rbegin() != _T('\\'))
+                if (*strNewDirectoryPath.rbegin() != _T('/'))
                 {
-                    strNewDirectoryPath.append(_T("\\"));
+                    strNewDirectoryPath.append(_T("/"));
                 }
                 strNewDirectoryPath.append(pDirectory->m_data.cFileName);
                 CreateDirectory(strNewDirectoryPath.c_str(), NULL);
                 SetFileAttributes(strNewDirectoryPath.c_str(), pDirectory->m_data.dwFileAttributes);
                 pDirectory->m_szPath = strNewDirectoryPath;
-                pDirectory->m_szPath.append(_T("\\"));
+                pDirectory->m_szPath.append(_T("/"));
             }
             else
             {
@@ -69,7 +68,7 @@ struct SClientDownloadMissionContext
             strNewDirectoryPath.append((*pDirectory->m_pDirectories)[i]->m_data.cFileName);
             CreateDirectory(strNewDirectoryPath.c_str(), NULL);
             SetFileAttributes(strNewDirectoryPath.c_str(), (*pDirectory->m_pDirectories)[i]->m_data.dwFileAttributes);
-            strNewDirectoryPath.append(_T("\\"));
+            strNewDirectoryPath.append(_T("/"));
             (*pDirectory->m_pDirectories)[i]->m_szPath = strNewDirectoryPath;
             BuildTaskList((*pDirectory->m_pDirectories)[i], pszRootPath);
         }

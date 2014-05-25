@@ -5,8 +5,8 @@
 #include "StringHelper/StringHelper.h"
 #include "TinyXML/tinyxml.h"
 #include "IdManager/IdManager.h"
-#include <Shlwapi.h>
 #include <string>
+#include <boost/filesystem.hpp>
 
 CComponentProject::CComponentProject()
 : m_pProjectData(NULL)
@@ -36,12 +36,9 @@ CComponentProjectDirectory* CComponentProject::LoadProject(const TCHAR* pszProje
     CloseProject();
     if (pszProjectFile != NULL && pszProjectFile[0] != 0)
     {
-        m_strProjectFilePath = pszProjectFile;
-        int iLastPos = CStringHelper::GetInstance()->FindLastString(pszProjectFile, _T("\\"), false);
-        BEATS_ASSERT(iLastPos > 0, _T("Can't find the '\\' in project file %s"), pszProjectFile);
-        m_strProjectFilePath.resize(iLastPos + 1);
-        const TCHAR* pszProjectFileName = &pszProjectFile[iLastPos + 1];
-        m_strProjectFileName = pszProjectFileName;
+        boost::filesystem::path projectFilePath(pszProjectFile);
+        m_strProjectFilePath = projectFilePath.parent_path().c_str();
+        m_strProjectFileName = projectFilePath.filename().c_str();
 
         char szProjectFileChar[MAX_PATH];
         CStringHelper::GetInstance()->ConvertToCHAR(pszProjectFile, szProjectFileChar, MAX_PATH);
@@ -100,7 +97,7 @@ void CComponentProject::SaveProject()
     SaveProjectFile(pRootElement, m_pProjectData);
     char savePathCHAR[MAX_PATH];
     TString strFullPath = m_strProjectFilePath;
-    strFullPath.append(m_strProjectFileName);
+    strFullPath.append(_T("/")).append(m_strProjectFileName);
     CStringHelper::GetInstance()->ConvertToCHAR(strFullPath.c_str(), savePathCHAR, MAX_PATH);
     document.SaveFile(savePathCHAR);
 }
@@ -129,17 +126,49 @@ void CComponentProject::SaveProjectFile( TiXmlElement* pParentNode, const CCompo
     for (std::set<size_t>::const_iterator iter = files.begin(); iter != files.end(); ++iter)
     {
         TiXmlElement* pNewFileElement = new TiXmlElement("File");
-        TCHAR szRelativePath[MAX_PATH];
-        TCHAR* szRelativePathPtr = szRelativePath;
         size_t uFileNameId = *iter;
-        PathRelativePathTo(szRelativePath, m_strProjectFilePath.c_str(), FILE_ATTRIBUTE_NORMAL, GetComponentFileName(uFileNameId).c_str(), FILE_ATTRIBUTE_DIRECTORY);
-        if (szRelativePath[0] == _T('.') && szRelativePath[1] == _T('\\'))
+
+        // calculate the relative path
+        boost::filesystem::path targetPath = boost::filesystem::absolute( GetComponentFileName(uFileNameId).c_str() ); 
+        boost::filesystem::path fromPath = boost::filesystem::absolute( m_strProjectFilePath.c_str() );
+        boost::filesystem::path relativePath;
+
+        // if root paths are different, return absolute path
+        if( targetPath.root_path() != fromPath.root_path() )
         {
-            szRelativePathPtr = &szRelativePath[2];
+            relativePath = targetPath;
         }
-        char szPathChar[MAX_PATH];
-        CStringHelper::GetInstance()->ConvertToCHAR(szRelativePathPtr, szPathChar, MAX_PATH);
-        pNewFileElement->SetAttribute("Path", szPathChar);
+        else
+        {
+            // find out where the two paths diverge
+            boost::filesystem::path::const_iterator itr_path = targetPath.begin();
+            boost::filesystem::path::const_iterator itr_relative_to = fromPath.begin();
+            while( *itr_path == *itr_relative_to && itr_path != targetPath.end() && itr_relative_to != fromPath.end() ) 
+            {
+                ++itr_path;
+                ++itr_relative_to;
+            }
+
+            // add "../" for each remaining token in relative_to
+            if( itr_relative_to != fromPath.end() ) 
+            {
+                ++itr_relative_to;
+                while( itr_relative_to != fromPath.end() ) 
+                {
+                    relativePath /= "..";
+                    ++itr_relative_to;
+                }
+            }
+
+            // add remaining path
+            while( itr_path != targetPath.end() )
+            {
+                relativePath /= *itr_path;
+                ++itr_path;
+            }
+        }
+        
+        pNewFileElement->SetAttribute("Path", relativePath.string().c_str());
         pNewDirectoryElement->LinkEndChild(pNewFileElement);
     }
 }
@@ -500,11 +529,17 @@ void CComponentProject::LoadXMLProject(TiXmlElement* pNode, CComponentProjectDir
         else if (strcmp(pText, "File") == 0)
         {
             const char* pPath = pElement->Attribute("Path");
-            TCHAR szTPath[MAX_PATH];
-            CStringHelper::GetInstance()->ConvertToTCHAR(pPath, szTPath, MAX_PATH);
-            TString strAbsolutePath = m_strProjectFilePath;
-            strAbsolutePath.append(szTPath);
-            pProjectDirectory->AddFile(strAbsolutePath.c_str(), conflictIdMap);
+            boost::filesystem::path filePath(pPath);
+            if (!filePath.is_absolute())
+            {
+                TString strAbsolutePath = m_strProjectFilePath;
+                TCHAR szTPath[MAX_PATH];
+                CStringHelper::GetInstance()->ConvertToTCHAR(pPath, szTPath, MAX_PATH);
+                strAbsolutePath.append(_T("/")).append(szTPath);
+                boost::filesystem::path newPath(strAbsolutePath);
+                filePath.swap(newPath);
+            }
+            pProjectDirectory->AddFile(filePath.c_str(), conflictIdMap);
         }
         else
         {

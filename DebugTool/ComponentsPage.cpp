@@ -5,7 +5,7 @@
 #include <wx/artprov.h>
 #include <wx/numdlg.h>
 #include <d3dx9.h>
-#include <shlwapi.h>
+#include <boost/filesystem.hpp>
 #include "../Components/Component/ComponentProxyManager.h"
 #include "../Components/Component/ComponentProject.h"
 #include "../Components/Component/ComponentProjectData.h"
@@ -331,7 +331,7 @@ void CBDTWxFrame::InitComponentsPage()
         if (iter == m_componentCatalogNameMap.end())
         {
             std::vector<TString> result;
-            CStringHelper::GetInstance()->SplitString(catalogName.c_str(), _T("\\"), result);
+            CStringHelper::GetInstance()->SplitString(catalogName.c_str(), _T("/"), result);
             BEATS_ASSERT(result.size() > 0);
             TString findStr;
             wxTreeItemId parentId = m_componentTreeIdMap[0];
@@ -339,7 +339,7 @@ void CBDTWxFrame::InitComponentsPage()
             {
                 if (i > 0)
                 {
-                    findStr.append(_T("\\"));
+                    findStr.append(_T("/"));
                 }
                 findStr.append(result[i]);
                 std::map<TString, wxTreeItemId>::iterator iter = m_componentCatalogNameMap.find(findStr);
@@ -440,7 +440,7 @@ void CBDTWxFrame::OnComponentFileEndDrag( wxTreeEvent& event )
     if (m_pComponentRenderWindow->IsMouseInWindow())
     {
         const TCHAR* pDraggingFileName = m_pComponentRenderWindow->GetDraggingFileName();
-        if (pDraggingFileName != NULL && PathFileExists(pDraggingFileName))
+        if (pDraggingFileName != NULL && boost::filesystem::exists(pDraggingFileName))
         {
             const TString& strCurWorkingFile = CComponentProxyManager::GetInstance()->GetCurrentWorkingFilePath();
             if (!strCurWorkingFile.empty())
@@ -723,9 +723,10 @@ void CBDTWxFrame::OnComponentFileListMenuClicked( wxMenuEvent& event )
                     }
                     else
                     {
-                        if (!PathFileExists(result.c_str()))
+                        boost::filesystem::path filePath(result.c_str());
+                        if (!boost::filesystem::exists(filePath))
                         {
-                            const TCHAR* pExtensionStr = PathFindExtension(result.c_str());
+                            const TCHAR* pExtensionStr = filePath.extension().c_str();
                             if (_tcsicmp(pExtensionStr, COMPONENT_FILE_EXTENSION) != 0)
                             {
                                 result.append(COMPONENT_FILE_EXTENSION);
@@ -972,7 +973,7 @@ void CBDTWxFrame::OnComponentSaveButtonClick(wxCommandEvent& /*event*/)
     if (pProject->GetRootDirectory() != NULL)
     {
         TString szSavePath = CBDTWxApp::GetBDTWxApp()->GetWorkingPath();
-        szSavePath.append(_T("\\")).append(EXPORT_STRUCTURE_DATA_PATCH_XMLFILENAME);
+        szSavePath.append(_T("/")).append(EXPORT_STRUCTURE_DATA_PATCH_XMLFILENAME);
         CComponentProxyManager::GetInstance()->SaveTemplate(szSavePath.c_str());
         // Save Instance File
         CComponentProject* pProject = CComponentProxyManager::GetInstance()->GetProject();
@@ -1043,8 +1044,9 @@ void CBDTWxFrame::OnExportButtonClick(wxCommandEvent& /*event*/)
             TString filePath(pData->GetFileName());
             filesToExport.push_back(filePath);
         }
-        const TCHAR* pExtensionStr = PathFindExtension(szBinaryPath.c_str());
-        if (_tcsicmp(pExtensionStr, BINARIZE_FILE_EXTENSION) != 0)
+        boost::filesystem::path binaryPath(szBinaryPath.c_str());
+        TString pExtensionStr = binaryPath.extension().c_str();
+        if (_tcsicmp(pExtensionStr.c_str(), BINARIZE_FILE_EXTENSION) != 0)
         {
             szBinaryPath.append(BINARIZE_FILE_EXTENSION);
         }

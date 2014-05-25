@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "FileFilter.h"
-#include <Shlwapi.h>
 #include "Serializer/Serializer.h"
 #include "StringHelper/StringHelper.h"
 

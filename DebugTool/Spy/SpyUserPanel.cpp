@@ -7,7 +7,7 @@
 #include <WinSock2.h>
 #include <wx/listctrl.h>
 #include <wx/textctrl.h>
-#include <Shlwapi.h>
+#include <boost/filesystem.hpp>
 
 static const size_t COMMAND_SEND_TEXT_COLOR = 0xFF000000;
 static const size_t COMMAND_RECEIVE_TEXT_COLOR = 0xFFFF0000;
@@ -225,9 +225,9 @@ void CSpyUserPanel::OnSpyFileItemActivated(wxListEvent& event)
     wxString strNewLocation = strItem;
     if (strCurLocaitoin != _T("ÎÒµÄµçÄÔ"))
     {
-        if (*strCurLocaitoin.rbegin() != _T('\\'))
+        if (*strCurLocaitoin.rbegin() != _T('/'))
         {
-            strCurLocaitoin.append(_T("\\"));
+            strCurLocaitoin.append(_T("/"));
         }
         strNewLocation = strCurLocaitoin.append(strItem);
     }
@@ -238,7 +238,9 @@ void CSpyUserPanel::OnSpyFileItemActivated(wxListEvent& event)
     }
     else
     {
-        PathCanonicalize(szPath, strNewLocation);
+        boost::filesystem::path curPath(strNewLocation);
+        boost::system::error_code errorcode;
+        _tcscpy(szPath, boost::filesystem::canonical(curPath, errorcode).c_str());
     }    
     GetFileInfo(szPath, false);
 }
@@ -384,12 +386,12 @@ void CSpyUserPanel::UpdateDirectoryCache(const SDirectory* pDirectory)
 {
     BEATS_ASSERT(m_pRootDirectoryCache, _T("The cache mustn't be NULL!"));
     std::vector<TString> result;
-    CStringHelper::GetInstance()->SplitString(pDirectory->m_szPath.c_str(), _T("\\"), result, false);
+    CStringHelper::GetInstance()->SplitString(pDirectory->m_szPath.c_str(), _T("/"), result, false);
     SDirectory* pCurCache = m_pRootDirectoryCache;
     TString strCurPath;
     for (size_t i = 0; i < result.size(); ++i)
     {
-        strCurPath.append(result[i]).append(_T("\\"));
+        strCurPath.append(result[i]).append(_T("/"));
         SDirectory* pChildDirectory = pCurCache->GetChild(strCurPath);
         if (pChildDirectory == NULL)
         {
@@ -462,13 +464,13 @@ SDirectory* CSpyUserPanel::GetCache(const TString& strPath) const
     if (m_pRootDirectoryCache != NULL)
     {
         std::vector<TString> result;
-        CStringHelper::GetInstance()->SplitString(strPath.c_str(), _T("\\"), result, false);
+        CStringHelper::GetInstance()->SplitString(strPath.c_str(), _T("/"), result, false);
         SDirectory* pCurDirectory = m_pRootDirectoryCache;
         TString strCurPath;
         bool bFind = true;
         for (size_t i = 0; i < result.size(); ++i)
         {
-            strCurPath.append(result[i]).append(_T("\\"));
+            strCurPath.append(result[i]);
             SDirectory* pChildDirectory = pCurDirectory->GetChild(strCurPath);
             if (pChildDirectory == NULL)
             {

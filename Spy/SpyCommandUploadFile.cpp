@@ -3,6 +3,7 @@
 #include "SpyCommandDownloadFile.h"
 #include "SpyCommandManager.h"
 #include "../Utility/FileFilter/FileFilter.h"
+#include <boost/filesystem.hpp>
 
 CSpyCommandUploadFile::CSpyCommandUploadFile()
 : super(eSCT_Upload)
@@ -56,7 +57,7 @@ void CSpyCommandUploadFile::Deserialize( CSerializer& serializer )
     serializer << m_uploadFileNames.size();
     for (size_t i = 0; i < m_uploadFileNames.size(); ++i)
     {
-        bool bParamValid = m_uploadFileNames[i].length() > 0 && m_storePath.length() > 0 && PathFileExists(m_uploadFileNames[i].c_str());
+        bool bParamValid = m_uploadFileNames[i].length() > 0 && m_storePath.length() > 0 && boost::filesystem::exists(m_uploadFileNames[i].c_str());
         BEATS_ASSERT(bParamValid, _T("Upload file %s failed!"));
         serializer << bParamValid;
         if (bParamValid)

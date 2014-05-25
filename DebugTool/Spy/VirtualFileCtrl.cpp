@@ -2,7 +2,7 @@
 #include "VirtualFileCtrl.h"
 #include "../../Utility/UtilityManager.h"
 #include <wx/generic/dirctrlg.h>
-#include <Shlwapi.h>
+#include <boost/filesystem.hpp>
 
 CVirtualFileCtrl::CVirtualFileCtrl()
 {
@@ -155,7 +155,7 @@ void CVirtualFileCtrl::UpdateFiles()
             SetItem(item);
 
             ++item.m_col;
-            item.SetText(PathFindExtension(pData->cFileName));
+            item.SetText(boost::filesystem::extension(pData->cFileName));
             SetItem(item);
 
             ++item.m_col;

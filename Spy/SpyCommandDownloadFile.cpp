@@ -8,6 +8,7 @@
 #include "ServerDownloadMissionContext.h"
 #include "SpyManager.h"
 #include "../Utility/FileFilter/FileFilter.h"
+#include <boost/filesystem.hpp>
 
 static const size_t WORK_THREAD_COUNT = 5;
 static const size_t WORK_SEND_PIECE_SIZE = 1024 * 1024; // 1M, each send call will send 1M data for most.
@@ -43,13 +44,10 @@ bool CSpyCommandDownloadFile::ExecuteImpl( SharePtr<SSocketContext>& pSocketCont
                 if (bFileExists)
                 {
                     SDirectory* pFileList = NULL;
+                    boost::filesystem::path downloadFilePath(m_downloadFiles[i].c_str());
                     if ((fileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
                     {
-                        TCHAR szPath[MAX_PATH];
-                        _tcscpy(szPath, m_downloadFiles[i].c_str());
-                        PathRemoveFileSpec(szPath);
-                        TString strPath(szPath);
-                        strPath.append(_T("\\"));
+                        TString strPath(downloadFilePath.parent_path().c_str());
                         std::map<TString, SDirectory*>::iterator iter = lookUpMap.find(strPath);
                         if (iter == lookUpMap.end())
                         {
@@ -64,7 +62,7 @@ bool CSpyCommandDownloadFile::ExecuteImpl( SharePtr<SSocketContext>& pSocketCont
 
                         WIN32_FIND_DATA* pFindFileData = new WIN32_FIND_DATA;
                         _tcscpy(pFindFileData->cAlternateFileName, _T(""));
-                        _tcscpy(pFindFileData->cFileName, PathFindFileName(m_downloadFiles[i].c_str()));
+                        _tcscpy(pFindFileData->cFileName, downloadFilePath.filename().c_str());
                         pFindFileData->dwFileAttributes = fileData.dwFileAttributes;
                         pFindFileData->ftCreationTime = fileData.ftCreationTime;
                         pFindFileData->ftLastWriteTime = fileData.ftLastWriteTime;
@@ -77,9 +75,9 @@ bool CSpyCommandDownloadFile::ExecuteImpl( SharePtr<SSocketContext>& pSocketCont
                     }
                     else
                     {
-                        if (*m_downloadFiles[i].rbegin() != _T('\\'))
+                        if (*m_downloadFiles[i].rbegin() != _T('/'))
                         {
-                            m_downloadFiles[i].append(_T("\\"));
+                            m_downloadFiles[i].append(_T("/"));
                         }
                         std::map<TString, SDirectory*>::iterator iter = lookUpMap.find(m_downloadFiles[i]);
                         if (iter == lookUpMap.end())
@@ -91,8 +89,7 @@ bool CSpyCommandDownloadFile::ExecuteImpl( SharePtr<SSocketContext>& pSocketCont
                             pFileList->m_data.dwFileAttributes = fileData.dwFileAttributes;
                             pFileList->m_data.nFileSizeHigh = fileData.nFileSizeHigh;
                             pFileList->m_data.nFileSizeLow = fileData.nFileSizeLow;
-                            _tcscpy(pFileList->m_data.cFileName, PathFindFileName(m_downloadFiles[i].c_str()));
-                            PathRemoveBackslash(pFileList->m_data.cFileName);
+                            _tcscpy(pFileList->m_data.cFileName, downloadFilePath.filename().c_str());
                             pFileList->m_data.dwReserved0 = 0;
                             pFileList->m_data.dwReserved1 = (DWORD)pFileList;
                             lookUpMap[m_downloadFiles[i]] = pFileList;
@@ -162,7 +159,7 @@ void CSpyCommandDownloadFile::Deserialize( CSerializer& serializer )
     case eDMS_ClientRequest:
         {
             BEATS_ASSERT(m_downloadFiles.size() > 0 && m_storePath.length() > 0, _T("Length of file path must not be empty!"));
-            bool bIsDirectory = PathIsDirectory(m_storePath.c_str()) != FALSE;
+            bool bIsDirectory = boost::filesystem::is_directory(m_storePath.c_str());
             BEATS_ASSERT(bIsDirectory, _T("%s is not a valid path to store files!"), m_storePath.c_str());
             bool bExamSuccess = bIsDirectory && m_downloadFiles.size() > 0;
             serializer << bExamSuccess;

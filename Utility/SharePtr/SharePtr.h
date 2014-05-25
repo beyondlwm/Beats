@@ -11,9 +11,7 @@
 
     #ifdef SHARE_PTR_TRACE
     #include "StringHelper/StringHelper.h"
-    #include <Shlwapi.h>
     #include <set>
-    #pragma comment(lib, "shlwapi.lib")
     #endif
 #endif
 

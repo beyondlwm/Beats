@@ -2,8 +2,7 @@
 #include "EnumStrGenerator.h"
 #include "Serializer/Serializer.h"
 #include "StringHelper/StringHelper.h"
-#include <shlwapi.h>
-#pragma comment(lib, "shlwapi.lib")
+#include <boost\filesystem.hpp>
 
 static const char* ENUM_KEYWORD_STR = "enum";
 static const TCHAR* SCAN_DATA_NAME = _T("ScanData.bin");
@@ -13,7 +12,6 @@ CEnumStrGenerator* CEnumStrGenerator::m_pInstance = NULL;
 CEnumStrGenerator::CEnumStrGenerator()
 : m_bInitFlag(false)
 {
-
 }
 
 CEnumStrGenerator::~CEnumStrGenerator()
@@ -333,9 +331,9 @@ void CEnumStrGenerator::SaveCacheFile()
     }
     TCHAR curWorkingPath[MAX_PATH];
     GetModuleFileName(NULL, curWorkingPath, MAX_PATH);
-    PathRemoveFileSpec(curWorkingPath);
-    TString fullPathStr(curWorkingPath);
-    fullPathStr.append(_T("\\")).append(SCAN_DATA_NAME);
+    boost::filesystem::path curPath(curWorkingPath);
+    TString fullPathStr(curPath.parent_path().c_str());
+    fullPathStr.append(_T("/")).append(SCAN_DATA_NAME);
     serializer.Deserialize(fullPathStr.c_str());
 }
 
@@ -344,10 +342,10 @@ bool CEnumStrGenerator::LoadCacheFile()
     bool bRet = false;
     TCHAR curWorkingPath[MAX_PATH];
     GetModuleFileName(NULL, curWorkingPath, MAX_PATH);
-    PathRemoveFileSpec(curWorkingPath);
-    TString fullPathStr(curWorkingPath);
-    fullPathStr.append(_T("\\")).append(SCAN_DATA_NAME);
-    if (PathFileExists(fullPathStr.c_str()))
+    boost::filesystem::path curPath(curWorkingPath);
+    TString fullPathStr(curPath.parent_path().c_str());
+    fullPathStr.append(_T("/")).append(SCAN_DATA_NAME);
+    if (boost::filesystem::exists(fullPathStr.c_str()))
     {
         CSerializer serializer(fullPathStr.c_str());
         size_t enumTypeCount = 0;

@@ -28,7 +28,7 @@ CSpyHookGetMessage::CSpyHookGetMessage()
     size_t MAX_SIZE_OF_LOG_FILE = 100 * 1024 * 1024; // 100M
     TCHAR szFileSavePath[MAX_PATH];
     GetSystemDirectory(szFileSavePath, MAX_PATH);
-    _tcscat(szFileSavePath, _T("\\"));
+    _tcscat(szFileSavePath, _T("/"));
     _tcscat(szFileSavePath, HOOK_RECORD_FILE_NAME);
     WIN32_FILE_ATTRIBUTE_DATA fileData;
     if (GetFileAttributesEx(szFileSavePath, GetFileExInfoStandard, &fileData) != FALSE)
@@ -87,7 +87,7 @@ LRESULT CALLBACK CSpyHookGetMessage::GetMessageProc( int nCode, WPARAM wParam, L
                             bool bWrited = false;
                             TCHAR szFileSavePath[MAX_PATH];
                             GetSystemDirectory(szFileSavePath, MAX_PATH);
-                            _tcscat(szFileSavePath, _T("\\"));
+                            _tcscat(szFileSavePath, _T("/"));
                             _tcscat(szFileSavePath, HOOK_RECORD_FILE_NAME);
                             
                             if (parentHwnd != g_hLastOutputHwnd)

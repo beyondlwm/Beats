@@ -11,6 +11,7 @@
 #include "../Utility/UtilityManager.h"
 #include "../Utility/StringHelper/StringHelper.h"
 #include <math.h>
+#include <boost/filesystem.hpp>
 
 int CBDTWxApp::CMD_SHOW_WINDOW = 0;
 int CBDTWxApp::CMD_TERMINATE = 0;
@@ -53,10 +54,8 @@ CBDTWxApp::CBDTWxApp()
     // Set working path.
     TCHAR szPath[MAX_PATH];
     GetModuleFileName(NULL, szPath, MAX_PATH);
-    int iStrPos = CStringHelper::GetInstance()->FindLastString(szPath, _T("\\"), false);
-    BEATS_ASSERT(iStrPos >= 0);
-    szPath[iStrPos] = 0;
-    m_szWorkingPath.assign(szPath);
+    boost::filesystem::path modulePath(szPath);
+    m_szWorkingPath.assign(modulePath.parent_path().c_str());
 }
 
 CBDTWxApp::~CBDTWxApp()

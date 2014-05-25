@@ -9,7 +9,7 @@
 #include "Object/ObjectManager.h"
 #include "Tasks/TaskBase.h"
 #include "../DebugTool/DebugTool.h"
-#include <Shlwapi.h>
+#include <boost/filesystem.hpp>
 
 CGame* CGame::m_pInstance = NULL;
 
@@ -39,9 +39,10 @@ void CGame::Init(HWND hwnd)
     HMODULE processModule = GetModuleHandle(NULL);
     TCHAR szModuleFilePath[MAX_PATH];
     GetModuleFileName(processModule, szModuleFilePath, MAX_PATH);
-    PathRemoveFileSpec(szModuleFilePath);
-    m_strWorkRootPath = szModuleFilePath;
-    m_strWorkRootPath.append(_T("\\"));
+    boost::filesystem::path modulePath(szModuleFilePath);
+    modulePath.remove_filename();
+    m_strWorkRootPath = modulePath.c_str();
+    m_strWorkRootPath.append(_T("/"));
 
     SetTask(eTT_Title);
     BEATS_PERFORMDETECT_INIT(NBDT::perfromanceStr, NBDT::ePT_Count);
@@ -143,11 +144,11 @@ void CGame::SetAudioName( const TString& name )
         BEATS_STR_UPER((TCHAR*)suffix.c_str(), suffix.length()+1);
         if (suffix == _T("WAV") || suffix == _T("MP3"))
         {
-            pos = m_audioFullPath.rfind(_T("\\"));
+            pos = m_audioFullPath.rfind(_T("/"));
             m_audioFullPath = m_audioFullPath.substr(0, pos);
         }
     }
-    m_audioFullPath += _T("\\");
+    m_audioFullPath += _T("/");
     m_audioFullPath += name;
 }
 

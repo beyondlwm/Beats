@@ -2,8 +2,7 @@
 #include "ServiceManager.h"
 #include "UtilityManager.h"
 #include <process.h>
-#include <shlwapi.h>
-
+#include <boost/filesystem.hpp>
 CServiceManager* CServiceManager::m_pInstance = NULL;
 
 CServiceManager::CServiceManager()
@@ -43,8 +42,9 @@ bool CServiceManager::Install( const TCHAR* pszServiceName, const TCHAR* pszServ
         {
             TCHAR szTargetPath[MAX_PATH];
             _tcscpy(szTargetPath, szSystemDirectory);
-            _tcscat(szTargetPath, _T("\\"));
-            _tcscat(szTargetPath, PathFindFileName(moduleDepends[i].c_str()));
+            _tcscat(szTargetPath, _T("/"));
+            boost::filesystem::path modulePath(moduleDepends[i].c_str());
+            _tcscat(szTargetPath, modulePath.filename().c_str());
             bool bCopySuccess = ::CopyFile(moduleDepends[i].c_str(), szTargetPath, FALSE) == TRUE;
             BEATS_WARNING(bCopySuccess, _T("Copy file %s to system directory failed! ErrorCode %d."), moduleDepends[i].c_str(), GetLastError());
         }
@@ -54,10 +54,11 @@ bool CServiceManager::Install( const TCHAR* pszServiceName, const TCHAR* pszServ
     SC_HANDLE manager = ::OpenSCManager(NULL, NULL, SC_MANAGER_CREATE_SERVICE);
     TCHAR szProcessPath[MAX_PATH] = {_T("\"")};
     _tcscat(szProcessPath, szSystemDirectory);
-    _tcscat(szProcessPath, _T("\\"));
+    _tcscat(szProcessPath, _T("/"));
     TCHAR szApplicationName[MAX_PATH];
     GetModuleFileName(NULL, szApplicationName, MAX_PATH);
-    _tcscat(szProcessPath, PathFindFileName(szApplicationName));
+    boost::filesystem::path curPath(szApplicationName);
+    _tcscat(szProcessPath, curPath.filename().c_str());
     _tcscat(szProcessPath, _T("\""));
 
     SC_HANDLE service = ::CreateService(

