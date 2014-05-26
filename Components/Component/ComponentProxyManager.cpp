@@ -58,7 +58,7 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /
                         int id = -1;
                         pInstanceElement->Attribute("Id", &id);
                         BEATS_ASSERT(id != -1);
-                        CComponentEditorProxy* pComopnent = static_cast<CComponentEditorProxy*>(CreateComponent(guid, false, false, id, false, NULL));
+                        CComponentEditorProxy* pComopnent = static_cast<CComponentEditorProxy*>(CreateComponent(guid, false, false, id, false, NULL, false));
                         pComopnent->LoadFromXML(pInstanceElement);
                         pInstanceElement = pInstanceElement->NextSiblingElement("Instance");
                     }

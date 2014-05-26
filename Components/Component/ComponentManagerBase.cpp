@@ -90,14 +90,14 @@ CComponentBase* CComponentManagerBase::GetComponentTemplate( size_t guid ) const
     return pResult;
 }
 
-CComponentBase* CComponentManagerBase::CreateComponent( size_t guid, bool bCloneFromTemplate, bool bManualManage/* = false*/, size_t specifiedInstanceId /*=0xffffffff*/, bool bCheckRequestId/* = true*/, CSerializer* pData /*=NULL*/)
+CComponentBase* CComponentManagerBase::CreateComponent( size_t guid, bool bCloneFromTemplate, bool bManualManage/* = false*/, size_t specifiedInstanceId /*=0xffffffff*/, bool bCheckRequestId/* = true*/, CSerializer* pData /*=NULL*/, bool bCallInitFunc/* = true*/)
 {
     CComponentBase* pNewInstance = NULL;
     __try
     {
         CComponentBase* pTemplate = GetComponentTemplate(guid);
         BEATS_ASSERT(pTemplate != NULL, _T("Create an unknown component, Guid:0x%x id: %d"), guid, specifiedInstanceId);
-        pNewInstance = CreateComponentByRef(pTemplate, bCloneFromTemplate, bManualManage, specifiedInstanceId, bCheckRequestId, pData);
+        pNewInstance = CreateComponentByRef(pTemplate, bCloneFromTemplate, bManualManage, specifiedInstanceId, bCheckRequestId, pData, bCallInitFunc);
     }
     __except(EXCEPTION_EXECUTE_HANDLER)
     {
@@ -106,7 +106,7 @@ CComponentBase* CComponentManagerBase::CreateComponent( size_t guid, bool bClone
     return pNewInstance;
 }
 
-CComponentBase* CComponentManagerBase::CreateComponentByRef( CComponentBase* pComponentRef, bool bCloneValue, bool bManualManage /*= false*/, size_t specifiedInstanceId /*= 0xFFFFFFFF*/, bool bCheckRequestId /*= true*/, CSerializer* pData /*= NULL*/ )
+CComponentBase* CComponentManagerBase::CreateComponentByRef( CComponentBase* pComponentRef, bool bCloneValue, bool bManualManage /*= false*/, size_t specifiedInstanceId /*= 0xFFFFFFFF*/, bool bCheckRequestId /*= true*/, CSerializer* pData /*= NULL*/, bool bCallInitFunc/* = true*/)
 {
     BEATS_ASSERT(pComponentRef != NULL, _T("Create an unknown component by NULL ref"));
     if (!bManualManage)
@@ -126,7 +126,7 @@ CComponentBase* CComponentManagerBase::CreateComponentByRef( CComponentBase* pCo
     }
 
     // TODO: bCloneValue only makes sense when this is a CComponentEditorProxy.
-    CComponentBase* pNewInstance = static_cast<CComponentBase*>(pComponentRef->Clone(bCloneValue, pData, specifiedInstanceId));
+    CComponentBase* pNewInstance = static_cast<CComponentBase*>(pComponentRef->Clone(bCloneValue, pData, specifiedInstanceId, bCallInitFunc));
     if (!bManualManage)
     {
         RegisterInstance(pNewInstance);

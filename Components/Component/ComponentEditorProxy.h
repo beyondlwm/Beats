@@ -52,7 +52,7 @@ public:
     virtual const TCHAR* GetClassStr() const;
     void Save();
 
-    virtual CComponentBase* Clone(bool bCloneValue, CSerializer* pSerializer, size_t id) override;
+    virtual CComponentBase* Clone(bool bCloneValue, CSerializer* pSerializer, size_t id, bool bCallInitFunc = true) override;
 
     ///*
     //    We have two ways for interaction:

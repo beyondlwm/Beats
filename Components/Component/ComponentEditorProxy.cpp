@@ -131,7 +131,7 @@ void CComponentEditorProxy::Deserialize( CSerializer& serializer )
     }
 }
 
-CComponentBase* CComponentEditorProxy::Clone(bool bCloneValue, CSerializer* /*pSerializer*/, size_t id)
+CComponentBase* CComponentEditorProxy::Clone(bool bCloneValue, CSerializer* /*pSerializer*/, size_t id, bool bCallInitFunc /*= true*/)
 {
     CComponentEditorProxy* pNewInstance = new CComponentEditorProxy(m_pGraphics->Clone(), m_uGuid, m_uParentGuid, m_strClassName.c_str());
     pNewInstance->SetDisplayName(m_strDisplayName.c_str());
@@ -156,10 +156,16 @@ CComponentBase* CComponentEditorProxy::Clone(bool bCloneValue, CSerializer* /*pS
     if (m_pHostComponent != NULL)
     {
         pNewInstance->m_pHostComponent = CComponentManager::GetInstance()->CreateComponentByRef(m_pHostComponent, bCloneValue, id == 0xFFFFFFFF, id);
-        pNewInstance->UpdateHostComponent();
-        pNewInstance->m_pHostComponent->Initialize();
     }
-    pNewInstance->Initialize();
+    if (bCallInitFunc)
+    {
+        if (m_pHostComponent != NULL)
+        {
+            pNewInstance->UpdateHostComponent();
+            pNewInstance->m_pHostComponent->Initialize();
+        }
+        pNewInstance->Initialize();
+    }
 
     return pNewInstance;
 }

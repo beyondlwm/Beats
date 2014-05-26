@@ -53,8 +53,8 @@ public:
     3. param specifiedInstanceId means, you can specify id by yourself instead of manager, if you request an id which is taken by manager, there will be an assert.
     */
     CComponentBase* GetComponentTemplate(size_t guid) const;
-    CComponentBase* CreateComponent(size_t guid, bool bCloneFromTemplate, bool bManualManage = false, size_t specifiedInstanceId = 0xFFFFFFFF, bool bCheckIsAlreadyRequest = true, CSerializer* pSerializer = NULL);
-    CComponentBase* CreateComponentByRef(CComponentBase* pComponentRef, bool bCloneValue, bool bManualManage = false, size_t specifiedInstanceId = 0xFFFFFFFF, bool bCheckIsAlreadyRequest = true, CSerializer* pSerializer = NULL);
+    CComponentBase* CreateComponent(size_t guid, bool bCloneFromTemplate, bool bManualManage = false, size_t specifiedInstanceId = 0xFFFFFFFF, bool bCheckIsAlreadyRequest = true, CSerializer* pSerializer = NULL, bool bCallInitFunc = true);
+    CComponentBase* CreateComponentByRef(CComponentBase* pComponentRef, bool bCloneValue, bool bManualManage = false, size_t specifiedInstanceId = 0xFFFFFFFF, bool bCheckIsAlreadyRequest = true, CSerializer* pSerializer = NULL, bool bCallInitFunc = true);
     bool DeleteComponent(CComponentBase* pComponent);
 
     const std::map<size_t, CComponentBase*>* GetComponentTemplateMap();
