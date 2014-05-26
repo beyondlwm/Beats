@@ -2,7 +2,7 @@
 #include "EnumStrGenerator.h"
 #include "Serializer/Serializer.h"
 #include "StringHelper/StringHelper.h"
-#include <boost\filesystem.hpp>
+#include <boost/filesystem.hpp>
 
 static const char* ENUM_KEYWORD_STR = "enum";
 static const TCHAR* SCAN_DATA_NAME = _T("ScanData.bin");
@@ -229,7 +229,7 @@ bool CEnumStrGenerator::ScanEnumInDirectory( const TCHAR* pDirectory )
         wildCmpStr.append(_T("/"));
     }
     wildCmpStr.append(pFileStr);
-    WIN32_FIND_DATA fileData;
+    TFileData fileData;
     HANDLE searchHandle = ::FindFirstFile(wildCmpStr.c_str(), &fileData);
     bool bRet = false;
     if (searchHandle != INVALID_HANDLE_VALUE)
@@ -247,7 +247,7 @@ bool CEnumStrGenerator::ScanEnumInDirectory( const TCHAR* pDirectory )
     return bRet;
 }
 
-bool CEnumStrGenerator::ScanEnum( const WIN32_FIND_DATA& fileData, const TString& fullDirectoryPath )
+bool CEnumStrGenerator::ScanEnum( const TFileData& fileData, const TString& fullDirectoryPath )
 {
     if ((fileData.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) == 0)
     {

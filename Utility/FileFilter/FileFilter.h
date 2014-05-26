@@ -12,7 +12,7 @@ public:
     void Serialize(CSerializer& serializer);
     void Deserialize(CSerializer& serializer);
 
-    bool FilterFile(const WIN32_FIND_DATA* pFileData) const;
+    bool FilterFile(const TFileData* pFileData) const;
 
     void SetCheckHiddenFlag(char flag);
     void SetCheckReadOnlyFlag(char flag);

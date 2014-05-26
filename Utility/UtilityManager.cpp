@@ -198,7 +198,7 @@ bool CUtilityManager::FillDirectory(SDirectory& fileList, bool bFillSubDirectory
 {
     std::string tmp;
     TString& directoryPath = fileList.m_szPath;
-    WIN32_FIND_DATA FindFileData;
+    TFileData FindFileData;
     HANDLE hFind = INVALID_HANDLE_VALUE;
     BEATS_ASSERT(directoryPath.length() > 0);
     TCHAR lastCharacter = directoryPath.at(directoryPath.length() - 1);
@@ -235,8 +235,8 @@ bool CUtilityManager::FillDirectory(SDirectory& fileList, bool bFillSubDirectory
             }
             else
             {
-                WIN32_FIND_DATA* pFindData = new WIN32_FIND_DATA;
-                memcpy(pFindData, &FindFileData, sizeof(WIN32_FIND_DATA));
+                TFileData* pFindData = new TFileData;
+                memcpy(pFindData, &FindFileData, sizeof(TFileData));
                 pFindData->dwReserved1 = (DWORD)(&fileList);
                 fileList.m_pFileList->push_back(pFindData);
 
@@ -253,7 +253,7 @@ bool CUtilityManager::FillDirectory(SDirectory& fileList, bool bFillSubDirectory
     return true;
 }
 
-unsigned long long CUtilityManager::BuildDirectoryToList( SDirectory* pDirectory, std::vector<WIN32_FIND_DATA*>& listToAppend )
+unsigned long long CUtilityManager::BuildDirectoryToList( SDirectory* pDirectory, std::vector<TFileData*>& listToAppend )
 {
     unsigned long long totalFileSize = 0;
     for (size_t i = 0; i < pDirectory->m_pFileList->size(); ++i)
@@ -278,7 +278,7 @@ void CUtilityManager::DeserializeDirectory(SDirectory* pDirectory, CSerializer& 
     serializer >> uFileListCount;
     for (size_t i = 0; i < uFileListCount; ++i)
     {
-        WIN32_FIND_DATA* pFileData = new WIN32_FIND_DATA;
+        TFileData* pFileData = new TFileData;
         serializer >> pFileData->cAlternateFileName;
         serializer >> pFileData->cFileName;
         serializer >> pFileData->dwFileAttributes;
@@ -301,7 +301,7 @@ void CUtilityManager::DeserializeDirectory(SDirectory* pDirectory, CSerializer& 
     {
         *pFileCount += uFileListCount;
     }
-    serializer.Deserialize(&pDirectory->m_data, sizeof(WIN32_FIND_DATA));
+    serializer.Deserialize(&pDirectory->m_data, sizeof(TFileData));
     size_t uDirectoriesCount = 0;
     serializer >> uDirectoriesCount;
     for (size_t i = 0; i < uDirectoriesCount; ++i)
@@ -318,7 +318,7 @@ void CUtilityManager::SerializeDirectory( SDirectory* pDirectory, CSerializer& s
     serializer << pDirectory->m_pFileList->size();
     for (size_t i = 0; i < pDirectory->m_pFileList->size(); ++i)
     {
-        WIN32_FIND_DATA* pFileData = (*pDirectory->m_pFileList)[i];
+        TFileData* pFileData = (*pDirectory->m_pFileList)[i];
         serializer << pFileData->cAlternateFileName;
         serializer << pFileData->cFileName;
         serializer << pFileData->dwFileAttributes;
@@ -328,7 +328,7 @@ void CUtilityManager::SerializeDirectory( SDirectory* pDirectory, CSerializer& s
         serializer << pFileData->nFileSizeHigh;
         serializer << pFileData->nFileSizeLow;
     }
-    serializer.Serialize(&pDirectory->m_data, sizeof(WIN32_FIND_DATA));
+    serializer.Serialize(&pDirectory->m_data, sizeof(TFileData));
     serializer << pDirectory->m_pDirectories->size();
     for (size_t i = 0; i < pDirectory->m_pDirectories->size(); ++i)
     {
@@ -400,7 +400,7 @@ bool CUtilityManager::CalcMD5( CMD5& md5, SDirectory& fileList )
     bool bRet = false;
     for (size_t i = 0; i < fileList.m_pFileList->size(); ++i)
     {
-        WIN32_FIND_DATA* pFileData = fileList.m_pFileList->at(i);
+        TFileData* pFileData = fileList.m_pFileList->at(i);
         TString strFilePath = fileList.m_szPath;
         strFilePath.append(pFileData->cFileName);
         FILE* pFile = _tfopen(strFilePath.c_str(), _T("rb"));

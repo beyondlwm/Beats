@@ -10,7 +10,7 @@ struct SDirectory
         {
             m_szPath.assign(pszPath);
         }
-        m_pFileList = new std::vector<WIN32_FIND_DATA*>;
+        m_pFileList = new std::vector<TFileData*>;
         m_pDirectories = new std::vector<SDirectory*>;
     }
     ~SDirectory()
@@ -41,15 +41,15 @@ struct SDirectory
         return pRet;
     }
 
-    void SetData(const WIN32_FIND_DATA& rData)
+    void SetData(const TFileData& rData)
     {
-        memcpy(&m_data, &rData, sizeof(WIN32_FIND_DATA));
+        memcpy(&m_data, &rData, sizeof(TFileData));
     }
 
     SDirectory* m_pParent;
-    std::vector<WIN32_FIND_DATA*>* m_pFileList;
+    std::vector<TFileData*>* m_pFileList;
     std::vector<SDirectory*>* m_pDirectories;
-    WIN32_FIND_DATA m_data;
+    TFileData m_data;
     TString m_szPath;
 };
 
@@ -105,7 +105,7 @@ public:
 
     // File Directory
     bool FillDirectory(SDirectory& fileList, bool bFillSubDirectory = true, CFileFilter* pFileFilter = NULL);
-    unsigned long long BuildDirectoryToList(SDirectory* pDirectory, std::vector<WIN32_FIND_DATA*>& listToAppend);
+    unsigned long long BuildDirectoryToList(SDirectory* pDirectory, std::vector<TFileData*>& listToAppend);
     void SerializeDirectory(SDirectory* pDirectory, CSerializer& serializer);
     void DeserializeDirectory(SDirectory* pDirectory, CSerializer& serializer, long long* pTotalDataSize = NULL, size_t* pFileCount = NULL);
     bool WriteDataToFile(FILE* pFile, void* pData, size_t uDataLength, size_t uRetryCount = 20);

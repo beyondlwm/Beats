@@ -2,9 +2,9 @@
 #define BEATS_COMPONENTS_EXPDEF_H__INCLUDE
 
 #ifdef COMPONENTS_EXPORTS
-#define COMPONENTS_DLL_DECL __declspec(dllexport)
+#define COMPONENTS_DLL_DECL
 #else
-#define COMPONENTS_DLL_DECL __declspec(dllimport)
+#define COMPONENTS_DLL_DECL
 #endif
 
 #endif

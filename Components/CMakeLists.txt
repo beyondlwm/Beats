@@ -1,32 +1,11 @@
 set(ProjectName Components)
 
-#1. Set Platform folder
-INCLUDE(${CMAKE_SOURCE_DIR}/CMakeCommon.cmake)
-
-#2. Set Define.
-ADD_DEFINITIONS(-DUNICODE -D_UNICODE)   
-if(WIN32)
-  ADD_DEFINITIONS (-DWIN32 -D_WINDOWS)  
-  if(MSVC)
-  	ADD_DEFINITIONS (-D_CRT_SECURE_NO_WARNINGS -D_CRT_NON_CONFORMING_SWPRINTFS -D_SCL_SECURE_NO_WARNINGS -wd4100 -wd4127)
-  else(MSVC)  
-  endif(MSVC)
-elseif(APPLE)
-elseif(ANDROID)
-else()#Linux
-	ADD_DEFINITIONS(-DLINUX)
-endif()
-
-#3. Set Include Path.
+#1. Set Include Path.
 INCLUDE_DIRECTORIES(
-		${CMAKE_SOURCE_DIR}
 		${CMAKE_CURRENT_SOURCE_DIR}
-		${CMAKE_SOURCE_DIR}/Utility
-		${CMAKE_SOURCE_DIR}/Platform
-		${CMAKE_SOURCE_DIR}/Platform/${PLATFORM_FOLDER}
 )
 
-#4. Set Lib Generation.
+#2. Set Lib Generation.
 FILE(GLOB_RECURSE COMPONENTS_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 FILE(GLOB_RECURSE COMPONENTS_HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
 FILE(GLOB_RECURSE COMPONENTS_HEADERPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.hpp)
@@ -43,11 +22,11 @@ SET_TARGET_PROPERTIES(${ProjectName}
 	DEBUG_POSTFIX "_d"
 )
 			
-#5. Set Solution Framework.
+#3. Set Solution Framework.
 INCLUDE(${CMAKE_SOURCE_DIR}/SourceGroupByDir.cmake)
 SOURCE_GROUP_BY_DIR(UTILITY_ALL_FILES)
 
-#6. Handle pre-compile files.
+#4. Handle pre-compile files.
 if(WIN32)
   if(MSVC)
 	INCLUDE(${CMAKE_SOURCE_DIR}/MSVCPCH.cmake)
@@ -55,7 +34,7 @@ if(WIN32)
   endif(MSVC)
 endif(WIN32)
 
-#7. Add dependencies
+#5. Add dependencies
 ADD_DEPENDENCIES(Components Utility)
 
 

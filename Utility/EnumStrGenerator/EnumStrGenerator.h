@@ -49,7 +49,7 @@ private:
     // This method allows you scan a C++ file, which means it will handle "//" "/*" to filter comments content.
     bool ScanKeyWordInCPlusPlusFile(const char* pKeyWord, CSerializer* fileSerializer);
     bool FilterCPlusPlusFileComments(const char* text, char* outBuffer, size_t& bufferLenth);
-    bool ScanEnum(const WIN32_FIND_DATA& data, const TString& fullDirectoryPath);
+    bool ScanEnum(const TFileData& data, const TString& fullDirectoryPath);
     // To avoid situation: m_enumValue, you can match "enum" while its not a keyword. The serializer must read to the "enum" string.
     bool IsEnumKeyword(CSerializer* pSerailizer);
 

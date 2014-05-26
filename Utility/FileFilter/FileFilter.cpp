@@ -62,7 +62,7 @@ void CFileFilter::Deserialize(CSerializer& serializer)
     }
 }
 
-bool CFileFilter::FilterFile( const WIN32_FIND_DATA* pFileData ) const
+bool CFileFilter::FilterFile( const TFileData* pFileData ) const
 {
     bool bRet = pFileData != NULL;
     if (bRet)
