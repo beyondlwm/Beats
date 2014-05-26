@@ -111,14 +111,24 @@ public:
     bool WriteDataToFile(FILE* pFile, void* pData, size_t uDataLength, size_t uRetryCount = 20);
     bool ReadDataFromFile(FILE* pFile, void* pData, size_t uDataLength, size_t uRetryCount = 20);
 
+    // Path
+    bool FileExists(const TCHAR* pszFilePath);
+    TString FileFindExtension(const TCHAR* pszFileName);
+    TString FileFindName(const TCHAR* pszFileName);
+
     // System Module
     bool GetProcessModule(size_t uProcessId, std::vector<TString>& modulePath);
+    const TString& GetModuleFileName();
+    void SetModuleFileName(const TCHAR* pszFileName);
 
     // MD5
     bool CalcMD5(CMD5& md5, SDirectory& fileList);
     
     //Thread
     void SetThreadName(DWORD dwThreadId, const char* pszThreadName);
+
+private:
+    TString m_strFileModuleName;
 };
 
 

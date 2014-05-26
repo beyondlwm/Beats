@@ -2,6 +2,7 @@
 #include "EnumStrGenerator.h"
 #include "Serializer/Serializer.h"
 #include "StringHelper/StringHelper.h"
+#include "UtilityManager.h"
 #include <boost/filesystem.hpp>
 
 static const char* ENUM_KEYWORD_STR = "enum";
@@ -329,9 +330,7 @@ void CEnumStrGenerator::SaveCacheFile()
             serializer << iter->second->m_enumValue[i]->m_value;
         }
     }
-    TCHAR curWorkingPath[MAX_PATH];
-    GetModuleFileName(NULL, curWorkingPath, MAX_PATH);
-    boost::filesystem::path curPath(curWorkingPath);
+    boost::filesystem::path curPath(CUtilityManager::GetInstance()->GetModuleFileName().c_str());
     TString fullPathStr(curPath.parent_path().c_str());
     fullPathStr.append(_T("/")).append(SCAN_DATA_NAME);
     serializer.Deserialize(fullPathStr.c_str());
@@ -340,9 +339,7 @@ void CEnumStrGenerator::SaveCacheFile()
 bool CEnumStrGenerator::LoadCacheFile()
 {
     bool bRet = false;
-    TCHAR curWorkingPath[MAX_PATH];
-    GetModuleFileName(NULL, curWorkingPath, MAX_PATH);
-    boost::filesystem::path curPath(curWorkingPath);
+    boost::filesystem::path curPath(CUtilityManager::GetInstance()->GetModuleFileName().c_str());
     TString fullPathStr(curPath.parent_path().c_str());
     fullPathStr.append(_T("/")).append(SCAN_DATA_NAME);
     if (boost::filesystem::exists(fullPathStr.c_str()))

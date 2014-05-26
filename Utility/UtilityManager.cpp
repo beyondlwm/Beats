@@ -10,6 +10,7 @@
 #include <psapi.h>
 #include <shlobj.h>
 #include <cderr.h>
+#include <boost/filesystem.hpp>
 
 #pragma comment(lib, "psapi.lib")
 
@@ -368,12 +369,29 @@ bool CUtilityManager::ReadDataFromFile(FILE* pFile, void* pData, size_t uDataLen
     }
     BEATS_ASSERT(uCounter == uDataLength, _T("Write Data Failed with retry count %d"), uRetryCount);
     return uCounter == uDataLength;
+}
 
+bool CUtilityManager::FileExists(const TCHAR* pszFilePath)
+{
+    return boost::filesystem::exists(pszFilePath);
+}
+
+TString CUtilityManager::FileFindExtension(const TCHAR* pszFileName)
+{
+    boost::filesystem::path fileName(pszFileName);
+    return fileName.extension().c_str();
+}
+
+TString CUtilityManager::FileFindName(const TCHAR* pszFileName)
+{
+    boost::filesystem::path fileName(pszFileName);
+    return fileName.filename().c_str();
 }
 
 bool CUtilityManager::GetProcessModule( size_t uProcessId, std::vector<TString>& modulePath )
 {
     bool bRet = false;
+#if (BEATS_PLATFORM == PLATFORM_WIN32)
     HMODULE moduleCache[1024];
     DWORD cacheNeeded = 0;
     HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, (DWORD)uProcessId);
@@ -385,14 +403,30 @@ bool CUtilityManager::GetProcessModule( size_t uProcessId, std::vector<TString>&
             TCHAR pathCache[MAX_PATH];
             for(UINT i = 0; i < moduleCount; ++i)
             {
-                GetModuleFileName(moduleCache[i], pathCache, MAX_PATH);
+                ::GetModuleFileName(moduleCache[i], pathCache, MAX_PATH);
                 modulePath.push_back(pathCache);
             }
             bRet = true;
         }
         CloseHandle(hProcess);
     }
+#endif
     return bRet;
+}
+
+const TString& CUtilityManager::GetModuleFileName()
+{
+#if (BEATS_PLATFORM == PLATFORM_WIN32)
+    TCHAR curWorkingPath[MAX_PATH];
+    ::GetModuleFileName(NULL, curWorkingPath, MAX_PATH);
+    m_strFileModuleName.assign(curWorkingPath);
+#endif
+    return m_strFileModuleName;
+}
+
+void CUtilityManager::SetModuleFileName(const TCHAR* pszFileName)
+{
+    m_strFileModuleName.assign(pszFileName);
 }
 
 bool CUtilityManager::CalcMD5( CMD5& md5, SDirectory& fileList )
