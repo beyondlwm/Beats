@@ -9,9 +9,9 @@ struct SBytesFlipEncodeHeader : public SEncodeHeader
         : SEncodeHeader(sizeof(*this), eFET_BytesFlip)
         , m_iStepMin(0)
         , m_iStepMax(0)
-        , m_uRandomSeed(0)
         , m_iFlipCountMin(0)
         , m_iFlipCountMax(0)
+        , m_uRandomSeed(0)
     {
     }
     ~SBytesFlipEncodeHeader()

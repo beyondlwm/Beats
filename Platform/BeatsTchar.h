@@ -5,13 +5,10 @@
 #ifdef _UNICODE
 #define TCHAR wchar_t
 #define TString std::wstring
-
 #define __T(x)      L ## x
 #define _T(x)       __T(x)
 
-
 //note: descriptions with * in front have replacement functions
-
 //formatting functions
 #define _sntprintf swprintf //* make a formatted a string
 #define _tprintf wprintf //* print a formatted string
@@ -53,7 +50,9 @@
 #define _tcstoi64 wcstoll //* convers a string to an 64bit bit integer
 #define _i64tot lltow //* converts a 64 bit integer to a string (with base)
 
+
 #else //if defined(_ASCII)
+
 #define TCHAR char
 #define TString std::string
 #define __T(x)      x
@@ -90,6 +89,7 @@
 #define _tcstod strtod
 #define _tcstoi64 strtoll
 #define _i64tot lltoa
+
 #endif
 
 #else //HAVE_TCHAR_H
@@ -97,11 +97,11 @@
 
 //some tchar headers miss these
 #ifndef _tcstoi64
-#ifdef _UNICODE
-#define _tcstoi64 wcstoll //* converse a string to an 64bit bit integer
-#else
-#define _tcstoi64 strtoll
-#endif
+    #ifdef _UNICODE
+        #define _tcstoi64 wcstoll //* converse a string to an 64bit bit integer
+    #else
+        #define _tcstoi64 strtoll
+    #endif
 #endif
 
 #endif

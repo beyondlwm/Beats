@@ -31,7 +31,6 @@
 #include "BeatsTchar.h"
 #include "BeatsTypeDef.h"
 
-
 #include <string>
 #include <math.h>
 #include <map>
@@ -40,6 +39,19 @@
 #include "Beats/PublicDef.h"
 #include "Math/MathPublic.h"
 
+#if (BEATS_PLATFORM != PLATFORM_WIN32)
+    #include <StringHelper/StringHelper.h>
+
+    inline FILE* _tfopen(const TCHAR* pszFileName, const TCHAR* pszMode)
+    {
+        char szFileNameBuffer[MAX_PATH];
+        CStringHelper::GetInstance()->ConvertToCHAR(pszFileName, szFileNameBuffer, MAX_PATH);
+        char szModeBuffer[16];
+        CStringHelper::GetInstance()->ConvertToCHAR(pszMode, szModeBuffer, 16);
+        return fopen(szFileNameBuffer, szModeBuffer);
+    }
+
+#endif
 
 
 // TODO: reference additional headers your program requires here

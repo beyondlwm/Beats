@@ -48,7 +48,7 @@ bool CBytesFlipEncoder::EncodeImpl(CSerializer* pSourceSerializer, CSerializer* 
             while (pSourceSerializer->GetReadPos() < pSourceSerializer->GetWritePos())
             {
                 unsigned short uFlipCount = (unsigned short)(((double)rand() / RAND_MAX) * uFlipDeltaValue + m_header.m_iFlipCountMin);
-                unsigned short uFlipSizeEachTime = (unsigned short)min(uFlipCount, pSourceSerializer->GetWritePos() - pSourceSerializer->GetReadPos());
+                unsigned short uFlipSizeEachTime = std::min<unsigned short>(uFlipCount, pSourceSerializer->GetWritePos() - pSourceSerializer->GetReadPos());
                 unsigned char* pSourceData = (unsigned char*)pSourceSerializer->GetReadPtr();
                 unsigned char* pEncodeData = (unsigned char*)pEncodeSerializer->GetWritePtr();
                 for (size_t i = 0; i < uFlipSizeEachTime; ++i)
@@ -88,7 +88,7 @@ bool CBytesFlipEncoder::EncodeImpl(FILE* pSourceFile, FILE* pEncodeFile)
         while (uTotalReadCounter < m_header.m_uOriDataSize && bRet)
         {
             unsigned short uFlipCount = (unsigned short)(((double)rand() / RAND_MAX) * uFlipDeltaValue + m_header.m_iFlipCountMin);
-            unsigned short uFlipSizeEachTime = (unsigned short)min(uFlipCount, m_header.m_uOriDataSize - uTotalReadCounter);
+            unsigned short uFlipSizeEachTime = std::min<unsigned short>(uFlipCount, (unsigned short)(m_header.m_uOriDataSize - uTotalReadCounter));
             if (CUtilityManager::GetInstance()->ReadDataFromFile(pSourceFile, pBuffer, uFlipSizeEachTime))
             {
                 for (unsigned short i = 0; i < uFlipSizeEachTime; ++i)

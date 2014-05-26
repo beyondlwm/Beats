@@ -3,8 +3,15 @@
 
 #if (BEATS_PLATFORM == PLATFORM_WIN32)
     typedef WIN32_FIND_DATA TFileData;
-
+    
 #else
+    #define MAX_PATH 256
+    typedef unsigned int HANDLE;
+    typedef unsigned int HWND;
+    typedef long long FILETIME;
+    typedef int DWORD;
+    typedef short WORD;
+
     struct SFileData
     {
         DWORD dwFileAttributes;
@@ -24,8 +31,6 @@
         #endif
     };
     typedef SFileData TFileData;
-    typedef HANDLE unsigned int;
-    typedef HWND unsigned int;
 #endif
 
 #endif // !BEATS_BEATSTYPEDEF_H__INCLUDE
