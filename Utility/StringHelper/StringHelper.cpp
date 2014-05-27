@@ -95,7 +95,11 @@ void CStringHelper::ConvertToTCHAR( const char* pData, TCHAR* pBuffer, size_t bu
 {
     BEATS_ASSERT(strlen(pData) * sizeof(char) < bufferLength, _T("ConvertToTCHAR failed! More buffer length are required!"));
 #ifdef _UNICODE
-    MultiByteToWideChar(CP_ACP, 0, pData, -1, pBuffer, (int)bufferLength);
+    #if (BEATS_PLATFORM == PLATFORM_WIN32)
+        MultiByteToWideChar(CP_ACP, 0, pData, -1, pBuffer, (int)bufferLength);
+    #else
+        swprintf(pBuffer, bufferLength, _T("%hs"), pData);
+    #endif
 #else
     strcpy(pBuffer, pData);
 #endif
@@ -104,7 +108,11 @@ void CStringHelper::ConvertToTCHAR( const char* pData, TCHAR* pBuffer, size_t bu
 void CStringHelper::ConvertToCHAR( const TCHAR* pData, char* pBuffer, size_t bufferLength )
 {
 #ifdef _UNICODE
-    WideCharToMultiByte(CP_ACP, 0, pData, -1, pBuffer, (int)bufferLength, NULL, NULL);
+    #if (BEATS_PLATFORM == PLATFORM_WIN32)
+        WideCharToMultiByte(CP_ACP, 0, pData, -1, pBuffer, (int)bufferLength, NULL, NULL);
+    #else
+        sprintf_s(pBuffer, bufferLength, "%ls", pData);
+    #endif
 #else
     strcpy(pBuffer, pData);
 #endif
@@ -116,7 +124,11 @@ void CStringHelper::ConvertToWCHAR( const TCHAR* pData, wchar_t* pBuffer, size_t
 #ifdef _UNICODE
     wcscpy(pBuffer, pData);
 #else
-    MultiByteToWideChar(CP_ACP, 0, pData, -1, pBuffer, (int)bufferLength);
+    #if (BEATS_PLATFORM == PLATFORM_WIN32)
+        MultiByteToWideChar(CP_ACP, 0, pData, -1, pBuffer, (int)bufferLength);
+    #else
+        swprintf(pBuffer, bufferLength, _T("%hs"), pData);
+    #endif
 #endif
 }
 
@@ -317,7 +329,7 @@ CStringHelper::EStringCharacterType CStringHelper::GetCharacterType(wchar_t char
 CStringHelper::EStringCharacterType CStringHelper::GetCharacterType(const char* pszChar) const
 {
     wchar_t buffer;
-    MultiByteToWideChar(CP_ACP, 0, pszChar, -1, &buffer, 1);
+    swprintf(&buffer, sizeof(buffer), _T("%hs"), pszChar);
     return GetCharacterType(buffer);
 }
 

@@ -22,15 +22,10 @@ CComponentManager::~CComponentManager()
 
 void CComponentManager::SerializeTemplateData(CSerializer& serializer)
 {
-    TCHAR workingPath[MAX_PATH];
-    GetModuleFileName(NULL, workingPath, MAX_PATH);
-    int iStrPos = CStringHelper::GetInstance()->FindLastString(workingPath, _T("/"), false);
-    BEATS_ASSERT(iStrPos >= 0);
-    workingPath[iStrPos] = 0;
-
-    TCHAR szFilePath[MAX_PATH];
-    _stprintf(szFilePath, _T("%s\\%s"), &workingPath, EXPORT_STRUCTURE_DATA_FILENAME);
-    serializer.Deserialize(szFilePath);
+    TString strWorkingPath = CUtilityManager::GetInstance()->GetModuleFileName();
+    strWorkingPath = CUtilityManager::GetInstance()->FileRemoveName(strWorkingPath.c_str());
+    strWorkingPath.append(_T("/")).append(EXPORT_STRUCTURE_DATA_FILENAME);
+    serializer.Deserialize(strWorkingPath.c_str());
 }
 
 

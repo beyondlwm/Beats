@@ -115,6 +115,7 @@ public:
     bool FileExists(const TCHAR* pszFilePath);
     TString FileFindExtension(const TCHAR* pszFileName);
     TString FileFindName(const TCHAR* pszFileName);
+    TString FileRemoveName(const TCHAR* pszFilePath);
 
     // System Module
     bool GetProcessModule(size_t uProcessId, std::vector<TString>& modulePath);

@@ -388,6 +388,13 @@ TString CUtilityManager::FileFindName(const TCHAR* pszFileName)
     return fileName.filename().c_str();
 }
 
+TString CUtilityManager::FileRemoveName(const TCHAR* pszFilePath)
+{
+    boost::filesystem::path fileName(pszFilePath);
+    fileName.remove_filename();
+    return fileName.c_str();
+}
+
 bool CUtilityManager::GetProcessModule( size_t uProcessId, std::vector<TString>& modulePath )
 {
     bool bRet = false;
