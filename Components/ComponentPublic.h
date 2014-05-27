@@ -5,6 +5,10 @@
 #include "Property/PropertyPublic.h"
 #include "Utility/StringHelper/StringHelper.h"
 #include "Component/ComponentEditorProxy.h"
+#include "Component/ComponentProxyManager.h"
+#include "Component/ComponentManager.h"
+#include "Property/PropertyDescriptionBase.h"
+#include "Utility/Serializer/Serializer.h"
 
 // To comment or un-comment this macro to decide serializer/deserialize.
 //#define EXPORT_TO_EDITOR
@@ -143,7 +147,7 @@ inline void ClearMap(std::map<T1, T2>& value)
 template<typename T1, typename T2>
 inline void ClearMap(std::map<T1, T2*>& value)
 {
-    for (std::map<T1, T2*>::iterator iter = value.begin(); iter != value.end(); ++iter)
+    for (typename std::map<T1, T2*>::iterator iter = value.begin(); iter != value.end(); ++iter)
     {
         BEATS_SAFE_DELETE(iter->second);
     }
@@ -309,7 +313,7 @@ inline void InitValue(const T& param)
     //TODO: I don't know how to init a template value, so this is the HACK way.
     if (sizeof(T) <= 4)
     {
-        ZeroMemory((void*)&param, sizeof(T));
+        memset((void*)&param, 0, sizeof(T));
     }
 }
 

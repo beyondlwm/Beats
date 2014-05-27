@@ -10,9 +10,11 @@
 
 CDependencyDescription::CDependencyDescription(EDependencyType type, size_t dependencyGuid, CComponentEditorProxy* pOwner, size_t uIndex, bool bIsList)
 : m_type(type)
-, m_uDependencyGuid(dependencyGuid)
-, m_pOwner(pOwner)
+, m_changeAction(eDCA_Count)
+, m_pChangeActionProxy(NULL)
 , m_uIndex(uIndex)
+, m_pOwner(pOwner)
+, m_uDependencyGuid(dependencyGuid)
 , m_bHideRender(false)
 , m_bIsListType(bIsList)
 {
@@ -131,7 +133,7 @@ void CDependencyDescription::SaveToXML( TiXmlElement* pParentNode )
             TiXmlElement* pDependencyNodeElement = new TiXmlElement("DependencyNode");
             pDependencyNodeElement->SetAttribute("Id", (int)m_dependencyLine[i]->GetConnectedComponent()->GetId());
             char szGUIDHexStr[32] = {0};
-            sprintf_s(szGUIDHexStr, "0x%x", m_dependencyLine[i]->GetConnectedComponent()->GetGuid());
+            sprintf(szGUIDHexStr, "0x%lx", m_dependencyLine[i]->GetConnectedComponent()->GetGuid());
             pDependencyNodeElement->SetAttribute("Guid", szGUIDHexStr);
             pDependencyElement->LinkEndChild(pDependencyNodeElement);
         }

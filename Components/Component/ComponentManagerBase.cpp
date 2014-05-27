@@ -93,16 +93,20 @@ CComponentBase* CComponentManagerBase::GetComponentTemplate( size_t guid ) const
 CComponentBase* CComponentManagerBase::CreateComponent( size_t guid, bool bCloneFromTemplate, bool bManualManage/* = false*/, size_t specifiedInstanceId /*=0xffffffff*/, bool bCheckRequestId/* = true*/, CSerializer* pData /*=NULL*/, bool bCallInitFunc/* = true*/)
 {
     CComponentBase* pNewInstance = NULL;
+#if(BEATS_PLATFORM == PLATFORM_WIN32)
     __try
     {
+#endif
         CComponentBase* pTemplate = GetComponentTemplate(guid);
         BEATS_ASSERT(pTemplate != NULL, _T("Create an unknown component, Guid:0x%x id: %d"), guid, specifiedInstanceId);
         pNewInstance = CreateComponentByRef(pTemplate, bCloneFromTemplate, bManualManage, specifiedInstanceId, bCheckRequestId, pData, bCallInitFunc);
+#if(BEATS_PLATFORM == PLATFORM_WIN32)
     }
     __except(EXCEPTION_EXECUTE_HANDLER)
     {
         BEATS_ASSERT(false, _T("Create Component Failed! GUID :0x%x ManualManage:%s"), guid, bManualManage ? _T("Yes"):_T("No"));
     }
+#endif
     return pNewInstance;
 }
 

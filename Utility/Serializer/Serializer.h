@@ -77,11 +77,11 @@ private:
     void SerializeWcharPtr(const wchar_t* data);
 
 private:
+    size_t m_size;
+    void* m_pBuffer;
     void* m_pReadPtr;
     void* m_pWritePtr;
-    void* m_pBuffer;
     void* m_pUserData;
-    size_t m_size;
 };
 
 #include "Serializer.hpp"

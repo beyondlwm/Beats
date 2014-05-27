@@ -10,17 +10,19 @@
 #include "ComponentGraphic.h"
 #include "DependencyDescriptionLine.h"
 #include "DependencyDescription.h"
+#include "ComponentEditorProxy.h"
+#include "ComponentPublic.h"
 
 CComponentProxyManager* CComponentProxyManager::m_pInstance = NULL;
 
 CComponentProxyManager::CComponentProxyManager()
-    : m_pCurrReflectPropertyDescription(NULL)
+    : m_bReflectCheckFlag(false)
+    , m_pCurrReflectPropertyDescription(NULL)
     , m_pCurrReflectDependency(NULL)
-    , m_bReflectCheckFlag(false)
 {
     m_pProject = new CComponentProject;
     m_pPropertyCreatorMap = new std::map<size_t, TCreatePropertyFunc>();
-    m_pComponentInheritMap = new std::map<size_t, std::vector<size_t>>();
+    m_pComponentInheritMap = new std::map<size_t, std::vector<size_t> >();
 }
 
 CComponentProxyManager::~CComponentProxyManager()
@@ -58,7 +60,7 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /
                         int id = -1;
                         pInstanceElement->Attribute("Id", &id);
                         BEATS_ASSERT(id != -1);
-                        CComponentEditorProxy* pComopnent = static_cast<CComponentEditorProxy*>(CreateComponent(guid, false, false, id, false, NULL, false));
+                        CComponentEditorProxy* pComopnent = (CComponentEditorProxy*)(CreateComponent(guid, false, false, id, false, NULL, false));
                         pComopnent->LoadFromXML(pInstanceElement);
                         pInstanceElement = pInstanceElement->NextSiblingElement("Instance");
                     }
@@ -193,7 +195,7 @@ void CComponentProxyManager::Export(const std::vector<TString>& fileList, const 
 void CComponentProxyManager::QueryDerivedClass(size_t uBaseClassGuid, std::vector<size_t>& result, bool bRecurse )
 {
     result.clear();
-    std::map<size_t, std::vector<size_t>>::iterator iter = m_pComponentInheritMap->find(uBaseClassGuid);
+    std::map<size_t, std::vector<size_t> >::iterator iter = m_pComponentInheritMap->find(uBaseClassGuid);
     if (iter != m_pComponentInheritMap->end())
     {
         result = iter->second;
@@ -214,7 +216,7 @@ void CComponentProxyManager::QueryDerivedClass(size_t uBaseClassGuid, std::vecto
 
 void CComponentProxyManager::RegisterClassInheritInfo( size_t uDerivedClassGuid, size_t uBaseClassGuid )
 {
-    std::map<size_t, std::vector<size_t>>::iterator iter = m_pComponentInheritMap->find(uBaseClassGuid);
+    std::map<size_t, std::vector<size_t> >::iterator iter = m_pComponentInheritMap->find(uBaseClassGuid);
     if (iter == m_pComponentInheritMap->end())
     {
         (*m_pComponentInheritMap)[uBaseClassGuid] = std::vector<size_t>();
@@ -261,7 +263,7 @@ void CComponentProxyManager::SaveTemplate(const TCHAR* pszFilePath)
     {
         TiXmlElement* pComponentElement = new TiXmlElement("Component");
         char szGUIDHexStr[32] = {0};
-        sprintf_s(szGUIDHexStr, "0x%x", iter->first);
+        sprintf(szGUIDHexStr, "0x%x", iter->first);
         pComponentElement->SetAttribute("GUID", szGUIDHexStr);
         char tmp[MAX_PATH] = {0};
         CStringHelper::GetInstance()->ConvertToCHAR(GetComponentTemplate(iter->first)->GetClassStr(), tmp, MAX_PATH);
@@ -307,7 +309,7 @@ void CComponentProxyManager::SaveToFile( const TCHAR* pFileName /* = NULL*/)
         {
             TiXmlElement* pComponentElement = new TiXmlElement("Component");
             char szGUIDHexStr[32] = {0};
-            sprintf_s(szGUIDHexStr, "0x%x", iter->first);
+            sprintf(szGUIDHexStr, "0x%x", iter->first);
             pComponentElement->SetAttribute("GUID", szGUIDHexStr);
             char tmp[MAX_PATH] = {0};
             CStringHelper::GetInstance()->ConvertToCHAR(GetComponentTemplate(iter->first)->GetClassStr(), tmp, MAX_PATH);

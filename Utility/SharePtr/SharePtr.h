@@ -13,6 +13,9 @@
     #include "StringHelper/StringHelper.h"
     #include <set>
     #endif
+
+#else if(BEATS_PLATFORM == PLATFORM_IOS)
+    #include <libkern/OSAtomic.h>
 #endif
 
 template<typename ClassType>
@@ -32,8 +35,8 @@ public:
 
 public:
     SharePtr<ClassType>()
-        : m_pObject(NULL)
-        , m_refCount(NULL)
+        : m_refCount(NULL)
+        , m_pObject(NULL)
 #ifdef SHARE_PTR_TRACE
         , m_uRefrencePos(0)
         , m_pRefrencePosSet(NULL)
@@ -42,8 +45,8 @@ public:
     }
 
     SharePtr<ClassType>(ClassType* pObject)
-        : m_pObject(pObject)
-        , m_refCount (NULL)
+        : m_refCount (NULL)
+        , m_pObject(pObject)
 #ifdef SHARE_PTR_TRACE
         , m_uRefrencePos(0)
         , m_pRefrencePosSet(NULL)
@@ -104,8 +107,7 @@ public:
 
     //Copy constructor.
     SharePtr<ClassType>(const SharePtr<ClassType>& value)
-        : m_pObject(NULL)
-        , m_refCount(NULL)
+        : m_refCount(NULL)
 #ifdef SHARE_PTR_TRACE
         , m_uRefrencePos(0)
         , m_pRefrencePosSet(NULL)
@@ -204,7 +206,7 @@ public:
         if (bCanDestroy)
         {
             BEATS_ASSERT(*m_refCount > 0, _T("Ref count is invalid for share pointer destroy"));
-            ::InterlockedDecrement(m_refCount);
+            Beats_AtomicDecrement(m_refCount);
 #ifdef SHARE_PTR_TRACE
             m_lockmutex.lock();
             std::multiset<size_t>::iterator iter = m_pRefrencePosSet->find(m_uRefrencePos);
@@ -253,7 +255,7 @@ private:
             m_pObject = static_cast<ClassType*>(value.Get());
 #endif
             m_refCount = value.RefCountPtr();
-            ::InterlockedIncrement(m_refCount);
+            Beats_AtomicIncrement(m_refCount);
 
 #ifdef SHARE_PTR_TRACE
             SetRefPos(value.m_pRefrencePosSet);

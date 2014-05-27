@@ -12,6 +12,7 @@
 //formatting functions
 #define _sntprintf swprintf //* make a formatted a string
 #define _tprintf wprintf //* print a formatted string
+#define _stprintf(buffer, format, ...) swprintf(buffer, sizeof(buffer), format, __VA_ARGS__)
 
 //this one has no replacement functions yet, but it is only used in the tests
 #define _vsntprintf vsnwprintf //* print a formatted string using variable arguments
@@ -45,11 +46,12 @@
 #define _tcsicmp wcscasecmp //* case insensitive compare two string
 #endif
 
-//conversion functions
+//conversaion functions
 #define _tcstod wcstod //convert a string to a double
 #define _tcstoi64 wcstoll //* convers a string to an 64bit bit integer
 #define _i64tot lltow //* converts a 64 bit integer to a string (with base)
-
+#define _ttoi _wtoi
+#define _tcstoul wcstoul
 
 #else //if defined(_ASCII)
 
@@ -61,6 +63,7 @@
 #define _sntprintf snprintf    
 #define _tprintf printf
 #define _vsntprintf vsnprintf 
+#define _stprintf sprintf
 
 //we are using the internal functions of the compiler here
 //if LUCENE_USE_INTERNAL_CHAR_FUNCTIONS is defined, thesse
@@ -85,10 +88,12 @@
 #define _tcsicmp strcasecmp
 #define _tcscspn strcspn
 
-//converstion methods
+//conversation methods
 #define _tcstod strtod
 #define _tcstoi64 strtoll
 #define _i64tot lltoa
+#define _ttoi atoi
+#define _tcstoul strtoul
 
 #endif
 

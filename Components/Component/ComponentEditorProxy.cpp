@@ -17,8 +17,6 @@ CComponentEditorProxy::CComponentEditorProxy(CComponentGraphic* pGraphics)
 : m_uGuid(0)
 , m_uParentGuid(0)
 , m_pGraphics(pGraphics)
-, m_pDependenciesDescription(NULL)
-, m_pBeConnectedDependencyLines(NULL)
 , m_pHostComponent(NULL)
 {
     BEATS_ASSERT(false, _T("Do never call this!"));
@@ -32,11 +30,9 @@ CComponentEditorProxy::CComponentEditorProxy(CComponentGraphic* pGraphics)
 CComponentEditorProxy::CComponentEditorProxy(CComponentGraphic* pGraphics, size_t uGuid, size_t uParentGuid, const TCHAR* pszClassName)
 : m_uGuid(uGuid)
 , m_uParentGuid(uParentGuid)
-, m_strClassName(pszClassName)
 , m_pGraphics(pGraphics)
-, m_pDependenciesDescription(NULL)
-, m_pBeConnectedDependencyLines(NULL)
 , m_pHostComponent(NULL)
+, m_strClassName(pszClassName)
 {
     m_pDependenciesDescription = new std::vector<CDependencyDescription*>;
     m_pBeConnectedDependencyLines = new std::vector<CDependencyDescriptionLine*>;

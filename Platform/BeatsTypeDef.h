@@ -3,7 +3,8 @@
 
 #if (BEATS_PLATFORM == PLATFORM_WIN32)
     typedef WIN32_FIND_DATA TFileData;
-    
+    #define Beats_AtomicIncrement(pVariable) ::InterlockedIncrement(pVariable)
+    #define Beats_AtomicDecrement(pVariable) ::InterlockedDecrement(pVariable)
 #else
     #define MAX_PATH 256
     typedef unsigned int HANDLE;
@@ -31,6 +32,14 @@
         #endif
     };
     typedef SFileData TFileData;
+    #define MessageBox(hWnd, lpText, lpCaption, uType) 0
+    #define IDYES 1
+    #define IDNO 0
+    
+    #if (BEATS_PLATFORM == PLATFORM_IOS)
+        #define Beats_AtomicIncrement(pVariable) OSAtomicIncrement32((int*)pVariable)
+        #define Beats_AtomicDecrement(pVariable) OSAtomicDecrement32((int*)pVariable)
+    #endif
 #endif
 
 #endif // !BEATS_BEATSTYPEDEF_H__INCLUDE

@@ -6,16 +6,16 @@
 #include "TinyXML/tinyxml.h"
 #include "IdManager/IdManager.h"
 #include <string>
-#include <boost/filesystem.hpp>
+#include "Utility/UtilityManager.h"
 
 CComponentProject::CComponentProject()
 : m_pProjectData(NULL)
 , m_pComponentFiles(new std::vector<TString>)
 , m_pComponentToTypeMap(new std::map<size_t, size_t>)
 , m_pComponentToFileMap(new std::map<size_t, size_t>)
-, m_pFileToComponentMap(new std::map<size_t, std::vector<size_t>>)
-, m_pTypeToComponentMap(new std::map<size_t, std::vector<size_t>>)
-, m_pPropertyMaintainMap(new std::map<size_t, std::map<TString, TString>>)
+, m_pFileToComponentMap(new std::map<size_t, std::vector<size_t> >)
+, m_pTypeToComponentMap(new std::map<size_t, std::vector<size_t> >)
+, m_pPropertyMaintainMap(new std::map<size_t, std::map<TString, TString> >)
 {
 
 }
@@ -31,14 +31,13 @@ CComponentProject::~CComponentProject()
     BEATS_SAFE_DELETE(m_pPropertyMaintainMap);
 }
 
-CComponentProjectDirectory* CComponentProject::LoadProject(const TCHAR* pszProjectFile, std::map<size_t, std::vector<size_t>>& conflictIdMap)
+CComponentProjectDirectory* CComponentProject::LoadProject(const TCHAR* pszProjectFile, std::map<size_t, std::vector<size_t> >& conflictIdMap)
 {
     CloseProject();
     if (pszProjectFile != NULL && pszProjectFile[0] != 0)
     {
-        boost::filesystem::path projectFilePath(pszProjectFile);
-        m_strProjectFilePath = projectFilePath.parent_path().c_str();
-        m_strProjectFileName = projectFilePath.filename().c_str();
+        m_strProjectFilePath = CUtilityManager::GetInstance()->FileRemoveName(pszProjectFile);
+        m_strProjectFileName = CUtilityManager::GetInstance()->FileFindName(pszProjectFile);
 
         char szProjectFileChar[MAX_PATH];
         CStringHelper::GetInstance()->ConvertToCHAR(pszProjectFile, szProjectFileChar, MAX_PATH);
@@ -128,47 +127,10 @@ void CComponentProject::SaveProjectFile( TiXmlElement* pParentNode, const CCompo
         TiXmlElement* pNewFileElement = new TiXmlElement("File");
         size_t uFileNameId = *iter;
 
-        // calculate the relative path
-        boost::filesystem::path targetPath = boost::filesystem::absolute( GetComponentFileName(uFileNameId).c_str() ); 
-        boost::filesystem::path fromPath = boost::filesystem::absolute( m_strProjectFilePath.c_str() );
-        boost::filesystem::path relativePath;
-
-        // if root paths are different, return absolute path
-        if( targetPath.root_path() != fromPath.root_path() )
-        {
-            relativePath = targetPath;
-        }
-        else
-        {
-            // find out where the two paths diverge
-            boost::filesystem::path::const_iterator itr_path = targetPath.begin();
-            boost::filesystem::path::const_iterator itr_relative_to = fromPath.begin();
-            while( *itr_path == *itr_relative_to && itr_path != targetPath.end() && itr_relative_to != fromPath.end() ) 
-            {
-                ++itr_path;
-                ++itr_relative_to;
-            }
-
-            // add "../" for each remaining token in relative_to
-            if( itr_relative_to != fromPath.end() ) 
-            {
-                ++itr_relative_to;
-                while( itr_relative_to != fromPath.end() ) 
-                {
-                    relativePath /= "..";
-                    ++itr_relative_to;
-                }
-            }
-
-            // add remaining path
-            while( itr_path != targetPath.end() )
-            {
-                relativePath /= *itr_path;
-                ++itr_path;
-            }
-        }
-        
-        pNewFileElement->SetAttribute("Path", relativePath.string().c_str());
+        TString strRelativePath = CUtilityManager::GetInstance()->FileMakeRelative(m_strProjectFilePath.c_str(), GetComponentFileName(uFileNameId).c_str());
+        char szCharPath[MAX_PATH];
+        CStringHelper::GetInstance()->ConvertToCHAR(strRelativePath.c_str(), szCharPath, MAX_PATH);
+        pNewFileElement->SetAttribute("Path", szCharPath);
         pNewDirectoryElement->LinkEndChild(pNewFileElement);
     }
 }
@@ -255,7 +217,7 @@ void CComponentProject::ResolveIdForFile(size_t uFileId, size_t idToResolve, boo
 
 void CComponentProject::RegisterPropertyMaintainInfo(size_t uComponentGuid, const TString& strOriginPropertyName, const TString& strReplacePropertyName)
 {
-    std::map<size_t, std::map<TString, TString>>::iterator iter = m_pPropertyMaintainMap->find(uComponentGuid);
+    std::map<size_t, std::map<TString, TString> >::iterator iter = m_pPropertyMaintainMap->find(uComponentGuid);
     if (iter == m_pPropertyMaintainMap->end())
     {
         (*m_pPropertyMaintainMap)[uComponentGuid] = std::map<TString, TString>();
@@ -268,7 +230,7 @@ void CComponentProject::RegisterPropertyMaintainInfo(size_t uComponentGuid, cons
 bool CComponentProject::GetReplacePropertyName(size_t uComponentGuid, const TString& strOriginPropertyName, TString& strResult)
 {
     bool bRet = false;
-    std::map<size_t, std::map<TString, TString>>::iterator iter = m_pPropertyMaintainMap->find(uComponentGuid);
+    std::map<size_t, std::map<TString, TString> >::iterator iter = m_pPropertyMaintainMap->find(uComponentGuid);
     if (iter != m_pPropertyMaintainMap->end())
     {
         std::map<TString, TString>::const_iterator subIter = iter->second.find(strOriginPropertyName);
@@ -281,7 +243,7 @@ bool CComponentProject::GetReplacePropertyName(size_t uComponentGuid, const TStr
     return bRet;
 }
 
-size_t CComponentProject::RegisterFile(const TString& strFileName, std::map<size_t, std::vector<size_t>>& failedId, size_t uSpecifyFileId/* = 0xFFFFFFFF*/)
+size_t CComponentProject::RegisterFile(const TString& strFileName, std::map<size_t, std::vector<size_t> >& failedId, size_t uSpecifyFileId/* = 0xFFFFFFFF*/)
 {
     size_t uFileID = 0xFFFFFFFF;
     if (uSpecifyFileId != 0xFFFFFFFF)
@@ -302,12 +264,12 @@ size_t CComponentProject::RegisterFile(const TString& strFileName, std::map<size
         uFileID = m_pComponentFiles->size() - 1;
     }
 
-    std::map<size_t, std::vector<size_t>> result;
+    std::map<size_t, std::vector<size_t> > result;
     AnalyseFile(strFileName, result);
 
     CIdManager* pIdManager = CComponentProxyManager::GetInstance()->GetIdManager();
 
-    for (std::map<size_t, std::vector<size_t>>::const_iterator subIter = result.begin(); subIter != result.end(); ++subIter)
+    for (std::map<size_t, std::vector<size_t> >::const_iterator subIter = result.begin(); subIter != result.end(); ++subIter)
     {
         for (size_t i = 0; i < subIter->second.size(); ++i)
         {
@@ -342,7 +304,7 @@ size_t CComponentProject::RegisterFile(const TString& strFileName, std::map<size
     return uFileID;
 }
 
-bool CComponentProject::AnalyseFile(const TString& strFileName, std::map<size_t, std::vector<size_t>>& outResult)
+bool CComponentProject::AnalyseFile(const TString& strFileName, std::map<size_t, std::vector<size_t> >& outResult)
 {
     outResult.clear();
     char szFileName[MAX_PATH];
@@ -432,7 +394,7 @@ void CComponentProject::ReloadFile(size_t uFileID)
     BEATS_ASSERT(bRet && strFileName.length() > 0);
     if (bRet && strFileName.length() > 0)
     {
-        std::map<size_t, std::vector<size_t>> failedId;
+        std::map<size_t, std::vector<size_t> > failedId;
         RegisterFile(strFileName, failedId, uFileID);
         BEATS_ASSERT(failedId.size() == 0, _T("Impossible to have any failture here!"));
     }
@@ -511,7 +473,7 @@ size_t CComponentProject::QueryFileId(size_t uComponentId, bool bOnlyInProjectFi
     return uRet;
 }
 
-void CComponentProject::LoadXMLProject(TiXmlElement* pNode, CComponentProjectDirectory* pProjectDirectory, std::map<size_t, std::vector<size_t>>& conflictIdMap)
+void CComponentProject::LoadXMLProject(TiXmlElement* pNode, CComponentProjectDirectory* pProjectDirectory, std::map<size_t, std::vector<size_t> >& conflictIdMap)
 {
     BEATS_ASSERT(pProjectDirectory != NULL && pNode != NULL);
     TiXmlElement* pElement = pNode->FirstChildElement();
@@ -529,17 +491,10 @@ void CComponentProject::LoadXMLProject(TiXmlElement* pNode, CComponentProjectDir
         else if (strcmp(pText, "File") == 0)
         {
             const char* pPath = pElement->Attribute("Path");
-            boost::filesystem::path filePath(pPath);
-            if (!filePath.is_absolute())
-            {
-                TString strAbsolutePath = m_strProjectFilePath;
-                TCHAR szTPath[MAX_PATH];
-                CStringHelper::GetInstance()->ConvertToTCHAR(pPath, szTPath, MAX_PATH);
-                strAbsolutePath.append(_T("/")).append(szTPath);
-                boost::filesystem::path newPath(strAbsolutePath);
-                filePath.swap(newPath);
-            }
-            pProjectDirectory->AddFile(filePath.c_str(), conflictIdMap);
+            TCHAR szTPath[MAX_PATH];
+            CStringHelper::GetInstance()->ConvertToTCHAR(pPath, szTPath, MAX_PATH);
+            TString strFilePath = CUtilityManager::GetInstance()->FileMakeAbsolute(m_strProjectFilePath.c_str(), szTPath);
+            pProjectDirectory->AddFile(strFilePath.c_str(), conflictIdMap);
         }
         else
         {

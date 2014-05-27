@@ -99,15 +99,23 @@ class CUtilityManager
     BEATS_DECLARE_SINGLETON(CUtilityManager)
 public:
     void Init();
+#if (BEATS_PLATFORM == PLATFORM_WIN32)
     bool AcquireSingleFilePath(bool saveOrOpen, HWND hwnd, TString& result, const TCHAR* Tiltle, const TCHAR* filter, const TCHAR* pszInitialPath);
     bool AcquireMuiltyFilePath(bool bAllowDirectory, HWND hwnd, std::vector<TString>& result, const TCHAR* Tiltle, const TCHAR* filter, const TCHAR* pszInitialPath);
     bool AcquireDirectory(HWND hwnd, TString& strDirectoryPath, const TCHAR* pszTitle);
-
     // File Directory
     bool FillDirectory(SDirectory& fileList, bool bFillSubDirectory = true, CFileFilter* pFileFilter = NULL);
     unsigned long long BuildDirectoryToList(SDirectory* pDirectory, std::vector<TFileData*>& listToAppend);
     void SerializeDirectory(SDirectory* pDirectory, CSerializer& serializer);
     void DeserializeDirectory(SDirectory* pDirectory, CSerializer& serializer, long long* pTotalDataSize = NULL, size_t* pFileCount = NULL);
+
+    // MD5
+    bool CalcMD5(CMD5& md5, SDirectory& fileList);
+
+    //Thread
+    void SetThreadName(DWORD dwThreadId, const char* pszThreadName);
+
+#endif
     bool WriteDataToFile(FILE* pFile, void* pData, size_t uDataLength, size_t uRetryCount = 20);
     bool ReadDataFromFile(FILE* pFile, void* pData, size_t uDataLength, size_t uRetryCount = 20);
 
@@ -116,18 +124,14 @@ public:
     TString FileFindExtension(const TCHAR* pszFileName);
     TString FileFindName(const TCHAR* pszFileName);
     TString FileRemoveName(const TCHAR* pszFilePath);
+    TString FileMakeRelative(const TCHAR* pszStartPath, const TCHAR* pszToPath);
+    TString FileMakeAbsolute(const TCHAR* pszStartPath, const TCHAR* pszRelativePath);
 
     // System Module
     bool GetProcessModule(size_t uProcessId, std::vector<TString>& modulePath);
     const TString& GetModuleFileName();
     void SetModuleFileName(const TCHAR* pszFileName);
-
-    // MD5
-    bool CalcMD5(CMD5& md5, SDirectory& fileList);
     
-    //Thread
-    void SetThreadName(DWORD dwThreadId, const char* pszThreadName);
-
 private:
     TString m_strFileModuleName;
 };

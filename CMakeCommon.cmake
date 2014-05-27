@@ -1,17 +1,19 @@
 #1. Set platform folder.
 
-if(WIN32)	
-	set(PLATFORM_FOLDER win32)
+if(WIN32)
+    set(PLATFORM_FOLDER win32)
 elseif(APPLE)
-	set(PLATFORM_FOLDER ios)
+    set(PLATFORM_FOLDER ios)
 elseif(ANDROID)
-	set(PLATFORM_FOLDER android)
+    set(PLATFORM_FOLDER android)
 else()
-	set(PLATFORM_FOLDER linux)
+    set(PLATFORM_FOLDER linux)
 endif()
 
 #2. Set Define Marco
-ADD_DEFINITIONS(-DUNICODE -D_UNICODE)   
+ADD_DEFINITIONS(-DUNICODE -D_UNICODE)
+SET(CMAKE_CXX_FLAGS_DEBUG -D_DEBUG)
+SET(CMAKE_CXX_FLAGS_RELEASE -DNDEBUG)
 if(WIN32)
   ADD_DEFINITIONS (-DWIN32 -D_WINDOWS)  
   if(MSVC)
@@ -21,5 +23,5 @@ if(WIN32)
 elseif(APPLE)
 elseif(ANDROID)
 else()#Linux
-	ADD_DEFINITIONS(-DLINUX)
+    ADD_DEFINITIONS(-DLINUX)
 endif()

@@ -7,12 +7,14 @@
 //Assert
 //To call messagebox so we can afford info for the engine user.
 #ifdef _DEBUG
-#define BEATS_ASSERT(condition, ...)\
-    if (!(condition))\
-    {\
+
+    #if (BEATS_PLATFORM == PLATFORM_WIN32)
+        #define BEATS_ASSERT(condition, ...)\
+        if (!(condition))\
+        {\
         static bool bIgnoreThisAssert = false;\
         if (!bIgnoreThisAssert)\
-        {\
+            {\
             BEATS_WARNING(condition, __VA_ARGS__)\
             TCHAR strBuffer[10240];\
             _stprintf_s(strBuffer, __VA_ARGS__, _T(""));\
@@ -21,15 +23,22 @@
             _tcscat_s(strBuffer, errorInfo);\
             int iRet = MessageBox(NULL, strBuffer, _T("Beats assert"), MB_ABORTRETRYIGNORE | MB_ICONERROR);\
             if(iRet == IDABORT)\
-            {\
+                {\
                 __asm{int 3};\
-            }\
-            if(iRet == IDIGNORE)\
-            {\
+                }\
+                if(iRet == IDIGNORE)\
+                {\
                 bIgnoreThisAssert = true;\
+                }\
             }\
-       }\
-    }
+        }
+    #else
+    #define BEATS_ASSERT(condition, ...)\
+    if (!(condition))\
+        {\
+            asm{int 3}\
+        }
+    #endif
 #else
 #define BEATS_ASSERT(condition, ...)
 #endif
@@ -50,6 +59,7 @@
 //////////////////////////////////////////////////////////////////////////
 //DEBUG_PRINT
 #ifdef _DEBUG
+#if (BEATS_PLATFORM == PLATFORM_WIN32)
 #define BEATS_PRINT(...)\
 {\
     TCHAR strBuffer[1024];\
@@ -63,6 +73,21 @@
     _stprintf_s(strBuffer, infoStr, __VA_ARGS__);\
     OutputDebugString(strBuffer);\
     }
+#else
+#define BEATS_PRINT(...)\
+{\
+    TCHAR strBuffer[1024];\
+    _stprintf(strBuffer, __VA_ARGS__, _T(""));\
+    _tprintf(strBuffer);\
+}
+
+#define BEATS_PRINT_VARIABLE(infoStr, ...)\
+    {\
+    TCHAR strBuffer[1024];\
+    _stprintf_s(strBuffer, infoStr, __VA_ARGS__);\
+    _tprintf(strBuffer);\
+    }
+#endif
 
 #else
 #define BEATS_PRINT(...)

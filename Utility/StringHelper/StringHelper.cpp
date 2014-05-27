@@ -111,7 +111,7 @@ void CStringHelper::ConvertToCHAR( const TCHAR* pData, char* pBuffer, size_t buf
     #if (BEATS_PLATFORM == PLATFORM_WIN32)
         WideCharToMultiByte(CP_ACP, 0, pData, -1, pBuffer, (int)bufferLength, NULL, NULL);
     #else
-        sprintf_s(pBuffer, bufferLength, "%ls", pData);
+        sprintf(pBuffer, "%ls", pData);
     #endif
 #else
     strcpy(pBuffer, pData);
@@ -120,8 +120,8 @@ void CStringHelper::ConvertToCHAR( const TCHAR* pData, char* pBuffer, size_t buf
 
 void CStringHelper::ConvertToWCHAR( const TCHAR* pData, wchar_t* pBuffer, size_t bufferLength )
 {
-    bufferLength = bufferLength; // Fix warning C4100.
 #ifdef _UNICODE
+    bufferLength; // Fix warning C4100.
     wcscpy(pBuffer, pData);
 #else
     #if (BEATS_PLATFORM == PLATFORM_WIN32)
@@ -341,22 +341,23 @@ bool CStringHelper::WildMatch( const TCHAR* pat, const TCHAR* str )
         {
         case '?':
             if (*str == '.') 
-                return FALSE;
+                return false;
             break;
         case '*':
             do 
             {
                 ++pat;
-            }while (*pat == '*'); /* enddo */
+            }
+            while (*pat == '*'); /* enddo */
             if (!*pat)
-                return TRUE;
+                return true;
             while (*str) 
                 if (WildMatch(pat, str++)) 
-                    return TRUE;
-            return FALSE;
+                    return true;
+            return false;
         default:
             if (_totupper(*str) != _totupper(*pat)) 
-                return FALSE;
+                return false;
             break;
         } /* endswitch */
         ++pat, ++str;

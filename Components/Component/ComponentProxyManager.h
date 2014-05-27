@@ -61,7 +61,7 @@ private:
     std::map<size_t, TCreatePropertyFunc>* m_pPropertyCreatorMap;
     std::map<size_t, TString> m_abstractComponentNameMap;
     // This map save the inherit relationship for all components. so when we instance a component pointer, we can decide which instance to generate.
-    std::map<size_t, std::vector<size_t>>* m_pComponentInheritMap;
+    std::map<size_t, std::vector<size_t> >* m_pComponentInheritMap;
 };
 
 

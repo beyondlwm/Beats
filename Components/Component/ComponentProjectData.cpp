@@ -22,7 +22,7 @@ CComponentProjectDirectory::~CComponentProjectDirectory()
     BEATS_SAFE_DELETE(m_pChildrenVec);
 }
 
-bool CComponentProjectDirectory::AddFile(const TString& strFileName, std::map<size_t, std::vector<size_t>>& conflictMap)
+bool CComponentProjectDirectory::AddFile(const TString& strFileName, std::map<size_t, std::vector<size_t> >& conflictMap)
 {
     CComponentProject* pProject = CComponentProxyManager::GetInstance()->GetProject();
     size_t uFileId = pProject->RegisterFile(strFileName, conflictMap);

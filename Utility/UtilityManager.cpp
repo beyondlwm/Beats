@@ -3,16 +3,19 @@
 #include "Serializer/Serializer.h"
 #include "EnumStrGenerator/EnumStrGenerator.h"
 #include "StringHelper/StringHelper.h"
-#include "ServiceManager/ServiceManager.h"
-#include "FileFilter/FileFilter.h"
-#include "MD5/md5.h"
-#include <Commdlg.h>
-#include <psapi.h>
-#include <shlobj.h>
-#include <cderr.h>
+#if (BEATS_PLATFORM == PLATFORM_WIN32)
+    #include "ServiceManager/ServiceManager.h"
+    #include "FileFilter/FileFilter.h"
+    #include "MD5/md5.h"
+    #include <Commdlg.h>
+    #include <psapi.h>
+    #include <shlobj.h>
+    #include <cderr.h>
+    #pragma comment(lib, "psapi.lib")
+#endif
+
 #include <boost/filesystem.hpp>
 
-#pragma comment(lib, "psapi.lib")
 
 CUtilityManager* CUtilityManager::m_pInstance = NULL;
 
@@ -25,9 +28,12 @@ CUtilityManager::~CUtilityManager()
 {
     CStringHelper::Destroy();
     CEnumStrGenerator::Destroy();
+#if (BEATS_PLATFORM == PLATFORM_WIN32)
     CServiceManager::Destroy();
+#endif
 }
 
+#if (BEATS_PLATFORM == PLATFORM_WIN32)
 bool CUtilityManager::AcquireSingleFilePath(bool saveOrOpen, HWND hwnd, TString& result, const TCHAR* Tiltle, const TCHAR* filter, const TCHAR* pszInitialPath)
 {
     TCHAR fileName[MAX_PATH];
@@ -189,6 +195,54 @@ bool CUtilityManager::AcquireDirectory(HWND hwnd, TString& strDirectoryPath, con
     return bRet;
 }
 
+bool CUtilityManager::CalcMD5( CMD5& md5, SDirectory& fileList )
+{
+    bool bRet = false;
+    for (size_t i = 0; i < fileList.m_pFileList->size(); ++i)
+    {
+        TFileData* pFileData = fileList.m_pFileList->at(i);
+        TString strFilePath = fileList.m_szPath;
+        strFilePath.append(pFileData->cFileName);
+        FILE* pFile = _tfopen(strFilePath.c_str(), _T("rb"));
+        if (pFile != NULL)
+        {
+            md5.Update(pFile);
+            fclose(pFile);
+        }
+    }
+    for (size_t i = 0; i < fileList.m_pDirectories->size(); ++i)
+    {
+        CalcMD5(md5, *fileList.m_pDirectories->at(i));
+    }
+    return bRet;
+}
+
+void CUtilityManager::SetThreadName( DWORD dwThreadId, const char* pszThreadName )
+{
+#ifdef _DEBUG
+    static const size_t MS_VC_EXCEPTION = 0x406d1388;
+    struct
+    {
+        DWORD dwType;        // must be 0x1000
+        LPCSTR szName;       // pointer to name (in same addr space)
+        DWORD dwThreadID;    // thread ID (-1 caller thread)
+        DWORD dwFlags;       // reserved for future use, most be zero
+    } info;
+    info.dwType = 0x1000;
+    info.szName = pszThreadName;
+    info.dwThreadID = dwThreadId;
+    info.dwFlags = 0;
+    __try
+    {
+        RaiseException(MS_VC_EXCEPTION, 0, sizeof(info) / sizeof(DWORD), (DWORD *)&info);
+    }
+    _except (EXCEPTION_CONTINUE_EXECUTION)
+    {
+    }
+#endif
+}
+
+#endif
 
 void CUtilityManager::Init()
 {
@@ -379,20 +433,98 @@ bool CUtilityManager::FileExists(const TCHAR* pszFilePath)
 TString CUtilityManager::FileFindExtension(const TCHAR* pszFileName)
 {
     boost::filesystem::path fileName(pszFileName);
-    return fileName.extension().c_str();
+#ifdef _UNICODE
+    return fileName.extension().wstring();
+#else
+    return fileName.extension().string();
+#endif
 }
 
 TString CUtilityManager::FileFindName(const TCHAR* pszFileName)
 {
     boost::filesystem::path fileName(pszFileName);
-    return fileName.filename().c_str();
+#ifdef _UNICODE
+    return fileName.filename().wstring();
+#else
+    return fileName.filename().string();
+#endif
 }
 
 TString CUtilityManager::FileRemoveName(const TCHAR* pszFilePath)
 {
     boost::filesystem::path fileName(pszFilePath);
     fileName.remove_filename();
-    return fileName.c_str();
+#ifdef _UNICODE
+    return fileName.wstring();
+#else
+    return fileName.string();
+#endif
+}
+
+TString CUtilityManager::FileMakeRelative(const TCHAR* pszStartPath, const TCHAR* pszToPath)
+{
+    // calculate the relative path
+    boost::filesystem::path fromPath = boost::filesystem::absolute( pszStartPath );
+    boost::filesystem::path targetPath = boost::filesystem::absolute( pszToPath ); 
+    boost::filesystem::path relativePath;
+
+    // if root paths are different, return absolute path
+    if( targetPath.root_path() != fromPath.root_path() )
+    {
+        relativePath = targetPath;
+    }
+    else
+    {
+        // find out where the two paths diverge
+        boost::filesystem::path::const_iterator itr_path = targetPath.begin();
+        boost::filesystem::path::const_iterator itr_relative_to = fromPath.begin();
+        while( *itr_path == *itr_relative_to && itr_path != targetPath.end() && itr_relative_to != fromPath.end() ) 
+        {
+            ++itr_path;
+            ++itr_relative_to;
+        }
+
+        // add "../" for each remaining token in relative_to
+        if( itr_relative_to != fromPath.end() ) 
+        {
+            ++itr_relative_to;
+            while( itr_relative_to != fromPath.end() ) 
+            {
+                relativePath /= "..";
+                ++itr_relative_to;
+            }
+        }
+
+        // add remaining path
+        while( itr_path != targetPath.end() )
+        {
+            relativePath /= *itr_path;
+            ++itr_path;
+        }
+    }
+#ifdef _UNICODE
+    return relativePath.wstring();
+#else
+    return relativePath.string();
+#endif
+}
+
+TString CUtilityManager::FileMakeAbsolute(const TCHAR* pszStartPath, const TCHAR* pszRelativePath)
+{
+    BEATS_ASSERT(boost::filesystem::path(pszStartPath).is_absolute() == true);
+    boost::filesystem::path filePath(pszRelativePath);
+    if (!filePath.is_absolute())
+    {
+        boost::filesystem::path newPath(pszStartPath);
+        newPath /= pszRelativePath;
+        boost::filesystem::canonical(newPath);
+        filePath.swap(newPath);
+    }
+#ifdef _UNICODE
+    return filePath.wstring();
+#else
+    return filePath.string();
+#endif
 }
 
 bool CUtilityManager::GetProcessModule( size_t uProcessId, std::vector<TString>& modulePath )
@@ -434,51 +566,4 @@ const TString& CUtilityManager::GetModuleFileName()
 void CUtilityManager::SetModuleFileName(const TCHAR* pszFileName)
 {
     m_strFileModuleName.assign(pszFileName);
-}
-
-bool CUtilityManager::CalcMD5( CMD5& md5, SDirectory& fileList )
-{
-    bool bRet = false;
-    for (size_t i = 0; i < fileList.m_pFileList->size(); ++i)
-    {
-        TFileData* pFileData = fileList.m_pFileList->at(i);
-        TString strFilePath = fileList.m_szPath;
-        strFilePath.append(pFileData->cFileName);
-        FILE* pFile = _tfopen(strFilePath.c_str(), _T("rb"));
-        if (pFile != NULL)
-        {
-            md5.Update(pFile);
-            fclose(pFile);
-        }
-    }
-    for (size_t i = 0; i < fileList.m_pDirectories->size(); ++i)
-    {
-        CalcMD5(md5, *fileList.m_pDirectories->at(i));
-    }
-    return bRet;
-}
-
-void CUtilityManager::SetThreadName( DWORD dwThreadId, const char* pszThreadName )
-{
-#ifdef _DEBUG
-    static const size_t MS_VC_EXCEPTION = 0x406d1388;
-    struct
-    {
-        DWORD dwType;        // must be 0x1000
-        LPCSTR szName;       // pointer to name (in same addr space)
-        DWORD dwThreadID;    // thread ID (-1 caller thread)
-        DWORD dwFlags;       // reserved for future use, most be zero
-    } info;
-    info.dwType = 0x1000;
-    info.szName = pszThreadName;
-    info.dwThreadID = dwThreadId;
-    info.dwFlags = 0;
-    __try
-    {
-        RaiseException(MS_VC_EXCEPTION, 0, sizeof(info) / sizeof(DWORD), (DWORD *)&info);
-    }
-    _except (EXCEPTION_CONTINUE_EXECUTION)
-    {
-    }
-#endif
 }

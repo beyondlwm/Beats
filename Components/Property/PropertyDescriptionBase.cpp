@@ -6,11 +6,11 @@
 #include "Component/ComponentProxyManager.h"
 
 CPropertyDescriptionBase::CPropertyDescriptionBase(EReflectPropertyType type)
-: m_pOwner(NULL)
+: m_type(type)
+, m_pOwner(NULL)
+, m_pBasicInfo(new SharePtr<SBasicPropertyInfo>(new SBasicPropertyInfo))
 , m_pParent(NULL)
 , m_pChildren(new std::vector<CPropertyDescriptionBase*>())
-, m_pBasicInfo(new SharePtr<SBasicPropertyInfo>(new SBasicPropertyInfo))
-, m_type(type)
 {
     for (size_t i = 0; i < eVT_Count; ++i)
     {
@@ -19,11 +19,11 @@ CPropertyDescriptionBase::CPropertyDescriptionBase(EReflectPropertyType type)
 }
 
 CPropertyDescriptionBase::CPropertyDescriptionBase(const CPropertyDescriptionBase& rRef)
-: m_pOwner(NULL)
+: m_type(rRef.GetType())
+, m_pOwner(NULL)
+, m_pBasicInfo(new SharePtr<SBasicPropertyInfo>(*rRef.m_pBasicInfo))
 , m_pParent(NULL)
 , m_pChildren(new std::vector<CPropertyDescriptionBase*>())
-, m_pBasicInfo(new SharePtr<SBasicPropertyInfo>(*rRef.m_pBasicInfo))
-, m_type(rRef.GetType())
 {
     for (size_t i = 0; i < eVT_Count; ++i)
     {

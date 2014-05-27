@@ -3,7 +3,6 @@
 #include "Serializer/Serializer.h"
 #include "StringHelper/StringHelper.h"
 #include "UtilityManager.h"
-#include <boost/filesystem.hpp>
 
 static const char* ENUM_KEYWORD_STR = "enum";
 static const TCHAR* SCAN_DATA_NAME = _T("ScanData.bin");
@@ -330,8 +329,7 @@ void CEnumStrGenerator::SaveCacheFile()
             serializer << iter->second->m_enumValue[i]->m_value;
         }
     }
-    boost::filesystem::path curPath(CUtilityManager::GetInstance()->GetModuleFileName().c_str());
-    TString fullPathStr(curPath.parent_path().c_str());
+    TString fullPathStr = CUtilityManager::GetInstance()->FileRemoveName(CUtilityManager::GetInstance()->GetModuleFileName().c_str());
     fullPathStr.append(_T("/")).append(SCAN_DATA_NAME);
     serializer.Deserialize(fullPathStr.c_str());
 }
@@ -339,10 +337,9 @@ void CEnumStrGenerator::SaveCacheFile()
 bool CEnumStrGenerator::LoadCacheFile()
 {
     bool bRet = false;
-    boost::filesystem::path curPath(CUtilityManager::GetInstance()->GetModuleFileName().c_str());
-    TString fullPathStr(curPath.parent_path().c_str());
+    TString fullPathStr = CUtilityManager::GetInstance()->FileRemoveName(CUtilityManager::GetInstance()->GetModuleFileName().c_str());
     fullPathStr.append(_T("/")).append(SCAN_DATA_NAME);
-    if (boost::filesystem::exists(fullPathStr.c_str()))
+    if (CUtilityManager::GetInstance()->FileExists(fullPathStr.c_str()))
     {
         CSerializer serializer(fullPathStr.c_str());
         size_t enumTypeCount = 0;

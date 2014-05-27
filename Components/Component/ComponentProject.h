@@ -13,14 +13,14 @@ public:
     CComponentProject();
     ~CComponentProject();
 
-    CComponentProjectDirectory* LoadProject(const TCHAR* pszProjectFile, std::map<size_t, std::vector<size_t>>& conflictIdMap);
+    CComponentProjectDirectory* LoadProject(const TCHAR* pszProjectFile, std::map<size_t, std::vector<size_t> >& conflictIdMap);
     bool CloseProject();
     void SaveProject();
 
     // Register file only when: 1. Load Project. 2.Add File. 3. Reload the file when close file(No matter save or not).
     // Unregister file only when: 1. Delete file. 2. Reset the id when close file.
-    size_t RegisterFile(const TString& strFileName, std::map<size_t, std::vector<size_t>>& failedId, size_t uSpecifyFileId = 0xFFFFFFFF);
-    bool AnalyseFile(const TString& strFileName, std::map<size_t, std::vector<size_t>>& outResult);
+    size_t RegisterFile(const TString& strFileName, std::map<size_t, std::vector<size_t> >& failedId, size_t uSpecifyFileId = 0xFFFFFFFF);
+    bool AnalyseFile(const TString& strFileName, std::map<size_t, std::vector<size_t> >& outResult);
     bool UnregisterFile(size_t uFileID);
     void ReloadFile(size_t uFileID);
 
@@ -53,9 +53,9 @@ private:
     std::vector<TString>* m_pComponentFiles;
     std::map<size_t, size_t>* m_pComponentToTypeMap;
     std::map<size_t, size_t>* m_pComponentToFileMap;
-    std::map<size_t, std::vector<size_t>>* m_pFileToComponentMap;
-    std::map<size_t, std::vector<size_t>>* m_pTypeToComponentMap;
-    std::map<size_t, std::map<TString, TString>>* m_pPropertyMaintainMap;
+    std::map<size_t, std::vector<size_t> >* m_pFileToComponentMap;
+    std::map<size_t, std::vector<size_t> >* m_pTypeToComponentMap;
+    std::map<size_t, std::map<TString, TString> >* m_pPropertyMaintainMap;
 
     TString m_strProjectFilePath;
     TString m_strProjectFileName;
