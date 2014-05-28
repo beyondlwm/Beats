@@ -46,10 +46,26 @@ const static TCHAR* szPropertyTypeStr[] =
 
 struct SBasicPropertyInfo
 {
-    SBasicPropertyInfo()
-        : m_bEditable(true)
-        , m_color(0xFFFFFFFF)
+    SBasicPropertyInfo(bool bEditable, size_t uColor, const TCHAR* pszDisplayName = NULL, const TCHAR* pszCatalog = NULL, const TCHAR* pszTip = NULL, const TCHAR* pszVariableName = NULL)
+        : m_bEditable(bEditable)
+        , m_color(uColor)
     {
+        if (pszDisplayName)
+        {
+            m_displayName.assign(pszDisplayName);
+        }
+        if (pszCatalog)
+        {
+            m_catalog.assign(pszCatalog);
+        }
+        if (pszTip)
+        {
+            m_tip.assign(pszTip);
+        }
+        if (pszVariableName)
+        {
+            m_variableName.assign(pszVariableName);
+        }
     }
     ~SBasicPropertyInfo()
     {

@@ -35,7 +35,7 @@ public:
 
 public:
     SharePtr<ClassType>()
-        : m_refCount(NULL)
+        : m_pRefCount(NULL)
         , m_pObject(NULL)
 #ifdef SHARE_PTR_TRACE
         , m_uRefrencePos(0)
@@ -45,7 +45,7 @@ public:
     }
 
     SharePtr<ClassType>(ClassType* pObject)
-        : m_refCount (NULL)
+        : m_pRefCount (NULL)
         , m_pObject(pObject)
 #ifdef SHARE_PTR_TRACE
         , m_uRefrencePos(0)
@@ -101,13 +101,14 @@ public:
             m_pRefrencePosSet->insert(m_uRefrencePos);
 
 #endif
-            m_refCount = new long(1);
+            m_pRefCount = new long(1);
         }
     }
 
     //Copy constructor.
     SharePtr<ClassType>(const SharePtr<ClassType>& value)
-        : m_refCount(NULL)
+        : m_pRefCount(NULL)
+        , m_pObject(NULL)
 #ifdef SHARE_PTR_TRACE
         , m_uRefrencePos(0)
         , m_pRefrencePosSet(NULL)
@@ -118,8 +119,8 @@ public:
 
     template<class ClassType2>
     SharePtr<ClassType>(const SharePtr<ClassType2>& value)
-        : m_pObject(NULL)
-        , m_refCount(NULL)
+        : m_pRefCount(NULL)
+        , m_pObject(NULL)
 #ifdef SHARE_PTR_TRACE
         , m_uRefrencePos(0)
         , m_pRefrencePosSet(NULL)
@@ -173,12 +174,12 @@ public:
 
     void Create(ClassType* pObject)
     {
-        bool bCanCreate = m_pObject == NULL && m_refCount == NULL && pObject != NULL;
+        bool bCanCreate = m_pObject == NULL && m_pRefCount == NULL && pObject != NULL;
         BEATS_ASSERT(bCanCreate, _T("Can't create a share ptr twice!"));
         if (bCanCreate)
         {
             m_pObject = pObject;
-            m_refCount = new long(1);
+            m_pRefCount = new long(1);
 #ifdef SHARE_PTR_TRACE
             m_pRefrencePosSet = new std::multiset<size_t>;
 #endif
@@ -192,21 +193,21 @@ public:
 
     int RefCount() const
     {
-        return *m_refCount;
+        return *m_pRefCount;
     }
 
     long* RefCountPtr() const
     {
-        return m_refCount;
+        return m_pRefCount;
     }
 
     void Destroy(bool bSimulate = false)
     {
-        bool bCanDestroy = m_refCount != NULL && m_pObject != NULL && *m_refCount > 0;
+        bool bCanDestroy = m_pRefCount != NULL && m_pObject != NULL && *m_pRefCount > 0;
         if (bCanDestroy)
         {
-            BEATS_ASSERT(*m_refCount > 0, _T("Ref count is invalid for share pointer destroy"));
-            Beats_AtomicDecrement(m_refCount);
+            BEATS_ASSERT(*m_pRefCount > 0, _T("Ref count is invalid for share pointer destroy"));
+            Beats_AtomicDecrement(m_pRefCount);
 #ifdef SHARE_PTR_TRACE
             m_lockmutex.lock();
             std::multiset<size_t>::iterator iter = m_pRefrencePosSet->find(m_uRefrencePos);
@@ -215,9 +216,9 @@ public:
             m_lockmutex.unlock();
 #endif 
 
-            if (*m_refCount == 0)
+            if (*m_pRefCount == 0)
             {
-                BEATS_SAFE_DELETE(m_refCount);
+                BEATS_SAFE_DELETE(m_pRefCount);
                 if (!bSimulate)
                 {
                     BEATS_SAFE_DELETE(m_pObject);
@@ -239,7 +240,7 @@ private:
     {
         if (*this != value)
         {
-            if (m_pObject != NULL && m_refCount != NULL && *m_refCount > 0)
+            if (m_pObject != NULL && m_pRefCount != NULL && *m_pRefCount > 0)
             {
                 Destroy();
             }
@@ -254,8 +255,8 @@ private:
 #else
             m_pObject = static_cast<ClassType*>(value.Get());
 #endif
-            m_refCount = value.RefCountPtr();
-            Beats_AtomicIncrement(m_refCount);
+            m_pRefCount = value.RefCountPtr();
+            Beats_AtomicIncrement(m_pRefCount);
 
 #ifdef SHARE_PTR_TRACE
             SetRefPos(value.m_pRefrencePosSet);
@@ -265,7 +266,7 @@ private:
     }
 
 private:
-    long* m_refCount;
+    long* m_pRefCount;
     ClassType* m_pObject;
 
 #ifdef  SHARE_PTR_TRACE

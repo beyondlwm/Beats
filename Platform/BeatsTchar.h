@@ -1,7 +1,7 @@
 #ifndef BEATS_TCHAR_H__INCLUDE
 #define BEATS_TCHAR_H__INCLUDE
 
-#if (BEATS_PLATFORM != PLATFORM_WIN32)
+#if (BEATS_PLATFORM != BEATS_PLATFORM_WIN32)
 #ifdef _UNICODE
 #define TCHAR wchar_t
 #define TString std::wstring

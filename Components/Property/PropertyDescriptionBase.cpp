@@ -8,7 +8,7 @@
 CPropertyDescriptionBase::CPropertyDescriptionBase(EReflectPropertyType type)
 : m_type(type)
 , m_pOwner(NULL)
-, m_pBasicInfo(new SharePtr<SBasicPropertyInfo>(new SBasicPropertyInfo))
+, m_pBasicInfo(new SharePtr<SBasicPropertyInfo>(new SBasicPropertyInfo(true, 0xFFFFFFFF)))
 , m_pParent(NULL)
 , m_pChildren(new std::vector<CPropertyDescriptionBase*>())
 {

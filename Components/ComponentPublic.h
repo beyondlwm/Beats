@@ -39,8 +39,6 @@ struct SSerilaizerExtraInfo
     size_t m_uDependencyCount;
 };
 
-class CSerializer;
-
 template<typename T>
 inline EReflectPropertyType GetEnumType(T& value, CSerializer* pSerializer)
 {
@@ -269,7 +267,6 @@ inline EReflectPropertyType GetEnumType(classType& value, CSerializer* pSerializ
 {\
     if (pSerializer != NULL)\
     {\
-        *pSerializer << (size_t)enumType;\
         T* tmp = NULL;\
         GetEnumType(tmp, pSerializer);\
     }\

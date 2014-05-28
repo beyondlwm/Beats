@@ -1,7 +1,7 @@
 #ifndef BEATS_BEATSTYPEDEF_H__INCLUDE
 #define BEATS_BEATSTYPEDEF_H__INCLUDE
 
-#if (BEATS_PLATFORM == PLATFORM_WIN32)
+#if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
     typedef WIN32_FIND_DATA TFileData;
     #define Beats_AtomicIncrement(pVariable) ::InterlockedIncrement(pVariable)
     #define Beats_AtomicDecrement(pVariable) ::InterlockedDecrement(pVariable)

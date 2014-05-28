@@ -6,31 +6,33 @@
 //////////////////////////////////////////////////////////////////////////
 //Assert
 //To call messagebox so we can afford info for the engine user.
+static TCHAR szBeatsDialogBuffer[10240] = {0};
 #ifdef _DEBUG
 
-    #if (BEATS_PLATFORM == PLATFORM_WIN32)
+    #if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
         #define BEATS_ASSERT(condition, ...)\
         if (!(condition))\
         {\
         static bool bIgnoreThisAssert = false;\
         if (!bIgnoreThisAssert)\
-            {\
+        {\
             BEATS_WARNING(condition, __VA_ARGS__)\
-            TCHAR strBuffer[10240];\
-            _stprintf_s(strBuffer, __VA_ARGS__, _T(""));\
+            _stprintf_s(szBeatsDialogBuffer, __VA_ARGS__, _T(""));\
             TCHAR errorInfo[512];\
             _stprintf_s(errorInfo, _T("\nErrorID:%d at %s %d"), GetLastError(), _T(__FILE__), __LINE__);\
-            _tcscat_s(strBuffer, errorInfo);\
-            int iRet = MessageBox(NULL, strBuffer, _T("Beats assert"), MB_ABORTRETRYIGNORE | MB_ICONERROR);\
+            _tcscat_s(szBeatsDialogBuffer, errorInfo);\
+            _tcscat_s(szBeatsDialogBuffer, _T("Condition: "));\
+            _tcscat_s(szBeatsDialogBuffer, _T(#condition));\
+            int iRet = MessageBox(NULL, szBeatsDialogBuffer, _T("Beats assert"), MB_ABORTRETRYIGNORE | MB_ICONERROR);\
             if(iRet == IDABORT)\
-                {\
+            {\
                 __asm{int 3};\
-                }\
-                if(iRet == IDIGNORE)\
-                {\
-                bIgnoreThisAssert = true;\
-                }\
             }\
+            else if(iRet == IDIGNORE)\
+            {\
+                bIgnoreThisAssert = true;\
+            }\
+        }\
         }
     #else
     #define BEATS_ASSERT(condition, ...)\
@@ -59,7 +61,7 @@
 //////////////////////////////////////////////////////////////////////////
 //DEBUG_PRINT
 #ifdef _DEBUG
-#if (BEATS_PLATFORM == PLATFORM_WIN32)
+#if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
 #define BEATS_PRINT(...)\
 {\
     TCHAR strBuffer[1024];\
