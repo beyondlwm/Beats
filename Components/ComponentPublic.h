@@ -521,7 +521,11 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
                 }\
                 else\
                 {\
-                  ptrProperty = NULL;\
+                    if (ptrProperty != NULL)\
+                    {\
+                        this->OnPropertyChange(&ptrProperty, NULL);\
+                        ptrProperty = NULL;\
+                    }\
                 }\
             }\
         }\

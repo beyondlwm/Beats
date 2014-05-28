@@ -86,11 +86,10 @@ void CPtrPropertyDescription::SetValue( wxVariant& value , bool bSaveValue)
 bool CPtrPropertyDescription::CopyValue(void* pSourceValue, void* pTargetValue)
 {
     TString* pStrValue = (TString*)pSourceValue;
-    TString* pStrTarget = (TString*)pTargetValue;
-    bool bRet =  *pStrTarget != *pStrValue;
+    bool bRet = *(TString*)pTargetValue != *pStrValue;
     if (bRet)
     {
-        *pStrTarget = *pStrValue;
+        *(TString*)pTargetValue = *pStrValue;
     }
     return bRet;
 }
@@ -115,14 +114,15 @@ CComponentEditorProxy* CPtrPropertyDescription::GetInstanceComponent() const
     return m_pInstance;
 }
 
-bool CPtrPropertyDescription::CreateInstance()
+bool CPtrPropertyDescription::CreateInstance(bool bCallInitFunc/* = true*/)
 {
     bool bRet = false;
     if ( m_pInstance == NULL)
     {
         size_t uInstanceGuid = m_uDerivedGuid == 0 ? m_uComponentGuid : m_uDerivedGuid;
-        m_pInstance = static_cast<CComponentEditorProxy*>(CComponentProxyManager::GetInstance()->CreateComponent(uInstanceGuid, false, true));
+        m_pInstance = static_cast<CComponentEditorProxy*>(CComponentProxyManager::GetInstance()->CreateComponent(uInstanceGuid, false, true, 0xFFFFFFFF, true, NULL, bCallInitFunc));
         const std::vector<CPropertyDescriptionBase*>* propertyPool = m_pInstance->GetPropertyPool();
+        m_bHasInstance = m_pInstance != NULL;
         for (size_t i = 0; i < propertyPool->size(); ++i)
         {
             AddChild((*propertyPool)[i]);
@@ -142,6 +142,7 @@ bool CPtrPropertyDescription::DestroyInstance(bool bUpdateDisplayString/* = true
     {
         BEATS_SAFE_DELETE(m_pInstance);
         m_pChildren->clear();
+        m_bHasInstance = false;
         bRet = true;
     }
     SetDerivedGuid(0);
@@ -178,6 +179,7 @@ void CPtrPropertyDescription::LoadFromXML( TiXmlElement* pNode )
         const TCHAR* pszValueString = &(pStrValue->c_str()[nPos + _tcslen(POINTER_SPLIT_SYMBOL)]);
         TCHAR* pEndChar = NULL;
         int nRadix = 16;
+        _set_errno(0);
         size_t uDerivedValue = _tcstoul(pszValueString, &pEndChar, nRadix);
         BEATS_ASSERT(_tcslen(pEndChar) == 0, _T("Read uint from string %s error, stop at %s"), pszValueString, pEndChar);
         BEATS_ASSERT(errno == 0, _T("Call _tcstoul failed! string %s radix: %d"), pszValueString, nRadix);
@@ -185,9 +187,17 @@ void CPtrPropertyDescription::LoadFromXML( TiXmlElement* pNode )
         {
             m_uDerivedGuid = uDerivedValue;
         }
-        if (this->CreateInstance())
+        if (this->CreateInstance(false))
         {
             this->GetInstanceComponent()->LoadFromXML(pNode);
+            // Update host component with the data from XML.
+            this->GetInstanceComponent()->UpdateHostComponent();
+            //Call init after data is loaded from XML.
+            if (this->GetInstanceComponent()->GetHostComponent() != NULL)
+            {
+                this->GetInstanceComponent()->GetHostComponent()->Initialize();
+            }
+            this->GetInstanceComponent()->Initialize();
         }
     }
 }
@@ -225,9 +235,9 @@ CPropertyDescriptionBase* CPtrPropertyDescription::CreateNewInstance()
     return pNewProperty;
 }
 
-void CPtrPropertyDescription::Serialize( CSerializer& serializer , EValueType eValueType/* = eVT_SavedValue*/)
+void CPtrPropertyDescription::Serialize(CSerializer& serializer, EValueType eValueType /*= eVT_SavedValue*/)
 {
-    serializer << (m_pInstance != NULL);
+    serializer << (bool)(m_pInstance != NULL);
     if (m_pInstance != NULL)
     {
         m_pInstance->Serialize(serializer, eValueType);

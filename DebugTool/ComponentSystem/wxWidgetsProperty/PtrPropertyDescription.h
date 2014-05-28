@@ -15,7 +15,7 @@ public:
     size_t GetPtrGuid();
     void SetDerivedGuid(size_t uDerivedGuid);
     size_t GetDerivedGuid() const;
-    bool CreateInstance();
+    bool CreateInstance(bool bCallInitFunc = true);
 
     //Don't update display string when destruct, because UpdateDisplayString referenced some base class memeber data and virtual function.
     bool DestroyInstance(bool bUpdateDisplayString = true);
