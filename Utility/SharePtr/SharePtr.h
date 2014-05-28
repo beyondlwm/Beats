@@ -3,7 +3,7 @@
 
 #include <mutex>
 
-#if (BEATS_PLATFORM == PLATFORM_WIN32)
+#if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
     #ifdef _DEBUG
     #include "dbghelp.h"
     //#define SHARE_PTR_TRACE
@@ -14,7 +14,7 @@
     #include <set>
     #endif
 
-#else if(BEATS_PLATFORM == PLATFORM_IOS)
+#else if(BEATS_PLATFORM == BEATS_PLATFORM_IOS)
     #include <libkern/OSAtomic.h>
 #endif
 

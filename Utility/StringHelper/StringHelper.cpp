@@ -95,7 +95,7 @@ void CStringHelper::ConvertToTCHAR( const char* pData, TCHAR* pBuffer, size_t bu
 {
     BEATS_ASSERT(strlen(pData) * sizeof(char) < bufferLength, _T("ConvertToTCHAR failed! More buffer length are required!"));
 #ifdef _UNICODE
-    #if (BEATS_PLATFORM == PLATFORM_WIN32)
+    #if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
         MultiByteToWideChar(CP_ACP, 0, pData, -1, pBuffer, (int)bufferLength);
     #else
         swprintf(pBuffer, bufferLength, _T("%hs"), pData);
@@ -108,7 +108,7 @@ void CStringHelper::ConvertToTCHAR( const char* pData, TCHAR* pBuffer, size_t bu
 void CStringHelper::ConvertToCHAR( const TCHAR* pData, char* pBuffer, size_t bufferLength )
 {
 #ifdef _UNICODE
-    #if (BEATS_PLATFORM == PLATFORM_WIN32)
+    #if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
         WideCharToMultiByte(CP_ACP, 0, pData, -1, pBuffer, (int)bufferLength, NULL, NULL);
     #else
         sprintf(pBuffer, "%ls", pData);
@@ -124,7 +124,7 @@ void CStringHelper::ConvertToWCHAR( const TCHAR* pData, wchar_t* pBuffer, size_t
     bufferLength; // Fix warning C4100.
     wcscpy(pBuffer, pData);
 #else
-    #if (BEATS_PLATFORM == PLATFORM_WIN32)
+    #if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
         MultiByteToWideChar(CP_ACP, 0, pData, -1, pBuffer, (int)bufferLength);
     #else
         swprintf(pBuffer, bufferLength, _T("%hs"), pData);

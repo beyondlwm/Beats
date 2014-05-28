@@ -6,7 +6,7 @@
 #pragma once
 #include "BeatsPlatFormConfig.h"
 
-#if (BEATS_PLATFORM == PLATFORM_WIN32)
+#if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
     #ifndef WINVER                // Allow use of features specific to Windows XP or later.
     #define WINVER 0x0501        // Change this to the appropriate value to target other versions of Windows.
     #endif
@@ -39,7 +39,7 @@
 #include "Beats/PublicDef.h"
 #include "Math/MathPublic.h"
 
-#if (BEATS_PLATFORM != PLATFORM_WIN32)
+#if (BEATS_PLATFORM != BEATS_PLATFORM_WIN32)
     #include <StringHelper/StringHelper.h>
 
     inline FILE* _tfopen(const TCHAR* pszFileName, const TCHAR* pszMode)

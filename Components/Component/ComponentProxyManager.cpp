@@ -81,6 +81,7 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /
                     {
                         pProxyInstance->GetHostComponent()->Initialize();
                     }
+                    pProxyInstance->Initialize();
                 }
             }
             if (bOpenAsCopy)

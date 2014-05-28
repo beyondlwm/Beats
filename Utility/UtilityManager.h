@@ -99,7 +99,7 @@ class CUtilityManager
     BEATS_DECLARE_SINGLETON(CUtilityManager)
 public:
     void Init();
-#if (BEATS_PLATFORM == PLATFORM_WIN32)
+#if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
     bool AcquireSingleFilePath(bool saveOrOpen, HWND hwnd, TString& result, const TCHAR* Tiltle, const TCHAR* filter, const TCHAR* pszInitialPath);
     bool AcquireMuiltyFilePath(bool bAllowDirectory, HWND hwnd, std::vector<TString>& result, const TCHAR* Tiltle, const TCHAR* filter, const TCHAR* pszInitialPath);
     bool AcquireDirectory(HWND hwnd, TString& strDirectoryPath, const TCHAR* pszTitle);

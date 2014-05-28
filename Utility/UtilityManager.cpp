@@ -3,7 +3,7 @@
 #include "Serializer/Serializer.h"
 #include "EnumStrGenerator/EnumStrGenerator.h"
 #include "StringHelper/StringHelper.h"
-#if (BEATS_PLATFORM == PLATFORM_WIN32)
+#if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
     #include "ServiceManager/ServiceManager.h"
     #include "FileFilter/FileFilter.h"
     #include "MD5/md5.h"
@@ -28,12 +28,12 @@ CUtilityManager::~CUtilityManager()
 {
     CStringHelper::Destroy();
     CEnumStrGenerator::Destroy();
-#if (BEATS_PLATFORM == PLATFORM_WIN32)
+#if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
     CServiceManager::Destroy();
 #endif
 }
 
-#if (BEATS_PLATFORM == PLATFORM_WIN32)
+#if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
 bool CUtilityManager::AcquireSingleFilePath(bool saveOrOpen, HWND hwnd, TString& result, const TCHAR* Tiltle, const TCHAR* filter, const TCHAR* pszInitialPath)
 {
     TCHAR fileName[MAX_PATH];
@@ -530,7 +530,7 @@ TString CUtilityManager::FileMakeAbsolute(const TCHAR* pszStartPath, const TCHAR
 bool CUtilityManager::GetProcessModule( size_t uProcessId, std::vector<TString>& modulePath )
 {
     bool bRet = false;
-#if (BEATS_PLATFORM == PLATFORM_WIN32)
+#if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
     HMODULE moduleCache[1024];
     DWORD cacheNeeded = 0;
     HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, (DWORD)uProcessId);
@@ -555,7 +555,7 @@ bool CUtilityManager::GetProcessModule( size_t uProcessId, std::vector<TString>&
 
 const TString& CUtilityManager::GetModuleFileName()
 {
-#if (BEATS_PLATFORM == PLATFORM_WIN32)
+#if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
     TCHAR curWorkingPath[MAX_PATH];
     ::GetModuleFileName(NULL, curWorkingPath, MAX_PATH);
     m_strFileModuleName.assign(curWorkingPath);
