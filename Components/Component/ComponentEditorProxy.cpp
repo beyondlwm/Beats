@@ -74,7 +74,7 @@ CComponentEditorProxy::~CComponentEditorProxy()
     }
     else
     {
-        //Don't delete host component for template component, because we will do it later in destrctor of CComponentManager.
+        //Don't delete host component for template component, because we will do it later in destructor of CComponentManager.
         bool bIsPtrProperty = CComponentProxyManager::GetInstance()->GetComponentTemplate(this->GetGuid()) != this;
         if (bIsPtrProperty)
         {

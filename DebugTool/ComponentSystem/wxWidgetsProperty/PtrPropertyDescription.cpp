@@ -192,6 +192,8 @@ void CPtrPropertyDescription::LoadFromXML( TiXmlElement* pNode )
             this->GetInstanceComponent()->LoadFromXML(pNode);
             // Update host component with the data from XML.
             this->GetInstanceComponent()->UpdateHostComponent();
+            // Force sync this property instance to the variable of host component.
+            SetValueWithType(pStrValue, eVT_CurrentValue, true);
             //Call init after data is loaded from XML.
             if (this->GetInstanceComponent()->GetHostComponent() != NULL)
             {
