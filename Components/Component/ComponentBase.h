@@ -30,8 +30,10 @@ public:
     size_t GetId() const;
     void SetId(size_t id);
 
+    bool IsInitialized();
     virtual void Initialize();
     virtual void Uninitialize();
+
     virtual void ReflectData(CSerializer& serializer);
     // Editor mode only!
     // The return value means if user has sync the variable manually, or system will do this assign.
@@ -40,6 +42,7 @@ public:
     virtual bool OnPropertyChange(void* pVariableAddr, void* pNewValueToBeSet);
 
 private:
+    bool m_bInitialize;
     size_t m_id;
 };
 #endif

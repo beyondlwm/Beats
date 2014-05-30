@@ -2,7 +2,8 @@
 #include "componentbase.h"
 
 CComponentBase::CComponentBase()
-: m_id(0xFFFFFFFF)
+: m_bInitialize(false)
+, m_id(0xFFFFFFFF)
 {
 }
 
@@ -20,14 +21,19 @@ void CComponentBase::SetId(size_t id)
     m_id = id;
 }
 
+bool CComponentBase::IsInitialized()
+{
+    return m_bInitialize;
+}
+
 void CComponentBase::Initialize()
 {
-
+    m_bInitialize = true;
 }
 
 void CComponentBase::Uninitialize()
 {
-
+    m_bInitialize = false;
 }
 
 void CComponentBase::ReflectData(CSerializer& /*serializer*/)

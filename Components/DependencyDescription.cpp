@@ -289,27 +289,30 @@ void CDependencyDescription::GetCurrActionParam(EDependencyChangeAction& action,
 
 void CDependencyDescription::OnDependencyChanged()
 {
-    bool bIsReady = true;
-    for (size_t i = 0; i < m_dependencyLine.size(); ++i)
+    if (this->GetOwner()->IsInitialized())
     {
-        if (m_dependencyLine[i]->GetConnectedComponent() == NULL)
+        bool bIsReady = true;
+        for (size_t i = 0; i < m_dependencyLine.size(); ++i)
         {
-            bIsReady = false;
-            break;
+            if (m_dependencyLine[i]->GetConnectedComponent() == NULL)
+            {
+                bIsReady = false;
+                break;
+            }
         }
-    }
-    if (bIsReady)
-    {
-        if (GetOwner()->GetHostComponent())
+        if (bIsReady)
         {
-            static CSerializer serializer;
-            serializer.Reset();
-            Serialize(serializer);
-            CComponentProxyManager::GetInstance()->SetCurrReflectDependency(this);
-            BEATS_ASSERT(CComponentProxyManager::GetInstance()->GetCurrReflectDescription() == NULL);
-            GetOwner()->GetHostComponent()->ReflectData(serializer);
-            CComponentManager::GetInstance()->ResolveDependency();
-            CComponentProxyManager::GetInstance()->SetCurrReflectDependency(NULL);
+            if (GetOwner()->GetHostComponent())
+            {
+                static CSerializer serializer;
+                serializer.Reset();
+                Serialize(serializer);
+                CComponentProxyManager::GetInstance()->SetCurrReflectDependency(this);
+                BEATS_ASSERT(CComponentProxyManager::GetInstance()->GetCurrReflectDescription() == NULL);
+                GetOwner()->GetHostComponent()->ReflectData(serializer);
+                CComponentManager::GetInstance()->ResolveDependency();
+                CComponentProxyManager::GetInstance()->SetCurrReflectDependency(NULL);
+            }
         }
     }
 }

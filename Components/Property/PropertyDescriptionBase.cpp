@@ -229,7 +229,7 @@ void CPropertyDescriptionBase::SetValueWithType(void* pValue, EValueType type, b
 {
     if (CopyValue(pValue, m_valueArray[type]) || bForceUpdateHostComponent)
     {
-        if (type == eVT_CurrentValue && GetOwner())
+        if (type == eVT_CurrentValue && GetOwner() && GetOwner()->IsInitialized())
         {
             // Some property is not the real property, such as container property.
             CPropertyDescriptionBase* pRealProperty = this;

@@ -68,6 +68,7 @@ void CComponentManager::Import( CSerializer& serializer)
         {
             for (std::map<size_t, CComponentBase*>::iterator subIter = iter->second->begin(); subIter != iter->second->end(); ++subIter)
             {
+                BEATS_ASSERT(subIter->second->IsInitialized() == false, _T("Can't initialize component twice!"));
                 subIter->second->Initialize();
             }
         }

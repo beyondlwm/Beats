@@ -158,8 +158,10 @@ CComponentBase* CComponentEditorProxy::Clone(bool bCloneValue, CSerializer* /*pS
         if (m_pHostComponent != NULL)
         {
             pNewInstance->UpdateHostComponent();
+            BEATS_ASSERT(pNewInstance->GetHostComponent()->IsInitialized() == false, _T("Impossible to Initialize comopnent twice!"));
             pNewInstance->m_pHostComponent->Initialize();
         }
+        BEATS_ASSERT(pNewInstance->IsInitialized() == false, _T("Impossible to Initialize comopnent twice!"));
         pNewInstance->Initialize();
     }
 
@@ -393,12 +395,12 @@ void CComponentEditorProxy::LoadFromXML( TiXmlElement* pNode )
         if (matchTypeProperties.size() > 0)
         {
             TCHAR szInform[1024];
-            _stprintf(szInform, _T("数据:%s (位于文件\n%s\n组件 %s GUID:0x%x)在当前版本中已经失效, 请联系开发人员维护该数据!\n遗弃数据请选\"是\"\n重定位数据请选\"否\"\n"),
+            _stprintf(szInform, _T("Data:%s (In file\n%s\nComponent %s GUID:0x%x)is no longer valid in this version, contact developer for more information!\nTo Ignore click\"Yes\"\nReallocate click\"No\"\n"),
                 szTCHARVariableName,
                 szFilePath,
                 this->GetClassStr(),
                 this->GetGuid());
-            int iRet = MessageBox(NULL, szInform, _T("数据维护"), MB_YESNO);
+            int iRet = MessageBox(NULL, szInform, _T("Maintain data"), MB_YESNO);
             if (iRet == IDYES)
             {
                 pProject->RegisterPropertyMaintainInfo(this->GetGuid(), szTCHARVariableName, _T(""));
@@ -408,9 +410,9 @@ void CComponentEditorProxy::LoadFromXML( TiXmlElement* pNode )
                 for (size_t j = 0; j < matchTypeProperties.size(); )
                 {
                     const TString& strVariableName = matchTypeProperties[j]->GetBasicInfo()->m_variableName;
-                    _stprintf(szInform, _T("是否将 %s 定位到 %s?"), szTCHARVariableName, strVariableName.c_str());
+                    _stprintf(szInform, _T("Reallocate %s to %s?"), szTCHARVariableName, strVariableName.c_str());
                     TCHAR szTitle[MAX_PATH];
-                    _stprintf(szTitle, _T("重定位数据 %d/%d"), j + 1, matchTypeProperties.size());
+                    _stprintf(szTitle, _T("Reallocate data %d/%d"), j + 1, matchTypeProperties.size());
                     int iRet = MessageBox(NULL, szInform, szTitle, MB_YESNO);
                     if (iRet == IDYES)
                     {
