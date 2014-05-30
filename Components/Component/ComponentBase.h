@@ -31,6 +31,7 @@ public:
     void SetId(size_t id);
 
     virtual void Initialize();
+    virtual void Uninitialize();
     virtual void ReflectData(CSerializer& serializer);
     // Editor mode only!
     // The return value means if user has sync the variable manually, or system will do this assign.

@@ -25,6 +25,11 @@ void CComponentBase::Initialize()
 
 }
 
+void CComponentBase::Uninitialize()
+{
+
+}
+
 void CComponentBase::ReflectData(CSerializer& /*serializer*/)
 {
 

@@ -54,7 +54,7 @@ void CComponentManager::Import( CSerializer& serializer)
                 size_t uDataSize, uGuid, uId;
                 size_t uStartPos = serializer.GetReadPos();
                 serializer >> uDataSize >> uGuid >> uId;
-                CComponentBase* pComponent = CComponentManager::GetInstance()->CreateComponent(uGuid, false, false, uId, true, &serializer);
+                CComponentBase* pComponent = CComponentManager::GetInstance()->CreateComponent(uGuid, false, false, uId, true, &serializer, false);
                 BEATS_ASSERT(uStartPos + uDataSize == serializer.GetReadPos(), _T("Component Data Not Match!\nGot an error when import data for component %x %s instance id %d\nRequired size: %d, Actual size: %d"), uGuid, pComponent->GetClassStr(), uId, uDataSize, serializer.GetReadPos() - uStartPos);
                 serializer.SetReadPos(uStartPos + uDataSize);
             }
