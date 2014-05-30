@@ -27,6 +27,7 @@ CComponentProxyManager::CComponentProxyManager()
 
 CComponentProxyManager::~CComponentProxyManager()
 {
+    Release();
     BEATS_SAFE_DELETE(m_pProject);
     BEATS_SAFE_DELETE(m_pPropertyCreatorMap);
     BEATS_SAFE_DELETE(m_pComponentInheritMap);
@@ -238,8 +239,10 @@ TString CComponentProxyManager::QueryComponentName(size_t uGuid) const
     else
     {
         CComponentBase* pComponent = GetComponentTemplate(uGuid);
-        BEATS_ASSERT(pComponent != NULL, _T("Can't Find Component with GUID: 0x%x"), uGuid);
-        strRet = pComponent->GetClassStr();
+        if (pComponent != NULL)
+        {
+           strRet = pComponent->GetClassStr();
+        }
     }
     return strRet;
 }

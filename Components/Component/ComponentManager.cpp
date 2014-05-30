@@ -15,6 +15,7 @@ CComponentManager::CComponentManager()
 
 CComponentManager::~CComponentManager()
 {
+    Release();
     // Don't remove GetInstance(), it is force to create an instance of CUtilityManager, so we can visit the member of it.
     CUtilityManager::GetInstance();
     CUtilityManager::Destroy();

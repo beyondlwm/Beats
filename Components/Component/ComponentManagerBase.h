@@ -41,6 +41,10 @@ public:
     CComponentManagerBase();
     virtual ~CComponentManagerBase();
 
+    //Call it in derived class destructor instead of ~CComponentManagerBase(), because we still need the singleton(derived class)
+    //In the Release, If We do it in ~CComponentManagerBase(), we can no longer visit the singleton.
+    void Release();
+
     bool RegisterTemplate(CComponentBase* pComponent);
     bool RegisterInstance(CComponentBase* pComponent);
     bool UnregisterInstance(CComponentBase* pComponent);

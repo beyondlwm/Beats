@@ -17,6 +17,11 @@ CComponentManagerBase::CComponentManagerBase()
 
 CComponentManagerBase::~CComponentManagerBase()
 {
+
+}
+
+void CComponentManagerBase::Release()
+{
     BEATS_SAFE_DELETE(m_pIdManager);
     std::map<size_t, std::map<size_t, CComponentBase*>*>::iterator iter = m_pComponentInstanceMap->begin();
     for (; iter != m_pComponentInstanceMap->end(); ++iter)
