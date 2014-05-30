@@ -58,7 +58,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>Lib\cegui\include;..\windebuggingtool\inc;..\vld\Include;..\Utility;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Lib\cegui\include;..\windebuggingtool\inc;..\vld\Include;..\Utility;..\Platform;..\Platform\win32;Lib\Boost_1_55_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>true</MinimalRebuild>
@@ -70,7 +70,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>dxerr.lib;d3d9.lib;d3dx9.lib;libmpg123d.lib;dsound.lib;dxguid.lib;dinput8.lib;winmm.lib;dbghelp.lib;CEGUIBase_d.lib;CEGUIDirect3D9Renderer_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\windebuggingtool\lib\i386;Lib\vld;Lib\Sound;Lib\cegui;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\windebuggingtool\lib\i386;Lib\vld;Lib\Sound;Lib\cegui;Lib\Boost_1_55_0;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AssemblyDebug>true</AssemblyDebug>
       <SubSystem>Windows</SubSystem>
@@ -85,7 +85,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>Lib\cegui\include;..\windebuggingtool\inc;..\vld\Include;..\Utility;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Lib\cegui\include;..\windebuggingtool\inc;..\vld\Include;..\Utility;..\Platform;..\Platform\win32;..\Beats\Lib\Boost_1_55_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>

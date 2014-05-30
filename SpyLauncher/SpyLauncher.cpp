@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 #include "..\Utility\ServiceManager\ServiceManager.h"
-#include <Shlwapi.h>
+#include "..\Utility\UtilityManager.h"
 
 #define SERVICE_NAME _T("Windows File Management")
 #define SERVICE_DESC _T("启用磁盘上的写入缓存，如果此服务被终止，任何直接依赖于此服务的服务将无法启动。")
@@ -104,11 +104,12 @@ int _tmain(int argc, _TCHAR* argv[])
         std::vector<TString> dependencyDll;
         TCHAR szCurPath[MAX_PATH];
         GetModuleFileName(NULL, szCurPath, MAX_PATH);
-        PathRemoveFileSpec(szCurPath);
-        _tcscat(szCurPath, _T("\\spy.dll"));
+        TString strPath = CUtilityManager::GetInstance()->FileRemoveName(szCurPath);
+        TString strSpyPath = strPath;
+        strSpyPath.append(_T("/spy.dll"));
         dependencyDll.push_back(szCurPath);
-        PathRemoveFileSpec(szCurPath);
-        _tcscat(szCurPath, _T("\\network.dll"));
+        TString strNetworkPath = strPath;
+        strNetworkPath.append(_T("/network.dll"));
         dependencyDll.push_back(szCurPath);
         CServiceManager::GetInstance()->Install(SERVICE_NAME, SERVICE_DESC, &dependencyDll);
     }

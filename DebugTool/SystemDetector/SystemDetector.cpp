@@ -104,8 +104,8 @@ bool CSystemDetector::GetEDIDFromReg( void* pData, size_t& dataLength )
                         break;
                     }
                 }
+                RegCloseKey(hDevRegKey);
             }
-            RegCloseKey(hDevRegKey);
         }
     }
     SetupDiDestroyDeviceInfoList(hDevInfo);
@@ -380,33 +380,36 @@ bool CSystemDetector::GetHardDiskInfo( TString& result )
     BYTE buffer[1024];
     size_t length = 0;
     CWmiDetector::GetInstance()->GetHDDSMARTData(buffer, length);
-    CSerializer serializer(length, buffer);
-    WORD smartVersion = 0;
-    serializer >> smartVersion;
-    SSMARTAttribute attribute;
-    static const size_t MAX_ATTR_COUNT = 30;
-    size_t useCount = 0;
-    size_t useHours = 0;
-    size_t temperature = 0;
-    for (size_t i = 0; i < MAX_ATTR_COUNT; ++i)
+    if (length > 0)
     {
-        serializer >> attribute;
-        if (attribute.m_attrType == eSMART_AT_DEVICE_POWER_CYCLE_COUNT)
+        CSerializer serializer(length, buffer);
+        WORD smartVersion = 0;
+        serializer >> smartVersion;
+        SSMARTAttribute attribute;
+        static const size_t MAX_ATTR_COUNT = 30;
+        size_t useCount = 0;
+        size_t useHours = 0;
+        size_t temperature = 0;
+        for (size_t i = 0; i < MAX_ATTR_COUNT; ++i)
         {
-            useCount = attribute.m_rawValue;
+            serializer >> attribute;
+            if (attribute.m_attrType == eSMART_AT_DEVICE_POWER_CYCLE_COUNT)
+            {
+                useCount = attribute.m_rawValue;
+            }
+            if (attribute.m_attrType == eSMART_AT_POWER_ON_HOURS_COUNT)
+            {
+                useHours = attribute.m_rawValue;
+            }
+            if (attribute.m_attrType == eSMART_AT_TEMPERATURE)
+            {
+                temperature = attribute.m_rawValue;
+            }
         }
-        if (attribute.m_attrType == eSMART_AT_POWER_ON_HOURS_COUNT)
-        {
-            useHours = attribute.m_rawValue;
-        }
-        if (attribute.m_attrType == eSMART_AT_TEMPERATURE)
-        {
-            temperature = attribute.m_rawValue;
-        }
+        ret = ret && CWmiDetector::GetInstance()->GetItemInfo(_T("Win32_PhysicalMedia"), _T("SerialNumber"), tempData);
+        _stprintf_s(tempCache, _T("\n序列号：%s\n已使用%d次 共计%d小时 当前温度%d℃"), tempData.c_str(), useCount, useHours, temperature);
+        result.append(tempCache);
     }
-    ret = ret && CWmiDetector::GetInstance()->GetItemInfo(_T("Win32_PhysicalMedia"), _T("SerialNumber"), tempData);
-    _stprintf_s(tempCache, _T("\n序列号：%s\n已使用%d次 共计%d小时 当前温度%d℃"), tempData.c_str(), useCount, useHours, temperature);
-    result.append(tempCache);
 
     return ret;
 }

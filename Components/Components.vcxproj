@@ -58,11 +58,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">E:\Project\Beats_GitHub\Beats\Run</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)Beats\Run\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Components.dir\Debug\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Components_d</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.lib</TargetExt>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">E:\Project\Beats_GitHub\Beats\Run</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">E:\Project\Beats_GitHub\Beats\Run\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Components.dir\Release\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Components_r</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.lib</TargetExt>
@@ -77,7 +77,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>E:\Project\Beats_GitHub;E:\Project\Beats_GitHub\Components;E:\Project\Beats_GitHub\Utility;E:\Project\Beats_GitHub\Platform\win32;E:\Project\Beats_GitHub\Platform;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;..\Components;..\Utility;..\Platform\win32;..\Platform;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>Debug/</AssemblerListingLocation>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <CompileAs>CompileAsCpp</CompileAs>
@@ -109,7 +109,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>E:\Project\Beats_GitHub;E:\Project\Beats_GitHub\Components;E:\Project\Beats_GitHub\Utility;E:\Project\Beats_GitHub\Platform;E:\Project\Beats_GitHub\Platform\win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;..\;..\Utility;..\Platform;..\Platform\win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>Release/</AssemblerListingLocation>
       <CompileAs>CompileAsCpp</CompileAs>
       <DisableSpecificWarnings>4100;4127</DisableSpecificWarnings>
@@ -203,62 +203,6 @@
     </Midl>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <CustomBuild Include="CMakeLists.txt">
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Building Custom Rule E:/Project/Beats_GitHub/Components/CMakeLists.txt</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
-C:\Users\Administrator\Desktop\cmake-2.8.12.2-win32-x86\bin\cmake.exe -HE:/Project/Beats_GitHub -BE:/Project/Beats_GitHub --check-stamp-file E:\Project\Beats_GitHub\Components\CMakeFiles\generate.stamp
-if %errorlevel% neq 0 goto :cmEnd
-:cmEnd
-endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
-:cmErrorLevel
-exit /b %1
-:cmDone
-if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">E:/Project/Beats_GitHub/Components/CMakeLists.txt;E:\Project\Beats_GitHub\Components\CMakeLists.txt;E:\Project\Beats_GitHub\SourceGroupByDir.cmake;E:\Project\Beats_GitHub\MSVCPCH.cmake;E:\Project\Beats_GitHub\Components\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">E:\Project\Beats_GitHub\Components\CMakeFiles\generate.stamp</Outputs>
-      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building Custom Rule E:/Project/Beats_GitHub/Components/CMakeLists.txt</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
-C:\Users\Administrator\Desktop\cmake-2.8.12.2-win32-x86\bin\cmake.exe -HE:/Project/Beats_GitHub -BE:/Project/Beats_GitHub --check-stamp-file E:\Project\Beats_GitHub\Components\CMakeFiles\generate.stamp
-if %errorlevel% neq 0 goto :cmEnd
-:cmEnd
-endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
-:cmErrorLevel
-exit /b %1
-:cmDone
-if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">E:/Project/Beats_GitHub/Components/CMakeLists.txt;E:\Project\Beats_GitHub\Components\CMakeLists.txt;E:\Project\Beats_GitHub\SourceGroupByDir.cmake;E:\Project\Beats_GitHub\MSVCPCH.cmake;E:\Project\Beats_GitHub\Components\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">E:\Project\Beats_GitHub\Components\CMakeFiles\generate.stamp</Outputs>
-      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
-      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">Building Custom Rule E:/Project/Beats_GitHub/Components/CMakeLists.txt</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">setlocal
-C:\Users\Administrator\Desktop\cmake-2.8.12.2-win32-x86\bin\cmake.exe -HE:/Project/Beats_GitHub -BE:/Project/Beats_GitHub --check-stamp-file E:\Project\Beats_GitHub\Components\CMakeFiles\generate.stamp
-if %errorlevel% neq 0 goto :cmEnd
-:cmEnd
-endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
-:cmErrorLevel
-exit /b %1
-:cmDone
-if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">E:/Project/Beats_GitHub/Components/CMakeLists.txt;E:\Project\Beats_GitHub\Components\CMakeLists.txt;E:\Project\Beats_GitHub\SourceGroupByDir.cmake;E:\Project\Beats_GitHub\MSVCPCH.cmake;E:\Project\Beats_GitHub\Components\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">E:\Project\Beats_GitHub\Components\CMakeFiles\generate.stamp</Outputs>
-      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">false</LinkObjects>
-      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">Building Custom Rule E:/Project/Beats_GitHub/Components/CMakeLists.txt</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">setlocal
-C:\Users\Administrator\Desktop\cmake-2.8.12.2-win32-x86\bin\cmake.exe -HE:/Project/Beats_GitHub -BE:/Project/Beats_GitHub --check-stamp-file E:\Project\Beats_GitHub\Components\CMakeFiles\generate.stamp
-if %errorlevel% neq 0 goto :cmEnd
-:cmEnd
-endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
-:cmErrorLevel
-exit /b %1
-:cmDone
-if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">E:/Project/Beats_GitHub/Components/CMakeLists.txt;E:\Project\Beats_GitHub\Components\CMakeLists.txt;E:\Project\Beats_GitHub\SourceGroupByDir.cmake;E:\Project\Beats_GitHub\MSVCPCH.cmake;E:\Project\Beats_GitHub\Components\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">E:\Project\Beats_GitHub\Components\CMakeFiles\generate.stamp</Outputs>
-      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">false</LinkObjects>
-    </CustomBuild>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="Component\ComponentBase.h" />
     <ClInclude Include="Component\ComponentEditorProxy.h" />
     <ClInclude Include="Component\ComponentGraphic.h" />
@@ -282,7 +226,6 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="Component\ComponentProject.cpp" />
     <ClCompile Include="Component\ComponentProjectData.cpp" />
     <ClCompile Include="Component\ComponentProxyManager.cpp" />
-    <ClCompile Include="Components.cpp" />
     <ClCompile Include="DependencyDescription.cpp" />
     <ClCompile Include="DependencyDescriptionLine.cpp" />
     <ClCompile Include="Property\PropertyDescriptionBase.cpp" />

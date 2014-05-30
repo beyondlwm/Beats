@@ -5,34 +5,39 @@
 
 #pragma once
 
-// 如果必须将位于下面指定平台之前的平台作为目标，请修改下列定义。
-// 有关不同平台对应值的最新信息，请参考 MSDN。
-#ifndef WINVER                // 允许使用特定于 Windows XP 或更高版本的功能。
-#define WINVER 0x0501        // 将此值更改为相应的值，以适用于 Windows 的其他版本。
+#include "BeatsPlatFormConfig.h"
+
+#if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
+#ifndef WINVER                // Allow use of features specific to Windows XP or later.
+#define WINVER 0x0501        // Change this to the appropriate value to target other versions of Windows.
 #endif
 
-#ifndef _WIN32_WINNT        // 允许使用特定于 Windows XP 或更高版本的功能。
-#define _WIN32_WINNT 0x0501    // 将此值更改为相应的值，以适用于 Windows 的其他版本。
+#ifndef _WIN32_WINNT        // Allow use of features specific to Windows XP or later.                   
+#define _WIN32_WINNT 0x0501    // Change this to the appropriate value to target other versions of Windows.
 #endif                        
 
-#ifndef _WIN32_WINDOWS        // 允许使用特定于 Windows 98 或更高版本的功能。
-#define _WIN32_WINDOWS 0x0410 // 将此值更改为适当的值，以指定将 Windows Me 或更高版本作为目标。
+#ifndef _WIN32_WINDOWS        // Allow use of features specific to Windows 98 or later.
+#define _WIN32_WINDOWS 0x0410 // Change this to the appropriate value to target Windows Me or later.
 #endif
 
-#ifndef _WIN32_IE            // 允许使用特定于 IE 6.0 或更高版本的功能。
-#define _WIN32_IE 0x0600    // 将此值更改为相应的值，以适用于 IE 的其他版本。
+#ifndef _WIN32_IE            // Allow use of features specific to IE 6.0 or later.
+#define _WIN32_IE 0x0600    // Change this to the appropriate value to target other versions of IE.
 #endif
 
-#define WIN32_LEAN_AND_MEAN        // 从 Windows 头中排除极少使用的资料
-// Windows 头文件:
+#define WIN32_LEAN_AND_MEAN        // Exclude rarely-used stuff from Windows headers
+// Windows Header Files:
 #include <windows.h>
+#endif
+
+#include "BeatsTchar.h"
+#include "BeatsTypeDef.h"
 
 // TODO: 在此处引用程序需要的其他头文件
 #include <vector>
 #include <map>
-#include "../Beats/PublicDef.h"
-#include "../Utility/Serializer/Serializer.h"
-#include "../Utility/SharePtr/SharePtr.h"
+#include "Beats/PublicDef.h"
+#include "Utility/Serializer/Serializer.h"
+#include "Utility/SharePtr/SharePtr.h"
 #include "SpyMessage.h"
 
 #define BEATS_SPY_VERSION 0

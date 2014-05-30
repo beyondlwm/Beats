@@ -138,9 +138,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="CMakeLists.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <Filter Include="EnumStrGenerator">
       <UniqueIdentifier>{F1C8A173-F6D7-4FB9-B45C-7FE8173F5C53}</UniqueIdentifier>
     </Filter>

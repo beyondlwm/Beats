@@ -58,7 +58,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\Beats\lib\wxWidgets-2.9.3\include\msvc;..;..\Vld\include;..\windebuggingtool\inc;..\Beats\lib\wxWidgets-2.9.3\include;..\Utility;..\Components;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Beats\lib\wxWidgets-2.9.3\include\msvc;..;..\Vld\include;..\windebuggingtool\inc;..\Beats\lib\wxWidgets-2.9.3\include;..\Utility;..\Components;..\Platform;..\platform\win32;..\Beats\Lib\boost_1_55_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;DEBUGTOOL_EXPORTS;_CRT_SECURE_NO_WARNINGS;LWM_WXWIDGETS_HACK;_CRT_SECURE_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>true</MinimalRebuild>
@@ -71,7 +71,7 @@
     <Link>
       <AdditionalDependencies>wxmsw29ud_core.lib;wxbase29ud.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;winmm.lib;comctl32.lib;rpcrt4.lib;wsock32.lib;wininet.lib;dbghelp.lib;d3dx9.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName)_d.dll</OutputFile>
-      <AdditionalLibraryDirectories>..\Beats\Run;..\windebuggingtool\lib\i386;..\Beats\lib\wxWidgets-2.9.3\lib\vc_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Beats\Run;..\windebuggingtool\lib\i386;..\Beats\lib\wxWidgets-2.9.3\lib\vc_lib;..\Beats\Lib\Boost_1_55_0;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -82,7 +82,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\Beats\lib\wxWidgets-2.9.3\include\msvc;..\windebuggingtool\inc;..\Beats\lib\wxWidgets-2.9.3\include;..;..\Utility;..\Components;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Beats\Lib\boost_1_55_0;..\Beats\lib\wxWidgets-2.9.3\include\msvc;..\windebuggingtool\inc;..\Beats\lib\wxWidgets-2.9.3\include;..;..\Utility;..\Components;..\Platform;..\Platform\win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;DEBUGTOOL_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS;LWM_WXWIDGETS_HACK;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -91,7 +91,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>wxmsw29u_core.lib;wxbase29u.lib;wxtiff.lib;wxjpeg.lib;wxpng.lib;wxzlib.lib;wxregexu.lib;wxexpat.lib;winmm.lib;comctl32.lib;rpcrt4.lib;wsock32.lib;wininet.lib;dbghelp.lib;d3dx9.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\windebuggingtool\lib\i386;..\Beats\lib\wxWidgets-2.9.3\lib\vc_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\windebuggingtool\lib\i386;..\Beats\lib\wxWidgets-2.9.3\lib\vc_lib;..\Beats\Lib\Boost_1_55_0;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
