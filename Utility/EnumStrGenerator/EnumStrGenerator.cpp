@@ -221,6 +221,8 @@ bool CEnumStrGenerator::GetEnumValueData( const TCHAR* pEnumType, const std::vec
 
 bool CEnumStrGenerator::ScanEnumInDirectory( const TCHAR* pDirectory )
 {
+    bool bRet = false;
+#if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
     const TCHAR* pFileStr = _T("*.*");
     TString wildCmpStr(pDirectory);
     size_t pathSize = _tcslen(pDirectory);
@@ -231,7 +233,6 @@ bool CEnumStrGenerator::ScanEnumInDirectory( const TCHAR* pDirectory )
     wildCmpStr.append(pFileStr);
     TFileData fileData;
     HANDLE searchHandle = ::FindFirstFile(wildCmpStr.c_str(), &fileData);
-    bool bRet = false;
     if (searchHandle != INVALID_HANDLE_VALUE)
     {
         ScanEnum(fileData, pDirectory);
@@ -244,11 +245,13 @@ bool CEnumStrGenerator::ScanEnumInDirectory( const TCHAR* pDirectory )
     }
 
     BEATS_ASSERT(GetLastError() == ERROR_NO_MORE_FILES, _T("Scan Enum failed in path %s"), pDirectory);
+#endif
     return bRet;
 }
 
 bool CEnumStrGenerator::ScanEnum( const TFileData& fileData, const TString& fullDirectoryPath )
 {
+#if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
     if ((fileData.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) == 0)
     {
         if ((fileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
@@ -273,6 +276,7 @@ bool CEnumStrGenerator::ScanEnum( const TFileData& fileData, const TString& full
             }
         }
     }
+#endif
     return true;
 }
 
@@ -378,14 +382,8 @@ SEnumData* CEnumStrGenerator::AnalyseRawEnumString( const TString& rawEnumStr, i
         pEnumData->m_str = result[0].c_str();
         const TCHAR* pStrData = result[1].c_str(); 
         TCHAR* pStopPos = NULL;
-        if (pStrData[0] == '0' && (pStrData[1] == 'x' || pStrData[1] == 'X'))
-        {
-            pEnumData->m_value = _tcstoul(pStrData, &pStopPos, 16);
-        }
-        else
-        {
-            pEnumData->m_value = _ttoi(result[1].c_str());
-        }
+        bool bIsHex = pStrData[0] == '0' && (pStrData[1] == 'x' || pStrData[1] == 'X');
+        pEnumData->m_value = _tcstoul(pStrData, &pStopPos, bIsHex ? 16 : 10);
         curValue = pEnumData->m_value + 1;
     }
     else

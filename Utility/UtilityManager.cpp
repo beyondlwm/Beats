@@ -242,13 +242,6 @@ void CUtilityManager::SetThreadName( DWORD dwThreadId, const char* pszThreadName
 #endif
 }
 
-#endif
-
-void CUtilityManager::Init()
-{
-    return;    
-}
-
 bool CUtilityManager::FillDirectory(SDirectory& fileList, bool bFillSubDirectory/* = true*/, CFileFilter* pFileFilter/* = NULL*/)
 {
     std::string tmp;
@@ -389,6 +382,13 @@ void CUtilityManager::SerializeDirectory( SDirectory* pDirectory, CSerializer& s
     {
         SerializeDirectory((*pDirectory->m_pDirectories)[i], serializer);
     }
+}
+
+#endif
+
+void CUtilityManager::Init()
+{
+    return;    
 }
 
 bool CUtilityManager::WriteDataToFile(FILE* pFile, void* pData, size_t uDataLength, size_t uRetryCount/* = 20*/)

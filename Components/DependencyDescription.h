@@ -8,7 +8,7 @@ class CComponentEditorProxy;
 class TiXmlElement;
 
 template class COMPONENTS_DLL_DECL std::allocator<CDependencyDescriptionLine*>;
-template class COMPONENTS_DLL_DECL std::vector<CDependencyDescriptionLine*, std::allocator<CDependencyDescriptionLine*>>;
+template class COMPONENTS_DLL_DECL std::vector<CDependencyDescriptionLine*, std::allocator<CDependencyDescriptionLine*> >;
 
 enum EDependencyType
 {

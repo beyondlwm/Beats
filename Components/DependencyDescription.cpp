@@ -117,8 +117,8 @@ void CDependencyDescription::SaveToXML( TiXmlElement* pParentNode )
         if (m_type == eDT_Strong && m_pOwner->GetId() != -1)
         {
             TCHAR szInfo[10240];
-            _stprintf(szInfo, _T("位于Id:%d的组件%s,强依赖尚未初始化!请检查并修改!"), m_pOwner->GetId(), m_pOwner->GetClassStr());
-            MessageBox(NULL, szInfo, _T("未初始化的强依赖"), MB_OK);
+            _stprintf(szInfo, _T("Component %s with Id:%d, Unset strong dependency!"), m_pOwner->GetClassStr(), m_pOwner->GetId());
+            MessageBox(NULL, szInfo, _T("Unset strong dependency"), MB_OK);
         }
     }
     else

@@ -2,9 +2,9 @@
 #include "ComponentProject.h"
 #include "ComponentProjectData.h"
 #include "ComponentProxyManager.h"
-#include "StringHelper/StringHelper.h"
-#include "TinyXML/tinyxml.h"
-#include "IdManager/IdManager.h"
+#include "Utility/StringHelper/StringHelper.h"
+#include "Utility/TinyXML/tinyxml.h"
+#include "Utility/IdManager/IdManager.h"
 #include <string>
 #include "Utility/UtilityManager.h"
 
@@ -57,8 +57,8 @@ CComponentProjectDirectory* CComponentProject::LoadProject(const TCHAR* pszProje
             TCHAR info[MAX_PATH];
             TCHAR reason[MAX_PATH];
             CStringHelper::GetInstance()->ConvertToTCHAR(document.ErrorDesc(), reason, MAX_PATH);
-            _stprintf(info, _T("文件 :%s 读取失败！原因：%s"), pszProjectFile, reason);
-            MessageBox(NULL, info, _T("打开文件失败"), MB_OK | MB_ICONERROR);
+            _stprintf(info, _T("Load File :%s Failed！Reason：%s"), pszProjectFile, reason);
+            MessageBox(NULL, info, _T("Load File Failed"), MB_OK | MB_ICONERROR);
         }
     }
     return m_pProjectData;
@@ -209,8 +209,8 @@ void CComponentProject::ResolveIdForFile(size_t uFileId, size_t idToResolve, boo
             TCHAR info[MAX_PATH];
             TCHAR reason[MAX_PATH];
             CStringHelper::GetInstance()->ConvertToTCHAR(document.ErrorDesc(), reason, MAX_PATH);
-            _stprintf(info, _T("文件 :%s 读取失败！原因：%s"), pszFilePath, reason);
-            MessageBox(NULL, info, _T("打开文件失败"), MB_OK | MB_ICONERROR);
+            _stprintf(info, _T("Load File :%s Failed!Reason：%s"), pszFilePath, reason);
+            MessageBox(NULL, info, _T("Load File Failed"), MB_OK | MB_ICONERROR);
         }
     }
 }
@@ -350,8 +350,8 @@ bool CComponentProject::AnalyseFile(const TString& strFileName, std::map<size_t,
         TCHAR info[MAX_PATH];
         TCHAR reason[MAX_PATH];
         CStringHelper::GetInstance()->ConvertToTCHAR(document.ErrorDesc(), reason, MAX_PATH);
-        _stprintf(info, _T("文件 :%s 读取失败！原因：%s"), strFileName.c_str(), reason);
-        MessageBox(NULL, info, _T("打开文件失败"), MB_OK | MB_ICONERROR);
+        _stprintf(info, _T("Load File :%s Failed！Reason：%s"), strFileName.c_str(), reason);
+        MessageBox(NULL, info, _T("Load file failed"), MB_OK | MB_ICONERROR);
     }
     return true;
 }

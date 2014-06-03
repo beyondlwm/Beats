@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "PropertyDescriptionBase.h"
-#include "Serializer/Serializer.h"
-#include "SharePtr/SharePtr.h"
+#include "Utility/Serializer/Serializer.h"
+#include "Utility/SharePtr/SharePtr.h"
 #include "Component/ComponentEditorProxy.h"
 #include "Component/ComponentProxyManager.h"
 
@@ -97,8 +97,7 @@ bool CPropertyDescriptionBase::Deserialize( CSerializer& serializer )
     TCHAR** pParameterHolder = &pParameter;
     serializer.Read(pParameterHolder);
     this->AnalyseUIParameter(pParameter);
-    size_t totalSize = serializer.GetReadPos() - startPos;
-    BEATS_ASSERT(dataLenghth == totalSize, _T("Read data of property: %s in component: %d Failed, Data Length :%d while require %d"), (*m_pBasicInfo)->m_variableName.c_str(), m_pOwner->GetGuid(), dataLenghth, totalSize);
+    BEATS_ASSERT(dataLenghth == serializer.GetReadPos() - startPos, _T("Read data of property: %s in component: %d Failed, Data Length :%d while require %d"), (*m_pBasicInfo)->m_variableName.c_str(), m_pOwner->GetGuid(), dataLenghth, serializer.GetReadPos() - startPos);
     serializer.SetReadPos(startPos + dataLenghth);
     return true;
 }

@@ -312,9 +312,9 @@ CComponentEditorProxy* CreateComponentProxy(CComponentGraphic* pGraphics, size_t
 
 CComponentGraphic* CreateComponentGraphics()
 {
-	CComponentRenderWindow* pRenderWindow = CBDTWxApp::GetBDTWxApp()->GetMainFrame()->GetComponentRenderWindow();
-	CComponentGraphic_DX* pGraphics = new CComponentGraphic_DX(pRenderWindow->GetRenderDevice(), pRenderWindow->GetRenderFont());
-	return pGraphics;
+    CComponentRenderWindow* pRenderWindow = CBDTWxApp::GetBDTWxApp()->GetMainFrame()->GetComponentRenderWindow();
+    CComponentGraphic_DX* pGraphics = new CComponentGraphic_DX(pRenderWindow->GetRenderDevice(), pRenderWindow->GetRenderFont());
+    return pGraphics;
 }
 
 void CBDTWxFrame::InitComponentsPage()
@@ -1235,7 +1235,7 @@ void CBDTWxFrame::RequestToUpdatePropertyGrid( )
 
 CComponentRenderWindow* CBDTWxFrame::GetComponentRenderWindow() const
 {
-	return m_pComponentRenderWindow;
+    return m_pComponentRenderWindow;
 }
 
 void CBDTWxFrame::OnComponentPropertyGridIdle( wxIdleEvent& /*event*/ )

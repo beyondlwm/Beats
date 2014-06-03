@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "ComponentEditorProxy.h"
-#include "Serializer/Serializer.h"
-#include "TinyXML/tinyxml.h"
-#include "StringHelper/StringHelper.h"
-#include "IdManager/IdManager.h"
+#include "Utility/Serializer/Serializer.h"
+#include "Utility/TinyXML/tinyxml.h"
+#include "Utility/StringHelper/StringHelper.h"
+#include "Utility/IdManager/IdManager.h"
 #include "Property/PropertyDescriptionBase.h"
 #include "DependencyDescriptionLine.h"
 #include "Component/ComponentProxyManager.h"
@@ -203,7 +203,7 @@ size_t CComponentEditorProxy::GetGuid() const
     return m_uGuid;
 }
 
-size_t CComponentEditorProxy::GetParentGuid()
+size_t CComponentEditorProxy::GetParentGuid() const
 {
     return m_uParentGuid;
 }

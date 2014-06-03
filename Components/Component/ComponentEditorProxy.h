@@ -48,7 +48,7 @@ public:
     static const size_t REFLECT_GUID = 1;
     static const size_t PARENT_REFLECT_GUID = super::REFLECT_GUID;
     virtual size_t GetGuid() const;
-    virtual size_t GetParentGuid();
+    virtual size_t GetParentGuid() const override;
     virtual const TCHAR* GetClassStr() const;
     void Save();
 

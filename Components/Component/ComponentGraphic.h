@@ -3,8 +3,8 @@
 
 #include "../expdef.h"
 
-#include "Math/Vector2.h"
-#include "Math/Vector3.h"
+#include "Utility/Math/Vector2.h"
+#include "Utility/Math/Vector3.h"
 
 static const int HEADER_HEIGHT = 2;
 static const int DEPENDENCY_HEIGHT = 1;

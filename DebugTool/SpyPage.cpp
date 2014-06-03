@@ -10,10 +10,10 @@ void CBDTWxFrame::CreateSpyPage()
 {
 #ifdef _DEBUG
     m_hSpyDllHandle = LoadLibrary(_T("spy_d.dll"));
-	BEATS_ASSERT(m_hSpyDllHandle != NULL, _T("º”‘ÿSpy_d.dll ß∞‹£°"));
+    BEATS_ASSERT(m_hSpyDllHandle != NULL, _T("º”‘ÿSpy_d.dll ß∞‹£°"));
 #else
-	m_hSpyDllHandle = LoadLibrary(_T("spy_r.dll"));
-	BEATS_ASSERT(m_hSpyDllHandle != NULL, _T("º”‘ÿSpy_r.dll ß∞‹£°"));
+    m_hSpyDllHandle = LoadLibrary(_T("spy_r.dll"));
+    BEATS_ASSERT(m_hSpyDllHandle != NULL, _T("º”‘ÿSpy_r.dll ß∞‹£°"));
 #endif
     if (m_hSpyDllHandle != NULL)
     {

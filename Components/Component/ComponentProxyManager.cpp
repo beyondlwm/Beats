@@ -2,11 +2,11 @@
 #include "ComponentProxyManager.h"
 #include "ComponentManager.h"
 #include "ComponentProject.h"
-#include "TinyXML/tinyxml.h"
-#include "Serializer/Serializer.h"
-#include "StringHelper/StringHelper.h"
-#include "UtilityManager.h"
-#include "IdManager/IdManager.h"
+#include "Utility/TinyXML/tinyxml.h"
+#include "Utility/Serializer/Serializer.h"
+#include "Utility/StringHelper/StringHelper.h"
+#include "Utility/UtilityManager.h"
+#include "Utility/IdManager/IdManager.h"
 #include "ComponentGraphic.h"
 #include "DependencyDescriptionLine.h"
 #include "DependencyDescription.h"
@@ -114,8 +114,8 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /
             TCHAR info[MAX_PATH];
             TCHAR reason[MAX_PATH];
             CStringHelper::GetInstance()->ConvertToTCHAR(document.ErrorDesc(), reason, MAX_PATH);
-            _stprintf(info, _T("文件 :%s 读取失败！原因：%s"), pFilePath, reason);
-            MessageBox(NULL, info, _T("打开文件失败"), MB_OK | MB_ICONERROR);
+            _stprintf(info, _T("Load file :%s Failed!Reason：%s"), pFilePath, reason);
+            MessageBox(NULL, info, _T("Load File Failed"), MB_OK | MB_ICONERROR);
         }
     }
 }
@@ -267,7 +267,7 @@ void CComponentProxyManager::SaveTemplate(const TCHAR* pszFilePath)
     {
         TiXmlElement* pComponentElement = new TiXmlElement("Component");
         char szGUIDHexStr[32] = {0};
-        sprintf(szGUIDHexStr, "0x%x", iter->first);
+        sprintf(szGUIDHexStr, "0x%lx", iter->first);
         pComponentElement->SetAttribute("GUID", szGUIDHexStr);
         char tmp[MAX_PATH] = {0};
         CStringHelper::GetInstance()->ConvertToCHAR(GetComponentTemplate(iter->first)->GetClassStr(), tmp, MAX_PATH);
@@ -313,7 +313,7 @@ void CComponentProxyManager::SaveToFile( const TCHAR* pFileName /* = NULL*/)
         {
             TiXmlElement* pComponentElement = new TiXmlElement("Component");
             char szGUIDHexStr[32] = {0};
-            sprintf(szGUIDHexStr, "0x%x", iter->first);
+            sprintf(szGUIDHexStr, "0x%lx", iter->first);
             pComponentElement->SetAttribute("GUID", szGUIDHexStr);
             char tmp[MAX_PATH] = {0};
             CStringHelper::GetInstance()->ConvertToCHAR(GetComponentTemplate(iter->first)->GetClassStr(), tmp, MAX_PATH);
@@ -352,7 +352,7 @@ void CComponentProxyManager::DeserializeTemplateData(const TCHAR* pWorkingPath, 
     FILE* pComponentFile = _tfopen(szFilePath, _T("rb+"));
     if (pComponentFile == NULL)
     {
-        MessageBox(NULL, _T("找不到导出的EDS文件!\n无法初始化组件系统!"), _T("Error"), MB_OK);
+        MessageBox(NULL, _T("Can't find EDS.bin!\nInitialize failed!"), _T("Error"), MB_OK);
     }
     else
     {    
@@ -365,7 +365,7 @@ void CComponentProxyManager::DeserializeTemplateData(const TCHAR* pWorkingPath, 
         componentsSerializer.Read(buff);
         if (_tcsicmp(pHeaderStr, *buff) != 0)
         {
-            MessageBox(NULL, _T("不是正确的文件格式,读取失败!"), _T("Error"), MB_OK | MB_ICONERROR);
+            MessageBox(NULL, _T("File format error!"), _T("Error"), MB_OK | MB_ICONERROR);
         }
         else
         {
@@ -485,6 +485,7 @@ void CComponentProxyManager::LoadTemplateDataFromSerializer(CSerializer& seriali
         bool bIsAbstractClass = false;
         serializer >> bIsAbstractClass;
         size_t curReadPos = serializer.GetReadPos();
+        curReadPos;
         size_t totalSize = 0;
         serializer >> totalSize;
         size_t guid = 0;

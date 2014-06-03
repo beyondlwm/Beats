@@ -45,7 +45,7 @@ public:
     bool GetReplacePropertyName(size_t uComponentGuid, const TString& strOriginPropertyName, TString& strResult);
 
 private:
-    void LoadXMLProject(TiXmlElement* pNode, CComponentProjectDirectory* pProjectDirectory, std::map<size_t, std::vector<size_t>>& conflictIdMap);
+    void LoadXMLProject(TiXmlElement* pNode, CComponentProjectDirectory* pProjectDirectory, std::map<size_t, std::vector<size_t> >& conflictIdMap);
     void SaveProjectFile( TiXmlElement* pParentNode, const CComponentProjectDirectory* p);
 
 private:

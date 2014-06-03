@@ -6,6 +6,8 @@
     #define Beats_AtomicIncrement(pVariable) ::InterlockedIncrement(pVariable)
     #define Beats_AtomicDecrement(pVariable) ::InterlockedDecrement(pVariable)
 #else
+
+/// TYPE DEF
     #define MAX_PATH 256
     typedef unsigned int HANDLE;
     typedef unsigned int HWND;
@@ -32,10 +34,25 @@
         #endif
     };
     typedef SFileData TFileData;
+    
+/// MACRO DEF
     #define MessageBox(hWnd, lpText, lpCaption, uType) 0
     #define IDYES 1
     #define IDNO 0
     
+/// FUNCTION DEF
+    inline FILE* _tfopen(const TCHAR* pszFileName, const TCHAR* pszMode)
+    {
+        #ifdef _UNICODE
+        char szFileNameBuffer[MAX_PATH];
+        sprintf(szFileNameBuffer, "%ls", pszFileName);
+        char szModeBuffer[16];
+        sprintf(szModeBuffer, "%ls", pszMode);
+        return fopen(szFileNameBuffer, szModeBuffer);
+        #else
+            return fopen(pszFileName, pszMode);
+        #endif
+    }
     #if (BEATS_PLATFORM == PLATFORM_IOS)
         #define Beats_AtomicIncrement(pVariable) OSAtomicIncrement32((int*)pVariable)
         #define Beats_AtomicDecrement(pVariable) OSAtomicDecrement32((int*)pVariable)
