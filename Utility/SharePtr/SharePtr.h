@@ -14,7 +14,7 @@
     #include <set>
     #endif
 
-#else if(BEATS_PLATFORM == BEATS_PLATFORM_IOS)
+#elif(BEATS_PLATFORM == BEATS_PLATFORM_IOS)
     #include <libkern/OSAtomic.h>
 #endif
 

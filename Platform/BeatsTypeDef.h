@@ -27,7 +27,7 @@
         DWORD dwReserved1;
         TCHAR  cFileName[ MAX_PATH ];
         TCHAR  cAlternateFileName[ 14 ];
-        #if (BEATS_PLATFORM == PLATFORM_IOS)
+        #if (BEATS_PLATFORM == BEATS_PLATFORM_IOS)
             DWORD dwFileType;
             DWORD dwCreatorType;
             WORD  wFinderFlags;
@@ -41,6 +41,7 @@
     #define IDNO 0
     
 /// FUNCTION DEF
+    #include <stdio.h>
     inline FILE* _tfopen(const TCHAR* pszFileName, const TCHAR* pszMode)
     {
         #ifdef _UNICODE
@@ -53,7 +54,7 @@
             return fopen(pszFileName, pszMode);
         #endif
     }
-    #if (BEATS_PLATFORM == PLATFORM_IOS)
+    #if (BEATS_PLATFORM == BEATS_PLATFORM_IOS)
         #define Beats_AtomicIncrement(pVariable) OSAtomicIncrement32((int*)pVariable)
         #define Beats_AtomicDecrement(pVariable) OSAtomicDecrement32((int*)pVariable)
     #endif

@@ -114,7 +114,7 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /
             TCHAR info[MAX_PATH];
             TCHAR reason[MAX_PATH];
             CStringHelper::GetInstance()->ConvertToTCHAR(document.ErrorDesc(), reason, MAX_PATH);
-            _stprintf(info, _T("Load file :%s Failed!Reason£º%s"), pFilePath, reason);
+            _stprintf(info, _T("Load file :%s Failed!Reason:%s"), pFilePath, reason);
             MessageBox(NULL, info, _T("Load File Failed"), MB_OK | MB_ICONERROR);
         }
     }

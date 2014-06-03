@@ -57,7 +57,7 @@ CComponentProjectDirectory* CComponentProject::LoadProject(const TCHAR* pszProje
             TCHAR info[MAX_PATH];
             TCHAR reason[MAX_PATH];
             CStringHelper::GetInstance()->ConvertToTCHAR(document.ErrorDesc(), reason, MAX_PATH);
-            _stprintf(info, _T("Load File :%s Failed£¡Reason£º%s"), pszProjectFile, reason);
+            _stprintf(info, _T("Load File :%s Failed!Reason:%s"), pszProjectFile, reason);
             MessageBox(NULL, info, _T("Load File Failed"), MB_OK | MB_ICONERROR);
         }
     }
@@ -209,7 +209,7 @@ void CComponentProject::ResolveIdForFile(size_t uFileId, size_t idToResolve, boo
             TCHAR info[MAX_PATH];
             TCHAR reason[MAX_PATH];
             CStringHelper::GetInstance()->ConvertToTCHAR(document.ErrorDesc(), reason, MAX_PATH);
-            _stprintf(info, _T("Load File :%s Failed!Reason£º%s"), pszFilePath, reason);
+            _stprintf(info, _T("Load File :%s Failed!Reason: %s"), pszFilePath, reason);
             MessageBox(NULL, info, _T("Load File Failed"), MB_OK | MB_ICONERROR);
         }
     }
@@ -350,7 +350,7 @@ bool CComponentProject::AnalyseFile(const TString& strFileName, std::map<size_t,
         TCHAR info[MAX_PATH];
         TCHAR reason[MAX_PATH];
         CStringHelper::GetInstance()->ConvertToTCHAR(document.ErrorDesc(), reason, MAX_PATH);
-        _stprintf(info, _T("Load File :%s Failed£¡Reason£º%s"), strFileName.c_str(), reason);
+        _stprintf(info, _T("Load File :%s Failed!Reason: %s"), strFileName.c_str(), reason);
         MessageBox(NULL, info, _T("Load file failed"), MB_OK | MB_ICONERROR);
     }
     return true;

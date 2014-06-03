@@ -12,8 +12,8 @@ struct SEnumData
 
     }
     SEnumData(const TString& str, int value)
-        : m_str(str)
-        , m_value(value)
+        : m_value(value)
+        , m_str(str)
     {
 
     }
