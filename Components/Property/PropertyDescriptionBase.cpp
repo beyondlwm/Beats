@@ -228,7 +228,8 @@ void CPropertyDescriptionBase::SetValueWithType(void* pValue, EValueType type, b
 {
     if (CopyValue(pValue, m_valueArray[type]) || bForceUpdateHostComponent)
     {
-        if (type == eVT_CurrentValue && GetOwner() && GetOwner()->IsInitialized())
+        // We need to reflect data when load from xml, at that time, owner is not initialized.
+        if (type == eVT_CurrentValue && GetOwner() && (GetOwner()->IsInitialized() || bForceUpdateHostComponent))
         {
             // Some property is not the real property, such as container property.
             CPropertyDescriptionBase* pRealProperty = this;

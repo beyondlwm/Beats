@@ -62,7 +62,7 @@
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Components.dir\Debug\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Components_d</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.lib</TargetExt>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">E:\Project\Beats_GitHub\Beats\Run\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)Beats\Run\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Components.dir\Release\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Components_r</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.lib</TargetExt>
