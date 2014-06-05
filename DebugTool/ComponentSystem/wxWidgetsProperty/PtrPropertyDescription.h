@@ -17,8 +17,8 @@ public:
     size_t GetDerivedGuid() const;
     bool CreateInstance(bool bCallInitFunc = true);
 
-    //Don't update display string when destruct, because UpdateDisplayString referenced some base class memeber data and virtual function.
-    bool DestroyInstance(bool bUpdateDisplayString = true);
+    //When destroy instance in editor, we need to delete the component, otherwise, user will manage the host component.
+    bool DestroyInstance(bool bDeleteHostComponent);
 
     virtual void SetValue(wxVariant& value, bool bSaveValue);
 

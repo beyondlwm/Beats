@@ -1143,7 +1143,7 @@ void CBDTWxFrame::ResetPropertyValue(wxPGProperty* pProperty)
     if (pPropertyBase->GetType() == eRPT_Ptr)
     {
         CPtrPropertyDescription* pPtrProperty = static_cast<CPtrPropertyDescription*>(pPropertyBase);
-        pPtrProperty->DestroyInstance();
+        pPtrProperty->DestroyInstance(true);
     }
     else if (pPropertyBase->IsContainerProperty())
     {

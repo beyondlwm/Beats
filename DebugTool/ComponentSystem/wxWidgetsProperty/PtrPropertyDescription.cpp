@@ -134,22 +134,28 @@ bool CPtrPropertyDescription::CreateInstance(bool bCallInitFunc/* = true*/)
     return bRet;
 }
 
-bool CPtrPropertyDescription::DestroyInstance(bool bUpdateDisplayString/* = true*/)
+bool CPtrPropertyDescription::DestroyInstance(bool bDeleteHostComponent)
 {
     bool bRet = false;
 
     if (m_pInstance != NULL)
     {
+        if (bDeleteHostComponent)
+        {
+            CComponentBase* pHost = m_pInstance->GetHostComponent();
+            if (pHost != NULL)
+            {
+                pHost->Uninitialize();
+                BEATS_SAFE_DELETE(pHost);
+            }
+        }
         BEATS_SAFE_DELETE(m_pInstance);
         m_pChildren->clear();
         m_bHasInstance = false;
         bRet = true;
     }
     SetDerivedGuid(0);
-    if (bUpdateDisplayString)
-    {
-        UpdateDisplayString(m_uComponentGuid);
-    }
+    UpdateDisplayString(m_uComponentGuid);
 
     return bRet;
 }

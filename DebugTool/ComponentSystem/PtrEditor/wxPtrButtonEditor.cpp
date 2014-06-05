@@ -131,7 +131,7 @@ bool wxPtrButtonEditor::OnEvent( wxPropertyGrid* propGrid,
                 else if (pButton->GetLabel().CmpNoCase(_T("-")) == 0)
                 {
                     property->DeleteChildren();
-                    bool bDeleteInstance = pPtrPropertyDescription->DestroyInstance();
+                    bool bDeleteInstance = pPtrPropertyDescription->DestroyInstance(true);
                     // Destroy instance may cause the value changed, so we fetch it again.
                     char szTmp[MAX_PATH];
                     pPtrPropertyDescription->GetValueAsChar(eVT_CurrentValue, szTmp);

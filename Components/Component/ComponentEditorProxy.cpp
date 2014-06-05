@@ -72,16 +72,6 @@ CComponentEditorProxy::~CComponentEditorProxy()
     {
         CComponentManager::GetInstance()->DeleteComponent(m_pHostComponent);
     }
-    else
-    {
-        //Don't delete host component for template component, because we will do it later in destructor of CComponentManager.
-        bool bIsPtrProperty = CComponentProxyManager::GetInstance()->GetComponentTemplate(this->GetGuid()) != this;
-        if (bIsPtrProperty)
-        {
-            m_pHostComponent->Uninitialize();
-            BEATS_SAFE_DELETE(m_pHostComponent);
-        }
-    }
 }
 
 void CComponentEditorProxy::Deserialize( CSerializer& serializer )
