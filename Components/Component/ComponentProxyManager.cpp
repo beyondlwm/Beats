@@ -128,6 +128,14 @@ void CComponentProxyManager::CloseFile(bool bRefreshProjectData)
         {
             for (std::map<size_t, CComponentBase*>::iterator subIter = iter->second->begin(); subIter != iter->second->end(); ++subIter)
             {
+                BEATS_ASSERT(subIter->second != NULL);
+                subIter->second->Uninitialize();
+            }
+        }
+        for (std::map<size_t, std::map<size_t, CComponentBase*>*>::iterator iter = m_pComponentInstanceMap->begin(); iter != m_pComponentInstanceMap->end(); ++iter)
+        {
+            for (std::map<size_t, CComponentBase*>::iterator subIter = iter->second->begin(); subIter != iter->second->end(); ++subIter)
+            {
                 BEATS_SAFE_DELETE(subIter->second);
                 m_pIdManager->RecycleId(subIter->first);
             }

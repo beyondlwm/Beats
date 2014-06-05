@@ -96,16 +96,3 @@ size_t CComponentManager::GetVersion()
 {
     return COMPONENT_SYSTEM_VERSION;
 }
-
-void CComponentManager::ResetComponentContainer()
-{
-    //Delete two container, because we may also launch the debug tool, and it will init the componentmanager again in CComponentsPage::InitComponentsPage
-    for (std::map<size_t, std::map<size_t, CComponentBase*>*>::iterator iter = m_pComponentInstanceMap->begin(); iter != m_pComponentInstanceMap->end(); ++iter)
-    {
-        BEATS_SAFE_DELETE(iter->second);
-    }
-    m_pComponentInstanceMap->clear();
-    typedef std::map<size_t, CComponentBase*> TComponentMap;
-    BEATS_SAFE_DELETE_MAP((*m_pComponentTemplateMap), TComponentMap);
-    m_pIdManager->Reset();
-}
