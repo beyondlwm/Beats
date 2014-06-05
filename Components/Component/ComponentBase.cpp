@@ -9,6 +9,7 @@ CComponentBase::CComponentBase()
 
 CComponentBase::~CComponentBase()
 {
+    BEATS_ASSERT(!m_bInitialize, _T("Call Uninitialize before delete the component!"));
 }
 
 size_t CComponentBase::GetId() const

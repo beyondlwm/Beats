@@ -65,14 +65,7 @@ void CComponentManager::Import( CSerializer& serializer)
         CComponentManager::GetInstance()->ResolveDependency();
         
         // 3. Call Initialize.
-        for (std::map<size_t, std::map<size_t, CComponentBase*>*>::iterator iter = m_pComponentInstanceMap->begin(); iter != m_pComponentInstanceMap->end(); ++iter)
-        {
-            for (std::map<size_t, CComponentBase*>::iterator subIter = iter->second->begin(); subIter != iter->second->end(); ++subIter)
-            {
-                BEATS_ASSERT(subIter->second->IsInitialized() == false, _T("Can't initialize component twice!"));
-                subIter->second->Initialize();
-            }
-        }
+        Initialize();
     }
 }
 

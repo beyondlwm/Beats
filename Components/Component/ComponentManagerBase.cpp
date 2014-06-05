@@ -209,3 +209,32 @@ void CComponentManagerBase::AddDependencyResolver( CDependencyDescription* pDesc
     pDependencyResovler->pAddFunc = pFunc == NULL ? DefaultAddDependencyFunc : pFunc;
     m_pDependencyResolver->push_back(pDependencyResovler);
 }
+
+void CComponentManagerBase::Initialize()
+{
+    std::map<size_t, std::map<size_t, CComponentBase*>*>::iterator iter = m_pComponentInstanceMap->begin();
+    for (; iter != m_pComponentInstanceMap->end(); ++iter)
+    {
+        std::map<size_t, CComponentBase*>::iterator subIter = iter->second->begin();
+        for (; subIter != iter->second->end(); ++subIter)
+        {
+            BEATS_ASSERT(subIter->second != NULL);
+            BEATS_ASSERT(subIter->second->IsInitialized() == false, _T("Can't initialize component twice!"));
+            subIter->second->Initialize();
+        }
+    }
+}
+
+void CComponentManagerBase::Uninitialize()
+{
+    std::map<size_t, std::map<size_t, CComponentBase*>*>::iterator iter = m_pComponentInstanceMap->begin();
+    for (; iter != m_pComponentInstanceMap->end(); ++iter)
+    {
+        std::map<size_t, CComponentBase*>::iterator subIter = iter->second->begin();
+        for (; subIter != iter->second->end(); ++subIter)
+        {
+            BEATS_ASSERT(subIter->second != NULL);
+            subIter->second->Uninitialize();
+        }
+    }
+}
