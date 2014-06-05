@@ -65,7 +65,8 @@ public:
     virtual void Serialize(CSerializer& serializer, EValueType eValueType);
     virtual void Deserialize(CSerializer& serializer);
 
-    virtual void Initialize();
+    virtual void Initialize() override;
+    virtual void Uninitialize() override;
 
 protected:
     std::vector<CPropertyDescriptionBase*>* m_pProperties;

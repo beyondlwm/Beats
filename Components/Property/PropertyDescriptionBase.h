@@ -72,6 +72,7 @@ public:
     void SetValueWithType(void* pValue, EValueType type, bool bForceUpdateHostComponent = false);
 
     virtual void Initialize();
+    virtual void Uninitialize();
     virtual bool IsContainerProperty();
     //Editor mode only
     virtual void SetValueList(const std::vector<TString>& valueList);
@@ -101,6 +102,7 @@ protected:
     bool DeserializeBasicInfo(CSerializer& serializer);
 
 protected:
+    bool m_bInitialized;
     EReflectPropertyType m_type;
     CComponentEditorProxy* m_pOwner;
     SharePtr<SBasicPropertyInfo>* m_pBasicInfo;

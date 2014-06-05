@@ -71,6 +71,7 @@ CComponentEditorProxy::~CComponentEditorProxy()
     if (GetId() != 0xFFFFFFFF)
     {
         CComponentManager::GetInstance()->DeleteComponent(m_pHostComponent);
+        m_pHostComponent = NULL;
     }
 }
 
@@ -552,5 +553,14 @@ void CComponentEditorProxy::Initialize()
     for (size_t i = 0; i < (*m_pProperties).size(); ++i)
     {
         (*m_pProperties)[i]->Initialize();
+    }
+}
+
+void CComponentEditorProxy::Uninitialize()
+{
+    super::Uninitialize();
+    for (size_t i = 0; i < (*m_pProperties).size(); ++i)
+    {
+        (*m_pProperties)[i]->Uninitialize();
     }
 }

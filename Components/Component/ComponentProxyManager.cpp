@@ -441,6 +441,17 @@ const std::map<size_t, TString>& CComponentProxyManager::GetAbstractComponentNam
     return m_abstractComponentNameMap;
 }
 
+void CComponentProxyManager::Uninitialize()
+{
+    super::Uninitialize();
+    for (std::map<size_t, CComponentBase*>::iterator iter = m_pComponentTemplateMap->begin(); iter != m_pComponentTemplateMap->end(); ++iter)
+    {
+        BEATS_ASSERT(iter->second != NULL);
+        BEATS_ASSERT(iter->second->IsInitialized());
+        iter->second->Uninitialize();
+    }
+}
+
 void CComponentProxyManager::LoadTemplateDataFromXML(const TCHAR* pszPath)
 {
     char tmp[MAX_PATH] = {0};

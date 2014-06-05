@@ -6,7 +6,8 @@
 #include "Component/ComponentProxyManager.h"
 
 CPropertyDescriptionBase::CPropertyDescriptionBase(EReflectPropertyType type)
-: m_type(type)
+: m_bInitialized(false)
+, m_type(type)
 , m_pOwner(NULL)
 , m_pBasicInfo(new SharePtr<SBasicPropertyInfo>(new SBasicPropertyInfo(true, 0xFFFFFFFF)))
 , m_pParent(NULL)
@@ -19,7 +20,8 @@ CPropertyDescriptionBase::CPropertyDescriptionBase(EReflectPropertyType type)
 }
 
 CPropertyDescriptionBase::CPropertyDescriptionBase(const CPropertyDescriptionBase& rRef)
-: m_type(rRef.GetType())
+: m_bInitialized(false)
+, m_type(rRef.GetType())
 , m_pOwner(NULL)
 , m_pBasicInfo(new SharePtr<SBasicPropertyInfo>(*rRef.m_pBasicInfo))
 , m_pParent(NULL)
@@ -206,7 +208,14 @@ void CPropertyDescriptionBase::Save()
 
 void CPropertyDescriptionBase::Initialize()
 {
+    BEATS_ASSERT(!m_bInitialized, _T("Can't initialize a property twice!"));
+    m_bInitialized = true;
+}
 
+void CPropertyDescriptionBase::Uninitialize()
+{
+    BEATS_ASSERT(m_bInitialized, _T("Can't Uninitialize a property twice!"));
+    m_bInitialized = false;
 }
 
 bool CPropertyDescriptionBase::IsContainerProperty()

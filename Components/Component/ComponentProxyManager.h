@@ -13,6 +13,7 @@ typedef CComponentGraphic* (*TCreateGraphicFunc)();
 
 class CComponentProxyManager : public CComponentManagerBase
 {
+    typedef CComponentManagerBase super;
     BEATS_DECLARE_SINGLETON(CComponentProxyManager);
     typedef CPropertyDescriptionBase* (*TCreatePropertyFunc)(CSerializer* serializer);
 public:
@@ -47,6 +48,7 @@ public:
     void SetCurrReflectDependency(CDependencyDescription* pDependency);
 
     const std::map<size_t, TString>& GetAbstractComponentNameMap() const;
+    virtual void Uninitialize() override;
 
 private:
     void LoadTemplateDataFromXML(const TCHAR* pWorkingPath);

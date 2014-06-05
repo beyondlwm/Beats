@@ -37,10 +37,6 @@ CPtrPropertyDescription::CPtrPropertyDescription(const CPtrPropertyDescription& 
 
 CPtrPropertyDescription::~CPtrPropertyDescription()
 {
-    if (GetInstanceComponent() != NULL)
-    {
-        DestroyInstance(false);
-    }
     DestoryValue<TString>();
 }
 
@@ -127,7 +123,7 @@ bool CPtrPropertyDescription::CreateInstance(bool bCallInitFunc/* = true*/)
         {
             AddChild((*propertyPool)[i]);
         }
-        UpdateDisplayString(uInstanceGuid);
+        UpdateDisplayString(uInstanceGuid, true);
         bRet = true;
     }
 
@@ -155,8 +151,8 @@ bool CPtrPropertyDescription::DestroyInstance(bool bDeleteHostComponent)
         bRet = true;
     }
     SetDerivedGuid(0);
-    UpdateDisplayString(m_uComponentGuid);
-
+    // if bDeleteHostComponent is false, the host component will not be updated in SetValueWithType, because this time the m_pInstance is uninitialized!
+    UpdateDisplayString(m_uComponentGuid, bDeleteHostComponent);
     return bRet;
 }
 
@@ -260,11 +256,20 @@ void CPtrPropertyDescription::Initialize()
     TString* pDefaultValue = (TString*)m_valueArray[eVT_DefaultValue];
     if (pDefaultValue->length() == 0)
     {
-        UpdateDisplayString(m_uComponentGuid);
+        UpdateDisplayString(m_uComponentGuid, true);
     }
 }
 
-void CPtrPropertyDescription::UpdateDisplayString(size_t uComponentGuid)
+void CPtrPropertyDescription::Uninitialize()
+{
+    super::Uninitialize();
+    if (GetInstanceComponent() != NULL)
+    {
+        DestroyInstance(false);
+    }
+}
+
+void CPtrPropertyDescription::UpdateDisplayString(size_t uComponentGuid, bool bForceUpdateHostComponent)
 {
     TString strComponentName = CComponentProxyManager::GetInstance()->QueryComponentName(uComponentGuid);
     BEATS_ASSERT(strComponentName.length() > 0, _T("Can't Find the component name of GUID: 0x%x"), uComponentGuid);
@@ -272,6 +277,6 @@ void CPtrPropertyDescription::UpdateDisplayString(size_t uComponentGuid)
     TString valueStr(value);
     for (size_t i = eVT_DefaultValue; i < eVT_Count; ++i)
     {
-        SetValueWithType(&valueStr, (EValueType)i);
+        SetValueWithType(&valueStr, (EValueType)i, bForceUpdateHostComponent);
     }
 }
