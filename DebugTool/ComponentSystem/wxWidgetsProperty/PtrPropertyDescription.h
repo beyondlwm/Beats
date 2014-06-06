@@ -40,7 +40,7 @@ public:
     virtual void Uninitialize() override;
 
 private:
-    void UpdateDisplayString(size_t uComponentGuid, bool bForceUpdateHostComponent);
+    void UpdateDisplayString(size_t uComponentGuid);
 
 private:
     size_t m_uDerivedGuid;

@@ -98,7 +98,10 @@ inline void DeserializeVarialble(T*& value, CSerializer* pSerializer)
         else
         {
 #ifdef EDITOR_MODE
+            bool bReflectCheckFlag = CComponentProxyManager::GetInstance()->GetReflectCheckFlag();
+            CComponentProxyManager::GetInstance()->SetReflectCheckFlag(false);
             value->ReflectData(*pSerializer);
+            CComponentProxyManager::GetInstance()->SetReflectCheckFlag(bReflectCheckFlag);
 #else
             BEATS_ASSERT(false, _T("A pointer should be initialize to NULL before it is deserialized!"));
 #endif
@@ -485,7 +488,7 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
                     DeserializeVarialble(property, &serializer);\
                     CComponentProxyManager::GetInstance()->SetReflectCheckFlag(bReflectCheckFlag);\
                 }\
-                if (pDescriptionBase != NULL)\
+                if (pDescriptionBase != NULL && bReflectCheckFlag)\
                 {\
                     return;\
                 }\
@@ -497,9 +500,10 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
     {\
         CPropertyDescriptionBase* pDescriptionBase = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();\
         CDependencyDescription* pDependency = CComponentProxyManager::GetInstance()->GetCurrReflectDependency();\
-        if (pDescriptionBase  == NULL)\
+        bool bReflectCheckFlag = CComponentProxyManager::GetInstance()->GetReflectCheckFlag();\
+        if (!bReflectCheckFlag || pDescriptionBase == NULL)\
         {\
-            if (pDependency == NULL || _tcscmp(pDependency->GetVariableName(), _T(#ptrProperty)) == 0)\
+            if (!bReflectCheckFlag || pDependency == NULL || _tcscmp(pDependency->GetVariableName(), _T(#ptrProperty)) == 0)\
             {\
                 size_t uLineCount = 0;\
                 serializer >> uLineCount;\
@@ -527,6 +531,10 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
                         ptrProperty = NULL;\
                     }\
                 }\
+                if (pDependency != NULL && bReflectCheckFlag)\
+                {\
+                    return;\
+                }\
             }\
         }\
     }
@@ -535,10 +543,13 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
     {\
         CPropertyDescriptionBase* pDescriptionBase = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();\
         CDependencyDescription* pDependencyList = CComponentProxyManager::GetInstance()->GetCurrReflectDependency();\
-        if (pDescriptionBase == NULL)\
+        bool bReflectCheckFlag = CComponentProxyManager::GetInstance()->GetReflectCheckFlag();\
+        if (!bReflectCheckFlag || pDescriptionBase  == NULL)\
         {\
-            if (pDependencyList == NULL || _tcscmp(pDependencyList->GetVariableName(), _T(#ptrProperty)) == 0)\
+            if (!bReflectCheckFlag || pDependency == NULL || _tcscmp(pDependency->GetVariableName(), _T(#ptrProperty)) == 0)\
             {\
+                size_t uLineCount = 0;\
+                serializer >> uLineCount;\
                 bool bNeedSnyc = true;\
                 if (pDependencyList != NULL)\
                 {\
@@ -546,8 +557,6 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
                 }\
                 if (bNeedSnyc)\
                 {\
-                    size_t uLineCount = 0;\
-                    serializer >> uLineCount;\
                     ptrProperty.clear();\
                     for (size_t i = 0; i < uLineCount; ++i)\
                     {\
@@ -555,6 +564,10 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
                         serializer >> uInstanceId >> uGuid;\
                         CComponentManager::GetInstance()->AddDependencyResolver(NULL, i , uGuid, uInstanceId, &ptrProperty, true);\
                     }\
+                }\
+                if (pDependencyList != NULL && bReflectCheckFlag)\
+                {\
+                    return;\
                 }\
             }\
         }\

@@ -145,7 +145,10 @@ CComponentBase* CComponentManagerBase::CreateComponentByRef( CComponentBase* pCo
 
 bool CComponentManagerBase::DeleteComponent( CComponentBase* pComponent )
 {
-    pComponent->Uninitialize();
+    if (pComponent->IsInitialized())
+    {
+        pComponent->Uninitialize();
+    }
     UnregisterInstance(pComponent);
     m_pIdManager->RecycleId(pComponent->GetId());
     BEATS_SAFE_DELETE(pComponent);

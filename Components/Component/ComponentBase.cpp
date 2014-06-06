@@ -29,11 +29,13 @@ bool CComponentBase::IsInitialized()
 
 void CComponentBase::Initialize()
 {
+    BEATS_ASSERT(!m_bInitialize, _T("Can't initialize a component twice!"));
     m_bInitialize = true;
 }
 
 void CComponentBase::Uninitialize()
 {
+    BEATS_ASSERT(m_bInitialize, _T("Can't uninitialize a component twice!"));
     m_bInitialize = false;
 }
 

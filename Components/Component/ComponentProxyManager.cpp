@@ -81,6 +81,9 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /
                     if (pProxyInstance->GetHostComponent() != NULL)
                     {
                         pProxyInstance->GetHostComponent()->Initialize();
+                        BEATS_ASSERT(pProxyInstance->GetHostComponent()->IsInitialized(),
+                            _T("Initialize flag is not set for component %s£¡ check your Initilaize function!"),
+                            pProxyInstance->GetClassStr());
                     }
                     pProxyInstance->Initialize();
                 }

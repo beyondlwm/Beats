@@ -123,7 +123,7 @@ bool CPtrPropertyDescription::CreateInstance(bool bCallInitFunc/* = true*/)
         {
             AddChild((*propertyPool)[i]);
         }
-        UpdateDisplayString(uInstanceGuid, true);
+        UpdateDisplayString(uInstanceGuid);
         bRet = true;
     }
 
@@ -133,7 +133,7 @@ bool CPtrPropertyDescription::CreateInstance(bool bCallInitFunc/* = true*/)
 bool CPtrPropertyDescription::DestroyInstance(bool bDeleteHostComponent)
 {
     bool bRet = false;
-
+    m_bHasInstance = false;
     if (m_pInstance != NULL)
     {
         if (bDeleteHostComponent)
@@ -147,12 +147,13 @@ bool CPtrPropertyDescription::DestroyInstance(bool bDeleteHostComponent)
         }
         BEATS_SAFE_DELETE(m_pInstance);
         m_pChildren->clear();
-        m_bHasInstance = false;
+        SetDerivedGuid(0);
+        if (bDeleteHostComponent)
+        {
+            UpdateDisplayString(m_uComponentGuid);
+        }
         bRet = true;
     }
-    SetDerivedGuid(0);
-    // if bDeleteHostComponent is false, the host component will not be updated in SetValueWithType, because this time the m_pInstance is uninitialized!
-    UpdateDisplayString(m_uComponentGuid, bDeleteHostComponent);
     return bRet;
 }
 
@@ -194,12 +195,21 @@ void CPtrPropertyDescription::LoadFromXML( TiXmlElement* pNode )
             this->GetInstanceComponent()->LoadFromXML(pNode);
             // Update host component with the data from XML.
             this->GetInstanceComponent()->UpdateHostComponent();
-            // Force sync this property instance to the variable of host component.
+            // Force sync this property instance to the variable of host component,because we have already load the value in super::LoadFromXML(pNode);.
             SetValueWithType(pStrValue, eVT_CurrentValue, true);
-            //Call init after data is loaded from XML.
-            if (this->GetInstanceComponent()->GetHostComponent() != NULL)
+            //Call init after data is loaded from XML (except template component).
+            CPropertyDescriptionBase* pRootProperty = this;
+            while (pRootProperty->GetParent() != NULL)
             {
-                this->GetInstanceComponent()->GetHostComponent()->Initialize();
+                pRootProperty = pRootProperty->GetParent();
+            }
+            bool bIsTemplateProperty = pRootProperty->GetOwner()->GetId() == 0xFFFFFFFF;
+            if (!bIsTemplateProperty)
+            {
+                if (this->GetInstanceComponent()->GetHostComponent() != NULL)
+                {
+                    this->GetInstanceComponent()->GetHostComponent()->Initialize();
+                }
             }
             this->GetInstanceComponent()->Initialize();
         }
@@ -256,7 +266,7 @@ void CPtrPropertyDescription::Initialize()
     TString* pDefaultValue = (TString*)m_valueArray[eVT_DefaultValue];
     if (pDefaultValue->length() == 0)
     {
-        UpdateDisplayString(m_uComponentGuid, true);
+        UpdateDisplayString(m_uComponentGuid);
     }
 }
 
@@ -265,11 +275,27 @@ void CPtrPropertyDescription::Uninitialize()
     super::Uninitialize();
     if (GetInstanceComponent() != NULL)
     {
+        if (m_pInstance != NULL && m_pInstance->GetHostComponent() != NULL)
+        {
+            // We destroy the host component only when it is a template property.
+            CPropertyDescriptionBase* pRootProperty = this;
+            while (pRootProperty->GetParent() != NULL)
+            {
+                pRootProperty = pRootProperty->GetParent();
+            }
+            bool bIsTemplateProperty = pRootProperty->GetOwner()->GetId() == 0xFFFFFFFF;
+            if (bIsTemplateProperty)
+            {
+                CComponentBase* pHostComponent = m_pInstance->GetHostComponent();
+                BEATS_SAFE_DELETE(pHostComponent);
+                m_pInstance->SetHostComponent(NULL);
+            }
+        }
         DestroyInstance(false);
     }
 }
 
-void CPtrPropertyDescription::UpdateDisplayString(size_t uComponentGuid, bool bForceUpdateHostComponent)
+void CPtrPropertyDescription::UpdateDisplayString(size_t uComponentGuid)
 {
     TString strComponentName = CComponentProxyManager::GetInstance()->QueryComponentName(uComponentGuid);
     BEATS_ASSERT(strComponentName.length() > 0, _T("Can't Find the component name of GUID: 0x%x"), uComponentGuid);
@@ -277,6 +303,6 @@ void CPtrPropertyDescription::UpdateDisplayString(size_t uComponentGuid, bool bF
     TString valueStr(value);
     for (size_t i = eVT_DefaultValue; i < eVT_Count; ++i)
     {
-        SetValueWithType(&valueStr, (EValueType)i, bForceUpdateHostComponent);
+        SetValueWithType(&valueStr, (EValueType)i);
     }
 }

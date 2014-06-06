@@ -54,13 +54,7 @@ CComponentEditorProxy::~CComponentEditorProxy()
     while (m_pBeConnectedDependencyLines->size() > 0)
     {
         CDependencyDescriptionLine* pLine = (*m_pBeConnectedDependencyLines)[0];
-        CComponentEditorProxy* pProxyNeedUpdate = pLine->GetOwnerDependency()->GetOwner();
-        // Delete the line before update the proxy, or the proxy doesn't know this dependency is deleted!
         BEATS_SAFE_DELETE(pLine);
-        if (pProxyNeedUpdate != NULL)
-        {
-            pProxyNeedUpdate->UpdateHostComponent();
-        }
     }
     BEATS_SAFE_DELETE(m_pBeConnectedDependencyLines);
 

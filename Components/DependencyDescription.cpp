@@ -309,8 +309,10 @@ void CDependencyDescription::OnDependencyChanged()
                 Serialize(serializer);
                 CComponentProxyManager::GetInstance()->SetCurrReflectDependency(this);
                 BEATS_ASSERT(CComponentProxyManager::GetInstance()->GetCurrReflectDescription() == NULL);
+                CComponentProxyManager::GetInstance()->SetReflectCheckFlag(true);
                 GetOwner()->GetHostComponent()->ReflectData(serializer);
                 CComponentManager::GetInstance()->ResolveDependency();
+                CComponentProxyManager::GetInstance()->SetReflectCheckFlag(false);
                 CComponentProxyManager::GetInstance()->SetCurrReflectDependency(NULL);
             }
         }
