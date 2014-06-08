@@ -161,7 +161,7 @@ void CComponentProject::ResolveIdForFile(size_t uFileId, size_t idToResolve, boo
             int iNewID = CComponentProxyManager::GetInstance()->GetIdManager()->GenerateId();
             TiXmlElement* pRootElement = document.RootElement();
             TiXmlElement* pComponentListNode = pRootElement->FirstChildElement("Components");
-            std::vector<CComponentEditorProxy*> copyOpenComponents;
+            std::vector<CComponentProxy*> copyOpenComponents;
             if (pComponentListNode != NULL )
             {
                 TiXmlElement* pComponentElement = pComponentListNode->FirstChildElement("Component");

@@ -21,7 +21,7 @@ STriggerContent::~STriggerContent()
 
 }
 
-bool STriggerContent::IsOk(CComponentEditorProxy* pComponent)
+bool STriggerContent::IsOk(CComponentProxy* pComponent)
 {
     CWxwidgetsPropertyBase* pProperty = static_cast<CWxwidgetsPropertyBase*>(pComponent->GetPropertyDescription(m_strPropertyName.c_str()));
     bool bRet = pProperty != NULL;
@@ -298,7 +298,7 @@ void CPropertyTrigger::ConvertExpression(const TString& rawString, std::vector<T
     }
 }
 
-bool CPropertyTrigger::IsOk(CComponentEditorProxy* pComponent)
+bool CPropertyTrigger::IsOk(CComponentProxy* pComponent)
 {
     if (IsInitialized())
     {

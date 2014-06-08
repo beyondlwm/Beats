@@ -4,13 +4,7 @@
     <ClCompile Include="Component\ComponentBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Component\ComponentEditorProxy.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Component\ComponentGraphic.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Component\ComponentManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Component\ComponentManagerBase.cpp">
@@ -37,18 +31,21 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Component\ComponentProxy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Component\ComponentInstance.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Component\ComponentInstanceManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Component\ComponentBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Component\ComponentEditorProxy.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Component\ComponentGraphic.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Component\ComponentManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Component\ComponentManagerBase.h">
@@ -82,6 +79,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Component\ComponentProxy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Component\ComponentInstance.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Component\ComponentInstanceManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -82,7 +82,7 @@ enum EComponentTexture
     eCT_Count,
     eCT_Force32Bit = 0xFFFFFFFF
 };
-class CComponentEditorProxy;
+class CComponentProxy;
 class CDependencyDescription;
 
 class COMPONENTS_DLL_DECL CComponentGraphic
@@ -103,8 +103,8 @@ public:
 
     size_t GetWidth();
     size_t GetHeight();
-    void SetOwner(CComponentEditorProxy* pOwner);
-    CComponentEditorProxy* GetOwner() const;
+    void SetOwner(CComponentProxy* pOwner);
+    CComponentProxy* GetOwner() const;
     void CaculateSize();
 
     virtual void GetDependencyPosition(size_t uDependencyIndex, int* pOutX, int* pOutY);
@@ -118,7 +118,7 @@ protected:
     virtual void DrawSelectedRect(float cellSize) = 0;
 
 protected:
-    CComponentEditorProxy* m_pOwner;
+    CComponentProxy* m_pOwner;
     size_t m_width;
     size_t m_height;
     int m_gridPosX;

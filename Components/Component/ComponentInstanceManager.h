@@ -6,7 +6,7 @@
 #include "ComponentManagerBase.h"
 
 class CComponentBase;
-class CComponentEditorProxy;
+class CComponentProxy;
 class CIdManager;
 class CPropertyDescriptionBase;
 class TiXmlElement;
@@ -17,9 +17,9 @@ struct SDependencyResolver;
 class CComponentProject;
 class CComponentGraphic;
 
-class COMPONENTS_DLL_DECL CComponentManager : public CComponentManagerBase
+class COMPONENTS_DLL_DECL CComponentInstanceManager : public CComponentManagerBase
 {
-    BEATS_DECLARE_SINGLETON(CComponentManager);
+    BEATS_DECLARE_SINGLETON(CComponentInstanceManager);
 public:
     void SerializeTemplateData(CSerializer& serializer);
     size_t GetVersion();

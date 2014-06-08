@@ -4,7 +4,7 @@
 #include "../expdef.h"
 #include "PropertyPublic.h"
 
-class CComponentEditorProxy;
+class CComponentProxy;
 class CSerializer;
 class TiXmlElement;
 template<typename T>
@@ -22,8 +22,8 @@ public:
     EReflectPropertyType GetType() const;
     void SetType(EReflectPropertyType type);
 
-    CComponentEditorProxy* GetOwner() const;
-    void SetOwner(CComponentEditorProxy* pOwner);
+    CComponentProxy* GetOwner() const;
+    void SetOwner(CComponentProxy* pOwner);
 
     CPropertyDescriptionBase* GetParent() const;
     void SetParent(CPropertyDescriptionBase* pParent);
@@ -76,7 +76,7 @@ public:
     virtual bool IsContainerProperty();
     //Editor mode only
     virtual void SetValueList(const std::vector<TString>& valueList);
-    virtual CComponentEditorProxy* GetInstanceComponent() const;
+    virtual CComponentProxy* GetInstanceComponent() const;
 
     virtual CPropertyDescriptionBase* Clone(bool bCloneValue);
     virtual CPropertyDescriptionBase* CreateNewInstance() = 0;
@@ -104,7 +104,7 @@ protected:
 protected:
     bool m_bInitialized;
     EReflectPropertyType m_type;
-    CComponentEditorProxy* m_pOwner;
+    CComponentProxy* m_pOwner;
     SharePtr<SBasicPropertyInfo>* m_pBasicInfo;
     void* m_valueArray[eVT_Count];
     CPropertyDescriptionBase* m_pParent;

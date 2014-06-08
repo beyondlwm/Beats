@@ -2,7 +2,7 @@
 #define BEATS_COMPONENTS_PROPERTY_WXWIDGETSIMPLEMENT_PROPERTYTRIGGER_H__INCLUDE
 
 class CWxwidgetsPropertyBase;
-class CComponentEditorProxy;
+class CComponentProxy;
 
 // NOTICE: Keep the order: longer string is at the front, so we will check >= before >.
 enum ECompareOperator
@@ -34,7 +34,7 @@ struct STriggerContent
 {
     STriggerContent(const TString& strProperty, ECompareOperator op, const TString& refValue);
     ~STriggerContent();
-    bool IsOk(CComponentEditorProxy* pComponent);
+    bool IsOk(CComponentProxy* pComponent);
     const TString& GetPropertyName()const {return m_strPropertyName;};
 private:
     template<typename T>
@@ -79,7 +79,7 @@ public:
     CPropertyTrigger(const TString& strRawString);
     ~CPropertyTrigger();
 
-    bool IsOk(CComponentEditorProxy* pComponent);
+    bool IsOk(CComponentProxy* pComponent);
     void Initialize();
     bool IsInitialized();
     const std::vector<STriggerContent*>& GetContent() const;

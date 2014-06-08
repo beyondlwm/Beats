@@ -53,12 +53,12 @@ void CPropertyDescriptionBase::SetType(EReflectPropertyType type)
     m_type = type;
 }
 
-CComponentEditorProxy* CPropertyDescriptionBase::GetOwner() const
+CComponentProxy* CPropertyDescriptionBase::GetOwner() const
 {
     return m_pOwner;
 }
 
-void CPropertyDescriptionBase::SetOwner(CComponentEditorProxy* pOwner)
+void CPropertyDescriptionBase::SetOwner(CComponentProxy* pOwner)
 {
     m_pOwner = pOwner;
 }
@@ -228,7 +228,7 @@ void CPropertyDescriptionBase::SetValueList(const std::vector<TString>& /*valueL
     // Do nothing.
 }
 
-CComponentEditorProxy* CPropertyDescriptionBase::GetInstanceComponent() const
+CComponentProxy* CPropertyDescriptionBase::GetInstanceComponent() const
 {
     return NULL;
 }

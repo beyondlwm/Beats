@@ -331,7 +331,7 @@ void CComponentRenderWindow::RenderComponents()
         std::map<size_t, CComponentBase*>::iterator subIter = iter->second->begin();
         for (; subIter != iter->second->end(); ++subIter)
         {
-            CComponentEditorProxy* pComponent = static_cast<CComponentEditorProxy*>(subIter->second);
+            CComponentProxy* pComponent = static_cast<CComponentProxy*>(subIter->second);
             CComponentGraphic* pGraphic = pComponent->GetGraphics();
             if (pGraphic)
             {
@@ -362,7 +362,7 @@ void CComponentRenderWindow::RenderComponents()
 
 void CComponentRenderWindow::RenderDraggingDependencyLine()
 {
-    CComponentEditorProxy* pSelectedComponent = CBDTWxApp::GetBDTWxApp()->GetMainFrame()->GetSelectedComponent();
+    CComponentProxy* pSelectedComponent = CBDTWxApp::GetBDTWxApp()->GetMainFrame()->GetSelectedComponent();
     if (wxGetMouseState().LeftIsDown() && pSelectedComponent)
     {
         if (m_pDraggingDependency != NULL)
@@ -462,7 +462,7 @@ void CComponentRenderWindow::OnMouseMove( wxMouseEvent& event )
             m_pConnectComponent = NULL;
             
             //Drag Component
-            CComponentEditorProxy* pSelectedComponent = CBDTWxApp::GetBDTWxApp()->GetMainFrame()->GetSelectedComponent();
+            CComponentProxy* pSelectedComponent = CBDTWxApp::GetBDTWxApp()->GetMainFrame()->GetSelectedComponent();
             if (pSelectedComponent != NULL)
             {
                 if (m_pDraggingDependency == NULL)
@@ -492,7 +492,7 @@ void CComponentRenderWindow::OnMouseMove( wxMouseEvent& event )
                 else
                 {
                     EComponentAeraRectType aeraType;
-                    CComponentEditorProxy* pComponentMoveTo = HitTestForComponent(pos, &aeraType);
+                    CComponentProxy* pComponentMoveTo = HitTestForComponent(pos, &aeraType);
                     if (aeraType == eCART_Connection)
                     {
                         if (m_pDraggingDependency->IsMatch(pComponentMoveTo) && pComponentMoveTo != m_pDraggingDependency->GetOwner() && !m_pDraggingDependency->IsInDependency(pComponentMoveTo))
@@ -520,7 +520,7 @@ void CComponentRenderWindow::OnMouseLeftDown( wxMouseEvent& event )
         m_startDragPos.y = pos.y;
         EComponentAeraRectType aeraType;
         void* pData = NULL;
-        CComponentEditorProxy* pClickedComponent = HitTestForComponent(pos, &aeraType, &pData);
+        CComponentProxy* pClickedComponent = HitTestForComponent(pos, &aeraType, &pData);
 
         CBDTWxFrame* pMainFrame = CBDTWxApp::GetBDTWxApp()->GetMainFrame();
         if (pMainFrame)
@@ -585,7 +585,7 @@ void CComponentRenderWindow::OnMouseRightUp( wxMouseEvent& event )
     if (CComponentProxyManager::GetInstance()->GetProject()->GetRootDirectory() != NULL)
     {
         wxPoint pos = event.GetPosition();
-        CComponentEditorProxy* pClickedComponent = HitTestForComponent(pos);
+        CComponentProxy* pClickedComponent = HitTestForComponent(pos);
         CBDTWxFrame* pMainFrame = CBDTWxApp::GetBDTWxApp()->GetMainFrame();
         if (pMainFrame)
         {
@@ -620,12 +620,12 @@ LPD3DXFONT CComponentRenderWindow::GetRenderFont() const
     return m_pDXFont;
 }
 
-void CComponentRenderWindow::SetDraggingComponent( CComponentEditorProxy* pDraggingComponent )
+void CComponentRenderWindow::SetDraggingComponent( CComponentProxy* pDraggingComponent )
 {
     m_pDraggingComponent = pDraggingComponent;
 }
 
-CComponentEditorProxy* CComponentRenderWindow::GetDraggingComponent()
+CComponentProxy* CComponentRenderWindow::GetDraggingComponent()
 {
     return m_pDraggingComponent;
 }
@@ -653,14 +653,14 @@ void CComponentRenderWindow::ConvertWindowPosToWorldPos(const wxPoint& windowPos
     }
 }
 
-CComponentEditorProxy* CComponentRenderWindow::HitTestForComponent( wxPoint pos, EComponentAeraRectType* pOutAreaType/* = NULL*/, void** pReturnData /* = NULL*/ )
+CComponentProxy* CComponentRenderWindow::HitTestForComponent( wxPoint pos, EComponentAeraRectType* pOutAreaType/* = NULL*/, void** pReturnData /* = NULL*/ )
 {
     float fClickWorldPosX = 0;
     float fClickWorldPosY = 0;
     ConvertWindowPosToWorldPos(pos, &fClickWorldPosX, &fClickWorldPosY);
     //BEATS_PRINT(_T("Left Click at window pos :%d, %d worldPos: %f, %f\n"), pos.x, pos.y, fClickWorldPosX, fClickWorldPosY);
     bool bFoundResult = false;
-    CComponentEditorProxy* pClickedComponent = NULL;
+    CComponentProxy* pClickedComponent = NULL;
     // Find the component for select. reverse iterator the instance map, because the last one will always be rendered at the top, so we will select top first.
     const std::map<size_t, std::map<size_t, CComponentBase*>*>* pInstanceMap = CComponentProxyManager::GetInstance()->GetInstance()->GetComponentInstanceMap();
     std::map<size_t, std::map<size_t, CComponentBase*>*>::const_reverse_iterator iter = pInstanceMap->rbegin();
@@ -669,7 +669,7 @@ CComponentEditorProxy* CComponentRenderWindow::HitTestForComponent( wxPoint pos,
         std::map<size_t, CComponentBase*>::const_reverse_iterator subIter = iter->second->rbegin();
         for (; subIter != iter->second->rend() && !bFoundResult; ++subIter)
         {
-            CComponentGraphic* pGraphics = static_cast<CComponentEditorProxy*>(subIter->second)->GetGraphics();
+            CComponentGraphic* pGraphics = static_cast<CComponentProxy*>(subIter->second)->GetGraphics();
             int x = 0;
             int y = 0;
             pGraphics->GetPosition(&x, &y);    // Left top pos.
@@ -684,7 +684,7 @@ CComponentEditorProxy* CComponentRenderWindow::HitTestForComponent( wxPoint pos,
                 float fDelatY = fWorldPosY - fClickWorldPosY;
                 if (fDelatY > 0 && fDelatY < height)
                 {
-                    pClickedComponent = static_cast<CComponentEditorProxy*>(subIter->second);
+                    pClickedComponent = static_cast<CComponentProxy*>(subIter->second);
                     if (pOutAreaType != NULL)
                     {
                         D3DXVECTOR2 worldPos;
@@ -700,7 +700,7 @@ CComponentEditorProxy* CComponentRenderWindow::HitTestForComponent( wxPoint pos,
                 }
             }
             //check dependency line.
-            CComponentEditorProxy* pComponentProxy = static_cast<CComponentEditorProxy*>(subIter->second);
+            CComponentProxy* pComponentProxy = static_cast<CComponentProxy*>(subIter->second);
             for (size_t i = 0; i < pComponentProxy->GetDependencies().size() && !bFoundResult; ++i)
             {
                 CDependencyDescription* pDependency = pComponentProxy->GetDependency(i);
@@ -729,7 +729,7 @@ CComponentEditorProxy* CComponentRenderWindow::HitTestForComponent( wxPoint pos,
 
 void CComponentRenderWindow::OnComponentMenuClicked( wxMenuEvent& event )
 {
-    CComponentEditorProxy* pComponentProxy = m_pMainFrame->GetSelectedComponent();
+    CComponentProxy* pComponentProxy = m_pMainFrame->GetSelectedComponent();
     switch (event.GetId())
     {
     case eCMT_Delete:
@@ -744,14 +744,14 @@ void CComponentRenderWindow::OnComponentMenuClicked( wxMenuEvent& event )
             if (pComponentProxy != m_pCopyComponent)
             {
                 BEATS_SAFE_DELETE(m_pCopyComponent);
-                m_pCopyComponent = static_cast<CComponentEditorProxy*>(pComponentProxy->Clone(true, NULL, 0xFFFFFFFF));
+                m_pCopyComponent = static_cast<CComponentProxy*>(pComponentProxy->Clone(true, NULL, 0xFFFFFFFF));
             }
         }
         break;
     case eCMT_Paste:
         {
             BEATS_ASSERT(pComponentProxy == NULL && m_pCopyComponent != NULL, _T("Impossible to paste component from menu when there is a component selected or no copy component."));
-            CComponentEditorProxy* pNewComponentEditorProxy = static_cast<CComponentEditorProxy*>(CComponentProxyManager::GetInstance()->CreateComponentByRef(m_pCopyComponent, true));
+            CComponentProxy* pNewComponentEditorProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->CreateComponentByRef(m_pCopyComponent, true));
             wxPoint mouseWindowPos = wxGetMousePosition();
             mouseWindowPos = ScreenToClient(mouseWindowPos);
             D3DXVECTOR2 mouseWorldPos;
@@ -780,13 +780,13 @@ void CComponentRenderWindow::OnComponentMenuClicked( wxMenuEvent& event )
                         {
                             m_pMainFrame->ActivateFile(filePath.c_str());
                             CComponentBase* pComponent = CComponentProxyManager::GetInstance()->GetComponentInstance(iComponentId);
-                            m_pMainFrame->SelecteComponent(static_cast<CComponentEditorProxy*>(pComponent));
+                            m_pMainFrame->SelecteComponent(static_cast<CComponentProxy*>(pComponent));
                         }
                     }
                     else
                     {
                         CComponentBase* pComponent = CComponentProxyManager::GetInstance()->GetComponentInstance(iComponentId);
-                        m_pMainFrame->SelecteComponent(static_cast<CComponentEditorProxy*>(pComponent));
+                        m_pMainFrame->SelecteComponent(static_cast<CComponentProxy*>(pComponent));
                     }
 
                 }
@@ -818,13 +818,13 @@ void CComponentRenderWindow::OnKeyPressed(wxKeyEvent& event)
 
 void CComponentRenderWindow::DeleteSelectedComponent()
 {
-    CComponentEditorProxy* pSelectedComponent = m_pMainFrame->GetSelectedComponent();
+    CComponentProxy* pSelectedComponent = m_pMainFrame->GetSelectedComponent();
     if (pSelectedComponent != NULL)
     {
         int iResult = wxMessageBox(_T("真的要删除这个组件吗？"), _T("删除确认"), wxYES_NO | wxCENTRE);
         if (iResult == wxYES)
         {
-            CComponentProxyManager::GetInstance()->DeleteComponent(pSelectedComponent);
+            BEATS_SAFE_DELETE(pSelectedComponent);
             m_pMainFrame->SelecteComponent(NULL);
         }
     }
@@ -851,7 +851,7 @@ void CComponentRenderWindow::UpdateAllDependencyLine()
         std::map<size_t, CComponentBase*>::const_reverse_iterator subIter = iter->second->rbegin();
         for (; subIter != iter->second->rend(); ++subIter)
         {
-            CComponentEditorProxy* pComponent = static_cast<CComponentEditorProxy*>(subIter->second);
+            CComponentProxy* pComponent = static_cast<CComponentProxy*>(subIter->second);
             size_t uDepedencyCount = pComponent->GetDependencies().size();
             for (size_t i = 0; i < uDepedencyCount; ++i)
             {

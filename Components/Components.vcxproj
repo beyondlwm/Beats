@@ -204,12 +204,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Component\ComponentBase.h" />
-    <ClInclude Include="Component\ComponentEditorProxy.h" />
     <ClInclude Include="Component\ComponentGraphic.h" />
-    <ClInclude Include="Component\ComponentManager.h" />
+    <ClInclude Include="Component\ComponentInstance.h" />
+    <ClInclude Include="Component\ComponentInstanceManager.h" />
     <ClInclude Include="Component\ComponentManagerBase.h" />
     <ClInclude Include="Component\ComponentProject.h" />
     <ClInclude Include="Component\ComponentProjectData.h" />
+    <ClInclude Include="Component\ComponentProxy.h" />
     <ClInclude Include="Component\ComponentProxyManager.h" />
     <ClInclude Include="ComponentPublic.h" />
     <ClInclude Include="DependencyDescription.h" />
@@ -219,12 +220,13 @@
     <ClInclude Include="Property\PropertyPublic.h" />
     <ClInclude Include="stdafx.h" />
     <ClCompile Include="Component\ComponentBase.cpp" />
-    <ClCompile Include="Component\ComponentEditorProxy.cpp" />
     <ClCompile Include="Component\ComponentGraphic.cpp" />
-    <ClCompile Include="Component\ComponentManager.cpp" />
+    <ClCompile Include="Component\ComponentInstance.cpp" />
+    <ClCompile Include="Component\ComponentInstanceManager.cpp" />
     <ClCompile Include="Component\ComponentManagerBase.cpp" />
     <ClCompile Include="Component\ComponentProject.cpp" />
     <ClCompile Include="Component\ComponentProjectData.cpp" />
+    <ClCompile Include="Component\ComponentProxy.cpp" />
     <ClCompile Include="Component\ComponentProxyManager.cpp" />
     <ClCompile Include="DependencyDescription.cpp" />
     <ClCompile Include="DependencyDescriptionLine.cpp" />

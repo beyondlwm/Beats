@@ -118,7 +118,7 @@ bool wxPtrButtonEditor::OnEvent( wxPropertyGrid* propGrid,
                     {
                         bool bCreateInstance = pPtrPropertyDescription->CreateInstance();
                         BEATS_ASSERT(bCreateInstance);
-                        CComponentEditorProxy* pCompBase = static_cast<CComponentEditorProxy*>(pPtrPropertyDescription->GetInstanceComponent());
+                        CComponentProxy* pCompBase = static_cast<CComponentProxy*>(pPtrPropertyDescription->GetInstanceComponent());
                         BEATS_ASSERT(pCompBase != NULL);
                         BEATS_ASSERT(pMainFrame != NULL);
                         TString* pStrValue = (TString*)pPtrPropertyDescription->GetValue(eVT_CurrentValue);

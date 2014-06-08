@@ -7,13 +7,13 @@
 #include "Property/PropertyDescriptionBase.h"
 #include "DependencyDescriptionLine.h"
 #include "Component/ComponentProxyManager.h"
-#include "Component/ComponentManager.h"
+#include "Component/ComponentInstanceManager.h"
 #include "Component/ComponentProject.h"
 #include "DependencyDescription.h"
 #include "ComponentGraphic.h"
 #include <string>
 
-CComponentEditorProxy::CComponentEditorProxy(CComponentGraphic* pGraphics)
+CComponentProxy::CComponentProxy(CComponentGraphic* pGraphics)
 : m_uGuid(0)
 , m_uParentGuid(0)
 , m_pGraphics(pGraphics)
@@ -27,7 +27,7 @@ CComponentEditorProxy::CComponentEditorProxy(CComponentGraphic* pGraphics)
     m_pProperties = new std::vector<CPropertyDescriptionBase*>;
 }
 
-CComponentEditorProxy::CComponentEditorProxy(CComponentGraphic* pGraphics, size_t uGuid, size_t uParentGuid, const TCHAR* pszClassName)
+CComponentProxy::CComponentProxy(CComponentGraphic* pGraphics, size_t uGuid, size_t uParentGuid, const TCHAR* pszClassName)
 : m_uGuid(uGuid)
 , m_uParentGuid(uParentGuid)
 , m_pGraphics(pGraphics)
@@ -41,7 +41,7 @@ CComponentEditorProxy::CComponentEditorProxy(CComponentGraphic* pGraphics, size_
     m_pGraphics->SetOwner(this);
 }
 
-CComponentEditorProxy::~CComponentEditorProxy()
+CComponentProxy::~CComponentProxy()
 {
     ClearProperty();
     for (size_t i = 0; i < m_pDependenciesDescription->size(); ++i)
@@ -64,12 +64,12 @@ CComponentEditorProxy::~CComponentEditorProxy()
     BEATS_ASSERT(m_pHostComponent == NULL || m_pHostComponent->GetId() == GetId());
     if (GetId() != 0xFFFFFFFF)
     {
-        CComponentManager::GetInstance()->DeleteComponent(m_pHostComponent);
-        m_pHostComponent = NULL;
+        m_pHostComponent->Uninitialize();
+        BEATS_SAFE_DELETE(m_pHostComponent);
     }
 }
 
-void CComponentEditorProxy::Deserialize( CSerializer& serializer )
+void CComponentProxy::Deserialize( CSerializer& serializer )
 {
     size_t nPropertyCount = 0;
     size_t nDependencyCount = 0;
@@ -113,9 +113,9 @@ void CComponentEditorProxy::Deserialize( CSerializer& serializer )
     }
 }
 
-CComponentBase* CComponentEditorProxy::Clone(bool bCloneValue, CSerializer* /*pSerializer*/, size_t id, bool bCallInitFunc /*= true*/)
+CComponentBase* CComponentProxy::Clone(bool bCloneValue, CSerializer* /*pSerializer*/, size_t id, bool bCallInitFunc /*= true*/)
 {
-    CComponentEditorProxy* pNewInstance = new CComponentEditorProxy(m_pGraphics->Clone(), m_uGuid, m_uParentGuid, m_strClassName.c_str());
+    CComponentProxy* pNewInstance = new CComponentProxy(m_pGraphics->Clone(), m_uGuid, m_uParentGuid, m_strClassName.c_str());
     pNewInstance->SetDisplayName(m_strDisplayName.c_str());
     pNewInstance->SetCatalogName(m_strCatalogName.c_str());
     BEATS_ASSERT(pNewInstance->GetGuid() == GetGuid(), _T("Can't assign between two different type (0x%x and 0x%x) of Reflect Base!"), pNewInstance->GetGuid(), GetGuid());
@@ -137,7 +137,7 @@ CComponentBase* CComponentEditorProxy::Clone(bool bCloneValue, CSerializer* /*pS
     pNewInstance->SetId(id);
     if (m_pHostComponent != NULL)
     {
-        pNewInstance->m_pHostComponent = CComponentManager::GetInstance()->CreateComponentByRef(m_pHostComponent, bCloneValue, id == 0xFFFFFFFF, id);
+        pNewInstance->m_pHostComponent = CComponentInstanceManager::GetInstance()->CreateComponentByRef(m_pHostComponent, bCloneValue, id == 0xFFFFFFFF, id);
     }
     if (bCallInitFunc)
     {
@@ -154,7 +154,7 @@ CComponentBase* CComponentEditorProxy::Clone(bool bCloneValue, CSerializer* /*pS
     return pNewInstance;
 }
 
-void CComponentEditorProxy::Serialize( CSerializer& serializer, EValueType eValueType)
+void CComponentProxy::Serialize( CSerializer& serializer, EValueType eValueType)
 {
     size_t startPos = serializer.GetWritePos();
     size_t totalSize = 0;
@@ -184,37 +184,37 @@ void CComponentEditorProxy::Serialize( CSerializer& serializer, EValueType eValu
     serializer.SetWritePos(totalSize + startPos);
 }
 
-size_t CComponentEditorProxy::GetGuid() const
+size_t CComponentProxy::GetGuid() const
 {
     return m_uGuid;
 }
 
-size_t CComponentEditorProxy::GetParentGuid() const
+size_t CComponentProxy::GetParentGuid() const
 {
     return m_uParentGuid;
 }
 
-const TCHAR* CComponentEditorProxy::GetClassStr() const
+const TCHAR* CComponentProxy::GetClassStr() const
 {
     return m_strClassName.c_str();
 }
 
-const TString& CComponentEditorProxy::GetDisplayName() const
+const TString& CComponentProxy::GetDisplayName() const
 {
     return m_strDisplayName;
 }
 
-void CComponentEditorProxy::SetDisplayName(const TCHAR* pDisplayName)
+void CComponentProxy::SetDisplayName(const TCHAR* pDisplayName)
 {
     m_strDisplayName.assign(pDisplayName);
 }
 
-const TString& CComponentEditorProxy::GetCatalogName() const
+const TString& CComponentProxy::GetCatalogName() const
 {
     return m_strCatalogName;
 }
 
-void CComponentEditorProxy::SetCatalogName(const TCHAR* pCatalogName)
+void CComponentProxy::SetCatalogName(const TCHAR* pCatalogName)
 {
     if (pCatalogName == NULL)
     {
@@ -223,32 +223,32 @@ void CComponentEditorProxy::SetCatalogName(const TCHAR* pCatalogName)
     m_strCatalogName.assign(pCatalogName);
 }
 
-const TString& CComponentEditorProxy::GetUserDefineDisplayName() const
+const TString& CComponentProxy::GetUserDefineDisplayName() const
 {
     return m_strUserDefineDisplayName;
 }
 
-void CComponentEditorProxy::SetUserDefineDisplayName(const TCHAR* pszUserDefineDisplayName)
+void CComponentProxy::SetUserDefineDisplayName(const TCHAR* pszUserDefineDisplayName)
 {
     m_strUserDefineDisplayName.assign(pszUserDefineDisplayName);
 }
 
-CComponentGraphic* CComponentEditorProxy::GetGraphics()
+CComponentGraphic* CComponentProxy::GetGraphics()
 {
     return m_pGraphics;
 }
 
-void CComponentEditorProxy::SetHostComponent(CComponentBase* pComponent)
+void CComponentProxy::SetHostComponent(CComponentBase* pComponent)
 {
     m_pHostComponent = pComponent;
 }
 
-CComponentBase* CComponentEditorProxy::GetHostComponent() const
+CComponentBase* CComponentProxy::GetHostComponent() const
 {
     return m_pHostComponent;
 }
 
-void CComponentEditorProxy::UpdateHostComponent()
+void CComponentProxy::UpdateHostComponent()
 {
     if (m_pHostComponent)
     {
@@ -261,11 +261,11 @@ void CComponentEditorProxy::UpdateHostComponent()
         serializer >> uGuid;
         serializer >> uId;
         m_pHostComponent->ReflectData(serializer);
-        CComponentManager::GetInstance()->ResolveDependency();
+        CComponentInstanceManager::GetInstance()->ResolveDependency();
     }
 }
 
-void CComponentEditorProxy::SaveToXML( TiXmlElement* pNode, bool bSaveOnlyNoneNativePart/* = false*/)
+void CComponentProxy::SaveToXML( TiXmlElement* pNode, bool bSaveOnlyNoneNativePart/* = false*/)
 {
     TiXmlElement* pInstanceElement = new TiXmlElement("Instance");
     pInstanceElement->SetAttribute("Id", (int)GetId());
@@ -298,7 +298,7 @@ void CComponentEditorProxy::SaveToXML( TiXmlElement* pNode, bool bSaveOnlyNoneNa
     pNode->LinkEndChild(pInstanceElement);
 }
 
-void CComponentEditorProxy::LoadFromXML( TiXmlElement* pNode )
+void CComponentProxy::LoadFromXML( TiXmlElement* pNode )
 {
     const char* pFilePath = pNode->GetDocument()->Value();
     TCHAR szFilePath[MAX_PATH];
@@ -424,19 +424,19 @@ void CComponentEditorProxy::LoadFromXML( TiXmlElement* pNode )
     }
 }
 
-CDependencyDescription* CComponentEditorProxy::GetDependency(size_t index)
+CDependencyDescription* CComponentProxy::GetDependency(size_t index)
 {
     BEATS_ASSERT(index < m_pDependenciesDescription->size());
     BEATS_ASSERT((*m_pDependenciesDescription)[index]->GetIndex() == index);
     return (*m_pDependenciesDescription)[index];
 }
 
-const std::vector<CDependencyDescription*>& CComponentEditorProxy::GetDependencies()
+const std::vector<CDependencyDescription*>& CComponentProxy::GetDependencies()
 {
     return *m_pDependenciesDescription;
 }
 
-void CComponentEditorProxy::AddDependencyDescription(CDependencyDescription* pDependencyDesc )
+void CComponentProxy::AddDependencyDescription(CDependencyDescription* pDependencyDesc )
 {
     bool bExisting = false;
     if (pDependencyDesc != NULL)
@@ -466,13 +466,13 @@ void CComponentEditorProxy::AddDependencyDescription(CDependencyDescription* pDe
     }
 }
 
-void CComponentEditorProxy::AddBeConnectedDependencyDescriptionLine( CDependencyDescriptionLine* pDependencyDescLine )
+void CComponentProxy::AddBeConnectedDependencyDescriptionLine( CDependencyDescriptionLine* pDependencyDescLine )
 {
     BEATS_ASSERT(pDependencyDescLine != NULL);
     m_pBeConnectedDependencyLines->push_back(pDependencyDescLine);
 }
 
-void CComponentEditorProxy::RemoveBeConnectedDependencyDescriptionLine( CDependencyDescriptionLine* pDependencyDescLine )
+void CComponentProxy::RemoveBeConnectedDependencyDescriptionLine( CDependencyDescriptionLine* pDependencyDescLine )
 {
     bool bRet = false;
     for (size_t i = 0; i < m_pBeConnectedDependencyLines->size(); ++i)
@@ -489,12 +489,12 @@ void CComponentEditorProxy::RemoveBeConnectedDependencyDescriptionLine( CDepende
     BEATS_ASSERT(bRet);
 }
 
-const std::vector<CDependencyDescriptionLine*>& CComponentEditorProxy::GetBeConnectedDependencyLines()
+const std::vector<CDependencyDescriptionLine*>& CComponentProxy::GetBeConnectedDependencyLines()
 {
     return *m_pBeConnectedDependencyLines;
 }
 
-void CComponentEditorProxy::AddProperty(CPropertyDescriptionBase* pProperty)
+void CComponentProxy::AddProperty(CPropertyDescriptionBase* pProperty)
 {
     if (pProperty != NULL)
     {
@@ -504,7 +504,7 @@ void CComponentEditorProxy::AddProperty(CPropertyDescriptionBase* pProperty)
     m_pProperties->push_back(pProperty);
 }
 
-void CComponentEditorProxy::ClearProperty()
+void CComponentProxy::ClearProperty()
 {
     for (size_t i = 0; i < m_pProperties->size(); ++i)
     {
@@ -513,12 +513,12 @@ void CComponentEditorProxy::ClearProperty()
     m_pProperties->clear();
 }
 
-const std::vector<CPropertyDescriptionBase*>* CComponentEditorProxy::GetPropertyPool() const
+const std::vector<CPropertyDescriptionBase*>* CComponentProxy::GetPropertyPool() const
 {
     return m_pProperties;
 }
 
-CPropertyDescriptionBase* CComponentEditorProxy::GetPropertyDescription(const TCHAR* pszVariableName) const
+CPropertyDescriptionBase* CComponentProxy::GetPropertyDescription(const TCHAR* pszVariableName) const
 {
     CPropertyDescriptionBase* pProperty = NULL;
     for (size_t i = 0; i < m_pProperties->size(); ++i)
@@ -533,7 +533,7 @@ CPropertyDescriptionBase* CComponentEditorProxy::GetPropertyDescription(const TC
     return pProperty;
 }
 
-void CComponentEditorProxy::Save()
+void CComponentProxy::Save()
 {
     for (size_t i = 0; i < (*m_pProperties).size(); ++i)
     {
@@ -541,7 +541,7 @@ void CComponentEditorProxy::Save()
     }
 }
 
-void CComponentEditorProxy::Initialize()
+void CComponentProxy::Initialize()
 {
     super::Initialize();
     for (size_t i = 0; i < (*m_pProperties).size(); ++i)
@@ -550,9 +550,15 @@ void CComponentEditorProxy::Initialize()
     }
 }
 
-void CComponentEditorProxy::Uninitialize()
+void CComponentProxy::Uninitialize()
 {
     super::Uninitialize();
+    size_t uComponentId = GetId();
+    if (uComponentId != 0xFFFFFFFF)
+    {
+        CComponentProxyManager::GetInstance()->UnregisterInstance(this);
+        CComponentProxyManager::GetInstance()->GetIdManager()->RecycleId(uComponentId);
+    }
     for (size_t i = 0; i < (*m_pProperties).size(); ++i)
     {
         (*m_pProperties)[i]->Uninitialize();

@@ -6,7 +6,7 @@
 #include "Utility/StringHelper/StringHelper.h"
 #include "Component/ComponentEditorProxy.h"
 #include "Component/ComponentProxyManager.h"
-#include "Component/ComponentManager.h"
+#include "Component/ComponentInstanceManager.h"
 #include "Property/PropertyDescriptionBase.h"
 #include "Utility/Serializer/Serializer.h"
 
@@ -88,7 +88,7 @@ inline void DeserializeVarialble(T*& value, CSerializer* pSerializer)
             else
             {
 #endif
-                value = dynamic_cast<T*>(CComponentManager::GetInstance()->CreateComponent(uGuid, false, true, 0xFFFFFFFF, false, pSerializer));
+                value = dynamic_cast<T*>(CComponentInstanceManager::GetInstance()->CreateComponent(uGuid, false, true, 0xFFFFFFFF, false, pSerializer));
                 BEATS_ASSERT(uStartPos + uDataSize == pSerializer->GetReadPos(), 
                     _T("Component Data Not Match!\nGot an error when Deserialize a pointer of component 0x%x %s instance id %d\nRequired size: %d, Actual size: %d"), uGuid, value->GetClassStr(), uId, uDataSize, pSerializer->GetReadPos() - uStartPos);
 #ifdef EDITOR_MODE
@@ -449,7 +449,7 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
         {\
             size_t uInstanceId, uGuid;\
             serializer >> uInstanceId >> uGuid;\
-            CComponentManager::GetInstance()->AddDependencyResolver(NULL, 0 , uGuid, uInstanceId, &ptrProperty, false);\
+            CComponentInstanceManager::GetInstance()->AddDependencyResolver(NULL, 0 , uGuid, uInstanceId, &ptrProperty, false);\
         }\
     }
 
@@ -462,7 +462,7 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
         {\
             size_t uInstanceId, uGuid;\
             serializer >> uInstanceId >> uGuid;\
-            CComponentManager::GetInstance()->AddDependencyResolver(NULL, i , uGuid, uInstanceId, &ptrProperty, true);\
+            CComponentInstanceManager::GetInstance()->AddDependencyResolver(NULL, i , uGuid, uInstanceId, &ptrProperty, true);\
         }\
     }
 
@@ -515,12 +515,12 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
                     bool bNeedSnyc = true;\
                     if (pDependency != NULL)\
                     {\
-                        bNeedSnyc = !this->OnPropertyChange(&ptrProperty, CComponentManager::GetInstance()->GetComponentInstance(uInstanceId, uGuid));\
+                        bNeedSnyc = !this->OnPropertyChange(&ptrProperty, CComponentInstanceManager::GetInstance()->GetComponentInstance(uInstanceId, uGuid));\
                     }\
                     if (bNeedSnyc)\
                     {\
                         ptrProperty = NULL;\
-                        CComponentManager::GetInstance()->AddDependencyResolver(NULL, 0 , uGuid, uInstanceId, &ptrProperty, false);\
+                        CComponentInstanceManager::GetInstance()->AddDependencyResolver(NULL, 0 , uGuid, uInstanceId, &ptrProperty, false);\
                     }\
                 }\
                 else\
@@ -562,7 +562,7 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
                     {\
                         size_t uInstanceId, uGuid;\
                         serializer >> uInstanceId >> uGuid;\
-                        CComponentManager::GetInstance()->AddDependencyResolver(NULL, i , uGuid, uInstanceId, &ptrProperty, true);\
+                        CComponentInstanceManager::GetInstance()->AddDependencyResolver(NULL, i , uGuid, uInstanceId, &ptrProperty, true);\
                     }\
                 }\
                 if (pDependencyList != NULL && bReflectCheckFlag)\
@@ -584,7 +584,7 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
     {\
         ~SRegisterLauncher()\
         {\
-            CComponentManager::Destroy();\
+            CComponentInstanceManager::Destroy();\
         }\
         SRegisterLauncher()\
         {\
@@ -602,7 +602,7 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
         serializer.SetWritePos(nCurWritePos);\
         serializer << nComponentCounter;\
         serializer.SetWritePos(nNewCurWritePos);\
-        CComponentManager::GetInstance()->SerializeTemplateData(serializer);\
+        CComponentInstanceManager::GetInstance()->SerializeTemplateData(serializer);\
         MessageBox(NULL, _T("导出Eds.bin成功，请退出"), _T("导出成功"), MB_OK);\
         _exit(0);\
         }\
@@ -626,7 +626,7 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
     serializer << nCountHolder;\
     component* pComponent = new component();\
     pComponent->ReflectData(serializer);\
-    CComponentManager::GetInstance()->RegisterTemplate(pComponent);\
+    CComponentInstanceManager::GetInstance()->RegisterTemplate(pComponent);\
     size_t curWritePos = serializer.GetWritePos();\
     serializer.SetWritePos(nCountHolder);\
     SSerilaizerExtraInfo* pExtraInfo = (SSerilaizerExtraInfo*)(serializer.GetUserData());\
@@ -660,7 +660,7 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
     {\
     ~SRegisterLauncher()\
     {\
-    CComponentManager::Destroy();\
+    CComponentInstanceManager::Destroy();\
     }\
     SRegisterLauncher()\
     {\
@@ -689,7 +689,7 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
     if(bFileExists)\
 {\
     CSerializer serializer(szFilePath);\
-    CComponentManager::GetInstance()->Import(serializer);\
+    CComponentInstanceManager::GetInstance()->Import(serializer);\
                 }\
                 }\
                 };\
@@ -698,7 +698,7 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
 #endif
 
 #define REGISTER_COMPONENT(component, displayName, catalogName)\
-    CComponentManager::GetInstance()->RegisterTemplate(new component);
+    CComponentInstanceManager::GetInstance()->RegisterTemplate(new component);
 
 #define REGISTER_ABSTRACT_COMPONENT(component)
 

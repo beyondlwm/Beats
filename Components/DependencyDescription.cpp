@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Component/ComponentManager.h"
+#include "Component/ComponentInstanceManager.h"
 #include "Component/ComponentProxyManager.h"
 #include "Component/ComponentEditorProxy.h"
 #include "DependencyDescription.h"
@@ -8,7 +8,7 @@
 #include "Utility/StringHelper/StringHelper.h"
 #include "Utility/Serializer/Serializer.h"
 
-CDependencyDescription::CDependencyDescription(EDependencyType type, size_t dependencyGuid, CComponentEditorProxy* pOwner, size_t uIndex, bool bIsList)
+CDependencyDescription::CDependencyDescription(EDependencyType type, size_t dependencyGuid, CComponentProxy* pOwner, size_t uIndex, bool bIsList)
 : m_type(type)
 , m_changeAction(eDCA_Count)
 , m_pChangeActionProxy(NULL)
@@ -38,7 +38,7 @@ CDependencyDescriptionLine* CDependencyDescription::GetDependencyLine( size_t uI
     return m_dependencyLine[uIndex];
 }
 
-CDependencyDescriptionLine* CDependencyDescription::SetDependency( size_t uIndex, CComponentEditorProxy* pComponent )
+CDependencyDescriptionLine* CDependencyDescription::SetDependency( size_t uIndex, CComponentProxy* pComponent )
 {
     CDependencyDescriptionLine* pRet = NULL;
     BEATS_ASSERT(uIndex < m_dependencyLine.size());
@@ -64,7 +64,7 @@ size_t CDependencyDescription::GetDependencyLineCount() const
     return m_dependencyLine.size();
 }
 
-CDependencyDescriptionLine* CDependencyDescription::AddDependency( CComponentEditorProxy* pComponentInstance )
+CDependencyDescriptionLine* CDependencyDescription::AddDependency( CComponentProxy* pComponentInstance )
 {
     CDependencyDescriptionLine* pRet = NULL;
 
@@ -166,7 +166,7 @@ void CDependencyDescription::LoadFromXML( TiXmlElement* pNode )
                 const char* szId = pDependencyNodeElement->Attribute("Id");
                 size_t uId = (size_t)atoi(szId); 
 
-                CComponentEditorProxy* pComponent = static_cast<CComponentEditorProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(uId, uGuid));
+                CComponentProxy* pComponent = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(uId, uGuid));
                 AddDependency(pComponent);
                 if (pComponent == NULL)
                 {
@@ -179,7 +179,7 @@ void CDependencyDescription::LoadFromXML( TiXmlElement* pNode )
     }
 }
 
-void CDependencyDescription::SetOwner( CComponentEditorProxy* pOwner )
+void CDependencyDescription::SetOwner( CComponentProxy* pOwner )
 {
     BEATS_ASSERT(m_pOwner == NULL);
     m_pOwner = pOwner;
@@ -210,7 +210,7 @@ EDependencyType CDependencyDescription::GetType()
     return m_type;
 }
 
-CComponentEditorProxy* CDependencyDescription::GetOwner()
+CComponentProxy* CDependencyDescription::GetOwner()
 {
     return m_pOwner;
 }
@@ -234,7 +234,7 @@ bool CDependencyDescription::IsListType() const
     return m_bIsListType;
 }
 
-bool CDependencyDescription::IsInDependency( CComponentEditorProxy* pComponentInstance )
+bool CDependencyDescription::IsInDependency( CComponentProxy* pComponentInstance )
 {
     bool bRet = false;
     for (size_t i = 0; i < m_dependencyLine.size(); ++i)
@@ -248,7 +248,7 @@ bool CDependencyDescription::IsInDependency( CComponentEditorProxy* pComponentIn
     return bRet;
 }
 
-bool CDependencyDescription::IsMatch( CComponentEditorProxy* pDependencyComponent )
+bool CDependencyDescription::IsMatch( CComponentProxy* pDependencyComponent )
 {
     size_t uCurGuid = pDependencyComponent->GetGuid();
     bool bMatch = uCurGuid == m_uDependencyGuid;
@@ -281,7 +281,7 @@ void CDependencyDescription::Serialize(CSerializer& serializer)
     }
 }
 
-void CDependencyDescription::GetCurrActionParam(EDependencyChangeAction& action, CComponentEditorProxy*& pProxy)
+void CDependencyDescription::GetCurrActionParam(EDependencyChangeAction& action, CComponentProxy*& pProxy)
 {
     action = m_changeAction;
     pProxy = m_pChangeActionProxy;
@@ -311,7 +311,7 @@ void CDependencyDescription::OnDependencyChanged()
                 BEATS_ASSERT(CComponentProxyManager::GetInstance()->GetCurrReflectDescription() == NULL);
                 CComponentProxyManager::GetInstance()->SetReflectCheckFlag(true);
                 GetOwner()->GetHostComponent()->ReflectData(serializer);
-                CComponentManager::GetInstance()->ResolveDependency();
+                CComponentInstanceManager::GetInstance()->ResolveDependency();
                 CComponentProxyManager::GetInstance()->SetReflectCheckFlag(false);
                 CComponentProxyManager::GetInstance()->SetCurrReflectDependency(NULL);
             }

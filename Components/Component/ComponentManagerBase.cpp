@@ -134,7 +134,7 @@ CComponentBase* CComponentManagerBase::CreateComponentByRef( CComponentBase* pCo
         BEATS_ASSERT(specifiedInstanceId == 0xFFFFFFFF, _T("If you want to manage component instance by yourself, don't require instance id!"));
     }
 
-    // TODO: bCloneValue only makes sense when this is a CComponentEditorProxy.
+    // TODO: bCloneValue only makes sense when this is a CComponentProxy.
     CComponentBase* pNewInstance = static_cast<CComponentBase*>(pComponentRef->Clone(bCloneValue, pData, specifiedInstanceId, bCallInitFunc));
     if (!bManualManage)
     {
@@ -143,18 +143,6 @@ CComponentBase* CComponentManagerBase::CreateComponentByRef( CComponentBase* pCo
     return pNewInstance;
 }
 
-bool CComponentManagerBase::DeleteComponent( CComponentBase* pComponent )
-{
-    if (pComponent->IsInitialized())
-    {
-        pComponent->Uninitialize();
-    }
-    UnregisterInstance(pComponent);
-    m_pIdManager->RecycleId(pComponent->GetId());
-    BEATS_SAFE_DELETE(pComponent);
-
-    return true;
-}
 
 const std::map<size_t, CComponentBase*>* CComponentManagerBase::GetComponentTemplateMap()
 {

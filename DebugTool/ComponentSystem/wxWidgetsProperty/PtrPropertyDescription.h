@@ -2,7 +2,7 @@
 #define BEATS_COMPONENTS_PROPERTY_WXWIDGETSIMPLEMENT_PTRPROPERTYDESCRIPTION_H__INCLUDE
 
 #include "wxwidgetsPropertyBase.h"
-class CComponentEditorProxy;
+class CComponentProxy;
 
 class CPtrPropertyDescription : public CWxwidgetsPropertyBase
 {
@@ -22,7 +22,7 @@ public:
 
     virtual void SetValue(wxVariant& value, bool bSaveValue);
 
-    virtual CComponentEditorProxy* GetInstanceComponent() const override;
+    virtual CComponentProxy* GetInstanceComponent() const override;
 
     virtual bool AnalyseUIParameterImpl(const std::vector<TString>& parameterUnit);
     virtual wxPGProperty* CreateWxProperty();
@@ -45,7 +45,7 @@ private:
 private:
     size_t m_uDerivedGuid;
     size_t m_uComponentGuid;
-    CComponentEditorProxy* m_pInstance;
+    CComponentProxy* m_pInstance;
     // This flag indicate if this property should have instance according to XML data. 
     bool m_bHasInstance;
 };

@@ -4,7 +4,7 @@
 #include "expdef.h"
 
 class CDependencyDescriptionLine;
-class CComponentEditorProxy;
+class CComponentProxy;
 class TiXmlElement;
 
 template class COMPONENTS_DLL_DECL std::allocator<CDependencyDescriptionLine*>;
@@ -32,14 +32,14 @@ enum EDependencyChangeAction
 class COMPONENTS_DLL_DECL CDependencyDescription
 {
 public:
-    CDependencyDescription(EDependencyType type, size_t dependencyGuid, CComponentEditorProxy* pOwner, size_t uIndex, bool bIsList);
+    CDependencyDescription(EDependencyType type, size_t dependencyGuid, CComponentProxy* pOwner, size_t uIndex, bool bIsList);
     virtual ~CDependencyDescription();
 
     CDependencyDescriptionLine* GetDependencyLine(size_t uIndex = 0) const;
-    CDependencyDescriptionLine* SetDependency(size_t uIndex, CComponentEditorProxy* pComponent);
+    CDependencyDescriptionLine* SetDependency(size_t uIndex, CComponentProxy* pComponent);
     size_t GetDependencyLineCount() const;
-    void SetOwner(CComponentEditorProxy* pOwner);
-    CComponentEditorProxy* GetOwner();
+    void SetOwner(CComponentProxy* pOwner);
+    CComponentProxy* GetOwner();
     size_t GetDependencyGuid() const;
     void Hide();
     void Show();
@@ -51,20 +51,20 @@ public:
     void SetDisplayName(const TCHAR* pszName);
     const TCHAR* GetVariableName();
     void SetVariableName(const TCHAR* pszName);
-    CDependencyDescriptionLine* AddDependency(CComponentEditorProxy* pComponentInstance);
+    CDependencyDescriptionLine* AddDependency(CComponentProxy* pComponentInstance);
     void RemoveDependencyLine(CDependencyDescriptionLine* pComponentInstance);
     void RemoveDependencyByIndex(size_t uIndex);
-    bool IsInDependency(CComponentEditorProxy* pComponentInstance);
+    bool IsInDependency(CComponentProxy* pComponentInstance);
     void SaveToXML(TiXmlElement* pParentNode);
     void LoadFromXML(TiXmlElement* pNode);
     EDependencyType GetType();
     size_t GetSelectedDependencyIndex() const;
     void SetSelectedDependencyIndex(size_t index);
-    bool IsMatch(CComponentEditorProxy* pDependencyComponent);
+    bool IsMatch(CComponentProxy* pDependencyComponent);
     void Serialize(CSerializer& serializer);
 
     //Get the last dependency change action record.
-    void GetCurrActionParam(EDependencyChangeAction& action, CComponentEditorProxy*& pProxy);
+    void GetCurrActionParam(EDependencyChangeAction& action, CComponentProxy*& pProxy);
 
 private:
     void OnDependencyChanged();
@@ -72,9 +72,9 @@ private:
 private:
     EDependencyType m_type;
     EDependencyChangeAction m_changeAction;
-    CComponentEditorProxy* m_pChangeActionProxy;
+    CComponentProxy* m_pChangeActionProxy;
     size_t m_uIndex;
-    CComponentEditorProxy* m_pOwner;
+    CComponentProxy* m_pOwner;
     size_t m_uDependencyGuid;
     bool m_bHideRender;
     bool m_bIsListType;

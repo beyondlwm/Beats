@@ -305,9 +305,9 @@ wxPropertyGridManager* CBDTWxFrame::CreatePropertyGrid(wxWindow* pParent)
     return m_pPropertyGridManager;
 }
 
-CComponentEditorProxy* CreateComponentProxy(CComponentGraphic* pGraphics, size_t guid, size_t parentGuid, TCHAR* pszClassName)
+CComponentProxy* CreateComponentProxy(CComponentGraphic* pGraphics, size_t guid, size_t parentGuid, TCHAR* pszClassName)
 {
-    return new CComponentEditorProxy(pGraphics, guid, parentGuid, pszClassName);
+    return new CComponentProxy(pGraphics, guid, parentGuid, pszClassName);
 }
 
 CComponentGraphic* CreateComponentGraphics()
@@ -324,7 +324,7 @@ void CBDTWxFrame::InitComponentsPage()
     const std::map<size_t, CComponentBase*>* pComponentsMap = CComponentProxyManager::GetInstance()->GetComponentTemplateMap();
     for (std::map<size_t, CComponentBase*>::const_iterator componentIter = pComponentsMap->begin(); componentIter != pComponentsMap->end(); ++componentIter )
     {
-        CComponentEditorProxy* pComponent = static_cast<CComponentEditorProxy*>(componentIter->second);
+        CComponentProxy* pComponent = static_cast<CComponentProxy*>(componentIter->second);
         const TString& catalogName = pComponent->GetCatalogName();
         std::map<TString, wxTreeItemId>::iterator iter = m_componentCatalogNameMap.find(catalogName);
         //Build catalog
@@ -370,7 +370,7 @@ void CBDTWxFrame::OnComponentStartDrag( wxTreeEvent& event )
     CComponentTreeItemData* pData = static_cast<CComponentTreeItemData*>(m_pComponentTreeControl->GetItemData(event.GetItem()));
     if (pData != NULL && !pData->IsDirectory())
     {
-        m_pComponentRenderWindow->SetDraggingComponent(static_cast<CComponentEditorProxy*>(CComponentProxyManager::GetInstance()->GetComponentTemplate(pData->GetGUID())));
+        m_pComponentRenderWindow->SetDraggingComponent(static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentTemplate(pData->GetGUID())));
         event.Allow();
         BEATS_PRINT(_T("StartDrag at Pos: %d %d\n"), event.GetPoint().x, event.GetPoint().y);
     }
@@ -380,8 +380,8 @@ void CBDTWxFrame::OnComponentEndDrag( wxTreeEvent& event )
 {
     if (m_pComponentRenderWindow->IsMouseInWindow())
     {
-        CComponentEditorProxy* pDraggingComponent = m_pComponentRenderWindow->GetDraggingComponent();
-        CComponentEditorProxy* pNewComponent = static_cast<CComponentEditorProxy*>(CComponentProxyManager::GetInstance()->CreateComponent(pDraggingComponent->GetGuid(), true));
+        CComponentProxy* pDraggingComponent = m_pComponentRenderWindow->GetDraggingComponent();
+        CComponentProxy* pNewComponent = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->CreateComponent(pDraggingComponent->GetGuid(), true));
         int x = 0;
         int y = 0;
         pDraggingComponent->GetGraphics()->GetPosition(&x, &y);
@@ -473,7 +473,7 @@ void CBDTWxFrame::OnTemplateComponentItemChanged(wxTreeEvent& event)
         CComponentTreeItemData* pData = static_cast<CComponentTreeItemData*>(m_pComponentTreeControl->GetItemData(id));
         if (pData != NULL && !pData->IsDirectory())
         {
-            CComponentEditorProxy* pComponent = static_cast<CComponentEditorProxy*>(CComponentProxyManager::GetInstance()->GetComponentTemplate(pData->GetGUID()));
+            CComponentProxy* pComponent = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentTemplate(pData->GetGUID()));
             SelecteComponent(pComponent);
         }
     }
@@ -1058,7 +1058,7 @@ void CBDTWxFrame::OnExportButtonClick(wxCommandEvent& /*event*/)
     }
 }
 
-void CBDTWxFrame::SelecteComponent(CComponentEditorProxy* pComponentInstance)
+void CBDTWxFrame::SelecteComponent(CComponentProxy* pComponentInstance)
 {
     m_pPropertyGridManager->ClearPage(0);
     m_pSelectedComponent = pComponentInstance;
@@ -1073,7 +1073,7 @@ void CBDTWxFrame::SelecteComponent(CComponentEditorProxy* pComponentInstance)
     }
 }
 
-CComponentEditorProxy* CBDTWxFrame::GetSelectedComponent()
+CComponentProxy* CBDTWxFrame::GetSelectedComponent()
 {
     return m_pSelectedComponent;
 }
@@ -1083,7 +1083,7 @@ wxPGEditor* CBDTWxFrame::GetPtrEditor()
     return m_pPtrButtonEditor;
 }
 
-void CBDTWxFrame::InsertComponentsInPropertyGrid( CComponentEditorProxy* pComponent, wxPGProperty* pParent /*= NULL*/ )
+void CBDTWxFrame::InsertComponentsInPropertyGrid( CComponentProxy* pComponent, wxPGProperty* pParent /*= NULL*/ )
 {
     // Set Guid property.
     wxPGProperty* pPGProperty = new wxStringProperty(wxPG_LABEL, wxPG_LABEL);

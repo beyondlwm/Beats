@@ -3,7 +3,7 @@
 
 #include <d3dx9.h>
 
-class CComponentEditorProxy;
+class CComponentProxy;
 class CDependencyDescription;
 class CDependencyDescriptionLine;
 class CBDTWxFrame;
@@ -20,8 +20,8 @@ public:
 
     IDirect3DDevice9* GetRenderDevice() const;
     LPD3DXFONT GetRenderFont() const;
-    void SetDraggingComponent(CComponentEditorProxy* pDraggingComponent);
-    CComponentEditorProxy* GetDraggingComponent();
+    void SetDraggingComponent(CComponentProxy* pDraggingComponent);
+    CComponentProxy* GetDraggingComponent();
     void UpdateAllDependencyLine();
     void SetDraggingFileName(const TCHAR* pFileName);
     const TCHAR* GetDraggingFileName();
@@ -49,7 +49,7 @@ private:
     void ConvertWorldPosToGridPos(const D3DXVECTOR2* pVectorPos, int* pOutGridX, int* pOutGridY);
     void ConvertGridPosToWorldPos( int gridX, int gridY, float* pOutWorldPosX, float* pOutWorldPosY);
     void ConvertWindowPosToWorldPos(const wxPoint& windowPos, float* pOutWorldPosX, float* pOutWorldPosY);
-    CComponentEditorProxy* HitTestForComponent(wxPoint pos, enum EComponentAeraRectType* pOutAreaType = NULL, void** pReturnData = NULL);
+    CComponentProxy* HitTestForComponent(wxPoint pos, enum EComponentAeraRectType* pOutAreaType = NULL, void** pReturnData = NULL);
     void DeleteSelectedComponent();
     void DeleteSelectedDependencyLine();
 
@@ -63,9 +63,9 @@ private:
     IDirect3DDevice9* m_pD3dDevice;
     LPD3DXFONT m_pDXFont;
     D3DPRESENT_PARAMETERS m_d3dPresentParam;
-    CComponentEditorProxy* m_pDraggingComponent;
-    CComponentEditorProxy* m_pConnectComponent;
-    CComponentEditorProxy* m_pCopyComponent;
+    CComponentProxy* m_pDraggingComponent;
+    CComponentProxy* m_pConnectComponent;
+    CComponentProxy* m_pCopyComponent;
     CDependencyDescription* m_pDraggingDependency;
     CDependencyDescriptionLine* m_pSelectedDependencyLine;
     wxMenu*    m_pComponentMenu;

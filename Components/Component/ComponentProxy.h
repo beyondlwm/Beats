@@ -12,13 +12,13 @@ class CDependencyDescriptionLine;
 class CPropertyDescriptionBase;
 class CComponentGraphic;
 
-class COMPONENTS_DLL_DECL CComponentEditorProxy : public CComponentBase
+class COMPONENTS_DLL_DECL CComponentProxy : public CComponentBase
 {
     typedef CComponentBase super;
 public:
-    CComponentEditorProxy(CComponentGraphic* pGraphics);
-    CComponentEditorProxy(CComponentGraphic* pGraphics, size_t uGuid, size_t uParentGuid, const TCHAR* pszClassName);
-    virtual ~CComponentEditorProxy();
+    CComponentProxy(CComponentGraphic* pGraphics);
+    CComponentProxy(CComponentGraphic* pGraphics, size_t uGuid, size_t uParentGuid, const TCHAR* pszClassName);
+    virtual ~CComponentProxy();
 
     const TString& GetDisplayName() const;
     void SetDisplayName(const TCHAR* pDisplayName);

@@ -3,12 +3,12 @@
 
 #include "ComponentManagerBase.h"
 
-class CComponentEditorProxy;
+class CComponentProxy;
 class CComponentProject;
 class CPropertyDescriptionBase;
 class CComponentGraphic;
 
-typedef CComponentEditorProxy* (*TCreateComponentEditorProxyFunc)(CComponentGraphic* pGraphics, size_t guid, size_t parentGuid, TCHAR* className);
+typedef CComponentProxy* (*TCreateComponentEditorProxyFunc)(CComponentGraphic* pGraphics, size_t guid, size_t parentGuid, TCHAR* className);
 typedef CComponentGraphic* (*TCreateGraphicFunc)();
 
 class CComponentProxyManager : public CComponentManagerBase

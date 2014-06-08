@@ -5,7 +5,7 @@
 
 #include "../../Components/Component/ComponentBase.h"
 #include "../../Components/Component/ComponentProxyManager.h"
-#include "../../Components/Component/ComponentManager.h"
+#include "../../Components/Component/ComponentInstanceManager.h"
 #include "wxWidgetsProperty/wxWidgetsPropertyBase.h"
 #include "wxWidgetsProperty/BoolPropertyDescription.h"
 #include "wxWidgetsProperty/FloatPropertyDescription.h"

@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "ComponentManager.h"
+#include "ComponentInstanceManager.h"
 #include "ComponentBase.h"
 #include "ComponentEditorProxy.h"
 #include "Utility/Serializer/Serializer.h"
@@ -7,13 +7,13 @@
 #include "Utility/UtilityManager.h"
 #include "Utility/IdManager/IdManager.h"
 
-CComponentManager* CComponentManager::m_pInstance = NULL;
+CComponentInstanceManager* CComponentInstanceManager::m_pInstance = NULL;
 
-CComponentManager::CComponentManager()
+CComponentInstanceManager::CComponentInstanceManager()
 {
 }
 
-CComponentManager::~CComponentManager()
+CComponentInstanceManager::~CComponentInstanceManager()
 {
     Release();
     // Don't remove GetInstance(), it is force to create an instance of CUtilityManager, so we can visit the member of it.
@@ -21,7 +21,7 @@ CComponentManager::~CComponentManager()
     CUtilityManager::Destroy();
 }
 
-void CComponentManager::SerializeTemplateData(CSerializer& serializer)
+void CComponentInstanceManager::SerializeTemplateData(CSerializer& serializer)
 {
     TString strWorkingPath = CUtilityManager::GetInstance()->GetModuleFileName();
     strWorkingPath = CUtilityManager::GetInstance()->FileRemoveName(strWorkingPath.c_str());
@@ -30,7 +30,7 @@ void CComponentManager::SerializeTemplateData(CSerializer& serializer)
 }
 
 
-void CComponentManager::Import( CSerializer& serializer)
+void CComponentInstanceManager::Import( CSerializer& serializer)
 {
     size_t uVersion = 0;
     serializer >> uVersion;
@@ -54,7 +54,7 @@ void CComponentManager::Import( CSerializer& serializer)
                 size_t uDataSize, uGuid, uId;
                 size_t uStartPos = serializer.GetReadPos();
                 serializer >> uDataSize >> uGuid >> uId;
-                CComponentBase* pComponent = CComponentManager::GetInstance()->CreateComponent(uGuid, false, false, uId, true, &serializer, false);
+                CComponentBase* pComponent = CComponentInstanceManager::GetInstance()->CreateComponent(uGuid, false, false, uId, true, &serializer, false);
                 pComponent;
                 BEATS_ASSERT(uStartPos + uDataSize == serializer.GetReadPos(), _T("Component Data Not Match!\nGot an error when import data for component %x %s instance id %d\nRequired size: %d, Actual size: %d"), uGuid, pComponent->GetClassStr(), uId, uDataSize, serializer.GetReadPos() - uStartPos);
                 serializer.SetReadPos(uStartPos + uDataSize);
@@ -62,14 +62,14 @@ void CComponentManager::Import( CSerializer& serializer)
         }
 
         // 2. Resolve dependency.
-        CComponentManager::GetInstance()->ResolveDependency();
+        CComponentInstanceManager::GetInstance()->ResolveDependency();
         
         // 3. Call Initialize.
         Initialize();
     }
 }
 
-void CComponentManager::ResolveDependency()
+void CComponentInstanceManager::ResolveDependency()
 {
     for (size_t i = 0; i < m_pDependencyResolver->size(); ++i)
     {
@@ -92,7 +92,7 @@ void CComponentManager::ResolveDependency()
     BEATS_SAFE_DELETE_VECTOR(*m_pDependencyResolver);
 }
 
-size_t CComponentManager::GetVersion()
+size_t CComponentInstanceManager::GetVersion()
 {
     return COMPONENT_SYSTEM_VERSION;
 }

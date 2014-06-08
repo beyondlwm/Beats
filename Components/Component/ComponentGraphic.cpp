@@ -100,13 +100,13 @@ EComponentAeraRectType CComponentGraphic::HitTestForAreaType( int x, int y, void
     return result;
 }
 
-void CComponentGraphic::SetOwner(CComponentEditorProxy* pOwner)
+void CComponentGraphic::SetOwner(CComponentProxy* pOwner)
 {
     m_pOwner = pOwner;
     CaculateSize();
 }
 
-CComponentEditorProxy* CComponentGraphic::GetOwner() const
+CComponentProxy* CComponentGraphic::GetOwner() const
 {
     return m_pOwner;
 }

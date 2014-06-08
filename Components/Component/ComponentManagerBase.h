@@ -59,7 +59,6 @@ public:
     CComponentBase* GetComponentTemplate(size_t guid) const;
     CComponentBase* CreateComponent(size_t guid, bool bCloneFromTemplate, bool bManualManage = false, size_t specifiedInstanceId = 0xFFFFFFFF, bool bCheckIsAlreadyRequest = true, CSerializer* pSerializer = NULL, bool bCallInitFunc = true);
     CComponentBase* CreateComponentByRef(CComponentBase* pComponentRef, bool bCloneValue, bool bManualManage = false, size_t specifiedInstanceId = 0xFFFFFFFF, bool bCheckIsAlreadyRequest = true, CSerializer* pSerializer = NULL, bool bCallInitFunc = true);
-    bool DeleteComponent(CComponentBase* pComponent);
 
     const std::map<size_t, CComponentBase*>* GetComponentTemplateMap();
     const std::map<size_t, std::map<size_t, CComponentBase*>*>* GetComponentInstanceMap();

@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "ComponentProxyManager.h"
-#include "ComponentManager.h"
+#include "ComponentInstanceManager.h"
 #include "ComponentProject.h"
 #include "Utility/TinyXML/tinyxml.h"
 #include "Utility/Serializer/Serializer.h"
@@ -45,7 +45,7 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /
         {
             TiXmlElement* pRootElement = document.RootElement();
             TiXmlElement* pComponentListNode = pRootElement->FirstChildElement("Components");
-            std::vector<CComponentEditorProxy*> copyOpenComponents;
+            std::vector<CComponentProxy*> copyOpenComponents;
             if (pComponentListNode != NULL )
             {
                 std::vector<int> reservedId; 
@@ -61,7 +61,7 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /
                         int id = -1;
                         pInstanceElement->Attribute("Id", &id);
                         BEATS_ASSERT(id != -1);
-                        CComponentEditorProxy* pComopnent = (CComponentEditorProxy*)(CreateComponent(guid, false, false, id, false, NULL, false));
+                        CComponentProxy* pComopnent = (CComponentProxy*)(CreateComponent(guid, false, false, id, false, NULL, false));
                         pComopnent->LoadFromXML(pInstanceElement);
                         pInstanceElement = pInstanceElement->NextSiblingElement("Instance");
                     }
@@ -74,7 +74,7 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /
             {
                 for (std::map<size_t, CComponentBase*>::const_iterator subIter = iter->second->begin(); subIter != iter->second->end(); ++subIter)
                 {
-                    CComponentEditorProxy* pProxyInstance = dynamic_cast<CComponentEditorProxy*>(subIter->second);
+                    CComponentProxy* pProxyInstance = dynamic_cast<CComponentProxy*>(subIter->second);
                     BEATS_ASSERT(pProxyInstance != NULL);
                     // We need to update the host component after the proxy's dependencies have been resolved.
                     pProxyInstance->UpdateHostComponent();
@@ -131,8 +131,13 @@ void CComponentProxyManager::CloseFile(bool bRefreshProjectData)
         {
             for (std::map<size_t, CComponentBase*>::iterator subIter = iter->second->begin(); subIter != iter->second->end(); ++subIter)
             {
-                BEATS_ASSERT(subIter->second != NULL);
-                subIter->second->Uninitialize();
+                CComponentProxy* pProxy = (CComponentProxy*)(subIter->second);
+                BEATS_ASSERT(pProxy != NULL);
+                if (pProxy->GetHostComponent() != NULL)
+                {
+                    pProxy->GetHostComponent()->Uninitialize();
+                }
+                pProxy->Uninitialize();
             }
         }
         for (std::map<size_t, std::map<size_t, CComponentBase*>*>::iterator iter = m_pComponentInstanceMap->begin(); iter != m_pComponentInstanceMap->end(); ++iter)
@@ -185,7 +190,7 @@ void CComponentProxyManager::Export(const std::vector<TString>& fileList, const 
             for (std::map<size_t, CComponentBase*>::iterator subIter = iter->second->begin(); subIter != iter->second->end(); ++subIter)
             {
                 ++uComponentCount;
-                CComponentEditorProxy* pProxy = static_cast<CComponentEditorProxy*>(subIter->second);
+                CComponentProxy* pProxy = static_cast<CComponentProxy*>(subIter->second);
                 pProxy->Serialize(serializer, eVT_SavedValue);
             }
         }
@@ -283,7 +288,7 @@ void CComponentProxyManager::SaveTemplate(const TCHAR* pszFilePath)
         char tmp[MAX_PATH] = {0};
         CStringHelper::GetInstance()->ConvertToCHAR(GetComponentTemplate(iter->first)->GetClassStr(), tmp, MAX_PATH);
         pComponentElement->SetAttribute("Name", tmp);
-        static_cast<CComponentEditorProxy*>(iter->second)->SaveToXML(pComponentElement, true);
+        static_cast<CComponentProxy*>(iter->second)->SaveToXML(pComponentElement, true);
         // No property is saved, so don't save this template.
         TiXmlElement* pInstanceNode = pComponentElement->FirstChildElement("Instance");
         BEATS_ASSERT(pInstanceNode != NULL);
@@ -333,7 +338,7 @@ void CComponentProxyManager::SaveToFile( const TCHAR* pFileName /* = NULL*/)
             std::map<size_t, CComponentBase*>::const_iterator instanceIter = iter->second->begin();
             for (;instanceIter != iter->second->end(); ++instanceIter)
             {
-                CComponentEditorProxy* pProxy = static_cast<CComponentEditorProxy*>(instanceIter->second);
+                CComponentProxy* pProxy = static_cast<CComponentProxy*>(instanceIter->second);
                 pProxy->Save();
                 pProxy->SaveToXML(pComponentElement, false);
             }
@@ -404,7 +409,7 @@ void CComponentProxyManager::ResolveDependency()
             pDependencyResolver->uGuid,
             pDependencyResolver->uInstanceId);
         BEATS_ASSERT(pDependencyResolver->pDescription->GetDependencyLine(pDependencyResolver->uIndex)->GetConnectedComponent() == NULL);
-        pDependencyResolver->pDescription->SetDependency(pDependencyResolver->uIndex, static_cast<CComponentEditorProxy*>(pComponentToBeLink));
+        pDependencyResolver->pDescription->SetDependency(pDependencyResolver->uIndex, static_cast<CComponentProxy*>(pComponentToBeLink));
     }
     BEATS_SAFE_DELETE_VECTOR(*m_pDependencyResolver);
 }
@@ -478,7 +483,7 @@ void CComponentProxyManager::LoadTemplateDataFromXML(const TCHAR* pszPath)
                 {
                     int id = -1;
                     pInstanceElement->Attribute("Id", &id);
-                    CComponentEditorProxy* pComponent = static_cast<CComponentEditorProxy*>(GetComponentTemplate(guid));
+                    CComponentProxy* pComponent = static_cast<CComponentProxy*>(GetComponentTemplate(guid));
                     if (pComponent != NULL)
                     {
                         pComponent->LoadFromXML(pInstanceElement);
@@ -521,14 +526,14 @@ void CComponentProxyManager::LoadTemplateDataFromSerializer(CSerializer& seriali
         RegisterClassInheritInfo(guid, parentGuid);
         if (!bIsAbstractClass)
         {
-            CComponentEditorProxy* pComponentEditorProxy = func(pGraphicFunc(), guid, parentGuid, pStrHolder);
+            CComponentProxy* pComponentEditorProxy = func(pGraphicFunc(), guid, parentGuid, pStrHolder);
             serializer.Read(ppStrHolder);
             pComponentEditorProxy->SetDisplayName(pStrHolder);
             serializer.Read(ppStrHolder);
             pComponentEditorProxy->SetCatalogName(pStrHolder);
             BEATS_ASSERT(m_pComponentTemplateMap->find(guid) == m_pComponentTemplateMap->end(), _T("Template component proxy already exists!GUID:0x%x, id:%d"), guid, pComponentEditorProxy->GetId());
             RegisterTemplate(pComponentEditorProxy);
-            CComponentBase* pInstance = CComponentManager::GetInstance()->GetComponentTemplate(guid);
+            CComponentBase* pInstance = CComponentInstanceManager::GetInstance()->GetComponentTemplate(guid);
             BEATS_ASSERT(pInstance != NULL, _T("Cant find a template instance for a proxy to be its host!GUID:0x%x, id:%d"), guid, pComponentEditorProxy->GetId());
             pComponentEditorProxy->SetHostComponent(pInstance);
             pComponentEditorProxy->Deserialize(serializer);

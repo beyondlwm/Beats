@@ -44,7 +44,7 @@ static const TCHAR* MemoryViewTypeStr[] =
 class CInfoPagePanel;
 class CWxwidgetsPropertyBase;
 class CComponentRenderWindow;
-class CComponentEditorProxy;
+class CComponentProxy;
 class CReflectBase;
 class CPropertyDescriptionBase;
 class TiXmlElement;
@@ -97,13 +97,13 @@ public:
 
     //Component
     void InsertInPropertyGrid(const std::vector<CPropertyDescriptionBase*>& pProperties, wxPGProperty* pParent = NULL);
-    void InsertComponentsInPropertyGrid(CComponentEditorProxy* pComponent, wxPGProperty* pParent = NULL);
+    void InsertComponentsInPropertyGrid(CComponentProxy* pComponent, wxPGProperty* pParent = NULL);
     // To create this impl for care about both changing property on UI by event and in code.
     void OnComponentPropertyChangedImpl(wxPGProperty* pProperty);
     void UpdatePropertyVisiblity(CWxwidgetsPropertyBase* pProperty);
     wxPGProperty* GetPGPropertyByBase(CPropertyDescriptionBase* pBase);
-    void SelecteComponent(CComponentEditorProxy* pComponentInstance);
-    CComponentEditorProxy* GetSelectedComponent();
+    void SelecteComponent(CComponentProxy* pComponentInstance);
+    CComponentProxy* GetSelectedComponent();
     wxPGEditor* GetPtrEditor();
     void RequestToUpdatePropertyGrid();
     CComponentRenderWindow* GetComponentRenderWindow() const;
@@ -354,7 +354,7 @@ private:
     wxSearchCtrl* m_pComponentFileSearchCtrl;
     wxPropertyGridManager* m_pPropertyGridManager;
     CComponentRenderWindow* m_pComponentRenderWindow;
-    CComponentEditorProxy* m_pSelectedComponent;
+    CComponentProxy* m_pSelectedComponent;
     wxPGEditor* m_pPtrButtonEditor;
     wxMenu* m_pPropertyMenu;
     wxMenu* m_pComponentFileMenu;

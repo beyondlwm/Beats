@@ -7,7 +7,7 @@
 #include "Utility/Math/Matrix4.h"
 #include "Utility/Math/MathPublic.h"
 
-CDependencyDescriptionLine::CDependencyDescriptionLine( CDependencyDescription* pOwner, size_t uIndex, CComponentEditorProxy* pTo )
+CDependencyDescriptionLine::CDependencyDescriptionLine( CDependencyDescription* pOwner, size_t uIndex, CComponentProxy* pTo )
 : m_bIsSelected(false)
 , m_uIndex(uIndex)
 , m_pOwner(pOwner)
@@ -43,7 +43,7 @@ void CDependencyDescriptionLine::UpdateRect(float cellSize, bool bInverseY /*= f
         int iDependencyPosY = 0;
         size_t uIndex = m_pOwner->GetIndex();
         
-        CComponentGraphic* pGraphics = static_cast<CComponentEditorProxy*>(m_pOwner->GetOwner())->GetGraphics();
+        CComponentGraphic* pGraphics = static_cast<CComponentProxy*>(m_pOwner->GetOwner())->GetGraphics();
         BEATS_ASSERT(pGraphics != NULL);
         pGraphics->GetDependencyPosition(uIndex, &iDependencyPosX, &iDependencyPosY);
         // 1. Draw line rect
@@ -54,7 +54,7 @@ void CDependencyDescriptionLine::UpdateRect(float cellSize, bool bInverseY /*= f
 
         int x = 0;
         int y = 0;
-        static_cast<CComponentEditorProxy*>(m_pConnectedComponent)->GetGraphics()->GetPosition(&x, &y);
+        static_cast<CComponentProxy*>(m_pConnectedComponent)->GetGraphics()->GetPosition(&x, &y);
         point[1].x = x * cellSize + cellSize * 0.5f * pGraphics->GetConnectWidth();
         point[1].y = y * cellSize - cellSize * 0.5f * pGraphics->GetHeaderHeight() * (bInverseY ? -1 : 1);
 
@@ -167,12 +167,12 @@ CDependencyDescription* CDependencyDescriptionLine::GetOwnerDependency()
     return m_pOwner;
 }
 
-CComponentEditorProxy* CDependencyDescriptionLine::GetConnectedComponent()
+CComponentProxy* CDependencyDescriptionLine::GetConnectedComponent()
 {
     return m_pConnectedComponent;
 }
 
-void CDependencyDescriptionLine::SetConnectComponent( CComponentEditorProxy* pComponentTo )
+void CDependencyDescriptionLine::SetConnectComponent( CComponentProxy* pComponentTo )
 {
     if (m_pConnectedComponent != NULL)
     {

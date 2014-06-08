@@ -105,7 +105,7 @@ size_t CPtrPropertyDescription::GetDerivedGuid() const
     return m_uDerivedGuid;
 }
 
-CComponentEditorProxy* CPtrPropertyDescription::GetInstanceComponent() const
+CComponentProxy* CPtrPropertyDescription::GetInstanceComponent() const
 {
     return m_pInstance;
 }
@@ -116,7 +116,7 @@ bool CPtrPropertyDescription::CreateInstance(bool bCallInitFunc/* = true*/)
     if ( m_pInstance == NULL)
     {
         size_t uInstanceGuid = m_uDerivedGuid == 0 ? m_uComponentGuid : m_uDerivedGuid;
-        m_pInstance = static_cast<CComponentEditorProxy*>(CComponentProxyManager::GetInstance()->CreateComponent(uInstanceGuid, false, true, 0xFFFFFFFF, true, NULL, bCallInitFunc));
+        m_pInstance = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->CreateComponent(uInstanceGuid, false, true, 0xFFFFFFFF, true, NULL, bCallInitFunc));
         const std::vector<CPropertyDescriptionBase*>* propertyPool = m_pInstance->GetPropertyPool();
         m_bHasInstance = m_pInstance != NULL;
         for (size_t i = 0; i < propertyPool->size(); ++i)
@@ -233,7 +233,7 @@ CPropertyDescriptionBase* CPtrPropertyDescription::Clone(bool bCloneValue)
     CPtrPropertyDescription* pNewProperty = static_cast<CPtrPropertyDescription*>(super::Clone(bCloneValue));
     if (m_pInstance != NULL && bCloneValue)
     {
-        pNewProperty->m_pInstance = static_cast<CComponentEditorProxy*>(m_pInstance->Clone(true, NULL, 0xFFFFFFFF));
+        pNewProperty->m_pInstance = static_cast<CComponentProxy*>(m_pInstance->Clone(true, NULL, 0xFFFFFFFF));
         for (size_t i = 0; i < m_pInstance->GetPropertyPool()->size(); ++i)
         {
             CPropertyDescriptionBase* pProperty = (*m_pInstance->GetPropertyPool())[i];
