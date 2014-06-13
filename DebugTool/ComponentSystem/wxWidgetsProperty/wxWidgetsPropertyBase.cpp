@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "wxWidgetsPropertyBase.h"
 #include "PtrPropertyDescription.h"
-#include "../../../Components/Component/ComponentEditorProxy.h"
+#include "../../../Components/Component/ComponentProxy.h"
 #include "../../../Utility/Serializer/Serializer.h"
 #include "../../../Utility/StringHelper/StringHelper.h"
 #include "../../../Utility/TinyXML/tinyxml.h"

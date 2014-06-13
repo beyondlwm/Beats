@@ -2,7 +2,7 @@
 #include "PropertyDescriptionBase.h"
 #include "Utility/Serializer/Serializer.h"
 #include "Utility/SharePtr/SharePtr.h"
-#include "Component/ComponentEditorProxy.h"
+#include "Component/ComponentProxy.h"
 #include "Component/ComponentProxyManager.h"
 
 CPropertyDescriptionBase::CPropertyDescriptionBase(EReflectPropertyType type)

@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "wxPtrButtonEditor.h"
 #include "Component/ComponentProxyManager.h"
-#include "Component/ComponentEditorProxy.h"
+#include "Component/ComponentProxy.h"
 #include "../../DebugTool/BDTWxApp.h"
 #include "../../DebugTool/BDTWxFrame.h"
 #include "../../Utility/Serializer/Serializer.h"

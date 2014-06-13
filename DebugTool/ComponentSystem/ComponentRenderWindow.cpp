@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "ComponentRenderWindow.h"
-#include "../../Components/Component/ComponentEditorProxy.h"
+#include "../../Components/Component/ComponentProxy.h"
 #include "../../Components/Component/ComponentProxyManager.h"
 #include "../../Components/Component/ComponentGraphic.h"
 #include "../../Components/DependencyDescription.h"

@@ -4,7 +4,7 @@
 #include "../../../Utility/StringHelper/StringHelper.h"
 #include "../../BDTWxApp.h"
 #include "../../BDTWxFrame.h"
-#include "../../Components/Component/ComponentEditorProxy.h"
+#include "../../Components/Component/ComponentProxy.h"
 #include "../../Components/Component/ComponentProxyManager.h"
 
 #define POINTER_SPLIT_SYMBOL _T("@")

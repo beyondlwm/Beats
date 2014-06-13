@@ -10,7 +10,7 @@
 #include "../Components/Component/ComponentProject.h"
 #include "../Components/Component/ComponentProjectData.h"
 #include "../Components/ComponentPublic.h"
-#include "../Components/Component/ComponentEditorProxy.h"
+#include "../Components/Component/ComponentProxy.h"
 #include "../Components/Component/ComponentGraphic.h"
 #include "../Utility/Serializer/Serializer.h"
 #include "../Utility/TinyXML/tinyxml.h"

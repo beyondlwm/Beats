@@ -3,7 +3,7 @@
 #include "../../Utility/StringHelper/StringHelper.h"
 
 #include "../../../Components/ComponentPublic.h"
-#include "../../../Components/Component/ComponentEditorProxy.h"
+#include "../../../Components/Component/ComponentProxy.h"
 #include "wxWidgetsPropertyBase.h"
 
 STriggerContent::STriggerContent( const TString& strProperty, ECompareOperator op, const TString& refValue )

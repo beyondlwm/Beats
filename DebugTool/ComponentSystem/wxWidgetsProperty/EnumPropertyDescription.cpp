@@ -3,7 +3,7 @@
 #include "../../../Utility/StringHelper/StringHelper.h"
 #include "../../../Utility/Serializer/Serializer.h"
 #include "../../../Utility/EnumStrGenerator/EnumStrGenerator.h"
-#include "../../../Components/Component/ComponentEditorProxy.h"
+#include "../../../Components/Component/ComponentProxy.h"
 
 SEnumPropertyDataMapWrapper CEnumPropertyDescription::m_enumPropertyDataMap;
 

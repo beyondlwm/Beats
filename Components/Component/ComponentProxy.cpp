@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "ComponentEditorProxy.h"
+#include "ComponentProxy.h"
 #include "Utility/Serializer/Serializer.h"
 #include "Utility/TinyXML/tinyxml.h"
 #include "Utility/StringHelper/StringHelper.h"

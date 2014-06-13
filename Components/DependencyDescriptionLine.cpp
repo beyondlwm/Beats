@@ -2,7 +2,7 @@
 #include "DependencyDescription.h"
 #include "DependencyDescriptionLine.h"
 #include "Component/ComponentGraphic.h"
-#include "Component/ComponentEditorProxy.h"
+#include "Component/ComponentProxy.h"
 #include <math.h>
 #include "Utility/Math/Matrix4.h"
 #include "Utility/Math/MathPublic.h"

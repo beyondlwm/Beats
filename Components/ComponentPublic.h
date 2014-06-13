@@ -4,7 +4,7 @@
 #include <string>
 #include "Property/PropertyPublic.h"
 #include "Utility/StringHelper/StringHelper.h"
-#include "Component/ComponentEditorProxy.h"
+#include "Component/ComponentProxy.h"
 #include "Component/ComponentProxyManager.h"
 #include "Component/ComponentInstanceManager.h"
 #include "Property/PropertyDescriptionBase.h"

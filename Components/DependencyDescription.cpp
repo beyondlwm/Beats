@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Component/ComponentInstanceManager.h"
 #include "Component/ComponentProxyManager.h"
-#include "Component/ComponentEditorProxy.h"
+#include "Component/ComponentProxy.h"
 #include "DependencyDescription.h"
 #include "DependencyDescriptionLine.h"
 #include "Utility/TinyXML/tinyxml.h"

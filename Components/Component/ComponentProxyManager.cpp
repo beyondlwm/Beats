@@ -10,7 +10,7 @@
 #include "ComponentGraphic.h"
 #include "DependencyDescriptionLine.h"
 #include "DependencyDescription.h"
-#include "ComponentEditorProxy.h"
+#include "ComponentProxy.h"
 #include "ComponentPublic.h"
 
 CComponentProxyManager* CComponentProxyManager::m_pInstance = NULL;
