@@ -10,7 +10,6 @@ class COMPONENTS_DLL_DECL CComponentInstance : public CComponentBase
 public:
     CComponentInstance();
     virtual ~CComponentInstance();
-    virtual void Initialize() override;
     virtual void Uninitialize() override;
     DECLARE_REFLECT_GUID(CComponentInstance, 0x4314AEF, CComponentBase)
 

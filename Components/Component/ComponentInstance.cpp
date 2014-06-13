@@ -12,11 +12,6 @@ CComponentInstance::~CComponentInstance()
 {
 }
 
-void CComponentInstance::Initialize()
-{
-
-}
-
 void CComponentInstance::Uninitialize()
 {
     super::Uninitialize();
