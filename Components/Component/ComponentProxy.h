@@ -11,6 +11,7 @@ class CDependencyDescription;
 class CDependencyDescriptionLine;
 class CPropertyDescriptionBase;
 class CComponentGraphic;
+class CComponentInstance;
 
 class COMPONENTS_DLL_DECL CComponentProxy : public CComponentBase
 {
@@ -28,9 +29,12 @@ public:
     void SetUserDefineDisplayName(const TCHAR* pszUserDefineDisplayName);
     CComponentGraphic* GetGraphics();
 
-    void SetHostComponent(CComponentBase* pComponent);
-    CComponentBase* GetHostComponent() const;
+    void SetHostComponent(CComponentInstance* pComponent);
+    CComponentInstance* GetHostComponent() const;
     void UpdateHostComponent();
+
+    void SetTemplateFlag(bool bFlag);
+    bool GetTemplateFlag() const;
 
     void AddProperty(CPropertyDescriptionBase* pProperty);
     void ClearProperty();
@@ -74,10 +78,11 @@ protected:
     std::vector<CDependencyDescriptionLine*>* m_pBeConnectedDependencyLines;
 
 private:
+    bool m_bIsTemplate;
     size_t m_uGuid;
     size_t m_uParentGuid;
     CComponentGraphic* m_pGraphics;
-    CComponentBase* m_pHostComponent;
+    CComponentInstance* m_pHostComponent;
     std::vector<char>* m_pSerializeOrder; // this variable save the order of property/dependency data comes in when deserialize. we have to keep the order when serialize.
     TString m_strClassName;
     TString m_strDisplayName;

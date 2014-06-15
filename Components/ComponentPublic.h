@@ -4,6 +4,7 @@
 #include <string>
 #include "Property/PropertyPublic.h"
 #include "Utility/StringHelper/StringHelper.h"
+#include "Component/ComponentInstance.h"
 #include "Component/ComponentProxy.h"
 #include "Component/ComponentProxyManager.h"
 #include "Component/ComponentInstanceManager.h"

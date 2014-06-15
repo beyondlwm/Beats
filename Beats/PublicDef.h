@@ -19,7 +19,7 @@ static TCHAR szBeatsDialogBuffer[10240] = {0};
             BEATS_WARNING(condition, __VA_ARGS__)\
             _stprintf_s(szBeatsDialogBuffer, __VA_ARGS__, _T(""));\
             TCHAR errorInfo[512];\
-            _stprintf_s(errorInfo, _T("\nErrorID:%d at %s %d"), GetLastError(), _T(__FILE__), __LINE__);\
+            _stprintf_s(errorInfo, _T("\nErrorID:%d at %s %d\n"), GetLastError(), _T(__FILE__), __LINE__);\
             _tcscat_s(szBeatsDialogBuffer, errorInfo);\
             _tcscat_s(szBeatsDialogBuffer, _T("Condition: "));\
             _tcscat_s(szBeatsDialogBuffer, _T(#condition));\

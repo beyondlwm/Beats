@@ -6,6 +6,7 @@
 #include "../../BDTWxFrame.h"
 #include "../../Components/Component/ComponentProxy.h"
 #include "../../Components/Component/ComponentProxyManager.h"
+#include "Component/ComponentInstance.h"
 
 #define POINTER_SPLIT_SYMBOL _T("@")
 

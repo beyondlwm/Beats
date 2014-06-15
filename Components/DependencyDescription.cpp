@@ -7,6 +7,7 @@
 #include "Utility/TinyXML/tinyxml.h"
 #include "Utility/StringHelper/StringHelper.h"
 #include "Utility/Serializer/Serializer.h"
+#include "Component/ComponentInstance.h"
 
 CDependencyDescription::CDependencyDescription(EDependencyType type, size_t dependencyGuid, CComponentProxy* pOwner, size_t uIndex, bool bIsList)
 : m_type(type)

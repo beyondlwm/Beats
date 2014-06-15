@@ -13,6 +13,11 @@ public:
     virtual void Uninitialize() override;
     DECLARE_REFLECT_GUID(CComponentInstance, 0x4314AEF, CComponentBase)
 
+public:
+    void SetProxyComponent(class CComponentProxy* pProxy);
+    class CComponentProxy* GetProxyComponent() const;
+private:
+    class CComponentProxy* m_pProxyComponent;
 };
 
 #endif

@@ -12,9 +12,11 @@
 #include "DependencyDescription.h"
 #include "ComponentGraphic.h"
 #include <string>
+#include "ComponentInstance.h"
 
 CComponentProxy::CComponentProxy(CComponentGraphic* pGraphics)
-: m_uGuid(0)
+: m_bIsTemplate(false)
+, m_uGuid(0)
 , m_uParentGuid(0)
 , m_pGraphics(pGraphics)
 , m_pHostComponent(NULL)
@@ -28,7 +30,8 @@ CComponentProxy::CComponentProxy(CComponentGraphic* pGraphics)
 }
 
 CComponentProxy::CComponentProxy(CComponentGraphic* pGraphics, size_t uGuid, size_t uParentGuid, const TCHAR* pszClassName)
-: m_uGuid(uGuid)
+: m_bIsTemplate(false)
+, m_uGuid(uGuid)
 , m_uParentGuid(uParentGuid)
 , m_pGraphics(pGraphics)
 , m_pHostComponent(NULL)
@@ -62,9 +65,8 @@ CComponentProxy::~CComponentProxy()
     BEATS_SAFE_DELETE(m_pSerializeOrder);
     BEATS_SAFE_DELETE(m_pGraphics);
     BEATS_ASSERT(m_pHostComponent == NULL || m_pHostComponent->GetId() == GetId());
-    if (GetId() != 0xFFFFFFFF)
+    if (m_pHostComponent != NULL)
     {
-        m_pHostComponent->Uninitialize();
         BEATS_SAFE_DELETE(m_pHostComponent);
     }
 }
@@ -137,7 +139,7 @@ CComponentBase* CComponentProxy::Clone(bool bCloneValue, CSerializer* /*pSeriali
     pNewInstance->SetId(id);
     if (m_pHostComponent != NULL)
     {
-        pNewInstance->m_pHostComponent = CComponentInstanceManager::GetInstance()->CreateComponentByRef(m_pHostComponent, bCloneValue, id == 0xFFFFFFFF, id);
+        pNewInstance->m_pHostComponent = (CComponentInstance*)CComponentInstanceManager::GetInstance()->CreateComponentByRef(m_pHostComponent, bCloneValue, id == 0xFFFFFFFF, id);
     }
     if (bCallInitFunc)
     {
@@ -238,12 +240,17 @@ CComponentGraphic* CComponentProxy::GetGraphics()
     return m_pGraphics;
 }
 
-void CComponentProxy::SetHostComponent(CComponentBase* pComponent)
+void CComponentProxy::SetHostComponent(CComponentInstance* pComponent)
 {
+    BEATS_ASSERT(m_pHostComponent == NULL || pComponent == NULL, _T("SetHostComponent should be called only once!"));
     m_pHostComponent = pComponent;
+    if (m_pHostComponent != NULL)
+    {
+        m_pHostComponent->SetProxyComponent(this);
+    }
 }
 
-CComponentBase* CComponentProxy::GetHostComponent() const
+CComponentInstance* CComponentProxy::GetHostComponent() const
 {
     return m_pHostComponent;
 }
@@ -263,6 +270,16 @@ void CComponentProxy::UpdateHostComponent()
         m_pHostComponent->ReflectData(serializer);
         CComponentInstanceManager::GetInstance()->ResolveDependency();
     }
+}
+
+void CComponentProxy::SetTemplateFlag(bool bFlag)
+{
+    m_bIsTemplate = bFlag;
+}
+
+bool CComponentProxy::GetTemplateFlag() const
+{
+    return m_bIsTemplate;
 }
 
 void CComponentProxy::SaveToXML( TiXmlElement* pNode, bool bSaveOnlyNoneNativePart/* = false*/)
@@ -548,6 +565,11 @@ void CComponentProxy::Initialize()
     {
         (*m_pProperties)[i]->Initialize();
     }
+    if (m_pHostComponent != NULL && !GetTemplateFlag())
+    {
+        UpdateHostComponent();
+        m_pHostComponent->Initialize();
+    }
 }
 
 void CComponentProxy::Uninitialize()
@@ -562,5 +584,9 @@ void CComponentProxy::Uninitialize()
     for (size_t i = 0; i < (*m_pProperties).size(); ++i)
     {
         (*m_pProperties)[i]->Uninitialize();
+    }
+    if (m_pHostComponent != NULL && !GetTemplateFlag())
+    {
+        m_pHostComponent->Uninitialize();
     }
 }

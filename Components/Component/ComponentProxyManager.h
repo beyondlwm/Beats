@@ -50,11 +50,14 @@ public:
     const std::map<size_t, TString>& GetAbstractComponentNameMap() const;
     virtual void Uninitialize() override;
 
+    bool IsLoadingFile() const;
+
 private:
     void LoadTemplateDataFromXML(const TCHAR* pWorkingPath);
     void LoadTemplateDataFromSerializer(CSerializer& serializer, TCreateComponentEditorProxyFunc func, TCreateGraphicFunc pGraphicFunc);
 
 private:
+    bool m_bLoadingFilePhase;
     bool m_bReflectCheckFlag;
     CComponentProject* m_pProject;
     TString m_currentWorkingFilePath;

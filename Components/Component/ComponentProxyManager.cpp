@@ -12,11 +12,13 @@
 #include "DependencyDescription.h"
 #include "ComponentProxy.h"
 #include "ComponentPublic.h"
+#include "ComponentInstance.h"
 
 CComponentProxyManager* CComponentProxyManager::m_pInstance = NULL;
 
 CComponentProxyManager::CComponentProxyManager()
-    : m_bReflectCheckFlag(false)
+    : m_bLoadingFilePhase(false)
+    , m_bReflectCheckFlag(false)
     , m_pCurrReflectPropertyDescription(NULL)
     , m_pCurrReflectDependency(NULL)
 {
@@ -35,6 +37,7 @@ CComponentProxyManager::~CComponentProxyManager()
 
 void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /*= false */)
 {
+    m_bLoadingFilePhase = true;
     if (!bOpenAsCopy || !m_currentWorkingFilePath.empty()) // We must first open a file,then we can copy from the pFilePath.
     {
         char tmp[MAX_PATH] = {0};
@@ -76,16 +79,10 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /
                 {
                     CComponentProxy* pProxyInstance = dynamic_cast<CComponentProxy*>(subIter->second);
                     BEATS_ASSERT(pProxyInstance != NULL);
-                    // We need to update the host component after the proxy's dependencies have been resolved.
-                    pProxyInstance->UpdateHostComponent();
-                    if (pProxyInstance->GetHostComponent() != NULL)
-                    {
-                        pProxyInstance->GetHostComponent()->Initialize();
-                        BEATS_ASSERT(pProxyInstance->GetHostComponent()->IsInitialized(),
-                            _T("Initialize flag is not set for component %s£¡ check your Initilaize function!"),
-                            pProxyInstance->GetClassStr());
-                    }
                     pProxyInstance->Initialize();
+                    BEATS_ASSERT(pProxyInstance->GetHostComponent()->IsInitialized() && pProxyInstance->IsInitialized(),
+                        _T("Initialize flag is not set for component %s£¡ check your Initilaize function!"),
+                        pProxyInstance->GetClassStr());
                 }
             }
             if (bOpenAsCopy)
@@ -121,36 +118,32 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /
             MessageBox(NULL, info, _T("Load File Failed"), MB_OK | MB_ICONERROR);
         }
     }
+    m_bLoadingFilePhase = false;
 }
 
 void CComponentProxyManager::CloseFile(bool bRefreshProjectData)
 {
     if (m_currentWorkingFilePath.length() > 0)
     {
+        std::vector<CComponentProxy*> allProxyInstance;
         for (std::map<size_t, std::map<size_t, CComponentBase*>*>::iterator iter = m_pComponentInstanceMap->begin(); iter != m_pComponentInstanceMap->end(); ++iter)
         {
             for (std::map<size_t, CComponentBase*>::iterator subIter = iter->second->begin(); subIter != iter->second->end(); ++subIter)
             {
                 CComponentProxy* pProxy = (CComponentProxy*)(subIter->second);
                 BEATS_ASSERT(pProxy != NULL);
-                if (pProxy->GetHostComponent() != NULL)
-                {
-                    pProxy->GetHostComponent()->Uninitialize();
-                }
-                pProxy->Uninitialize();
+                allProxyInstance.push_back(pProxy);
             }
         }
-        for (std::map<size_t, std::map<size_t, CComponentBase*>*>::iterator iter = m_pComponentInstanceMap->begin(); iter != m_pComponentInstanceMap->end(); ++iter)
+        for (size_t i = 0; i < allProxyInstance.size(); ++i)
         {
-            for (std::map<size_t, CComponentBase*>::iterator subIter = iter->second->begin(); subIter != iter->second->end(); ++subIter)
-            {
-                BEATS_SAFE_DELETE(subIter->second);
-                m_pIdManager->RecycleId(subIter->first);
-            }
-            BEATS_SAFE_DELETE(iter->second);
+            CComponentProxy* pProxy = allProxyInstance[i];
+            pProxy->Uninitialize();
+            BEATS_SAFE_DELETE(pProxy);
         }
-        m_pComponentInstanceMap->clear();
-
+        BEATS_ASSERT(m_pComponentInstanceMap->size() == 0, _T("component proxy is not totally cleared! check uninitialize function!"));
+        BEATS_ASSERT(CComponentInstanceManager::GetInstance()->GetComponentInstanceMap()->size() == 0, 
+            _T("component instance is not totally cleared! check uninitialize function!"));
         if (bRefreshProjectData)
         {
             // When we close a file, we may have saved it or reverted the change
@@ -389,6 +382,11 @@ void CComponentProxyManager::DeserializeTemplateData(const TCHAR* pWorkingPath, 
             // Step 2: Fix the value from XML.
             _stprintf(szFilePath, _T("%s\\%s"), pWorkingPath, EXPORT_STRUCTURE_DATA_PATCH_XMLFILENAME);
             LoadTemplateDataFromXML(szFilePath);
+            std::map<size_t, CComponentBase*>::iterator iter = m_pComponentTemplateMap->begin();
+            for (; iter != m_pComponentTemplateMap->end(); ++iter )
+            {
+                iter->second->Initialize();
+            }
         }
     }
 }
@@ -458,6 +456,11 @@ void CComponentProxyManager::Uninitialize()
         BEATS_ASSERT(iter->second->IsInitialized());
         iter->second->Uninitialize();
     }
+}
+
+bool CComponentProxyManager::IsLoadingFile() const
+{
+    return m_bLoadingFilePhase;
 }
 
 void CComponentProxyManager::LoadTemplateDataFromXML(const TCHAR* pszPath)
@@ -533,8 +536,9 @@ void CComponentProxyManager::LoadTemplateDataFromSerializer(CSerializer& seriali
             pComponentEditorProxy->SetCatalogName(pStrHolder);
             BEATS_ASSERT(m_pComponentTemplateMap->find(guid) == m_pComponentTemplateMap->end(), _T("Template component proxy already exists!GUID:0x%x, id:%d"), guid, pComponentEditorProxy->GetId());
             RegisterTemplate(pComponentEditorProxy);
-            CComponentBase* pInstance = CComponentInstanceManager::GetInstance()->GetComponentTemplate(guid);
+            CComponentInstance* pInstance = (CComponentInstance*)CComponentInstanceManager::GetInstance()->GetComponentTemplate(guid);
             BEATS_ASSERT(pInstance != NULL, _T("Cant find a template instance for a proxy to be its host!GUID:0x%x, id:%d"), guid, pComponentEditorProxy->GetId());
+            pComponentEditorProxy->SetTemplateFlag(true);
             pComponentEditorProxy->SetHostComponent(pInstance);
             pComponentEditorProxy->Deserialize(serializer);
         }
@@ -544,10 +548,5 @@ void CComponentProxyManager::LoadTemplateDataFromSerializer(CSerializer& seriali
             m_abstractComponentNameMap[guid] = TString(pStrHolder);
         }
         BEATS_ASSERT(serializer.GetReadPos() == curReadPos + totalSize);
-    }
-    std::map<size_t, CComponentBase*>::iterator iter = m_pComponentTemplateMap->begin();
-    for (; iter != m_pComponentTemplateMap->end(); ++iter )
-    {
-        iter->second->Initialize();
     }
 }
