@@ -19,11 +19,13 @@ class CComponentGraphic;
 
 class COMPONENTS_DLL_DECL CComponentInstanceManager : public CComponentManagerBase
 {
+    typedef CComponentManagerBase super;
     BEATS_DECLARE_SINGLETON(CComponentInstanceManager);
 public:
     void SerializeTemplateData(CSerializer& serializer);
     size_t GetVersion();
     void Import(CSerializer& serializer);
+    virtual void Uninitialize() override;
     virtual void ResolveDependency() override;
 
 };

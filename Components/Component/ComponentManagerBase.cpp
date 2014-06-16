@@ -70,7 +70,7 @@ void CComponentManagerBase::UninitializeAllTemplate()
     for (std::map<size_t, CComponentBase*>::iterator iter = m_pComponentTemplateMap->begin(); iter != m_pComponentTemplateMap->end(); ++iter)
     {
         BEATS_ASSERT(iter->second != NULL);
-        BEATS_ASSERT(iter->second->IsInitialized());
+        BEATS_ASSERT(iter->second->IsInitialized() || iter->second->GetGuid() != 1);
         iter->second->Uninitialize();
     }
 }

@@ -65,6 +65,10 @@ CComponentProxy::~CComponentProxy()
     BEATS_SAFE_DELETE(m_pProperties);
     BEATS_SAFE_DELETE(m_pSerializeOrder);
     BEATS_SAFE_DELETE(m_pGraphics);
+    if (m_pHostComponent != NULL)
+    {
+        m_pHostComponent->SetProxyComponent(NULL);
+    }
 }
 
 void CComponentProxy::Deserialize( CSerializer& serializer )
