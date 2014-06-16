@@ -45,6 +45,8 @@ public:
     //In the Release, If We do it in ~CComponentManagerBase(), we can no longer visit the singleton.
     void Release();
     void DeleteAllInstance();
+    void UninitializeAllInstance();
+    void UninitializeAllTemplate();
 
     bool RegisterTemplate(CComponentBase* pComponent);
     bool RegisterInstance(CComponentBase* pComponent);

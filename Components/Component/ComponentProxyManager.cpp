@@ -114,8 +114,8 @@ void CComponentProxyManager::CloseFile(bool bRefreshProjectData)
 {
     if (m_currentWorkingFilePath.length() > 0)
     {
-        CComponentProxyManager::GetInstance()->Uninitialize();
-        CComponentInstanceManager::GetInstance()->Uninitialize();
+        CComponentProxyManager::GetInstance()->UninitializeAllInstance();
+        CComponentInstanceManager::GetInstance()->UninitializeAllInstance();
         BEATS_ASSERT(m_pComponentInstanceMap->size() == 0, _T("component proxy is not totally cleared! check uninitialize function!"));
         BEATS_ASSERT(CComponentInstanceManager::GetInstance()->GetComponentInstanceMap()->size() == 0, 
             _T("component instance is not totally cleared! check uninitialize function!"));
@@ -423,17 +423,6 @@ void CComponentProxyManager::SetCurrReflectDependency(CDependencyDescription* pD
 const std::map<size_t, TString>& CComponentProxyManager::GetAbstractComponentNameMap() const
 {
     return m_abstractComponentNameMap;
-}
-
-void CComponentProxyManager::Uninitialize()
-{
-    super::Uninitialize();
-    for (std::map<size_t, CComponentBase*>::iterator iter = m_pComponentTemplateMap->begin(); iter != m_pComponentTemplateMap->end(); ++iter)
-    {
-        BEATS_ASSERT(iter->second != NULL);
-        BEATS_ASSERT(iter->second->IsInitialized());
-        iter->second->Uninitialize();
-    }
 }
 
 bool CComponentProxyManager::IsLoadingFile() const

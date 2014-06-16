@@ -46,6 +46,35 @@ void CComponentManagerBase::DeleteAllInstance()
     }
 }
 
+void CComponentManagerBase::UninitializeAllInstance()
+{
+    std::vector<CComponentBase*> allComponent;
+    std::map<size_t, std::map<size_t, CComponentBase*>*>::iterator iter = m_pComponentInstanceMap->begin();
+    for (; iter != m_pComponentInstanceMap->end(); ++iter)
+    {
+        std::map<size_t, CComponentBase*>::iterator subIter = iter->second->begin();
+        for (; subIter != iter->second->end(); ++subIter)
+        {
+            BEATS_ASSERT(subIter->second != NULL);
+            allComponent.push_back(subIter->second);
+        }
+    }
+    for (size_t i = 0; i < allComponent.size(); ++i)
+    {
+        allComponent[i]->Uninitialize();
+    }
+}
+
+void CComponentManagerBase::UninitializeAllTemplate()
+{
+    for (std::map<size_t, CComponentBase*>::iterator iter = m_pComponentTemplateMap->begin(); iter != m_pComponentTemplateMap->end(); ++iter)
+    {
+        BEATS_ASSERT(iter->second != NULL);
+        BEATS_ASSERT(iter->second->IsInitialized());
+        iter->second->Uninitialize();
+    }
+}
+
 bool CComponentManagerBase::RegisterTemplate( CComponentBase* pComponent )
 {
     std::map<size_t, CComponentBase*>::iterator iter = m_pComponentTemplateMap->find(pComponent->GetGuid());
@@ -227,19 +256,6 @@ void CComponentManagerBase::Initialize()
 
 void CComponentManagerBase::Uninitialize()
 {
-    std::vector<CComponentBase*> allComponent;
-    std::map<size_t, std::map<size_t, CComponentBase*>*>::iterator iter = m_pComponentInstanceMap->begin();
-    for (; iter != m_pComponentInstanceMap->end(); ++iter)
-    {
-        std::map<size_t, CComponentBase*>::iterator subIter = iter->second->begin();
-        for (; subIter != iter->second->end(); ++subIter)
-        {
-            BEATS_ASSERT(subIter->second != NULL);
-            allComponent.push_back(subIter->second);
-        }
-    }
-    for (size_t i = 0; i < allComponent.size(); ++i)
-    {
-        allComponent[i]->Uninitialize();
-    }
+    UninitializeAllInstance();
+    UninitializeAllTemplate();
 }
