@@ -29,7 +29,7 @@ CFloatPropertyDescription::CFloatPropertyDescription(const CFloatPropertyDescrip
 
 CFloatPropertyDescription::~CFloatPropertyDescription()
 {
-    DestoryValue<float>();
+    DestroyValue<float>();
 }
 
 bool CFloatPropertyDescription::AnalyseUIParameterImpl( const std::vector<TString>& result)

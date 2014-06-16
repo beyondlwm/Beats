@@ -30,7 +30,7 @@ CUIntPropertyDescription::CUIntPropertyDescription(const CUIntPropertyDescriptio
 
 CUIntPropertyDescription::~CUIntPropertyDescription()
 {
-    DestoryValue<size_t>();
+    DestroyValue<size_t>();
 }
 
 bool CUIntPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>& result)

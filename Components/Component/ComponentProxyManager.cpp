@@ -72,19 +72,8 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /
                 }
             }
             ResolveDependency();
-            const std::map<size_t, std::map<size_t, CComponentBase*>*>* pInstanceMap = GetComponentInstanceMap();
-            for (std::map<size_t, std::map<size_t, CComponentBase*>*>::const_iterator iter = pInstanceMap->begin(); iter != pInstanceMap->end(); ++iter)
-            {
-                for (std::map<size_t, CComponentBase*>::const_iterator subIter = iter->second->begin(); subIter != iter->second->end(); ++subIter)
-                {
-                    CComponentProxy* pProxyInstance = dynamic_cast<CComponentProxy*>(subIter->second);
-                    BEATS_ASSERT(pProxyInstance != NULL);
-                    pProxyInstance->Initialize();
-                    BEATS_ASSERT(pProxyInstance->GetHostComponent()->IsInitialized() && pProxyInstance->IsInitialized(),
-                        _T("Initialize flag is not set for component %s£¡ check your Initilaize function!"),
-                        pProxyInstance->GetClassStr());
-                }
-            }
+            Initialize();
+            CComponentInstanceManager::GetInstance()->Initialize();
             if (bOpenAsCopy)
             {
                 std::vector<CComponentBase*> allInstance;
@@ -125,25 +114,14 @@ void CComponentProxyManager::CloseFile(bool bRefreshProjectData)
 {
     if (m_currentWorkingFilePath.length() > 0)
     {
-        std::vector<CComponentProxy*> allProxyInstance;
-        for (std::map<size_t, std::map<size_t, CComponentBase*>*>::iterator iter = m_pComponentInstanceMap->begin(); iter != m_pComponentInstanceMap->end(); ++iter)
-        {
-            for (std::map<size_t, CComponentBase*>::iterator subIter = iter->second->begin(); subIter != iter->second->end(); ++subIter)
-            {
-                CComponentProxy* pProxy = (CComponentProxy*)(subIter->second);
-                BEATS_ASSERT(pProxy != NULL);
-                allProxyInstance.push_back(pProxy);
-            }
-        }
-        for (size_t i = 0; i < allProxyInstance.size(); ++i)
-        {
-            CComponentProxy* pProxy = allProxyInstance[i];
-            pProxy->Uninitialize();
-            BEATS_SAFE_DELETE(pProxy);
-        }
+        CComponentProxyManager::GetInstance()->Uninitialize();
+        CComponentInstanceManager::GetInstance()->Uninitialize();
         BEATS_ASSERT(m_pComponentInstanceMap->size() == 0, _T("component proxy is not totally cleared! check uninitialize function!"));
         BEATS_ASSERT(CComponentInstanceManager::GetInstance()->GetComponentInstanceMap()->size() == 0, 
             _T("component instance is not totally cleared! check uninitialize function!"));
+
+        CComponentProxyManager::GetInstance()->DeleteAllInstance();
+        CComponentInstanceManager::GetInstance()->DeleteAllInstance();
         if (bRefreshProjectData)
         {
             // When we close a file, we may have saved it or reverted the change

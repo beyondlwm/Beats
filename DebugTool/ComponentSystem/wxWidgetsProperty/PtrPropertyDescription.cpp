@@ -38,7 +38,8 @@ CPtrPropertyDescription::CPtrPropertyDescription(const CPtrPropertyDescription& 
 
 CPtrPropertyDescription::~CPtrPropertyDescription()
 {
-    DestoryValue<TString>();
+    DestroyValue<TString>();
+    DestroyInstance(false);
 }
 
 bool CPtrPropertyDescription::AnalyseUIParameterImpl( const std::vector<TString>& paramUnit)
@@ -198,21 +199,6 @@ void CPtrPropertyDescription::LoadFromXML( TiXmlElement* pNode )
             this->GetInstanceComponent()->UpdateHostComponent();
             // Force sync this property instance to the variable of host component,because we have already load the value in super::LoadFromXML(pNode);.
             SetValueWithType(pStrValue, eVT_CurrentValue, true);
-            //Call init after data is loaded from XML (except template component).
-            CPropertyDescriptionBase* pRootProperty = this;
-            while (pRootProperty->GetParent() != NULL)
-            {
-                pRootProperty = pRootProperty->GetParent();
-            }
-            bool bIsTemplateProperty = pRootProperty->GetOwner()->GetId() == 0xFFFFFFFF;
-            if (!bIsTemplateProperty)
-            {
-                if (this->GetInstanceComponent()->GetHostComponent() != NULL)
-                {
-                    this->GetInstanceComponent()->GetHostComponent()->Initialize();
-                }
-            }
-            this->GetInstanceComponent()->Initialize();
         }
     }
 }
@@ -269,30 +255,23 @@ void CPtrPropertyDescription::Initialize()
     {
         UpdateDisplayString(m_uComponentGuid);
     }
+    if (m_pInstance != NULL)
+    {
+        m_pInstance->Initialize();
+        if (m_pInstance->GetHostComponent() != NULL)
+        {
+            m_pInstance->GetHostComponent()->Initialize();
+        }
+    }
 }
 
 void CPtrPropertyDescription::Uninitialize()
 {
     super::Uninitialize();
-    if (GetInstanceComponent() != NULL)
+    if (m_pInstance != NULL)
     {
-        if (m_pInstance != NULL && m_pInstance->GetHostComponent() != NULL)
-        {
-            // We destroy the host component only when it is a template property.
-            CPropertyDescriptionBase* pRootProperty = this;
-            while (pRootProperty->GetParent() != NULL)
-            {
-                pRootProperty = pRootProperty->GetParent();
-            }
-            bool bIsTemplateProperty = pRootProperty->GetOwner()->GetId() == 0xFFFFFFFF;
-            if (bIsTemplateProperty)
-            {
-                CComponentBase* pHostComponent = m_pInstance->GetHostComponent();
-                BEATS_SAFE_DELETE(pHostComponent);
-                m_pInstance->SetHostComponent(NULL);
-            }
-        }
-        DestroyInstance(false);
+        //Don't call host component's uninitialize, user will handle that.
+        m_pInstance->Uninitialize();
     }
 }
 

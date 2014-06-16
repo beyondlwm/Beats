@@ -35,7 +35,7 @@ CListPropertyDescriptionEx::CListPropertyDescriptionEx(const CListPropertyDescri
 CListPropertyDescriptionEx::~CListPropertyDescriptionEx()
 {
     BEATS_SAFE_DELETE(m_pChildTemplate);
-    DestoryValue<TString>();
+    DestroyValue<TString>();
 }
 
 bool CListPropertyDescriptionEx::AnalyseUIParameterImpl(const std::vector<TString>& result)

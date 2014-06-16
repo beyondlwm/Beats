@@ -28,7 +28,7 @@ CColorPropertyDescription::CColorPropertyDescription(const CColorPropertyDescrip
 
 CColorPropertyDescription::~CColorPropertyDescription()
 {
-    DestoryValue<size_t>();
+    DestroyValue<size_t>();
 }
 
 bool CColorPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>& result)

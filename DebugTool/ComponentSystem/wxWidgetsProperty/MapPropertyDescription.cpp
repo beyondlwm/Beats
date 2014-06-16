@@ -40,7 +40,7 @@ CMapPropertyDescription::~CMapPropertyDescription()
 {
     BEATS_SAFE_DELETE(m_pKeyPropertyTemplate);
     BEATS_SAFE_DELETE(m_pValuePropertyTemplate);
-    DestoryValue<TString>();
+    DestroyValue<TString>();
 }
 
 wxPGProperty* CMapPropertyDescription::CreateWxProperty()

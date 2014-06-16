@@ -50,6 +50,7 @@ public:
     const std::map<size_t, TString>& GetAbstractComponentNameMap() const;
     virtual void Uninitialize() override;
 
+    // We won't call OnPropertyChange when loading files.
     bool IsLoadingFile() const;
 
 private:

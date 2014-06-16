@@ -25,7 +25,7 @@ CStringPropertyDescription::CStringPropertyDescription(const CStringPropertyDesc
 
 CStringPropertyDescription::~CStringPropertyDescription()
 {
-    DestoryValue<TString>();
+    DestroyValue<TString>();
 }
 
 bool CStringPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>& result)

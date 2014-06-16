@@ -479,7 +479,7 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
             if (!bReflectCheckFlag || pDescriptionBase->GetBasicInfo()->m_variableName.compare(_T(#property)) == 0)\
             {\
                 bool bNeedHandleSync = true;\
-                if (pDescriptionBase != NULL)\
+                if (pDescriptionBase != NULL && !CComponentProxyManager::GetInstance()->IsLoadingFile())\
                 {\
                     bNeedHandleSync = !this->OnPropertyChange(&property, &serializer);\
                 }\
@@ -514,7 +514,7 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
                     size_t uInstanceId, uGuid;\
                     serializer >> uInstanceId >> uGuid;\
                     bool bNeedSnyc = true;\
-                    if (pDependency != NULL)\
+                    if (pDependency != NULL && !CComponentProxyManager::GetInstance()->IsLoadingFile())\
                     {\
                         bNeedSnyc = !this->OnPropertyChange(&ptrProperty, CComponentInstanceManager::GetInstance()->GetComponentInstance(uInstanceId, uGuid));\
                     }\
@@ -526,11 +526,11 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
                 }\
                 else\
                 {\
-                    if (ptrProperty != NULL)\
+                    if (ptrProperty != NULL && !CComponentProxyManager::GetInstance()->IsLoadingFile())\
                     {\
                         this->OnPropertyChange(&ptrProperty, NULL);\
-                        ptrProperty = NULL;\
                     }\
+                    ptrProperty = NULL;\
                 }\
                 if (pDependency != NULL && bReflectCheckFlag)\
                 {\
@@ -552,7 +552,7 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
                 size_t uLineCount = 0;\
                 serializer >> uLineCount;\
                 bool bNeedSnyc = true;\
-                if (pDependencyList != NULL)\
+                if (pDependencyList != NULL && !CComponentProxyManager::GetInstance()->IsLoadingFile())\
                 {\
                     bNeedSnyc = !this->OnPropertyChange(&ptrProperty, pDependencyList);\
                 }\

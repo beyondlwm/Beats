@@ -46,7 +46,7 @@ CEnumPropertyDescription::CEnumPropertyDescription(const CEnumPropertyDescriptio
 
 CEnumPropertyDescription::~CEnumPropertyDescription()
 {
-    DestoryValue<int>();
+    DestroyValue<int>();
 }
 
 bool CEnumPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>& parameterUnit)

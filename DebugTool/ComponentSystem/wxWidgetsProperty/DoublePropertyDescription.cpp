@@ -29,7 +29,7 @@ CDoublePropertyDescription::CDoublePropertyDescription(const CDoublePropertyDesc
 
 CDoublePropertyDescription::~CDoublePropertyDescription()
 {
-    DestoryValue<double>();
+    DestroyValue<double>();
 }
 
 bool CDoublePropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>& result)

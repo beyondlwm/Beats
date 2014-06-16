@@ -59,7 +59,7 @@ public:
         }
     }
     template<typename T>
-    void DestoryValue()
+    void DestroyValue()
     {
         for (size_t i = 0; i < eVT_Count; ++i)
         {

@@ -29,7 +29,7 @@ CIntPropertyDescription::CIntPropertyDescription(const CIntPropertyDescription& 
 
 CIntPropertyDescription::~CIntPropertyDescription()
 {
-    DestoryValue<int>();
+    DestroyValue<int>();
 }
 
 bool CIntPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>& result)

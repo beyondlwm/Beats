@@ -15,7 +15,9 @@
         virtual size_t GetGuid() const {return REFLECT_GUID;}\
         virtual size_t GetParentGuid() const {return PARENT_REFLECT_GUID;}\
         virtual const TCHAR* GetClassStr() const {return _T(#className);}\
-        private:
+        private:\
+        typedef parentClassName super;
+
 
 class CSerializer;
 

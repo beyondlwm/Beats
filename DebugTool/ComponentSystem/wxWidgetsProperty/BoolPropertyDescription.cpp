@@ -22,7 +22,7 @@ CBoolPropertyDescription::CBoolPropertyDescription(const CBoolPropertyDescriptio
 
 CBoolPropertyDescription::~CBoolPropertyDescription()
 {
-    DestoryValue<bool>();
+    DestroyValue<bool>();
 }
 
 bool CBoolPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>& result)

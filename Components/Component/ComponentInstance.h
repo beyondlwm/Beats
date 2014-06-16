@@ -6,12 +6,11 @@
 
 class COMPONENTS_DLL_DECL CComponentInstance : public CComponentBase
 {
-    typedef CComponentBase super;
+    DECLARE_REFLECT_GUID(CComponentInstance, 0x4314AEF, CComponentBase)
 public:
     CComponentInstance();
     virtual ~CComponentInstance();
     virtual void Uninitialize() override;
-    DECLARE_REFLECT_GUID(CComponentInstance, 0x4314AEF, CComponentBase)
 
 public:
     void SetProxyComponent(class CComponentProxy* pProxy);

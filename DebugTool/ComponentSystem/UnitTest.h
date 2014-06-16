@@ -97,7 +97,7 @@ static const TCHAR* TestEnum2Str[] =
     _T("Ç¿ÖÆ"),
 };
 
-class CTestComponent : public CComponentBase
+class CTestComponent : public CComponentInstance
 {
 public:
     CTestComponent();
@@ -105,7 +105,7 @@ public:
 
     virtual void CTestComponent::ReflectData(CSerializer& serializer) override;
 
-    DECLARE_REFLECT_GUID(CTestComponent, 0x7391ADF1, CComponentBase)
+    DECLARE_REFLECT_GUID(CTestComponent, 0x7391ADF1, CComponentInstance)
 
 private:
     bool m_boolValue;

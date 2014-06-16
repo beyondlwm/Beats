@@ -46,6 +46,7 @@ CComponentProxy::CComponentProxy(CComponentGraphic* pGraphics, size_t uGuid, siz
 
 CComponentProxy::~CComponentProxy()
 {
+    BEATS_ASSERT(m_pHostComponent == NULL || m_pHostComponent->GetId() == GetId());
     ClearProperty();
     for (size_t i = 0; i < m_pDependenciesDescription->size(); ++i)
     {
@@ -64,11 +65,6 @@ CComponentProxy::~CComponentProxy()
     BEATS_SAFE_DELETE(m_pProperties);
     BEATS_SAFE_DELETE(m_pSerializeOrder);
     BEATS_SAFE_DELETE(m_pGraphics);
-    BEATS_ASSERT(m_pHostComponent == NULL || m_pHostComponent->GetId() == GetId());
-    if (m_pHostComponent != NULL)
-    {
-        BEATS_SAFE_DELETE(m_pHostComponent);
-    }
 }
 
 void CComponentProxy::Deserialize( CSerializer& serializer )
@@ -139,7 +135,8 @@ CComponentBase* CComponentProxy::Clone(bool bCloneValue, CSerializer* /*pSeriali
     pNewInstance->SetId(id);
     if (m_pHostComponent != NULL)
     {
-        pNewInstance->m_pHostComponent = (CComponentInstance*)CComponentInstanceManager::GetInstance()->CreateComponentByRef(m_pHostComponent, bCloneValue, id == 0xFFFFFFFF, id);
+        CComponentInstance* pNewHostComponent = (CComponentInstance*)CComponentInstanceManager::GetInstance()->CreateComponentByRef(m_pHostComponent, bCloneValue, id == 0xFFFFFFFF, id);
+        pNewInstance->SetHostComponent(pNewHostComponent);
     }
     if (bCallInitFunc)
     {
@@ -568,7 +565,6 @@ void CComponentProxy::Initialize()
     if (m_pHostComponent != NULL && !GetTemplateFlag())
     {
         UpdateHostComponent();
-        m_pHostComponent->Initialize();
     }
 }
 
@@ -584,9 +580,5 @@ void CComponentProxy::Uninitialize()
     for (size_t i = 0; i < (*m_pProperties).size(); ++i)
     {
         (*m_pProperties)[i]->Uninitialize();
-    }
-    if (m_pHostComponent != NULL && !GetTemplateFlag())
-    {
-        m_pHostComponent->Uninitialize();
     }
 }

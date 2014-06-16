@@ -23,6 +23,17 @@ CComponentManagerBase::~CComponentManagerBase()
 void CComponentManagerBase::Release()
 {
     BEATS_SAFE_DELETE(m_pIdManager);
+    DeleteAllInstance();
+    BEATS_SAFE_DELETE(m_pComponentInstanceMap);
+
+    typedef std::map<size_t, CComponentBase*> TComponentMap;
+    BEATS_SAFE_DELETE_MAP((*m_pComponentTemplateMap), TComponentMap);
+    BEATS_SAFE_DELETE(m_pComponentTemplateMap);
+    BEATS_SAFE_DELETE(m_pDependencyResolver);
+}
+
+void CComponentManagerBase::DeleteAllInstance()
+{
     std::map<size_t, std::map<size_t, CComponentBase*>*>::iterator iter = m_pComponentInstanceMap->begin();
     for (; iter != m_pComponentInstanceMap->end(); ++iter)
     {
@@ -33,12 +44,6 @@ void CComponentManagerBase::Release()
         }
         BEATS_SAFE_DELETE(iter->second);
     }
-    BEATS_SAFE_DELETE(m_pComponentInstanceMap);
-
-    typedef std::map<size_t, CComponentBase*> TComponentMap;
-    BEATS_SAFE_DELETE_MAP((*m_pComponentTemplateMap), TComponentMap);
-    BEATS_SAFE_DELETE(m_pComponentTemplateMap);
-    BEATS_SAFE_DELETE(m_pDependencyResolver);
 }
 
 bool CComponentManagerBase::RegisterTemplate( CComponentBase* pComponent )
@@ -213,12 +218,16 @@ void CComponentManagerBase::Initialize()
             BEATS_ASSERT(subIter->second != NULL);
             BEATS_ASSERT(subIter->second->IsInitialized() == false, _T("Can't initialize component twice!"));
             subIter->second->Initialize();
+            BEATS_ASSERT(subIter->second->IsInitialized(),
+                _T("The initialize flag of component %s is not set after initialize func!"),
+                subIter->second->GetClassStr());
         }
     }
 }
 
 void CComponentManagerBase::Uninitialize()
 {
+    std::vector<CComponentBase*> allComponent;
     std::map<size_t, std::map<size_t, CComponentBase*>*>::iterator iter = m_pComponentInstanceMap->begin();
     for (; iter != m_pComponentInstanceMap->end(); ++iter)
     {
@@ -226,7 +235,11 @@ void CComponentManagerBase::Uninitialize()
         for (; subIter != iter->second->end(); ++subIter)
         {
             BEATS_ASSERT(subIter->second != NULL);
-            subIter->second->Uninitialize();
+            allComponent.push_back(subIter->second);
         }
+    }
+    for (size_t i = 0; i < allComponent.size(); ++i)
+    {
+        allComponent[i]->Uninitialize();
     }
 }
