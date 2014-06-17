@@ -58,6 +58,7 @@
 #define TCHAR char
 #define TString std::string
 #define __T(x)      x
+#define _T(x)       __T(x)
 
 //formatting functions
 #define _sntprintf snprintf    

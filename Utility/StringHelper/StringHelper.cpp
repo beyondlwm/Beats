@@ -98,7 +98,7 @@ void CStringHelper::ConvertToTCHAR( const char* pData, TCHAR* pBuffer, size_t bu
     #if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
         MultiByteToWideChar(CP_ACP, 0, pData, -1, pBuffer, (int)bufferLength);
     #else
-        swprintf(pBuffer, bufferLength, _T("%hs"), pData);
+        swprintf(pBuffer, bufferLength, L"%hs", pData);
     #endif
 #else
     strcpy(pBuffer, pData);
@@ -127,7 +127,7 @@ void CStringHelper::ConvertToWCHAR( const TCHAR* pData, wchar_t* pBuffer, size_t
     #if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
         MultiByteToWideChar(CP_ACP, 0, pData, -1, pBuffer, (int)bufferLength);
     #else
-        swprintf(pBuffer, bufferLength, _T("%hs"), pData);
+        swprintf(pBuffer, bufferLength, L"%hs", pData);
     #endif
 #endif
 }
@@ -329,7 +329,7 @@ CStringHelper::EStringCharacterType CStringHelper::GetCharacterType(wchar_t char
 CStringHelper::EStringCharacterType CStringHelper::GetCharacterType(const char* pszChar) const
 {
     wchar_t buffer;
-    swprintf(&buffer, sizeof(buffer), _T("%hs"), pszChar);
+    swprintf(&buffer, sizeof(buffer), L"%hs", pszChar);
     return GetCharacterType(buffer);
 }
 

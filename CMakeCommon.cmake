@@ -11,7 +11,10 @@ else()
 endif()
 
 #2. Set Define Marco
+if (WIN32)
+else()
 ADD_DEFINITIONS(-DUNICODE -D_UNICODE)
+endif()
 
 if(WIN32)
   ADD_DEFINITIONS (-DWIN32 -D_WINDOWS)  
