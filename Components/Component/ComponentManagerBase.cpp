@@ -13,6 +13,7 @@ CComponentManagerBase::CComponentManagerBase()
     m_pComponentTemplateMap = new std::map<size_t, CComponentBase*>;
     m_pComponentInstanceMap = new std::map<size_t, std::map<size_t, CComponentBase*>*>;
     m_pDependencyResolver = new std::vector<SDependencyResolver*>;
+    m_pUninitializedComponents = new std::vector<CComponentBase*>;
 }
 
 CComponentManagerBase::~CComponentManagerBase()
@@ -25,11 +26,12 @@ void CComponentManagerBase::Release()
     BEATS_SAFE_DELETE(m_pIdManager);
     DeleteAllInstance();
     BEATS_SAFE_DELETE(m_pComponentInstanceMap);
-
+    
     typedef std::map<size_t, CComponentBase*> TComponentMap;
     BEATS_SAFE_DELETE_MAP((*m_pComponentTemplateMap), TComponentMap);
     BEATS_SAFE_DELETE(m_pComponentTemplateMap);
     BEATS_SAFE_DELETE(m_pDependencyResolver);
+    BEATS_SAFE_DELETE(m_pUninitializedComponents);
 }
 
 void CComponentManagerBase::DeleteAllInstance()
@@ -44,6 +46,11 @@ void CComponentManagerBase::DeleteAllInstance()
         }
         BEATS_SAFE_DELETE(iter->second);
     }
+    for (size_t i = 0; i < m_pUninitializedComponents->size(); ++i)
+    {
+        BEATS_SAFE_DELETE(m_pUninitializedComponents->at(i));
+    }
+    m_pUninitializedComponents->clear();
 }
 
 void CComponentManagerBase::UninitializeAllInstance()
@@ -62,6 +69,7 @@ void CComponentManagerBase::UninitializeAllInstance()
     for (size_t i = 0; i < allComponent.size(); ++i)
     {
         allComponent[i]->Uninitialize();
+        m_pUninitializedComponents->push_back(allComponent[i]);
     }
 }
 
@@ -84,6 +92,18 @@ bool CComponentManagerBase::RegisterTemplate( CComponentBase* pComponent )
         (*m_pComponentTemplateMap)[pComponent->GetGuid()] = pComponent;
     }
     return iter == m_pComponentTemplateMap->end();
+}
+
+bool CComponentManagerBase::UnregisterTemplate(CComponentBase* pComponent)
+{
+    std::map<size_t, CComponentBase*>::iterator iter = m_pComponentTemplateMap->find(pComponent->GetGuid());
+    bool bRet = iter != m_pComponentTemplateMap->end();
+    BEATS_ASSERT(bRet, _T("component %s guid 0x%x is not registered!"), pComponent->GetClassStr(), pComponent->GetGuid());
+    if (bRet)
+    {
+        m_pComponentTemplateMap->erase(iter);
+    }
+    return bRet;
 }
 
 bool CComponentManagerBase::RegisterInstance(CComponentBase* pNewInstance)
@@ -252,10 +272,4 @@ void CComponentManagerBase::Initialize()
                 subIter->second->GetClassStr());
         }
     }
-}
-
-void CComponentManagerBase::Uninitialize()
-{
-    UninitializeAllInstance();
-    UninitializeAllTemplate();
 }

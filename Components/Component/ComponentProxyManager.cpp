@@ -29,7 +29,12 @@ CComponentProxyManager::CComponentProxyManager()
 
 CComponentProxyManager::~CComponentProxyManager()
 {
-    Release();
+    BEATS_SAFE_DELETE(m_pIdManager);
+    BEATS_ASSERT(m_pComponentInstanceMap->size() == 0, _T("All proxy should be deleted by instance"));
+    BEATS_SAFE_DELETE(m_pComponentInstanceMap);
+    BEATS_SAFE_DELETE(m_pComponentTemplateMap);
+    BEATS_SAFE_DELETE(m_pDependencyResolver);
+    BEATS_SAFE_DELETE(m_pUninitializedComponents);
     BEATS_SAFE_DELETE(m_pProject);
     BEATS_SAFE_DELETE(m_pPropertyCreatorMap);
     BEATS_SAFE_DELETE(m_pComponentInheritMap);
@@ -114,13 +119,11 @@ void CComponentProxyManager::CloseFile(bool bRefreshProjectData)
 {
     if (m_currentWorkingFilePath.length() > 0)
     {
-        CComponentProxyManager::GetInstance()->UninitializeAllInstance();
         CComponentInstanceManager::GetInstance()->UninitializeAllInstance();
         BEATS_ASSERT(m_pComponentInstanceMap->size() == 0, _T("component proxy is not totally cleared! check uninitialize function!"));
         BEATS_ASSERT(CComponentInstanceManager::GetInstance()->GetComponentInstanceMap()->size() == 0, 
             _T("component instance is not totally cleared! check uninitialize function!"));
 
-        CComponentProxyManager::GetInstance()->DeleteAllInstance();
         CComponentInstanceManager::GetInstance()->DeleteAllInstance();
         if (bRefreshProjectData)
         {

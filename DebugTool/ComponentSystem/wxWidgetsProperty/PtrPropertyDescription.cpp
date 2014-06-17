@@ -144,10 +144,10 @@ bool CPtrPropertyDescription::DestroyInstance(bool bDeleteHostComponent)
             if (pHost != NULL)
             {
                 pHost->Uninitialize();
-                BEATS_SAFE_DELETE(pHost);
+                BEATS_SAFE_DELETE(pHost);//m_pInstance is deleted here!
+                m_pInstance = NULL;
             }
         }
-        BEATS_SAFE_DELETE(m_pInstance);
         m_pChildren->clear();
         SetDerivedGuid(0);
         if (bDeleteHostComponent)

@@ -49,6 +49,7 @@ public:
     void UninitializeAllTemplate();
 
     bool RegisterTemplate(CComponentBase* pComponent);
+    bool UnregisterTemplate(CComponentBase* pComponent);
     bool RegisterInstance(CComponentBase* pComponent);
     bool UnregisterInstance(CComponentBase* pComponent);
 
@@ -72,13 +73,13 @@ public:
     void AddDependencyResolver( CDependencyDescription* pDescription, size_t uIndex, size_t uGuid, size_t uInstanceId, void* pVariableAddress, bool bIsList, TAddDependencyFunc pFunc = NULL);
     virtual void ResolveDependency() = 0;
     virtual void Initialize();
-    virtual void Uninitialize();
 
 protected:
     CIdManager* m_pIdManager;
     std::map<size_t, CComponentBase*>* m_pComponentTemplateMap;
     std::map<size_t, std::map<size_t, CComponentBase*>*>* m_pComponentInstanceMap;
     std::vector<SDependencyResolver*>* m_pDependencyResolver;
+    std::vector<CComponentBase*>* m_pUninitializedComponents;
 };
 
 #endif

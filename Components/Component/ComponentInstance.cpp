@@ -3,6 +3,7 @@
 #include "ComponentInstanceManager.h"
 #include "IdManager/IdManager.h"
 #include "ComponentProxy.h"
+
 CComponentInstance::CComponentInstance()
     : m_pProxyComponent(NULL)
 {
@@ -11,11 +12,9 @@ CComponentInstance::CComponentInstance()
 
 CComponentInstance::~CComponentInstance()
 {
-    bool bDeleteFromCode = m_pProxyComponent != NULL && m_pProxyComponent->GetGraphics() != NULL;
-    if (bDeleteFromCode)
+    if (m_pProxyComponent != NULL)
     {
         BEATS_ASSERT(m_pProxyComponent->GetHostComponent() == this);
-        m_pProxyComponent->SetHostComponent(NULL); //Avoid recursion.
         BEATS_SAFE_DELETE(m_pProxyComponent);
     }
 }
@@ -23,13 +22,11 @@ CComponentInstance::~CComponentInstance()
 void CComponentInstance::Uninitialize()
 {
     super::Uninitialize();
-    bool bUnintializeFromCode = m_pProxyComponent != NULL && m_pProxyComponent->IsInitialized();
-    if (bUnintializeFromCode)
+
+    if (m_pProxyComponent != NULL)
     {
         BEATS_ASSERT(m_pProxyComponent->GetHostComponent() == this);
-        m_pProxyComponent->SetHostComponent(NULL); // Avoid recursion.
         m_pProxyComponent->Uninitialize();
-        m_pProxyComponent->SetHostComponent(this); // Restore.
     }
     size_t uComponentId = GetId();
     if (uComponentId != 0xFFFFFFFF)

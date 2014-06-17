@@ -25,7 +25,6 @@ public:
     void SerializeTemplateData(CSerializer& serializer);
     size_t GetVersion();
     void Import(CSerializer& serializer);
-    virtual void Uninitialize() override;
     virtual void ResolveDependency() override;
 
 };

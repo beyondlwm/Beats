@@ -69,11 +69,6 @@ void CComponentInstanceManager::Import( CSerializer& serializer)
     }
 }
 
-void CComponentInstanceManager::Uninitialize()
-{
-    super::UninitializeAllInstance();
-}
-
 void CComponentInstanceManager::ResolveDependency()
 {
     for (size_t i = 0; i < m_pDependencyResolver->size(); ++i)
