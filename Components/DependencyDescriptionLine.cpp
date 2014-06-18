@@ -8,8 +8,7 @@
 #include "Utility/Math/MathPublic.h"
 
 CDependencyDescriptionLine::CDependencyDescriptionLine( CDependencyDescription* pOwner, size_t uIndex, CComponentProxy* pTo )
-: m_bInitialize(false)
-, m_bIsSelected(false)
+: m_bIsSelected(false)
 , m_uIndex(uIndex)
 , m_pOwner(pOwner)
 , m_pConnectedComponent(NULL)
@@ -30,6 +29,8 @@ CDependencyDescriptionLine::CDependencyDescriptionLine( CDependencyDescription* 
 
 CDependencyDescriptionLine::~CDependencyDescriptionLine()
 {
+    m_pConnectedComponent->RemoveBeConnectedDependencyDescriptionLine(this);
+    m_pOwner->RemoveDependencyLine(this);
     BEATS_SAFE_DELETE_ARRAY(m_pRect);
     BEATS_SAFE_DELETE_ARRAY(m_pArrowRect);
 }
@@ -225,18 +226,4 @@ bool CDependencyDescriptionLine::HitTest( float x, float y )
         bRet = bBetweenHorizontal && bBetweenVertical;
     }
     return bRet;
-}
-
-void CDependencyDescriptionLine::Initialize()
-{
-    BEATS_ASSERT(!m_bInitialize, _T("Can't Initialize CDependencyDescriptionLine twice!"));
-    m_bInitialize = true;
-}
-
-void CDependencyDescriptionLine::Uninitialize()
-{
-    BEATS_ASSERT(m_bInitialize, _T("Can't Uninitialize CDependencyDescriptionLine while it is not initialized!"));
-    m_pConnectedComponent->RemoveBeConnectedDependencyDescriptionLine(this);
-    m_pOwner->RemoveDependencyLine(this);
-    m_bInitialize = false;
 }

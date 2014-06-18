@@ -10,8 +10,7 @@
 #include "Component/ComponentInstance.h"
 
 CDependencyDescription::CDependencyDescription(EDependencyType type, size_t dependencyGuid, CComponentProxy* pOwner, size_t uIndex, bool bIsList)
-: m_bInitialize(false)
-, m_type(type)
+: m_type(type)
 , m_changeAction(eDCA_Count)
 , m_pChangeActionProxy(NULL)
 , m_uIndex(uIndex)
@@ -329,24 +328,4 @@ size_t CDependencyDescription::GetDependencyGuid() const
 size_t CDependencyDescription::GetIndex() const
 {
     return m_uIndex;
-}
-
-void CDependencyDescription::Initialize()
-{
-    BEATS_ASSERT(!m_bInitialize, _T("Can't initialize CDependencyDescription twice!"));
-    for (size_t i = 0; i < m_dependencyLine.size(); ++i)
-    {
-        m_dependencyLine[i]->Initialize();
-    }
-    m_bInitialize = true;
-}
-
-void CDependencyDescription::Uninitialize()
-{
-    BEATS_ASSERT(m_bInitialize, _T("Can't uninitialize CDependencyDescription while it is not initialized!"));
-    for (size_t i = 0; i < m_dependencyLine.size(); ++i)
-    {
-        m_dependencyLine[i]->Uninitialize();
-    }
-    m_bInitialize = false;
 }

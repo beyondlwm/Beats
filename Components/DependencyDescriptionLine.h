@@ -24,11 +24,8 @@ public:
     size_t GetIndex();
     void SetIndex(size_t uIndex);
     bool HitTest(float x, float y);
-    void Initialize();
-    void Uninitialize();
 
 private:
-    bool m_bInitialize;
     bool m_bIsSelected;
     size_t m_uIndex;
     CDependencyDescription* m_pOwner;
