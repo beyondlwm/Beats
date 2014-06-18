@@ -516,7 +516,14 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
                     bool bNeedSnyc = true;\
                     if (pDependency != NULL && !CComponentProxyManager::GetInstance()->IsLoadingFile())\
                     {\
-                        bNeedSnyc = !this->OnPropertyChange(&ptrProperty, CComponentInstanceManager::GetInstance()->GetComponentInstance(uInstanceId, uGuid));\
+                        EDependencyChangeAction action;\
+                        CComponentProxy* pOperateProxy = NULL;\
+                        pDependency->GetCurrActionParam(action, pOperateProxy);\
+                        if(pOperateProxy->IsInitialized())\
+                        {\
+                            BEATS_ASSERT(CComponentInstanceManager::GetInstance()->GetComponentInstance(uInstanceId, uGuid) == pOperateProxy);\
+                            bNeedSnyc = !this->OnPropertyChange(&ptrProperty, pOperateProxy);\
+                        }\
                     }\
                     if (bNeedSnyc)\
                     {\
@@ -554,7 +561,14 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
                 bool bNeedSnyc = true;\
                 if (pDependencyList != NULL && !CComponentProxyManager::GetInstance()->IsLoadingFile())\
                 {\
-                    bNeedSnyc = !this->OnPropertyChange(&ptrProperty, pDependencyList);\
+                    EDependencyChangeAction action;\
+                    CComponentProxy* pOperateProxy = NULL;\
+                    pDependencyList->GetCurrActionParam(action, pOperateProxy);\
+                    if(pOperateProxy->IsInitialized())\
+                    {\
+                        BEATS_ASSERT(CComponentInstanceManager::GetInstance()->GetComponentInstance(uInstanceId, uGuid) == pOperateProxy);\
+                        bNeedSnyc = !this->OnPropertyChange(&ptrProperty, pOperateProxy);\
+                    }\
                 }\
                 if (bNeedSnyc)\
                 {\
