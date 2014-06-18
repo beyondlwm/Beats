@@ -33,7 +33,7 @@ class COMPONENTS_DLL_DECL CDependencyDescription
 {
 public:
     CDependencyDescription(EDependencyType type, size_t dependencyGuid, CComponentProxy* pOwner, size_t uIndex, bool bIsList);
-    virtual ~CDependencyDescription();
+    ~CDependencyDescription();
 
     CDependencyDescriptionLine* GetDependencyLine(size_t uIndex = 0) const;
     CDependencyDescriptionLine* SetDependency(size_t uIndex, CComponentProxy* pComponent);
@@ -46,6 +46,8 @@ public:
     bool IsVisible() const;
     bool IsListType() const;
     size_t GetIndex() const;
+    void Initialize();
+    void Uninitialize();
 
     const TCHAR* GetDisplayName();
     void SetDisplayName(const TCHAR* pszName);
@@ -70,6 +72,7 @@ private:
     void OnDependencyChanged();
 
 private:
+    bool m_bInitialize;
     EDependencyType m_type;
     EDependencyChangeAction m_changeAction;
     CComponentProxy* m_pChangeActionProxy;
@@ -81,6 +84,5 @@ private:
     TString m_displayName;
     TString m_variableName;
     std::vector<CDependencyDescriptionLine*> m_dependencyLine;
-
 };
 #endif

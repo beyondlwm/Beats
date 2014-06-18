@@ -566,6 +566,10 @@ void CComponentProxy::Initialize()
     {
         (*m_pProperties)[i]->Initialize();
     }
+    for (size_t i = 0; i < m_pDependenciesDescription->size(); ++i)
+    {
+        (*m_pDependenciesDescription)[i]->Initialize();
+    }
     if (m_pHostComponent != NULL && !GetTemplateFlag())
     {
         UpdateHostComponent();
@@ -584,5 +588,13 @@ void CComponentProxy::Uninitialize()
     for (size_t i = 0; i < (*m_pProperties).size(); ++i)
     {
         (*m_pProperties)[i]->Uninitialize();
+    }
+    for (size_t i = 0; i < m_pDependenciesDescription->size(); ++i)
+    {
+        (*m_pDependenciesDescription)[i]->Uninitialize();
+    }
+    for (size_t i = 0; i < m_pBeConnectedDependencyLines->size(); ++i)
+    {
+        (*m_pBeConnectedDependencyLines)[i]->Uninitialize();
     }
 }
