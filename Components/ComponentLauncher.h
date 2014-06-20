@@ -78,26 +78,7 @@
     void FuncName()\
     {
 
-    #ifdef EDITOR_MODE
-        #define END_REGISTER_COMPONENT }
-    #else
-
-        #define END_REGISTER_COMPONENT\
-                TCHAR szFilePath[MAX_PATH];\
-                GetModuleFileName(NULL, szFilePath, MAX_PATH);\
-                PathRemoveFileSpec(szFilePath);\
-                _tcscat(szFilePath, _T("/"));\
-                _tcscat(szFilePath, BINARIZE_FILE_NAME);\
-                bool bFileExists = PathFileExists(szFilePath) == TRUE;\
-                BEATS_ASSERT(bFileExists, _T("The data file doesn't exists in path : %s"), szFilePath);\
-                if(bFileExists)\
-                {\
-                    CSerializer serializer(szFilePath);\
-                    CComponentInstanceManager::GetInstance()->Import(serializer);\
-                }\
-            }
-        #endif
-
+    #define END_REGISTER_COMPONENT }
     #define REGISTER_COMPONENT(component, displayName, catalogName)\
         CComponentInstanceManager::GetInstance()->RegisterTemplate(new component);
 

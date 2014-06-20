@@ -348,7 +348,7 @@ void CComponentProxyManager::DeserializeTemplateData(const TCHAR* pszPath,
     }
     szFilePath.append(pszEDSFileName);
     bool bFileExists = CUtilityManager::GetInstance()->FileExists(szFilePath.c_str());
-    BEATS_ASSERT(bFileExists, _T("Can't find EDS.bin!\nInitialize failed!"));
+    BEATS_ASSERT(bFileExists, _T("Can't find %s!\nInitialize failed!"), szFilePath.c_str());
     if (bFileExists)
     {
         // Step 1: Load Info from serialize data comes from our code.
