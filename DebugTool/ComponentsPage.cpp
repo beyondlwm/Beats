@@ -316,11 +316,15 @@ CComponentGraphic* CreateComponentGraphics()
     CComponentGraphic_DX* pGraphics = new CComponentGraphic_DX(pRenderWindow->GetRenderDevice(), pRenderWindow->GetRenderFont());
     return pGraphics;
 }
-
+extern void LaunchTest();
 void CBDTWxFrame::InitComponentsPage()
 {
-    pComponentLauncherFunc();
-    CComponentProxyManager::GetInstance()->DeserializeTemplateData(CBDTWxApp::GetBDTWxApp()->GetWorkingPath().c_str(), CreateComponentProxy, CreateComponentGraphics);
+    LaunchTest();
+    CComponentProxyManager::GetInstance()->DeserializeTemplateData(CBDTWxApp::GetBDTWxApp()->GetWorkingPath().c_str(),
+                                                                    EXPORT_STRUCTURE_DATA_FILENAME,
+                                                                    EXPORT_STRUCTURE_DATA_PATCH_XMLFILENAME, 
+                                                                    CreateComponentProxy,
+                                                                    CreateComponentGraphics);
     const std::map<size_t, CComponentBase*>* pComponentsMap = CComponentProxyManager::GetInstance()->GetComponentTemplateMap();
     for (std::map<size_t, CComponentBase*>::const_iterator componentIter = pComponentsMap->begin(); componentIter != pComponentsMap->end(); ++componentIter )
     {

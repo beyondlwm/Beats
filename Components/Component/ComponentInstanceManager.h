@@ -22,11 +22,9 @@ class COMPONENTS_DLL_DECL CComponentInstanceManager : public CComponentManagerBa
     typedef CComponentManagerBase super;
     BEATS_DECLARE_SINGLETON(CComponentInstanceManager);
 public:
-    void SerializeTemplateData(CSerializer& serializer);
     size_t GetVersion();
     void Import(CSerializer& serializer);
     virtual void ResolveDependency() override;
-
 };
 
 #endif

@@ -36,7 +36,11 @@ public:
     void RegisterPropertyCreator(size_t enumType, TCreatePropertyFunc func);
     CPropertyDescriptionBase* CreateProperty(size_t propertyType, CSerializer* serializer);
 
-    void DeserializeTemplateData(const TCHAR* pWorkingPath, TCreateComponentEditorProxyFunc func, TCreateGraphicFunc pGraphicFunc);
+    void DeserializeTemplateData(const TCHAR* pszPath,
+                                 const TCHAR* pszEDSFileName,
+                                 const TCHAR* pszPatchXMLFileName,
+                                TCreateComponentEditorProxyFunc func,
+                                TCreateGraphicFunc pGraphicFunc);
     virtual void ResolveDependency() override;
 
     CPropertyDescriptionBase* GetCurrReflectDescription() const;

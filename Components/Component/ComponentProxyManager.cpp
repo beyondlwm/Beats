@@ -335,10 +335,14 @@ CPropertyDescriptionBase* CComponentProxyManager::CreateProperty( size_t propert
     return (*(*m_pPropertyCreatorMap)[propertyType])(serializer);
 }
 
-void CComponentProxyManager::DeserializeTemplateData(const TCHAR* pWorkingPath, TCreateComponentEditorProxyFunc func, TCreateGraphicFunc pGraphicFunc)
+void CComponentProxyManager::DeserializeTemplateData(const TCHAR* pszPath,
+                                                     const TCHAR* pszEDSFileName,
+                                                     const TCHAR* pPatchXMLFileName,
+                                                     TCreateComponentEditorProxyFunc func,
+                                                     TCreateGraphicFunc pGraphicFunc)
 {
     TCHAR szFilePath[MAX_PATH];
-    _stprintf(szFilePath, _T("%s\\%s"), pWorkingPath, EXPORT_STRUCTURE_DATA_FILENAME);
+    _stprintf(szFilePath, _T("%s\\%s"), pszPath, pszEDSFileName);
     FILE* pComponentFile = _tfopen(szFilePath, _T("rb+"));
     if (pComponentFile == NULL)
     {
@@ -361,7 +365,7 @@ void CComponentProxyManager::DeserializeTemplateData(const TCHAR* pWorkingPath, 
         {
             LoadTemplateDataFromSerializer(componentsSerializer, func, pGraphicFunc);
             // Step 2: Fix the value from XML.
-            _stprintf(szFilePath, _T("%s\\%s"), pWorkingPath, EXPORT_STRUCTURE_DATA_PATCH_XMLFILENAME);
+            _stprintf(szFilePath, _T("%s\\%s"), pszPath, pPatchXMLFileName);
             LoadTemplateDataFromXML(szFilePath);
             std::map<size_t, CComponentBase*>::iterator iter = m_pComponentTemplateMap->begin();
             for (; iter != m_pComponentTemplateMap->end(); ++iter )

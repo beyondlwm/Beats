@@ -90,6 +90,9 @@
     <ClInclude Include="Component\ComponentInstanceManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ComponentLauncher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source Files">

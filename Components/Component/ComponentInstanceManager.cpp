@@ -21,15 +21,6 @@ CComponentInstanceManager::~CComponentInstanceManager()
     CUtilityManager::Destroy();
 }
 
-void CComponentInstanceManager::SerializeTemplateData(CSerializer& serializer)
-{
-    TString strWorkingPath = CUtilityManager::GetInstance()->GetModuleFileName();
-    strWorkingPath = CUtilityManager::GetInstance()->FileRemoveName(strWorkingPath.c_str());
-    strWorkingPath.append(_T("/")).append(EXPORT_STRUCTURE_DATA_FILENAME);
-    serializer.Deserialize(strWorkingPath.c_str());
-}
-
-
 void CComponentInstanceManager::Import( CSerializer& serializer)
 {
     size_t uVersion = 0;

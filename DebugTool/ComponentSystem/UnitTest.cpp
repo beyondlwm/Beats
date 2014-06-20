@@ -2,8 +2,9 @@
 #include "UnitTest.h"
 #include "ComponentPublic.h"
 #include "DependencyDescription.h"
+#include "ComponentLauncher.h"
 
-START_REGISTER_COMPONENT
+START_REGISTER_COMPONENT(LaunchTest)
 REGISTER_COMPONENT(CTestComponent, _T("TestComponents"), _T("Test\\Components"))
 END_REGISTER_COMPONENT
 CTestComponent::CTestComponent()

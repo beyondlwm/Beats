@@ -203,6 +203,7 @@
     </Midl>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ComponentLauncher.h" />
     <ClInclude Include="Component\ComponentBase.h" />
     <ClInclude Include="Component\ComponentGraphic.h" />
     <ClInclude Include="Component\ComponentInstance.h" />
