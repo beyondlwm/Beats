@@ -51,14 +51,14 @@ bool CEnumStrGenerator::ScanEnumInFile( const TCHAR* pFileName )
                 filters.push_back(_T(" "));
                 TString strName = CStringHelper::GetInstance()->FilterString(tNameCharBuff, filters);
                 std::map<TString, SEnumScanData*>::iterator iter = m_enumStrPool.find(strName.c_str());
-                bool bExisting = iter == m_enumStrPool.end();
-                BEATS_WARNING(bExisting, 
+                bool bExisting = iter != m_enumStrPool.end();
+                BEATS_WARNING(!bExisting, 
                     _T("The enum type %s in %s is already scanned in %s, it may be you have scaned same file twice or a enum type with same name under different name space."), 
                     strName.c_str(), 
                     pFileName,
                     iter->second->m_enumFilePath.c_str());
                 // If the length is 0, it means we meet no name enum declare or a typedef.
-                if (strName.length() != 0 && bExisting)
+                if (strName.length() != 0 && !bExisting)
                 {
                     startPos = endPos + 1; // Escape "{"
                     ScanKeyWordInCPlusPlusFile("}", &serializer);
@@ -351,19 +351,41 @@ bool CEnumStrGenerator::LoadCacheFile(const TCHAR* pszCacheFileName)
         {
             TString enumTypeStr;
             serializer >> enumTypeStr;
-            SEnumScanData* pEnumScanData = new SEnumScanData;
-            serializer >> pEnumScanData->m_enumFilePath;
-            size_t dataStrCount = 0;
-            serializer >> dataStrCount;
-            for (size_t j = 0; j < dataStrCount; ++j)
+            std::map<TString, SEnumScanData*>::iterator iter = m_enumStrPool.find(enumTypeStr);
+            if (iter == m_enumStrPool.end())
             {
-                SEnumData* pEnumData = new SEnumData();
-                serializer >> pEnumData->m_str;
-                serializer >> pEnumData->m_value;
-                pEnumScanData->m_enumValue.push_back(pEnumData);
+                SEnumScanData* pEnumScanData = new SEnumScanData;
+                serializer >> pEnumScanData->m_enumFilePath;
+                size_t dataStrCount = 0;
+                serializer >> dataStrCount;
+                for (size_t j = 0; j < dataStrCount; ++j)
+                {
+                    SEnumData* pEnumData = new SEnumData();
+                    serializer >> pEnumData->m_str;
+                    serializer >> pEnumData->m_value;
+                    pEnumScanData->m_enumValue.push_back(pEnumData);
+                }
+                m_enumStrPool[enumTypeStr] = pEnumScanData;
             }
-            BEATS_ASSERT(m_enumStrPool.find(enumTypeStr) == m_enumStrPool.end());
-            m_enumStrPool[enumTypeStr] = pEnumScanData;
+            else
+            {
+                // To skip those ignore data.
+                TString strFilePath;
+                serializer >> strFilePath;
+                BEATS_WARNING(false, 
+                    _T("enum type: %s is already scaned in\n%s, we met another in file\n%s\nIt will be ignored!"),
+                    enumTypeStr.c_str(),
+                    iter->second->m_enumFilePath.c_str(),
+                    strFilePath.c_str());
+                size_t uCount = 0;
+                serializer >> uCount;
+                for (size_t i = 0; i < uCount; ++i)
+                {
+                    size_t uDataHolder2 = 0;
+                    serializer >> strFilePath;
+                    serializer >> uDataHolder2;
+                }
+            }
         }
         bRet = true;
     }

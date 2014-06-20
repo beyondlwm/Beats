@@ -370,11 +370,6 @@ void CComponentProxyManager::DeserializeTemplateData(const TCHAR* pszPath,
             }
             szFilePath.append(pPatchXMLFileName);
             LoadTemplateDataFromXML(szFilePath.c_str());
-            std::map<size_t, CComponentBase*>::iterator iter = m_pComponentTemplateMap->begin();
-            for (; iter != m_pComponentTemplateMap->end(); ++iter )
-            {
-                iter->second->Initialize();
-            }
         }
     }
 }
