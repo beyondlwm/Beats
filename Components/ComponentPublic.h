@@ -15,8 +15,13 @@
 //#define EXPORT_TO_EDITOR
 #define EDITOR_MODE
 
-#define EXPORT_STRUCTURE_DATA_FILENAME _T("EDS.bin")
-#define EXPORT_STRUCTURE_DATA_PATCH_XMLFILENAME _T("EDSPatch.XML")
+#define ENGINE_COMPONENT_INFO_FILE _T("EngineLaunch.eds")
+#define ENGINE_COMPONENT_INFO_PATCH _T("EnginePatch.XML")
+#define GAME_COMPONENT_INFO_FILE _T("GameLaunch.eds")
+#define GAME_COMPONENT_INFO_PATCH _T("GamePatch.XML")
+#define ENGINE_ENUM_INFO_FILE _T("EngineScanData.bin")
+#define GAME_ENUM_INFO_FILE _T("GameScanData.bin")
+
 #define COMPONENT_FILE_HEADERSTR _T("ComponentFile")
 #define COMPONENT_FILE_EXTENSION _T(".bcf")
 #define COMPONENT_FILE_EXTENSION_FILTER _T("Beats Component File(*.bcf)\0*.bcf\0\0")

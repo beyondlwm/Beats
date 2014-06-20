@@ -45,7 +45,7 @@ struct SLuancher
     {
         std::vector<TString> scanPath;
         scanPath.push_back(_T("E:/Project/Beats_GitHub/DebugTool/ComponentSystem"));
-        CEnumStrGenerator::GetInstance()->Init(scanPath);
+        CEnumStrGenerator::GetInstance()->Init(scanPath, ENGINE_ENUM_INFO_FILE);
     }
     ~SLuancher()
     {

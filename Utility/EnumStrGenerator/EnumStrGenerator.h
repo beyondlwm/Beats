@@ -38,10 +38,10 @@ class CEnumStrGenerator
     BEATS_DECLARE_SINGLETON(CEnumStrGenerator);
 
 public:
-    void Init(const std::vector<TString>& scanPathList);
+    void Init(const std::vector<TString>& scanPathList, const TCHAR* pszCacheFileName);
     bool GetEnumValueData(const TCHAR* pEnumType, const std::vector<SEnumData*>*& pResult);
-    void SaveCacheFile();
-    bool LoadCacheFile();
+    void SaveCacheFile(const TCHAR* pszCacheFileName);
+    bool LoadCacheFile(const TCHAR* pszCacheFileName);
 
 private:
     bool ScanEnumInFile(const TCHAR* pFileName);

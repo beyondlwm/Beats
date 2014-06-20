@@ -341,32 +341,35 @@ void CComponentProxyManager::DeserializeTemplateData(const TCHAR* pszPath,
                                                      TCreateComponentEditorProxyFunc func,
                                                      TCreateGraphicFunc pGraphicFunc)
 {
-    TCHAR szFilePath[MAX_PATH];
-    _stprintf(szFilePath, _T("%s\\%s"), pszPath, pszEDSFileName);
-    FILE* pComponentFile = _tfopen(szFilePath, _T("rb+"));
-    if (pComponentFile == NULL)
+    TString szFilePath(pszPath);
+    if (szFilePath.back() != _T('\\') && szFilePath.back() != _T('/'))
     {
-        MessageBox(NULL, _T("Can't find EDS.bin!\nInitialize failed!"), _T("Error"), MB_OK);
+        szFilePath.append(_T("\\"));
     }
-    else
-    {    
+    szFilePath.append(pszEDSFileName);
+    bool bFileExists = CUtilityManager::GetInstance()->FileExists(szFilePath.c_str());
+    BEATS_ASSERT(bFileExists, _T("Can't find EDS.bin!\nInitialize failed!"));
+    if (bFileExists)
+    {
         // Step 1: Load Info from serialize data comes from our code.
-        CSerializer componentsSerializer(szFilePath);
-        fclose(pComponentFile);
+        CSerializer componentsSerializer(szFilePath.c_str());
         const TCHAR* pHeaderStr = COMPONENT_FILE_HEADERSTR;
         TCHAR* pbuff = NULL;
         TCHAR** buff = &pbuff;
         componentsSerializer.Read(buff);
-        if (_tcsicmp(pHeaderStr, *buff) != 0)
-        {
-            MessageBox(NULL, _T("File format error!"), _T("Error"), MB_OK | MB_ICONERROR);
-        }
-        else
+        bool bExamFileHeader = _tcsicmp(pHeaderStr, *buff) == 0;
+        BEATS_ASSERT(bExamFileHeader, _T("File format error!"));
+        if (bExamFileHeader)
         {
             LoadTemplateDataFromSerializer(componentsSerializer, func, pGraphicFunc);
             // Step 2: Fix the value from XML.
-            _stprintf(szFilePath, _T("%s\\%s"), pszPath, pPatchXMLFileName);
-            LoadTemplateDataFromXML(szFilePath);
+            szFilePath.assign(pszPath);
+            if (szFilePath.back() != _T('\\') || szFilePath.back() != _T('/'))
+            {
+                szFilePath.append(_T("\\"));
+            }
+            szFilePath.append(pPatchXMLFileName);
+            LoadTemplateDataFromXML(szFilePath.c_str());
             std::map<size_t, CComponentBase*>::iterator iter = m_pComponentTemplateMap->begin();
             for (; iter != m_pComponentTemplateMap->end(); ++iter )
             {

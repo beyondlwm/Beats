@@ -321,8 +321,8 @@ void CBDTWxFrame::InitComponentsPage()
 {
     LaunchTest();
     CComponentProxyManager::GetInstance()->DeserializeTemplateData(CBDTWxApp::GetBDTWxApp()->GetWorkingPath().c_str(),
-                                                                    EXPORT_STRUCTURE_DATA_FILENAME,
-                                                                    EXPORT_STRUCTURE_DATA_PATCH_XMLFILENAME, 
+                                                                    ENGINE_COMPONENT_INFO_FILE,
+                                                                    ENGINE_COMPONENT_INFO_PATCH, 
                                                                     CreateComponentProxy,
                                                                     CreateComponentGraphics);
     const std::map<size_t, CComponentBase*>* pComponentsMap = CComponentProxyManager::GetInstance()->GetComponentTemplateMap();
@@ -977,7 +977,7 @@ void CBDTWxFrame::OnComponentSaveButtonClick(wxCommandEvent& /*event*/)
     if (pProject->GetRootDirectory() != NULL)
     {
         TString szSavePath = CBDTWxApp::GetBDTWxApp()->GetWorkingPath();
-        szSavePath.append(_T("/")).append(EXPORT_STRUCTURE_DATA_PATCH_XMLFILENAME);
+        szSavePath.append(_T("/")).append(ENGINE_COMPONENT_INFO_PATCH);
         CComponentProxyManager::GetInstance()->SaveTemplate(szSavePath.c_str());
         // Save Instance File
         CComponentProject* pProject = CComponentProxyManager::GetInstance()->GetProject();

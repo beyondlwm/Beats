@@ -5,7 +5,6 @@
 #include "UtilityManager.h"
 
 static const char* ENUM_KEYWORD_STR = "enum";
-static const TCHAR* SCAN_DATA_NAME = _T("ScanData.bin");
 
 CEnumStrGenerator* CEnumStrGenerator::m_pInstance = NULL;
 
@@ -304,20 +303,20 @@ bool CEnumStrGenerator::IsEnumKeyword( CSerializer* pSerailizer )
     return bRet;
 }
 
-void CEnumStrGenerator::Init(const std::vector<TString>& scanPathList)
+void CEnumStrGenerator::Init(const std::vector<TString>& scanPathList, const TCHAR* pszCacheFileName)
 {
-    if (!LoadCacheFile())
+    if (!LoadCacheFile(pszCacheFileName))
     {
         for(size_t i = 0; i < scanPathList.size(); ++i)
         {
             ScanEnumInDirectory(scanPathList[i].c_str());
         }
-        SaveCacheFile();
+        SaveCacheFile(pszCacheFileName);
     }
     m_bInitFlag = true;
 }
 
-void CEnumStrGenerator::SaveCacheFile()
+void CEnumStrGenerator::SaveCacheFile(const TCHAR* pszCacheFileName)
 {
     CSerializer serializer;
     serializer << m_enumStrPool.size();
@@ -334,15 +333,15 @@ void CEnumStrGenerator::SaveCacheFile()
         }
     }
     TString fullPathStr = CUtilityManager::GetInstance()->FileRemoveName(CUtilityManager::GetInstance()->GetModuleFileName().c_str());
-    fullPathStr.append(_T("/")).append(SCAN_DATA_NAME);
+    fullPathStr.append(_T("/")).append(pszCacheFileName);
     serializer.Deserialize(fullPathStr.c_str());
 }
 
-bool CEnumStrGenerator::LoadCacheFile()
+bool CEnumStrGenerator::LoadCacheFile(const TCHAR* pszCacheFileName)
 {
     bool bRet = false;
     TString fullPathStr = CUtilityManager::GetInstance()->FileRemoveName(CUtilityManager::GetInstance()->GetModuleFileName().c_str());
-    fullPathStr.append(_T("/")).append(SCAN_DATA_NAME);
+    fullPathStr.append(_T("/")).append(pszCacheFileName);
     if (CUtilityManager::GetInstance()->FileExists(fullPathStr.c_str()))
     {
         CSerializer serializer(fullPathStr.c_str());
