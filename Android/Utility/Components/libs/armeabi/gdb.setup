@@ -1,0 +1,2 @@
+set solib-search-path ./obj/local/armeabi
+directory C:/AndroidDev/android-ndk-r9d/platforms/android-14/arch-arm/usr/include C:\Project\Beats_GitHub\Components C:\Project\Beats_GitHub\Platform C:\Project\Beats_GitHub\Platform\Android C:/Project/Beats_GitHub/Utility C:/AndroidDev/android-ndk-r9d/sources/cxx-stl/gnu-libstdc++/4.8/include C:/AndroidDev/android-ndk-r9d/sources/cxx-stl/gnu-libstdc++/4.8/libs/armeabi/include C:/AndroidDev/android-ndk-r9d/sources/cxx-stl/gnu-libstdc++/4.8/include/backward jni

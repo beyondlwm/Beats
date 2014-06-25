@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{99B2AD22-1C0C-4CF9-93E5-1E723FADC8FE}</ProjectGuid>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <NMakeBuildCommandLine>"$(VISUALGDB_DIR)\VisualGDB.exe" /build "$(ProjectPath)" "/solution:$(SolutionPath)" "/config:$(Configuration)" "/platform:$(Platform)"</NMakeBuildCommandLine>
+    <NMakeCleanCommandLine>"$(VISUALGDB_DIR)\VisualGDB.exe" /clean "$(ProjectPath)" "/solution:$(SolutionPath)" "/config:$(Configuration)" "/platform:$(Platform)"</NMakeCleanCommandLine>
+    <NMakeReBuildCommandLine>"$(VISUALGDB_DIR)\VisualGDB.exe" /rebuild "$(ProjectPath)" "/solution:$(SolutionPath)" "/config:$(Configuration)" "/platform:$(Platform)"</NMakeReBuildCommandLine>
+    <NMakeIncludeSearchPath>C:\AndroidDev\android-ndk-r9d\platforms\android-16\arch-mips\usr\include;C:\Project\Beats_GitHub\Utility;C:\Project\Beats_GitHub\Platform\Android;C:\Project\Beats_GitHub\Platform;C:\Project\Beats_GitHub;C:\Project\Beats_GitHub\Beats\Lib\Boost_1_55_0;C:\AndroidDev\android-ndk-r9d\toolchains\mipsel-linux-android-4.6\prebuilt\windows\lib\gcc\mipsel-linux-android\4.6\include;C:\AndroidDev\android-ndk-r9d\toolchains\mipsel-linux-android-4.6\prebuilt\windows\lib\gcc\mipsel-linux-android\4.6\include-fixed;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
+    <NMakeForcedIncludes>$(ProjectDir)\gcc_Debug.h;$(VISUALGDB_DIR)\gcc_compat.h;$(NMakeForcedIncludes)</NMakeForcedIncludes>
+    <IncludePath />
+    <ReferencePath />
+    <LibraryPath />
+    <NMakeOutput>$(ProjectDir)Utility-Debug.vgdbsettings</NMakeOutput>
+    <NMakePreprocessorDefinitions>__VisualGDB_CFG_Debug;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <NMakeBuildCommandLine>"$(VISUALGDB_DIR)\VisualGDB.exe" /build "$(ProjectPath)" "/solution:$(SolutionPath)" "/config:$(Configuration)" "/platform:$(Platform)"</NMakeBuildCommandLine>
+    <NMakeCleanCommandLine>"$(VISUALGDB_DIR)\VisualGDB.exe" /clean "$(ProjectPath)" "/solution:$(SolutionPath)" "/config:$(Configuration)" "/platform:$(Platform)"</NMakeCleanCommandLine>
+    <NMakeReBuildCommandLine>"$(VISUALGDB_DIR)\VisualGDB.exe" /rebuild "$(ProjectPath)" "/solution:$(SolutionPath)" "/config:$(Configuration)" "/platform:$(Platform)"</NMakeReBuildCommandLine>
+    <NMakeIncludeSearchPath>C:\AndroidDev\android-ndk-r9d\platforms\android-9\arch-mips\usr\include;C:\AndroidDev\android-ndk-r9d\toolchains\mipsel-linux-android-4.6\prebuilt\windows\lib\gcc\mipsel-linux-android\4.6\include;C:\AndroidDev\android-ndk-r9d\toolchains\mipsel-linux-android-4.6\prebuilt\windows\lib\gcc\mipsel-linux-android\4.6\include-fixed;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
+    <NMakeForcedIncludes>$(ProjectDir)\gcc_Release.h;$(VISUALGDB_DIR)\gcc_compat.h;$(NMakeForcedIncludes)</NMakeForcedIncludes>
+    <NMakePreprocessorDefinitions>__VisualGDB_CFG_Release;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+    <IncludePath />
+    <ReferencePath />
+    <LibraryPath />
+    <NMakeOutput>$(ProjectDir)Utility-Release.vgdbsettings</NMakeOutput>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="jni\Android.mk" />
+    <None Include="jni\Application.mk" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\Utility\EnumStrGenerator\EnumStrGenerator.cpp" />
+    <ClCompile Include="..\..\..\Utility\IdManager\IdManager.cpp" />
+    <ClCompile Include="..\..\..\Utility\Math\Matrix3.cpp" />
+    <ClCompile Include="..\..\..\Utility\Math\Matrix4.cpp" />
+    <ClCompile Include="..\..\..\Utility\Math\Vector2.cpp" />
+    <ClCompile Include="..\..\..\Utility\Math\Vector3.cpp" />
+    <ClCompile Include="..\..\..\Utility\Math\Vector4.cpp" />
+    <ClCompile Include="..\..\..\Utility\Serializer\Serializer.cpp" />
+    <ClCompile Include="..\..\..\Utility\stdafx.cpp" />
+    <ClCompile Include="..\..\..\Utility\StringHelper\StringHelper.cpp" />
+    <ClCompile Include="..\..\..\Utility\TinyXML\tinystr.cpp" />
+    <ClCompile Include="..\..\..\Utility\TinyXML\tinyxml.cpp" />
+    <ClCompile Include="..\..\..\Utility\TinyXML\tinyxmlerror.cpp" />
+    <ClCompile Include="..\..\..\Utility\TinyXML\tinyxmlparser.cpp" />
+    <ClCompile Include="..\..\..\Utility\UtilityManager.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\Utility\EnumStrGenerator\EnumStrGenerator.h" />
+    <ClInclude Include="..\..\..\Utility\IdManager\IdManager.h" />
+    <ClInclude Include="..\..\..\Utility\Math\MathPublic.h" />
+    <ClInclude Include="..\..\..\Utility\Math\Matrix3.h" />
+    <ClInclude Include="..\..\..\Utility\Math\Matrix4.h" />
+    <ClInclude Include="..\..\..\Utility\Math\Vector2.h" />
+    <ClInclude Include="..\..\..\Utility\Math\Vector3.h" />
+    <ClInclude Include="..\..\..\Utility\Math\Vector4.h" />
+    <ClInclude Include="..\..\..\Utility\Serializer\Serializer.h" />
+    <ClInclude Include="..\..\..\Utility\Serializer\Serializer.hpp" />
+    <ClInclude Include="..\..\..\Utility\SharePtr\SharePtr.h" />
+    <ClInclude Include="..\..\..\Utility\stdafx.h" />
+    <ClInclude Include="..\..\..\Utility\StringHelper\StringHelper.h" />
+    <ClInclude Include="..\..\..\Utility\TinyXML\tinystr.h" />
+    <ClInclude Include="..\..\..\Utility\TinyXML\tinyxml.h" />
+    <ClInclude Include="..\..\..\Utility\UtilityManager.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{6F75F460-AD8B-4086-BAF5-00072802D4FA}</ProjectGuid>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <NMakeBuildCommandLine>"$(VISUALGDB_DIR)\VisualGDB.exe" /build "$(ProjectPath)" "/solution:$(SolutionPath)" "/config:$(Configuration)" "/platform:$(Platform)"</NMakeBuildCommandLine>
+    <NMakeCleanCommandLine>"$(VISUALGDB_DIR)\VisualGDB.exe" /clean "$(ProjectPath)" "/solution:$(SolutionPath)" "/config:$(Configuration)" "/platform:$(Platform)"</NMakeCleanCommandLine>
+    <NMakeReBuildCommandLine>"$(VISUALGDB_DIR)\VisualGDB.exe" /rebuild "$(ProjectPath)" "/solution:$(SolutionPath)" "/config:$(Configuration)" "/platform:$(Platform)"</NMakeReBuildCommandLine>
+    <NMakeIncludeSearchPath>C:\AndroidDev\android-ndk-r9d\platforms\android-16\arch-arm\usr\include;C:\Project\Beats_GitHub\Components;C:\Project\Beats_GitHub\Platform;C:\Project\Beats_GitHub\Platform\Android;C:\Project\Beats_GitHub\Utility;C:\AndroidDev\android-ndk-r9d\toolchains\arm-linux-androideabi-4.8\prebuilt\windows\lib\gcc\arm-linux-androideabi\4.8\include;C:\AndroidDev\android-ndk-r9d\toolchains\arm-linux-androideabi-4.8\prebuilt\windows\lib\gcc\arm-linux-androideabi\4.8\include-fixed;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
+    <NMakeForcedIncludes>$(ProjectDir)\gcc_Debug.h;$(VISUALGDB_DIR)\gcc_compat.h;$(NMakeForcedIncludes)</NMakeForcedIncludes>
+    <IncludePath />
+    <ReferencePath />
+    <LibraryPath />
+    <NMakeOutput>$(ProjectDir)Components-Debug.vgdbsettings</NMakeOutput>
+    <NMakePreprocessorDefinitions>__VisualGDB_CFG_Debug;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <NMakeBuildCommandLine>"$(VISUALGDB_DIR)\VisualGDB.exe" /build "$(ProjectPath)" "/solution:$(SolutionPath)" "/config:$(Configuration)" "/platform:$(Platform)"</NMakeBuildCommandLine>
+    <NMakeCleanCommandLine>"$(VISUALGDB_DIR)\VisualGDB.exe" /clean "$(ProjectPath)" "/solution:$(SolutionPath)" "/config:$(Configuration)" "/platform:$(Platform)"</NMakeCleanCommandLine>
+    <NMakeReBuildCommandLine>"$(VISUALGDB_DIR)\VisualGDB.exe" /rebuild "$(ProjectPath)" "/solution:$(SolutionPath)" "/config:$(Configuration)" "/platform:$(Platform)"</NMakeReBuildCommandLine>
+    <NMakeIncludeSearchPath>C:\AndroidDev\android-ndk-r9d\platforms\android-3\arch-arm\usr\include;C:\AndroidDev\android-ndk-r9d\toolchains\arm-linux-androideabi-4.6\prebuilt\windows\lib\gcc\arm-linux-androideabi\4.6\include;C:\AndroidDev\android-ndk-r9d\toolchains\arm-linux-androideabi-4.6\prebuilt\windows\lib\gcc\arm-linux-androideabi\4.6\include-fixed;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
+    <NMakeForcedIncludes>$(ProjectDir)\gcc_Release.h;$(VISUALGDB_DIR)\gcc_compat.h;$(NMakeForcedIncludes)</NMakeForcedIncludes>
+    <NMakePreprocessorDefinitions>__VisualGDB_CFG_Release;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+    <IncludePath />
+    <ReferencePath />
+    <LibraryPath />
+    <NMakeOutput>$(ProjectDir)Components-Release.vgdbsettings</NMakeOutput>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="jni\Android.mk" />
+    <None Include="jni\Application.mk" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\Components\Component\ComponentBase.cpp" />
+    <ClCompile Include="..\..\..\Components\Component\ComponentGraphic.cpp" />
+    <ClCompile Include="..\..\..\Components\Component\ComponentInstance.cpp" />
+    <ClCompile Include="..\..\..\Components\Component\ComponentInstanceManager.cpp" />
+    <ClCompile Include="..\..\..\Components\Component\ComponentManagerBase.cpp" />
+    <ClCompile Include="..\..\..\Components\Component\ComponentProject.cpp" />
+    <ClCompile Include="..\..\..\Components\Component\ComponentProjectData.cpp" />
+    <ClCompile Include="..\..\..\Components\Component\ComponentProxy.cpp" />
+    <ClCompile Include="..\..\..\Components\Component\ComponentProxyManager.cpp" />
+    <ClCompile Include="..\..\..\Components\DependencyDescription.cpp" />
+    <ClCompile Include="..\..\..\Components\DependencyDescriptionLine.cpp" />
+    <ClCompile Include="..\..\..\Components\Property\PropertyDescriptionBase.cpp" />
+    <ClCompile Include="..\..\..\Components\stdafx.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\Components\ComponentLauncher.h" />
+    <ClInclude Include="..\..\..\Components\ComponentPublic.h" />
+    <ClInclude Include="..\..\..\Components\Component\ComponentBase.h" />
+    <ClInclude Include="..\..\..\Components\Component\ComponentGraphic.h" />
+    <ClInclude Include="..\..\..\Components\Component\ComponentInstance.h" />
+    <ClInclude Include="..\..\..\Components\Component\ComponentInstanceManager.h" />
+    <ClInclude Include="..\..\..\Components\Component\ComponentManagerBase.h" />
+    <ClInclude Include="..\..\..\Components\Component\ComponentProject.h" />
+    <ClInclude Include="..\..\..\Components\Component\ComponentProjectData.h" />
+    <ClInclude Include="..\..\..\Components\Component\ComponentProxy.h" />
+    <ClInclude Include="..\..\..\Components\Component\ComponentProxyManager.h" />
+    <ClInclude Include="..\..\..\Components\DependencyDescription.h" />
+    <ClInclude Include="..\..\..\Components\DependencyDescriptionLine.h" />
+    <ClInclude Include="..\..\..\Components\expdef.h" />
+    <ClInclude Include="..\..\..\Components\Property\PropertyDescriptionBase.h" />
+    <ClInclude Include="..\..\..\Components\Property\PropertyPublic.h" />
+    <ClInclude Include="..\..\..\Components\stdafx.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Utility\Utility.vcxproj">
+      <Project>{99b2ad22-1c0c-4cf9-93e5-1e723fadc8fe}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
