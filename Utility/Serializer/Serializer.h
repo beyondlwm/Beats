@@ -1,6 +1,10 @@
 #ifndef BEATS_UTILITY_SERIALIZER_SERIALISZER_H__INCLUDE
 #define BEATS_UTILITY_SERIALIZER_SERIALISZER_H__INCLUDE
 
+#if (BEATS_PLATFORM == BEATS_PLATFORM_ANDROID)
+#include <string.h>
+#endif
+
 static const size_t DefaultSerializerBufferSize = 256;
 struct SBufferData
 {

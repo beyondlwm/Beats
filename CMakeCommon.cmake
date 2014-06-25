@@ -4,11 +4,11 @@ if(WIN32)
     set(PLATFORM_FOLDER win32)
 elseif(APPLE)
     set(PLATFORM_FOLDER ios)
-elseif(ANDROID)
-    set(PLATFORM_FOLDER android)
 else()
-    set(PLATFORM_FOLDER linux)
+    set(PLATFORM_FOLDER android)
 endif()
+
+SET(CMAKE_CXX_FLAGS "-std=c++0x")
 
 #2. Set Define Marco
 if (WIN32)
@@ -26,6 +26,4 @@ if(WIN32)
   endif(MSVC)
 elseif(APPLE)
 elseif(ANDROID)
-else()#Linux
-    ADD_DEFINITIONS(-DLINUX)
 endif()

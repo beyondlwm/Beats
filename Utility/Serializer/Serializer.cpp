@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include <string>
 #include "Serializer.h"
 
 CSerializer::CSerializer(size_t size, void* data)

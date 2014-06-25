@@ -57,6 +57,9 @@
     #if (BEATS_PLATFORM == BEATS_PLATFORM_IOS)
         #define Beats_AtomicIncrement(pVariable) OSAtomicIncrement32((int*)pVariable)
         #define Beats_AtomicDecrement(pVariable) OSAtomicDecrement32((int*)pVariable)
+    #elif(BEATS_PLATFORM == BEATS_PLATFORM_ANDROID)
+        #define Beats_AtomicIncrement(pVariable) __sync_fetch_and_add((int*)pVariable, 1)
+        #define Beats_AtomicDecrement(pVariable) __sync_fetch_and_sub((int*)pVariable, 1)
     #endif
 #endif
 

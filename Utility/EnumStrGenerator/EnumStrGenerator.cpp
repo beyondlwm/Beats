@@ -3,6 +3,9 @@
 #include "Serializer/Serializer.h"
 #include "StringHelper/StringHelper.h"
 #include "UtilityManager.h"
+#if (BEATS_PLATFORM == BEATS_PLATFORM_ANDROID)
+#include <stdlib.h>
+#endif
 
 static const char* ENUM_KEYWORD_STR = "enum";
 

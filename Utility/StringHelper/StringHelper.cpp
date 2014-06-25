@@ -87,7 +87,7 @@ void CStringHelper::ConvertToTCHAR( const wchar_t* pData, TCHAR* pBuffer, size_t
 #ifdef _UNICODE
     wcscpy(pBuffer, pData);
 #else
-    WideCharToMultiByte(CP_ACP, 0, pData, -1, pBuffer, bufferLength, NULL, NULL);
+    sprintf(pBuffer, "%ls", pData);
 #endif
 }
 

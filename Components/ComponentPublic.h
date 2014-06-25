@@ -2,6 +2,7 @@
 #define BEATS_COMPONENTS_COMPONENTPUBLIC_H__INCLUDE
 
 #include <string>
+#include <typeinfo>
 #include "Property/PropertyPublic.h"
 #include "Utility/StringHelper/StringHelper.h"
 #include "Component/ComponentInstance.h"
