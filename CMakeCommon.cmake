@@ -13,7 +13,6 @@ SET(CMAKE_CXX_FLAGS "-std=c++0x")
 #2. Set Define Marco
 if (WIN32)
 else()
-ADD_DEFINITIONS(-DUNICODE -D_UNICODE)
 endif()
 
 if(WIN32)

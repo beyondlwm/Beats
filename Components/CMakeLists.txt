@@ -3,6 +3,7 @@ set(ProjectName Components)
 #1. Set Include Path.
 INCLUDE_DIRECTORIES(
 		${CMAKE_CURRENT_SOURCE_DIR}
+		${CMAKE_SOURCE_DIR}/Utility
 )
 
 #2. Set Lib Generation.
