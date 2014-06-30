@@ -96,7 +96,7 @@ inline void DeserializeVarialble(T*& value, CSerializer* pSerializer)
             {
 #endif
                 value = dynamic_cast<T*>(CComponentInstanceManager::GetInstance()->CreateComponent(uGuid, false, true, 0xFFFFFFFF, false, pSerializer));
-                BEATS_ASSERT(uStartPos + uDataSize == pSerializer->GetReadPos(), 
+                BEATS_ASSERT(uStartPos + uDataSize == pSerializer->GetReadPos(),
                     _T("Component Data Not Match!\nGot an error when Deserialize a pointer of component 0x%x %s instance id %d\nRequired size: %d, Actual size: %d"), uGuid, value->GetClassStr(), uId, uDataSize, pSerializer->GetReadPos() - uStartPos);
 #ifdef EDITOR_MODE
             }
@@ -357,7 +357,7 @@ inline const TCHAR* GenEnumParamStr(const std::vector<TString>& enumStringArray,
     if(pszParam != NULL)
     {
         strEnumParam.append(PROPERTY_PARAM_SPLIT_STR).append(pszParam);
-    }    
+    }
     return strEnumParam.c_str();
 }
 
@@ -379,7 +379,7 @@ inline const TCHAR* GenEnumParamStr(const TCHAR* enumStringArray[], const TCHAR*
     if(pszParam != NULL)
     {
         strEnumParam.append(PROPERTY_PARAM_SPLIT_STR).append(pszParam);
-    }    
+    }
     return strEnumParam.c_str();
 }
 
@@ -534,6 +534,7 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
                     if (bNeedSnyc)\
                     {\
                         ptrProperty = NULL;\
+                        size_t uDepGuid = ptrProperty[0]->REFLECT_GUID;\
                         CComponentInstanceManager::GetInstance()->AddDependencyResolver(NULL, 0 , uGuid, uInstanceId, &ptrProperty, false);\
                     }\
                 }\
@@ -579,10 +580,16 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
                 if (bNeedSnyc)\
                 {\
                     ptrProperty.clear();\
+                    ptrProperty.resize(1);\
+                    size_t uDepGuid = ptrProperty[0]->REFLECT_GUID;\
+                    ptrProperty.clear();\
                     for (size_t i = 0; i < uLineCount; ++i)\
                     {\
                         size_t uInstanceId, uGuid;\
                         serializer >> uInstanceId >> uGuid;\
+                        BEATS_ASSERT(CComponentProxyManager::GetInstance()->IsParent(uDepGuid, uGuid),\
+                            _T("GUID mismatched. GUID of dependency:0x%x, GUID in datafile:0x%x"),\
+                            uDepGuid, uGuid);\
                         CComponentInstanceManager::GetInstance()->AddDependencyResolver(NULL, i , uGuid, uInstanceId, &ptrProperty, true);\
                     }\
                 }\

@@ -24,7 +24,7 @@ public:
 
     void Export(const std::vector<TString>& fileList, const TCHAR* pSavePath);
 
-    void QueryDerivedClass(size_t uBaseClassGuid, std::vector<size_t>& result, bool bRecurse);
+    void QueryDerivedClass(size_t uBaseClassGuid, std::vector<size_t>& result, bool bRecurse) const;
     void RegisterClassInheritInfo(size_t uDerivedClassGuid, size_t uBaseClassGuid);
     TString QueryComponentName(size_t uGuid) const;
 
@@ -55,6 +55,8 @@ public:
 
     // We won't call OnPropertyChange when loading files.
     bool IsLoadingFile() const;
+
+    bool IsParent(size_t uParentGuid, size_t uChildGuid) const;
 
 private:
     void LoadTemplateDataFromXML(const TCHAR* pWorkingPath);

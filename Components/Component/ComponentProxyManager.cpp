@@ -184,7 +184,7 @@ void CComponentProxyManager::Export(const std::vector<TString>& fileList, const 
     }
 }
 
-void CComponentProxyManager::QueryDerivedClass(size_t uBaseClassGuid, std::vector<size_t>& result, bool bRecurse )
+void CComponentProxyManager::QueryDerivedClass(size_t uBaseClassGuid, std::vector<size_t>& result, bool bRecurse ) const
 {
     result.clear();
     std::map<size_t, std::vector<size_t> >::iterator iter = m_pComponentInheritMap->find(uBaseClassGuid);
@@ -433,6 +433,13 @@ const std::map<size_t, TString>& CComponentProxyManager::GetAbstractComponentNam
 bool CComponentProxyManager::IsLoadingFile() const
 {
     return m_bLoadingFilePhase;
+}
+
+bool CComponentProxyManager::IsParent(size_t uParentGuid, size_t uChildGuid) const
+{
+    std::vector<size_t> subClassGuids;
+    QueryDerivedClass(uParentGuid, subClassGuids, true);
+    return std::find(subClassGuids.begin(), subClassGuids.end(), uChildGuid) != subClassGuids.end();
 }
 
 void CComponentProxyManager::LoadTemplateDataFromXML(const TCHAR* pszPath)
