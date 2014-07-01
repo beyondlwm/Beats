@@ -35,6 +35,7 @@
 #include <math.h>
 #include <map>
 #include <vector>
+#include <algorithm>
 #include <stdlib.h>
 
 #include "Beats/PublicDef.h"
