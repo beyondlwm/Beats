@@ -437,9 +437,21 @@ bool CComponentProxyManager::IsLoadingFile() const
 
 bool CComponentProxyManager::IsParent(size_t uParentGuid, size_t uChildGuid) const
 {
-    std::vector<size_t> subClassGuids;
-    QueryDerivedClass(uParentGuid, subClassGuids, true);
-    return std::find(subClassGuids.begin(), subClassGuids.end(), uChildGuid) != subClassGuids.end();
+    bool bRet = false;
+    if(uParentGuid == uChildGuid)
+    {
+        bRet = true;
+    }
+    else
+    {
+        std::vector<size_t> subClassGuids;
+        QueryDerivedClass(uParentGuid, subClassGuids, true);
+        if(std::find(subClassGuids.begin(), subClassGuids.end(), uChildGuid) != subClassGuids.end())
+        {
+            bRet = true;
+        }
+    }
+    return bRet;
 }
 
 void CComponentProxyManager::LoadTemplateDataFromXML(const TCHAR* pszPath)
