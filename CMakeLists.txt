@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 2.8)
 
 PROJECT(Beats_Test)
-
+#######################
+#Comment this for your release version
+SET(CMAKE_BUILD_TYPE Debug)
+#######################
 #1. Set Common Header.
 INCLUDE(${CMAKE_SOURCE_DIR}/CMakeCommon.cmake)
 
