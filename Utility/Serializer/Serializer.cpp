@@ -117,7 +117,7 @@ void CSerializer::Serialize( const void* pData, size_t size )
 
 bool CSerializer::Serialize( const TCHAR* pFilePath, const TCHAR* pszMode /* = _T("rb")*/)
 {
-    CFilePathTool::GetInstance()->LoadFile(this, pFilePath, pszMode);
+    return CFilePathTool::GetInstance()->LoadFile(this, pFilePath, pszMode);
 }
 
 bool CSerializer::Serialize( FILE* pFile, size_t startPos /*= 0*/, size_t dataLength /*= 0*/ )
