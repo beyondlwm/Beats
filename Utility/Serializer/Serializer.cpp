@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include <string>
 #include "Serializer.h"
+#include "FilePath\FilePathTool.h"
 
 CSerializer::CSerializer(size_t size, void* data)
 : m_size(size)
@@ -116,56 +117,7 @@ void CSerializer::Serialize( const void* pData, size_t size )
 
 bool CSerializer::Serialize( const TCHAR* pFilePath, const TCHAR* pszMode /* = _T("rb")*/)
 {
-    BEATS_ASSERT(pFilePath != NULL, _T("File path is NULL!"));
-    BEATS_ASSERT(_tcslen(pFilePath) > 0, _T("File path is empty!"));
-    bool bRet = false;
-#if (BEATS_PLATFORM == BEATS_PLATFORM_ANDROID)
-    TString strFilePath(pszFile);
-    if ( strFilePath[0] != _T('/'))
-    {
-        const TCHAR* pszFilePath = strFilePath.c_str();
-        // Found "assets/" at the beginning of the path and we don't want it
-        if (strFilePath.find(ASSET_ROOT_PATH) == 0)
-        {
-            pszFilePath += _tcslen(ASSET_ROOT_PATH);
-        }
-        if (m_pAssetManager) 
-        {
-            AAsset* pFile = AAssetManager_open(m_pAssetManager, s, AASSET_MODE_UNKNOWN);
-            if (pFile)
-            {
-                off_t uFileSize = AAsset_getLength(pFile);
-                pSerializer->ValidateBuffer(uFileSize);
-                int bytesread = AAsset_read(pFile, pSerializer->GetBuffer(), uFileSize);
-                pSerializer->SetWritePos(uFileSize);
-                BEATS_ASSERT(uFileSize == bytesread);
-                AAsset_close(pFile);
-            }
-        }
-    }
-    else
-#else
-    {
-        FILE* pFile = _tfopen(pFilePath, pszMode);
-        bRet = pFile != NULL;
-        BEATS_ASSERT(pFile != NULL, _T("Can't open file %s"), pFilePath);
-        if (pFile != NULL)
-        {
-            fseek(pFile, 0, SEEK_END);
-            size_t uFileSize = ftell(pFile);
-            fseek(pFile, 0, SEEK_SET);
-            BEATS_WARNING(uFileSize > 0, _T("Trying to serialize an empty file: %s"), pFilePath);
-            if (uFileSize > 0)
-            {
-                ValidateBuffer(uFileSize);
-                fread(m_pWritePtr, m_size - GetWritePos(), sizeof(unsigned char), pFile);
-                m_pWritePtr = static_cast<unsigned char*>(m_pWritePtr) + uFileSize;
-            }
-            fclose(pFile);
-        }
-    }
-#endif
-    return bRet;
+    CFilePathTool::GetInstance()->LoadFile(this, pFilePath, pszMode);
 }
 
 bool CSerializer::Serialize( FILE* pFile, size_t startPos /*= 0*/, size_t dataLength /*= 0*/ )
@@ -183,10 +135,9 @@ bool CSerializer::Serialize( FILE* pFile, size_t startPos /*= 0*/, size_t dataLe
         {
             fseek(pFile, (long)startPos, SEEK_SET);
             dataLength = ((dataLength != 0) && (uFileSize - startPos > dataLength)) ? dataLength : uFileSize - startPos;
-            Create(dataLength);
+            ValidateBuffer(dataLength);
             fread(m_pBuffer, 1, dataLength, pFile);
             m_pWritePtr = static_cast<unsigned char*>(m_pBuffer) + dataLength;
-            fclose(pFile);
             bRet = true;
         }
         fseek(pFile, (long)curPos, SEEK_SET);

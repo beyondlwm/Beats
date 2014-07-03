@@ -83,4 +83,3 @@ bool CFilePathTool::Canonical(TCHAR* pszOutBuffer, const TCHAR* pszOriginPath)
 {
     return PathCanonicalize(pszOutBuffer, pszOriginPath) != FALSE;
 }
-

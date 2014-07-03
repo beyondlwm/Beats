@@ -2,7 +2,9 @@
 #define BEATS_PUBLICDEF_H__INCLUDE
 
 #include "BeatsTchar.h"
-
+#if (BEATS_PLATFORM == BEATS_PLATFORM_ANDROID)
+#include <android/log.h>
+#endif
 //////////////////////////////////////////////////////////////////////////
 //Assert
 //To call messagebox so we can afford info for the engine user.
@@ -34,9 +36,15 @@ static TCHAR szBeatsDialogBuffer[10240] = {0};
             }\
         }\
         }
+    #elif(BEATS_PLATFORM == BEATS_PLATFORM_ANDROID)
+        #define BEATS_ASSERT(condition, ...)\
+        if (!(condition))\
+        {\
+            __android_log_assert(#condition, "Android_Assert", #condition);\
+        }        
     #else
-    #define BEATS_ASSERT(condition, ...)\
-    if (!(condition))\
+        #define BEATS_ASSERT(condition, ...)\
+        if (!(condition))\
         {\
             asm{int 3}\
         }

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Utility/FilePath/FilePathTool.h"
+#include <android/asset_manager.h>
 
 void CFilePathTool::SetAssetManager(AAssetManager* pMgr)
 {
@@ -27,7 +28,7 @@ bool CFilePathTool::Exists(const TCHAR* pszPath)
 
         if (m_pAssetManager) 
         {
-            AAsset* pFile = AAssetManager_open(m_pAssetManager, s, AASSET_MODE_UNKNOWN);
+            AAsset* pFile = AAssetManager_open(m_pAssetManager, pszFilePath, AASSET_MODE_UNKNOWN);
             if (pFile)
             {
                 bFound = true;
@@ -79,7 +80,7 @@ TString CFilePathTool::ParentPath(const TCHAR* pszPath)
 TString CFilePathTool::Extension(const TCHAR* pszPath)
 {
     BEATS_ASSERT(pszPath != NULL && _tcslen(pszPath) > 0);
-    TString strPath(psz);
+    TString strPath(pszPath);
     int pos = strPath.rfind(_T('.'));
     if (pos != TString::npos)
     {
@@ -122,7 +123,7 @@ TString CFilePathTool::RootPath( const TCHAR* pszPath )
     return _T("");
 }
 
-bool CFilePathTool::Canonical(const TCHAR* pszOutBuffer, const TCHAR* pszOriginPath)
+bool CFilePathTool::Canonical(TCHAR* pszOutBuffer, const TCHAR* pszOriginPath)
 {
     // TODO: Unimplement
     return false;

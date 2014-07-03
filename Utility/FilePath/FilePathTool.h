@@ -19,12 +19,13 @@ public:
     TString MakeAbsolute(const TCHAR* pszStartPath, const TCHAR* pszRelativePath);
     TString RootPath(const TCHAR* pszPath);
     bool Canonical(TCHAR* pszOutBuffer, const TCHAR* pszOriginPath);
+    bool LoadFile(CSerializer* pSerializer, const TCHAR* pszFilePath, const TCHAR* pszMode);
 
 #if (BEATS_PLATFORM == BEATS_PLATFORM_ANDROID)
-    void SetAssetManager(AAssetManager* pMgr);
-    AAssetManager* GetAssetManager() const;
+    void SetAssetManager(class AAssetManager* pMgr);
+    class AAssetManager* GetAssetManager() const;
 private:
-    AAssetManager* m_pAssetManager;
+    class AAssetManager* m_pAssetManager;
 #endif
 
 };
