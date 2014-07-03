@@ -25,6 +25,7 @@
 
 */
 #include "stdafx.h"
+#if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
 #include "base64.h"
 #include <iostream>
 
@@ -125,3 +126,4 @@ std::string base64_decode(std::string const& encoded_string)
 
   return ret;
 }
+#endif

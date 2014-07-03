@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "SpyCommandSysCMD.h"
 #include "SpyCommandManager.h"
-#include <boost/filesystem.hpp>
+#include "Utility\FilePath\FilePathTool.h"
+#include "Utility\StringHelper\StringHelper.h"
 
 CSpyCommandSysCMD::CSpyCommandSysCMD()
 : super(eSCT_SystemCmd)
@@ -126,16 +127,16 @@ bool CSpyCommandSysCMD::HandleSpecificCommand(const char* pCommand, std::string&
     {
         char szCurDirectory[MAX_PATH];
         GetCurrentDirectoryA(MAX_PATH, szCurDirectory);
-        boost::filesystem::path rootPath(szCurDirectory);
-        SetCurrentDirectoryA(rootPath.root_directory().string().c_str());
+        TString strRootPath = CFilePathTool::GetInstance()->RootPath(szCurDirectory);
+        SetCurrentDirectoryA(strRootPath.c_str());
         strFeedback.clear();
     }
     else if (_stricmp(pCommand, "cd..") == 0)
     {
         char szCurDirectory[MAX_PATH];
         GetCurrentDirectoryA(MAX_PATH, szCurDirectory);
-        boost::filesystem::path curDirectory(szCurDirectory);
-        SetCurrentDirectoryA(curDirectory.parent_path().string().c_str());
+        TString strParentPath = CFilePathTool::GetInstance()->ParentPath(szCurDirectory);
+        SetCurrentDirectoryA(strParentPath.c_str());
         strFeedback.clear();
     }
     else if (_strnicmp(pCommand, "cd ", strlen("cd ")) == 0)
@@ -144,8 +145,9 @@ bool CSpyCommandSysCMD::HandleSpecificCommand(const char* pCommand, std::string&
         GetCurrentDirectoryA(MAX_PATH, szCurDirectory);
         strcat_s(szCurDirectory, "\\");
         strcat_s(szCurDirectory, pCommand + strlen("cd "));
-        boost::filesystem::path curDirectory(szCurDirectory);
-        if (boost::filesystem::is_directory(curDirectory))
+        TCHAR szBuffer[MAX_PATH];
+        CStringHelper::GetInstance()->ConvertToTCHAR(szCurDirectory, szBuffer, MAX_PATH);
+        if (CFilePathTool::GetInstance()->IsDirectory(szBuffer))
         {
             SetCurrentDirectoryA(szCurDirectory);
             strFeedback.clear();
@@ -166,7 +168,9 @@ bool CSpyCommandSysCMD::HandleSpecificCommand(const char* pCommand, std::string&
     }
     else if (pCommand[1] == ':')
     {
-        if (boost::filesystem::is_directory(pCommand))
+        TCHAR szBuffer[MAX_PATH];
+        CStringHelper::GetInstance()->ConvertToTCHAR(pCommand, szBuffer, MAX_PATH);
+        if (CFilePathTool::GetInstance()->IsDirectory(szBuffer))
         {
             SetCurrentDirectoryA(pCommand);
             strFeedback.clear();

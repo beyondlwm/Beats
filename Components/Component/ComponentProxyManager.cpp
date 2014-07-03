@@ -13,6 +13,7 @@
 #include "ComponentProxy.h"
 #include "ComponentPublic.h"
 #include "ComponentInstance.h"
+#include "FilePath/FilePathTool.h"
 
 CComponentProxyManager* CComponentProxyManager::m_pInstance = NULL;
 
@@ -347,7 +348,7 @@ void CComponentProxyManager::DeserializeTemplateData(const TCHAR* pszPath,
         szFilePath.append(_T("\\"));
     }
     szFilePath.append(pszEDSFileName);
-    bool bFileExists = CUtilityManager::GetInstance()->FileExists(szFilePath.c_str());
+    bool bFileExists = CFilePathTool::GetInstance()->Exists(szFilePath.c_str());
     BEATS_ASSERT(bFileExists, _T("Can't find %s!\nInitialize failed!"), szFilePath.c_str());
     if (bFileExists)
     {

@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
 #include "md5.h"
 
 /* Constants for MD5Transform routine. */
@@ -406,3 +407,4 @@ std::string CMD5::ToString()
     return BytesToHexString(m_digest, 16);
 }
 
+#endif

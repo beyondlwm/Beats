@@ -11,7 +11,6 @@
 #include "../Utility/UtilityManager.h"
 #include "../Utility/StringHelper/StringHelper.h"
 #include <math.h>
-#include <boost/filesystem.hpp>
 
 int CBDTWxApp::CMD_SHOW_WINDOW = 0;
 int CBDTWxApp::CMD_TERMINATE = 0;

@@ -208,6 +208,7 @@
     <ClInclude Include="FileEncoder\BytesOrderEncoder.h" />
     <ClInclude Include="FileEncoder\FileEncoderBase.h" />
     <ClInclude Include="FileFilter\FileFilter.h" />
+    <ClInclude Include="FilePath\FilePathTool.h" />
     <ClInclude Include="IdManager\IdManager.h" />
     <ClInclude Include="MailManager\base64.h" />
     <ClInclude Include="MailManager\MailManager.h" />
@@ -232,6 +233,8 @@
     <ClCompile Include="FileEncoder\BytesOrderEncoder.cpp" />
     <ClCompile Include="FileEncoder\FileEncoderBase.cpp" />
     <ClCompile Include="FileFilter\FileFilter.cpp" />
+    <ClCompile Include="FilePath\FilePathTool.cpp" />
+    <ClCompile Include="FilePath\Platform\Win32\FilePathTool_Win32.cpp" />
     <ClCompile Include="IdManager\IdManager.cpp" />
     <ClCompile Include="MailManager\base64.cpp" />
     <ClCompile Include="MailManager\MailManager.cpp" />

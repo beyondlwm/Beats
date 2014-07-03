@@ -66,6 +66,12 @@
       <Filter>TinyXML</Filter>
     </ClCompile>
     <ClCompile Include="UtilityManager.cpp" />
+    <ClCompile Include="FilePath\FilePathTool.cpp">
+      <Filter>FilePath</Filter>
+    </ClCompile>
+    <ClCompile Include="FilePath\Platform\Win32\FilePathTool_Win32.cpp">
+      <Filter>FilePath</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EnumStrGenerator\EnumStrGenerator.h">
@@ -136,6 +142,9 @@
     <ClInclude Include="Serializer\Serializer.hpp">
       <Filter>Serializer</Filter>
     </ClInclude>
+    <ClInclude Include="FilePath\FilePathTool.h">
+      <Filter>FilePath</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="EnumStrGenerator">
@@ -173,6 +182,9 @@
     </Filter>
     <Filter Include="SharePtr">
       <UniqueIdentifier>{18851E76-626D-42CA-9546-0F41563495D5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FilePath">
+      <UniqueIdentifier>{ec5db718-4d7b-4a4c-b3b8-7abef9c37168}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

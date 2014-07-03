@@ -1,7 +1,9 @@
 #include "stdafx.h"
+#if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
 #include "ServiceManager.h"
 #include "UtilityManager.h"
 #include <process.h>
+#include "FilePath\FilePathTool.h"
 
 CServiceManager* CServiceManager::m_pInstance = NULL;
 
@@ -40,7 +42,7 @@ bool CServiceManager::Install( const TCHAR* pszServiceName, const TCHAR* pszServ
     {
         if (moduleDepends[i].find(szSystemDirectory) != 0)
         {
-            TString moduleName = CUtilityManager::GetInstance()->FileFindName(moduleDepends[i].c_str());
+            TString moduleName = CFilePathTool::GetInstance()->FileName(moduleDepends[i].c_str());
             TCHAR szTargetPath[MAX_PATH];
             _tcscpy(szTargetPath, szSystemDirectory);
             _tcscat(szTargetPath, _T("/"));
@@ -56,7 +58,7 @@ bool CServiceManager::Install( const TCHAR* pszServiceName, const TCHAR* pszServ
     _tcscat(szProcessPath, szSystemDirectory);
     _tcscat(szProcessPath, _T("/"));
     TString strApplicationName = CUtilityManager::GetInstance()->GetModuleFileName();
-    strApplicationName = CUtilityManager::GetInstance()->FileFindName(strApplicationName.c_str());
+    strApplicationName = CFilePathTool::GetInstance()->FileName(strApplicationName.c_str());
     _tcscat(szProcessPath, strApplicationName.c_str());
     _tcscat(szProcessPath, _T("\""));
 
@@ -155,3 +157,4 @@ bool CServiceManager::IsInstalled( const TCHAR* pszServiceName )
     }
     return bRet;
 }
+#endif

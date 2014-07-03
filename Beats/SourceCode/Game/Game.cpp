@@ -9,7 +9,7 @@
 #include "Object/ObjectManager.h"
 #include "Tasks/TaskBase.h"
 #include "../DebugTool/DebugTool.h"
-#include <boost/filesystem.hpp>
+#include "FilePath/FilePathTool.h"
 
 CGame* CGame::m_pInstance = NULL;
 
@@ -39,9 +39,7 @@ void CGame::Init(HWND hwnd)
     HMODULE processModule = GetModuleHandle(NULL);
     TCHAR szModuleFilePath[MAX_PATH];
     GetModuleFileName(processModule, szModuleFilePath, MAX_PATH);
-    boost::filesystem::path modulePath(szModuleFilePath);
-    modulePath.remove_filename();
-    m_strWorkRootPath = modulePath.c_str();
+    m_strWorkRootPath = CFilePathTool::GetInstance()->ParentPath(szModuleFilePath);
     m_strWorkRootPath.append(_T("/"));
 
     SetTask(eTT_Title);

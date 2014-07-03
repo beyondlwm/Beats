@@ -4,7 +4,6 @@
 #include <Psapi.h>
 #include <process.h>
 #include <Dbghelp.h>
-#include <boost/filesystem.hpp>
 
 void CBDTWxFrame::CreateSystemInfoPage()
 {

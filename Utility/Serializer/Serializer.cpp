@@ -117,24 +117,54 @@ void CSerializer::Serialize( const void* pData, size_t size )
 bool CSerializer::Serialize( const TCHAR* pFilePath, const TCHAR* pszMode /* = _T("rb")*/)
 {
     BEATS_ASSERT(pFilePath != NULL, _T("File path is NULL!"));
-    FILE* pFile = _tfopen(pFilePath, pszMode);
-    bool bRet = pFile != NULL;
-    BEATS_ASSERT(pFile != NULL, _T("Can't open file %s"), pFilePath);
-    if (pFile != NULL)
+    BEATS_ASSERT(_tcslen(pFilePath) > 0, _T("File path is empty!"));
+    bool bRet = false;
+#if (BEATS_PLATFORM == BEATS_PLATFORM_ANDROID)
+    TString strFilePath(pszFile);
+    if ( strFilePath[0] != _T('/'))
     {
-        fseek(pFile, 0, SEEK_END);
-        size_t uFileSize = ftell(pFile);
-        fseek(pFile, 0, SEEK_SET);
-        BEATS_WARNING(uFileSize > 0, _T("Trying to serialize an empty file: %s"), pFilePath);
-        if (uFileSize > 0)
+        const TCHAR* pszFilePath = strFilePath.c_str();
+        // Found "assets/" at the beginning of the path and we don't want it
+        if (strFilePath.find(ASSET_ROOT_PATH) == 0)
         {
-            ValidateBuffer(uFileSize);
-            fread(m_pWritePtr, m_size - GetWritePos(), sizeof(unsigned char), pFile);
-            m_pWritePtr = static_cast<unsigned char*>(m_pWritePtr) + uFileSize;
+            pszFilePath += _tcslen(ASSET_ROOT_PATH);
         }
-        fclose(pFile);
+        if (m_pAssetManager) 
+        {
+            AAsset* pFile = AAssetManager_open(m_pAssetManager, s, AASSET_MODE_UNKNOWN);
+            if (pFile)
+            {
+                off_t uFileSize = AAsset_getLength(pFile);
+                pSerializer->ValidateBuffer(uFileSize);
+                int bytesread = AAsset_read(pFile, pSerializer->GetBuffer(), uFileSize);
+                pSerializer->SetWritePos(uFileSize);
+                BEATS_ASSERT(uFileSize == bytesread);
+                AAsset_close(pFile);
+            }
+        }
     }
-
+    else
+#else
+    {
+        FILE* pFile = _tfopen(pFilePath, pszMode);
+        bRet = pFile != NULL;
+        BEATS_ASSERT(pFile != NULL, _T("Can't open file %s"), pFilePath);
+        if (pFile != NULL)
+        {
+            fseek(pFile, 0, SEEK_END);
+            size_t uFileSize = ftell(pFile);
+            fseek(pFile, 0, SEEK_SET);
+            BEATS_WARNING(uFileSize > 0, _T("Trying to serialize an empty file: %s"), pFilePath);
+            if (uFileSize > 0)
+            {
+                ValidateBuffer(uFileSize);
+                fread(m_pWritePtr, m_size - GetWritePos(), sizeof(unsigned char), pFile);
+                m_pWritePtr = static_cast<unsigned char*>(m_pWritePtr) + uFileSize;
+            }
+            fclose(pFile);
+        }
+    }
+#endif
     return bRet;
 }
 

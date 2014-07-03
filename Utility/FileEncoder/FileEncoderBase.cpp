@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
 #include "FileEncoderBase.h"
 #include "UtilityManager.h"
 #include "MD5/md5.h"
@@ -280,3 +281,4 @@ bool CFileEncoderBase::UnitTest()
 
     return bRet;
 }
+#endif

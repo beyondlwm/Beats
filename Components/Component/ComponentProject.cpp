@@ -7,6 +7,7 @@
 #include "Utility/IdManager/IdManager.h"
 #include <string>
 #include "Utility/UtilityManager.h"
+#include "FilePath/FilePathTool.h"
 
 CComponentProject::CComponentProject()
 : m_pProjectData(NULL)
@@ -36,8 +37,8 @@ CComponentProjectDirectory* CComponentProject::LoadProject(const TCHAR* pszProje
     CloseProject();
     if (pszProjectFile != NULL && pszProjectFile[0] != 0)
     {
-        m_strProjectFilePath = CUtilityManager::GetInstance()->FileRemoveName(pszProjectFile);
-        m_strProjectFileName = CUtilityManager::GetInstance()->FileFindName(pszProjectFile);
+        m_strProjectFilePath = CFilePathTool::GetInstance()->ParentPath(pszProjectFile);
+        m_strProjectFileName = CFilePathTool::GetInstance()->ParentPath(pszProjectFile);
 
         char szProjectFileChar[MAX_PATH];
         CStringHelper::GetInstance()->ConvertToCHAR(pszProjectFile, szProjectFileChar, MAX_PATH);
@@ -127,7 +128,7 @@ void CComponentProject::SaveProjectFile( TiXmlElement* pParentNode, const CCompo
         TiXmlElement* pNewFileElement = new TiXmlElement("File");
         size_t uFileNameId = *iter;
 
-        TString strRelativePath = CUtilityManager::GetInstance()->FileMakeRelative(m_strProjectFilePath.c_str(), GetComponentFileName(uFileNameId).c_str());
+        TString strRelativePath = CFilePathTool::GetInstance()->MakeRelative(m_strProjectFilePath.c_str(), GetComponentFileName(uFileNameId).c_str());
         char szCharPath[MAX_PATH];
         CStringHelper::GetInstance()->ConvertToCHAR(strRelativePath.c_str(), szCharPath, MAX_PATH);
         pNewFileElement->SetAttribute("Path", szCharPath);
@@ -493,7 +494,7 @@ void CComponentProject::LoadXMLProject(TiXmlElement* pNode, CComponentProjectDir
             const char* pPath = pElement->Attribute("Path");
             TCHAR szTPath[MAX_PATH];
             CStringHelper::GetInstance()->ConvertToTCHAR(pPath, szTPath, MAX_PATH);
-            TString strFilePath = CUtilityManager::GetInstance()->FileMakeAbsolute(m_strProjectFilePath.c_str(), szTPath);
+            TString strFilePath = CFilePathTool::GetInstance()->MakeAbsolute(m_strProjectFilePath.c_str(), szTPath);
             pProjectDirectory->AddFile(strFilePath.c_str(), conflictIdMap);
         }
         else

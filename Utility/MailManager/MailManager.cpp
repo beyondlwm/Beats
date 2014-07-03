@@ -14,6 +14,7 @@
 // More details at: http://www.codeproject.com/KB/mcpp/CMailManager.aspx
 ////////////////////////////////////////////////////////////////////////////////
 #include <stdafx.h>
+#if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
 #include "MailManager.h"
 #include "base64.h"
 
@@ -1504,4 +1505,4 @@ std::string ECSmtp::GetErrorText() const
         return "Undefined error id";
     }
 }
-
+#endif

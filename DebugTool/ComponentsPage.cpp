@@ -5,7 +5,6 @@
 #include <wx/artprov.h>
 #include <wx/numdlg.h>
 #include <d3dx9.h>
-#include <boost/filesystem.hpp>
 #include "../Components/Component/ComponentProxyManager.h"
 #include "../Components/Component/ComponentProject.h"
 #include "../Components/Component/ComponentProjectData.h"

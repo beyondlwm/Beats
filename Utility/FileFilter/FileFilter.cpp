@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
 #include "FileFilter.h"
 #include "Serializer/Serializer.h"
 #include "StringHelper/StringHelper.h"
@@ -152,3 +153,4 @@ void CFileFilter::SetFileNameFilter(const std::vector<TString>& strFileNameFilte
     m_strFileNameWildCard = strFileNameFilter;
     m_bFileNameWildCardMatchAll = bMatchAll;
 }
+#endif

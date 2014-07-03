@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
 #include "BytesOrderEncoder.h"
 #include <algorithm>
 #include <vector>
@@ -168,3 +169,4 @@ void CBytesOrderEncoder::GetShuffleOrder( std::vector<size_t>& shuffleOrder )
     srand((unsigned int)m_header.m_uRandomSeed);
     random_shuffle(shuffleOrder.begin(), shuffleOrder.end());
 }
+#endif

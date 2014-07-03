@@ -14,8 +14,6 @@
     #pragma comment(lib, "psapi.lib")
 #endif
 
-#include <boost/filesystem.hpp>
-
 
 CUtilityManager* CUtilityManager::m_pInstance = NULL;
 
@@ -423,108 +421,6 @@ bool CUtilityManager::ReadDataFromFile(FILE* pFile, void* pData, size_t uDataLen
     }
     BEATS_ASSERT(uCounter == uDataLength, _T("Write Data Failed with retry count %d"), uRetryCount);
     return uCounter == uDataLength;
-}
-
-bool CUtilityManager::FileExists(const TCHAR* pszFilePath)
-{
-    return boost::filesystem::exists(pszFilePath);
-}
-
-TString CUtilityManager::FileFindExtension(const TCHAR* pszFileName)
-{
-    boost::filesystem::path fileName(pszFileName);
-#ifdef _UNICODE
-    return fileName.extension().wstring();
-#else
-    return fileName.extension().string();
-#endif
-}
-
-TString CUtilityManager::FileFindName(const TCHAR* pszFileName)
-{
-    boost::filesystem::path fileName(pszFileName);
-#ifdef _UNICODE
-    return fileName.filename().wstring();
-#else
-    return fileName.filename().string();
-#endif
-}
-
-TString CUtilityManager::FileRemoveName(const TCHAR* pszFilePath)
-{
-    boost::filesystem::path fileName(pszFilePath);
-    fileName.remove_filename();
-#ifdef _UNICODE
-    return fileName.wstring();
-#else
-    return fileName.string();
-#endif
-}
-
-TString CUtilityManager::FileMakeRelative(const TCHAR* pszStartPath, const TCHAR* pszToPath)
-{
-    // calculate the relative path
-    boost::filesystem::path fromPath = boost::filesystem::absolute( pszStartPath );
-    boost::filesystem::path targetPath = boost::filesystem::absolute( pszToPath ); 
-    boost::filesystem::path relativePath;
-
-    // if root paths are different, return absolute path
-    if( targetPath.root_path() != fromPath.root_path() )
-    {
-        relativePath = targetPath;
-    }
-    else
-    {
-        // find out where the two paths diverge
-        boost::filesystem::path::const_iterator itr_path = targetPath.begin();
-        boost::filesystem::path::const_iterator itr_relative_to = fromPath.begin();
-        while( *itr_path == *itr_relative_to && itr_path != targetPath.end() && itr_relative_to != fromPath.end() ) 
-        {
-            ++itr_path;
-            ++itr_relative_to;
-        }
-
-        // add "../" for each remaining token in relative_to
-        if( itr_relative_to != fromPath.end() ) 
-        {
-            ++itr_relative_to;
-            while( itr_relative_to != fromPath.end() ) 
-            {
-                relativePath /= "..";
-                ++itr_relative_to;
-            }
-        }
-
-        // add remaining path
-        while( itr_path != targetPath.end() )
-        {
-            relativePath /= *itr_path;
-            ++itr_path;
-        }
-    }
-#ifdef _UNICODE
-    return relativePath.wstring();
-#else
-    return relativePath.string();
-#endif
-}
-
-TString CUtilityManager::FileMakeAbsolute(const TCHAR* pszStartPath, const TCHAR* pszRelativePath)
-{
-    BEATS_ASSERT(boost::filesystem::path(pszStartPath).is_absolute() == true);
-    boost::filesystem::path filePath(pszRelativePath);
-    if (!filePath.is_absolute())
-    {
-        boost::filesystem::path newPath(pszStartPath);
-        newPath /= pszRelativePath;
-        boost::filesystem::canonical(newPath);
-        filePath.swap(newPath);
-    }
-#ifdef _UNICODE
-    return filePath.wstring();
-#else
-    return filePath.string();
-#endif
 }
 
 bool CUtilityManager::GetProcessModule( size_t uProcessId, std::vector<TString>& modulePath )

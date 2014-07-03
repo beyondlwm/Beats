@@ -119,14 +119,6 @@ public:
     bool WriteDataToFile(FILE* pFile, void* pData, size_t uDataLength, size_t uRetryCount = 20);
     bool ReadDataFromFile(FILE* pFile, void* pData, size_t uDataLength, size_t uRetryCount = 20);
 
-    // Path
-    bool FileExists(const TCHAR* pszFilePath);
-    TString FileFindExtension(const TCHAR* pszFileName);
-    TString FileFindName(const TCHAR* pszFileName);
-    TString FileRemoveName(const TCHAR* pszFilePath);
-    TString FileMakeRelative(const TCHAR* pszStartPath, const TCHAR* pszToPath);
-    TString FileMakeAbsolute(const TCHAR* pszStartPath, const TCHAR* pszRelativePath);
-
     // System Module
     bool GetProcessModule(size_t uProcessId, std::vector<TString>& modulePath);
     const TString& GetModuleFileName();

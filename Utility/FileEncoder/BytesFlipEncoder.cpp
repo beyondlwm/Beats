@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
 #include "BytesFlipEncoder.h"
 #include "UtilityManager.h"
 
@@ -154,3 +155,4 @@ bool CBytesFlipEncoder::CheckParameter()
     BEATS_ASSERT(bCheckFlipCount, _T("FlipCount Parameter invalid for CBytesFlipEncoder.FlipCountMin %d FlipCountMax %d"), m_header.m_iFlipCountMin, m_header.m_iFlipCountMax);
     return bCheckStep && bCheckFlipCount;
 }
+#endif

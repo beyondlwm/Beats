@@ -7,7 +7,7 @@
 #include <WinSock2.h>
 #include <wx/listctrl.h>
 #include <wx/textctrl.h>
-#include <boost/filesystem.hpp>
+#include "FilePath/FilePathTool.h"
 
 static const size_t COMMAND_SEND_TEXT_COLOR = 0xFF000000;
 static const size_t COMMAND_RECEIVE_TEXT_COLOR = 0xFFFF0000;
@@ -238,9 +238,7 @@ void CSpyUserPanel::OnSpyFileItemActivated(wxListEvent& event)
     }
     else
     {
-        boost::filesystem::path curPath(strNewLocation);
-        boost::system::error_code errorcode;
-        _tcscpy(szPath, boost::filesystem::canonical(curPath, errorcode).c_str());
+        CFilePathTool::GetInstance()->Canonical(szPath, strNewLocation.c_str());
     }    
     GetFileInfo(szPath, false);
 }

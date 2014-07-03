@@ -6,6 +6,7 @@
 #if (BEATS_PLATFORM == BEATS_PLATFORM_ANDROID)
 #include <stdlib.h>
 #endif
+#include "FilePath/FilePathTool.h"
 
 static const char* ENUM_KEYWORD_STR = "enum";
 
@@ -335,7 +336,7 @@ void CEnumStrGenerator::SaveCacheFile(const TCHAR* pszCacheFileName)
             serializer << iter->second->m_enumValue[i]->m_value;
         }
     }
-    TString fullPathStr = CUtilityManager::GetInstance()->FileRemoveName(CUtilityManager::GetInstance()->GetModuleFileName().c_str());
+    TString fullPathStr = CFilePathTool::GetInstance()->ParentPath(CUtilityManager::GetInstance()->GetModuleFileName().c_str());
     fullPathStr.append(_T("/")).append(pszCacheFileName);
     serializer.Deserialize(fullPathStr.c_str());
 }
@@ -343,9 +344,9 @@ void CEnumStrGenerator::SaveCacheFile(const TCHAR* pszCacheFileName)
 bool CEnumStrGenerator::LoadCacheFile(const TCHAR* pszCacheFileName)
 {
     bool bRet = false;
-    TString fullPathStr = CUtilityManager::GetInstance()->FileRemoveName(CUtilityManager::GetInstance()->GetModuleFileName().c_str());
+    TString fullPathStr = CFilePathTool::GetInstance()->ParentPath(CUtilityManager::GetInstance()->GetModuleFileName().c_str());
     fullPathStr.append(_T("/")).append(pszCacheFileName);
-    if (CUtilityManager::GetInstance()->FileExists(fullPathStr.c_str()))
+    if (CFilePathTool::GetInstance()->Exists(fullPathStr.c_str()))
     {
         CSerializer serializer(fullPathStr.c_str());
         size_t enumTypeCount = 0;
