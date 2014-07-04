@@ -11,6 +11,7 @@
 #include "../Utility/UtilityManager.h"
 #include "../Utility/StringHelper/StringHelper.h"
 #include <math.h>
+#include "FilePath/FilePathTool.h"
 
 int CBDTWxApp::CMD_SHOW_WINDOW = 0;
 int CBDTWxApp::CMD_TERMINATE = 0;
@@ -53,8 +54,7 @@ CBDTWxApp::CBDTWxApp()
     // Set working path.
     TCHAR szPath[MAX_PATH];
     GetModuleFileName(NULL, szPath, MAX_PATH);
-    boost::filesystem::path modulePath(szPath);
-    m_szWorkingPath.assign(modulePath.parent_path().c_str());
+    m_szWorkingPath = CFilePathTool::GetInstance()->ParentPath(szPath);
 }
 
 CBDTWxApp::~CBDTWxApp()

@@ -527,14 +527,14 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
                         pDependency->GetCurrActionParam(action, pOperateProxy);\
                         if(pOperateProxy->IsInitialized())\
                         {\
-                            BEATS_ASSERT(CComponentInstanceManager::GetInstance()->GetComponentInstance(uInstanceId, uGuid) == pOperateProxy);\
-                            bNeedSnyc = !this->OnPropertyChange(&ptrProperty, pOperateProxy);\
+                            BEATS_ASSERT(CComponentInstanceManager::GetInstance()->GetComponentInstance(uInstanceId, uGuid) == pOperateProxy->GetHostComponent());\
+                            bNeedSnyc = !this->OnDependencyChange(&ptrProperty, pOperateProxy->GetHostComponent());\
                         }\
                     }\
                     if (bNeedSnyc)\
                     {\
                         ptrProperty = NULL;\
-                        size_t uDepGuid = ptrProperty[0]->REFLECT_GUID;\
+                        size_t uDepGuid = ptrProperty->REFLECT_GUID;\
                         CComponentInstanceManager::GetInstance()->AddDependencyResolver(NULL, 0 , uGuid, uInstanceId, &ptrProperty, false);\
                     }\
                 }\
@@ -542,7 +542,7 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
                 {\
                     if (ptrProperty != NULL && !CComponentProxyManager::GetInstance()->IsLoadingFile())\
                     {\
-                        this->OnPropertyChange(&ptrProperty, NULL);\
+                        this->OnDependencyChange(&ptrProperty, NULL);\
                     }\
                     ptrProperty = NULL;\
                 }\
@@ -573,8 +573,7 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
                     pDependencyList->GetCurrActionParam(action, pOperateProxy);\
                     if(pOperateProxy->IsInitialized())\
                     {\
-                        BEATS_ASSERT(CComponentInstanceManager::GetInstance()->GetComponentInstance(uInstanceId, uGuid) == pOperateProxy);\
-                        bNeedSnyc = !this->OnPropertyChange(&ptrProperty, pOperateProxy);\
+                        bNeedSnyc = !this->OnDependencyListChange(&ptrProperty, action, pOperateProxy->GetHostComponent());\
                     }\
                 }\
                 if (bNeedSnyc)\

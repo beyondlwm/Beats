@@ -21,6 +21,7 @@
 #include "ComponentSystem/wxWidgetsProperty/ListPropertyDescriptionEx.h"
 #include "ComponentSystem/PtrEditor/wxPtrButtonEditor.h"
 #include "ComponentSystem/ComponentGraphics_DX.h"
+#include "FilePath/FilePathTool.h"
 
 enum EPropertyMenuSelection
 {
@@ -443,7 +444,7 @@ void CBDTWxFrame::OnComponentFileEndDrag( wxTreeEvent& event )
     if (m_pComponentRenderWindow->IsMouseInWindow())
     {
         const TCHAR* pDraggingFileName = m_pComponentRenderWindow->GetDraggingFileName();
-        if (pDraggingFileName != NULL && boost::filesystem::exists(pDraggingFileName))
+        if (pDraggingFileName != NULL && CFilePathTool::GetInstance()->Exists(pDraggingFileName))
         {
             const TString& strCurWorkingFile = CComponentProxyManager::GetInstance()->GetCurrentWorkingFilePath();
             if (!strCurWorkingFile.empty())
@@ -726,10 +727,9 @@ void CBDTWxFrame::OnComponentFileListMenuClicked( wxMenuEvent& event )
                     }
                     else
                     {
-                        boost::filesystem::path filePath(result.c_str());
-                        if (!boost::filesystem::exists(filePath))
+                        if (!CFilePathTool::GetInstance()->Exists(result.c_str()))
                         {
-                            const TCHAR* pExtensionStr = filePath.extension().c_str();
+                            const TCHAR* pExtensionStr = CFilePathTool::GetInstance()->Extension(result.c_str()).c_str();
                             if (_tcsicmp(pExtensionStr, COMPONENT_FILE_EXTENSION) != 0)
                             {
                                 result.append(COMPONENT_FILE_EXTENSION);
@@ -1047,8 +1047,7 @@ void CBDTWxFrame::OnExportButtonClick(wxCommandEvent& /*event*/)
             TString filePath(pData->GetFileName());
             filesToExport.push_back(filePath);
         }
-        boost::filesystem::path binaryPath(szBinaryPath.c_str());
-        TString pExtensionStr = binaryPath.extension().c_str();
+        TString pExtensionStr = CFilePathTool::GetInstance()->Extension(szBinaryPath.c_str()).c_str();
         if (_tcsicmp(pExtensionStr.c_str(), BINARIZE_FILE_EXTENSION) != 0)
         {
             szBinaryPath.append(BINARIZE_FILE_EXTENSION);

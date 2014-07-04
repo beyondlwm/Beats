@@ -66,6 +66,7 @@ TString CFilePathTool::MakeAbsolute(const TCHAR* pszStartPath, const TCHAR* pszR
     {
         tmp.append(_T("\\"));
     }
+    tmp.append(pszRelativePath);
     bool bRet = PathCanonicalize(szBuffer, tmp.c_str()) != FALSE;
     BEATS_ASSERT(bRet);
     return szBuffer;

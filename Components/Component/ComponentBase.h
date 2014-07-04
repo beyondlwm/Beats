@@ -20,7 +20,7 @@
 
 
 class CSerializer;
-
+class CDependencyDescription;
 class COMPONENTS_DLL_DECL CComponentBase
 {
 public:
@@ -39,10 +39,9 @@ public:
     virtual void ReflectData(CSerializer& serializer);
     // Editor mode only!
     // The return value means if user has sync the variable manually, or system will do this assign.
-    // If it is a property, the pNewValueToBeSet means the value data.
-    // if it is a dependency or dependency list, it is a pointer to CDependencyDescription.
-    virtual bool OnPropertyChange(void* pVariableAddr, void* pNewValueToBeSet);
-
+    virtual bool OnPropertyChange(void* pVariableAddr, CSerializer* pNewValueToBeSet);
+    virtual bool OnDependencyChange(void* pComponentAddr, CComponentBase* pComponent);
+    virtual bool OnDependencyListChange(void* pComponentAddr, enum EDependencyChangeAction action, CComponentBase* pComponent);
 private:
     bool m_bInitialize;
     size_t m_id;

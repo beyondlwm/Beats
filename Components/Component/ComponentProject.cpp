@@ -38,7 +38,7 @@ CComponentProjectDirectory* CComponentProject::LoadProject(const TCHAR* pszProje
     if (pszProjectFile != NULL && pszProjectFile[0] != 0)
     {
         m_strProjectFilePath = CFilePathTool::GetInstance()->ParentPath(pszProjectFile);
-        m_strProjectFileName = CFilePathTool::GetInstance()->ParentPath(pszProjectFile);
+        m_strProjectFileName = CFilePathTool::GetInstance()->FileName(pszProjectFile);
 
         char szProjectFileChar[MAX_PATH];
         CStringHelper::GetInstance()->ConvertToCHAR(pszProjectFile, szProjectFileChar, MAX_PATH);
@@ -348,11 +348,9 @@ bool CComponentProject::AnalyseFile(const TString& strFileName, std::map<size_t,
     }
     else
     {
-        TCHAR info[MAX_PATH];
         TCHAR reason[MAX_PATH];
         CStringHelper::GetInstance()->ConvertToTCHAR(document.ErrorDesc(), reason, MAX_PATH);
-        _stprintf(info, _T("Load File :%s Failed!Reason: %s"), strFileName.c_str(), reason);
-        MessageBox(NULL, info, _T("Load file failed"), MB_OK | MB_ICONERROR);
+        BEATS_ASSERT(false, _T("Load File :%s Failed!Reason: %s"), strFileName.c_str(), reason);
     }
     return true;
 }
@@ -570,6 +568,6 @@ void CComponentProject::UnregisterComponent(size_t uComponentId)
                 idOfGuid.pop_back();
                 break;
             }
-        }        
+        }
     }
 }

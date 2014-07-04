@@ -29,6 +29,7 @@
 #include <set>
 #include <map>
 #include <vector>
+#include "../Platform/win32/BeatsPlatFormConfig.h"
 #include "../Beats/PublicDef.h"
 
 

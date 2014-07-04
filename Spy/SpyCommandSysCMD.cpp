@@ -125,18 +125,18 @@ bool CSpyCommandSysCMD::HandleSpecificCommand(const char* pCommand, std::string&
     bool bRet = true;
     if (_stricmp(pCommand, "cd\\") == 0)
     {
-        char szCurDirectory[MAX_PATH];
-        GetCurrentDirectoryA(MAX_PATH, szCurDirectory);
+        TCHAR szCurDirectory[MAX_PATH];
+        GetCurrentDirectory(MAX_PATH, szCurDirectory);
         TString strRootPath = CFilePathTool::GetInstance()->RootPath(szCurDirectory);
-        SetCurrentDirectoryA(strRootPath.c_str());
+        SetCurrentDirectory(strRootPath.c_str());
         strFeedback.clear();
     }
     else if (_stricmp(pCommand, "cd..") == 0)
     {
-        char szCurDirectory[MAX_PATH];
-        GetCurrentDirectoryA(MAX_PATH, szCurDirectory);
+        TCHAR szCurDirectory[MAX_PATH];
+        GetCurrentDirectory(MAX_PATH, szCurDirectory);
         TString strParentPath = CFilePathTool::GetInstance()->ParentPath(szCurDirectory);
-        SetCurrentDirectoryA(strParentPath.c_str());
+        SetCurrentDirectory(strParentPath.c_str());
         strFeedback.clear();
     }
     else if (_strnicmp(pCommand, "cd ", strlen("cd ")) == 0)
