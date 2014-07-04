@@ -7,7 +7,7 @@ bool CFilePathTool::Exists(const TCHAR* pszPath)
 {
     BEATS_ASSERT(pszPath != NULL && _tcslen(pszPath) > 0);
     BEATS_ASSERT(!IsDirectory(pszPath));
-    return PathFileExists(pszPath) == TRUE;
+    return PathFileExists(pszPath) != FALSE;
 }
 
 bool CFilePathTool::IsAbsolute(const TCHAR* pszPath)
@@ -22,7 +22,7 @@ bool CFilePathTool::IsAbsolute(const TCHAR* pszPath)
 bool CFilePathTool::IsDirectory(const TCHAR* pszPath)
 {
     BEATS_ASSERT(pszPath != NULL && _tcslen(pszPath) > 0);
-    return PathIsDirectory(pszPath) == TRUE;
+    return PathIsDirectory(pszPath) != FALSE;
 }
 
 TString CFilePathTool::ParentPath(const TCHAR* pszPath)
