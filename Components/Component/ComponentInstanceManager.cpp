@@ -56,7 +56,7 @@ void CComponentInstanceManager::Import( CSerializer& serializer)
         CComponentInstanceManager::GetInstance()->ResolveDependency();
         
         // 3. Call Initialize.
-        Initialize();
+        InitializeAllInstance();
     }
 }
 

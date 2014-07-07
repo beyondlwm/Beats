@@ -34,6 +34,39 @@ void CComponentManagerBase::Release()
     BEATS_SAFE_DELETE(m_pUninitializedComponents);
 }
 
+
+void CComponentManagerBase::InitializeAllInstance()
+{
+    std::map<size_t, std::map<size_t, CComponentBase*>*>::iterator iter = m_pComponentInstanceMap->begin();
+    for (; iter != m_pComponentInstanceMap->end(); ++iter)
+    {
+        std::map<size_t, CComponentBase*>::iterator subIter = iter->second->begin();
+        for (; subIter != iter->second->end(); ++subIter)
+        {
+            BEATS_ASSERT(subIter->second != NULL);
+            BEATS_ASSERT(subIter->second->IsInitialized() == false, _T("Can't initialize component twice!"));
+            subIter->second->Initialize();
+            BEATS_ASSERT(subIter->second->IsInitialized(),
+                _T("The initialize flag of component %s is not set after initialize func!"),
+                subIter->second->GetClassStr());
+        }
+    }
+}
+
+void CComponentManagerBase::InitializeAllTemplate()
+{
+    std::map<size_t, CComponentBase*>::iterator iter = m_pComponentTemplateMap->begin();
+    for (; iter != m_pComponentTemplateMap->end(); ++iter)
+    {
+        BEATS_ASSERT(iter->second != NULL);
+        BEATS_ASSERT(iter->second->IsInitialized() == false, _T("Can't initialize component twice!"));
+        iter->second->Initialize();
+        BEATS_ASSERT(iter->second->IsInitialized(),
+            _T("The initialize flag of component %s is not set after initialize func!"),
+            iter->second->GetClassStr());
+    }
+}
+
 void CComponentManagerBase::DeleteAllInstance()
 {
     std::map<size_t, std::map<size_t, CComponentBase*>*>::iterator iter = m_pComponentInstanceMap->begin();
@@ -254,22 +287,4 @@ void CComponentManagerBase::AddDependencyResolver( CDependencyDescription* pDesc
     pDependencyResovler->bIsList = bIsList;
     pDependencyResovler->pAddFunc = pFunc == NULL ? DefaultAddDependencyFunc : pFunc;
     m_pDependencyResolver->push_back(pDependencyResovler);
-}
-
-void CComponentManagerBase::Initialize()
-{
-    std::map<size_t, std::map<size_t, CComponentBase*>*>::iterator iter = m_pComponentInstanceMap->begin();
-    for (; iter != m_pComponentInstanceMap->end(); ++iter)
-    {
-        std::map<size_t, CComponentBase*>::iterator subIter = iter->second->begin();
-        for (; subIter != iter->second->end(); ++subIter)
-        {
-            BEATS_ASSERT(subIter->second != NULL);
-            BEATS_ASSERT(subIter->second->IsInitialized() == false, _T("Can't initialize component twice!"));
-            subIter->second->Initialize();
-            BEATS_ASSERT(subIter->second->IsInitialized(),
-                _T("The initialize flag of component %s is not set after initialize func!"),
-                subIter->second->GetClassStr());
-        }
-    }
 }

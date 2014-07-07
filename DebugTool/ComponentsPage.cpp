@@ -325,6 +325,7 @@ void CBDTWxFrame::InitComponentsPage()
                                                                     ENGINE_COMPONENT_INFO_PATCH, 
                                                                     CreateComponentProxy,
                                                                     CreateComponentGraphics);
+    CComponentProxyManager::GetInstance()->InitializeAllTemplate();
     const std::map<size_t, CComponentBase*>* pComponentsMap = CComponentProxyManager::GetInstance()->GetComponentTemplateMap();
     for (std::map<size_t, CComponentBase*>::const_iterator componentIter = pComponentsMap->begin(); componentIter != pComponentsMap->end(); ++componentIter )
     {

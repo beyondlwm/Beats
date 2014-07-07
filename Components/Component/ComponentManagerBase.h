@@ -45,6 +45,8 @@ public:
     //In the Release, If We do it in ~CComponentManagerBase(), we can no longer visit the singleton.
     void Release();
     void DeleteAllInstance();
+    void InitializeAllInstance();
+    void InitializeAllTemplate();
     void UninitializeAllInstance();
     void UninitializeAllTemplate();
 
@@ -72,7 +74,6 @@ public:
 
     void AddDependencyResolver( CDependencyDescription* pDescription, size_t uIndex, size_t uGuid, size_t uInstanceId, void* pVariableAddress, bool bIsList, TAddDependencyFunc pFunc = NULL);
     virtual void ResolveDependency() = 0;
-    virtual void Initialize();
 
 protected:
     CIdManager* m_pIdManager;

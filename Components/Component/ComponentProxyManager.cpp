@@ -79,8 +79,8 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /
                 }
             }
             ResolveDependency();
-            Initialize();
-            CComponentInstanceManager::GetInstance()->Initialize();
+            InitializeAllInstance();
+            CComponentInstanceManager::GetInstance()->InitializeAllInstance();
             if (bOpenAsCopy)
             {
                 std::vector<CComponentBase*> allInstance;
