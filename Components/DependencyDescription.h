@@ -6,6 +6,7 @@
 class CDependencyDescriptionLine;
 class CComponentProxy;
 class TiXmlElement;
+class CSerializer;
 
 template class COMPONENTS_DLL_DECL std::allocator<CDependencyDescriptionLine*>;
 template class COMPONENTS_DLL_DECL std::vector<CDependencyDescriptionLine*, std::allocator<CDependencyDescriptionLine*> >;

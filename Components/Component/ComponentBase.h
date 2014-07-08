@@ -2,6 +2,7 @@
 #define BEATS_COMPONENTS_COMPONENT_COMPONENTBASE_H__INCLUDE
 
 #include "../expdef.h"
+#include "DependencyDescription.h"
 #define DECLARE_REFLECT_GUID(className, guid, parentClassName)\
     DECLARE_REFLECT_GUID_ABSTRACT(className, guid, parentClassName)\
     public:\

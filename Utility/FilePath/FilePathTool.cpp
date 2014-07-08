@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "FilePathTool.h"
-#include "Serializer\Serializer.h"
+#include "Serializer/Serializer.h"
 #if (BEATS_PLATFORM == BEATS_PLATFORM_ANDROID)
 #include <android/asset_manager.h>
 #endif

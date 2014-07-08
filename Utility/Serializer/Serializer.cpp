@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include <string>
 #include "Serializer.h"
-#include "FilePath\FilePathTool.h"
+#include "FilePath/FilePathTool.h"
 
 CSerializer::CSerializer(size_t size, void* data)
 : m_size(size)
