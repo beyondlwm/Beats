@@ -2,6 +2,7 @@
 #define BEATS_COMPONENTS_COMPONENT_COMPONENTBASE_H__INCLUDE
 
 #include "../expdef.h"
+#include "DependencyDescription.h"
 #define DECLARE_REFLECT_GUID(className, guid, parentClassName)\
     DECLARE_REFLECT_GUID_ABSTRACT(className, guid, parentClassName)\
     public:\
@@ -41,7 +42,7 @@ public:
     // The return value means if user has sync the variable manually, or system will do this assign.
     virtual bool OnPropertyChange(void* pVariableAddr, CSerializer* pNewValueToBeSet);
     virtual bool OnDependencyChange(void* pComponentAddr, CComponentBase* pComponent);
-    virtual bool OnDependencyListChange(void* pComponentAddr, enum EDependencyChangeAction action, CComponentBase* pComponent);
+    virtual bool OnDependencyListChange(void* pComponentAddr, EDependencyChangeAction action, CComponentBase* pComponent);
 private:
     bool m_bInitialize;
     size_t m_id;

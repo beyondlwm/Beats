@@ -6,6 +6,9 @@
 #endif
 CFilePathTool* CFilePathTool::m_pInstance = NULL;
 CFilePathTool::CFilePathTool()
+#if (BEATS_PLATFORM == BEATS_PLATFORM_ANDROID)
+    : m_pAssetManager(NULL)
+#endif
 {
 
 }
@@ -31,6 +34,7 @@ bool CFilePathTool::LoadFile(CSerializer* pSerializer, const TCHAR* pszFilePath,
         {
             pszFilePath += _tcslen(ASSET_ROOT_PATH);
         }
+        BEATS_ASSERT(m_pAssetManager != NULL, _T("asset manager is null!"));
         if (m_pAssetManager) 
         {
             AAsset* pFile = AAssetManager_open(m_pAssetManager, pszFilePath, AASSET_MODE_UNKNOWN);

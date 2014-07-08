@@ -41,7 +41,7 @@ static TCHAR szBeatsDialogBuffer[10240] = {0};
         if (!(condition))\
         {\
             __android_log_assert(#condition, "Android_Assert", #condition);\
-        }        
+        }
     #else
         #define BEATS_ASSERT(condition, ...)\
         if (!(condition))\
