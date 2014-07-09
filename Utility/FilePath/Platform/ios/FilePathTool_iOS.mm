@@ -26,12 +26,13 @@ TString CFilePathTool::ParentPath(const TCHAR* pszPath)
 {
     BEATS_ASSERT(pszPath && pszPath[0]);
     TString strPath(pszPath);
-    if(strPath[strPath.size()-1] == _T('/'))
-    {
-        strPath.resize(strPath.size() - 1);
-    }
     int pos = strPath.rfind(_T('/'));
-    if (pos != TString::npos)
+    if (pos == 0)
+    {
+        BEATS_ASSERT(strPath.back() == _T('/'));
+        strPath.pop_back();
+        pos = strPath.rfind(_T('/'));
+    }    if (pos != TString::npos)
     {
         strPath.resize(pos);
     }
@@ -92,4 +93,26 @@ bool CFilePathTool::Canonical(TCHAR* pszOutBuffer, const TCHAR* pszOriginPath)
     // TODO: Unimplement
     BEATS_ASSERT(false, _T(__FUNCTION__)_T(" not implemented!"));
     return false;
+}
+
+TString CFilePathTool::FileFullPath(const TCHAR* pszFilePath)
+{
+    TString strRet;
+    if (IsAbsolute(pszFilePath))
+    {
+        strRet.assign(pszFilePath);
+    }
+    else
+    {
+        NSString* fullpath = [[NSBundle mainBundle] pathForResource:[NSString stringWithUTF8String:pszFilePath] ofType:nil];
+        BEATS_ASSERT(fullpath != nil, _T("Failed to convert %s to absolute path"), pszFilePath);
+        if (fullpath != nil)
+        {
+            std::string tmp =[fullpath UTF8String];
+            TCHAR szBuffer[MAX_PATH];
+            CStringHelper::GetInstance()->ConvertToTCHAR(tmp.c_str(), szBuffer, MAX_PATH);
+            strRet.assign(szBuffer);
+        }
+    }
+    return strRet;
 }

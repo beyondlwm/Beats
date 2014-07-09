@@ -20,6 +20,7 @@ public:
     TString RootPath(const TCHAR* pszPath);
     bool Canonical(TCHAR* pszOutBuffer, const TCHAR* pszOriginPath);
     bool LoadFile(CSerializer* pSerializer, const TCHAR* pszFilePath, const TCHAR* pszMode);
+    TString FileFullPath(const TCHAR* pszFilePath);
 
 #if (BEATS_PLATFORM == BEATS_PLATFORM_ANDROID)
     void SetAssetManager(class AAssetManager* pMgr);
@@ -27,7 +28,6 @@ public:
 private:
     class AAssetManager* m_pAssetManager;
 #endif
-
 };
 
 

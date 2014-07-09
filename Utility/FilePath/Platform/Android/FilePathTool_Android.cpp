@@ -70,6 +70,12 @@ TString CFilePathTool::ParentPath(const TCHAR* pszPath)
 {
     TString strPath(pszPath);
     int pos = strPath.rfind(_T('/'));
+    if (pos == 0)
+    {
+        BEATS_ASSERT(strPath.back() == _T('/'));
+        strPath.pop_back();
+        pos = strPath.rfind(_T('/'));
+    }
     if (pos != TString::npos)
     {
         strPath.resize(pos);
@@ -127,4 +133,19 @@ bool CFilePathTool::Canonical(TCHAR* pszOutBuffer, const TCHAR* pszOriginPath)
 {
     // TODO: Unimplement
     return false;
+}
+
+TString CFilePathTool::FileFullPath(const TCHAR* pszFilePath)
+{
+    TString strRet;
+    if (IsAbsolute(pszFilePath))
+    {
+        strRet.assign(pszFilePath);
+    }
+    else
+    {
+        strRet.assign(ASSET_ROOT_PATH);
+        strRet.append(pszFilePath);
+    }
+    return strRet;
 }

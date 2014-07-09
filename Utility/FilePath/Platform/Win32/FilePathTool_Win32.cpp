@@ -12,7 +12,7 @@ bool CFilePathTool::Exists(const TCHAR* pszPath)
 
 bool CFilePathTool::IsAbsolute(const TCHAR* pszPath)
 {
-    BEATS_ASSERT(pszPath != NULL && _tcslen(pszPath) > 0);
+    BEATS_ASSERT(pszPath != NULL && _tcslen(pszPath) > 0, _T("Path can't be null or empty in IsAbsolute!"));
     bool bRet = _tcslen(pszPath) > 2
         && pszPath[1] == _T(':')
         && ((pszPath[0] >= _T('a') && pszPath[0] <= _T('z')) || (pszPath[0] >= _T('A') && pszPath[0] <= _T('Z')));
@@ -83,4 +83,26 @@ TString CFilePathTool::RootPath( const TCHAR* pszPath )
 bool CFilePathTool::Canonical(TCHAR* pszOutBuffer, const TCHAR* pszOriginPath)
 {
     return PathCanonicalize(pszOutBuffer, pszOriginPath) != FALSE;
+}
+
+TString CFilePathTool::FileFullPath(const TCHAR* pszFilePath)
+{
+    TString strRet;
+    if (IsAbsolute(pszFilePath))
+    {
+        strRet.assign(pszFilePath);
+    }
+    else
+    {
+        static TString strRootPath;
+        if (strRootPath.length() == 0)
+        {
+            TCHAR curWorkingPath[MAX_PATH];
+            ::GetModuleFileName(NULL, curWorkingPath, MAX_PATH);
+            strRootPath = ParentPath(curWorkingPath);
+        }
+        strRet.assign(strRootPath);
+        strRet.append(_T("\\")).append(pszFilePath);
+    }
+    return strRet;
 }
