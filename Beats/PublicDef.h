@@ -10,7 +10,6 @@
 //To call messagebox so we can afford info for the engine user.
 static TCHAR szBeatsDialogBuffer[10240] = {0};
 #ifdef _DEBUG
-
     #if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
         #define BEATS_ASSERT(condition, ...)\
         if (!(condition))\
@@ -40,7 +39,7 @@ static TCHAR szBeatsDialogBuffer[10240] = {0};
         #define BEATS_ASSERT(condition, ...)\
         if (!(condition))\
         {\
-            __android_log_assert(#condition, "Android_Assert", #condition);\
+            __android_log_assert(#condition, "Android_Assert", __VA_ARGS__);\
         }
     #else
         #define BEATS_ASSERT(condition, ...)\
@@ -56,52 +55,43 @@ static TCHAR szBeatsDialogBuffer[10240] = {0};
 //////////////////////////////////////////////////////////////////////////
 //Warning
 #ifdef _DEBUG
-#define BEATS_WARNING(condition, ...)\
+    #define BEATS_WARNING(condition, ...)\
     if (!(condition))\
     {\
         BEATS_PRINT(__VA_ARGS__);\
         BEATS_PRINT(_T("\tAt line :%d in file: %s\n"), __LINE__, _T(__FILE__));\
     }
 #else
-#define BEATS_WARNING(condition, ...)
+    #define BEATS_WARNING(condition, ...)
 #endif
 
 //////////////////////////////////////////////////////////////////////////
 //DEBUG_PRINT
 #ifdef _DEBUG
-#if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
-#define BEATS_PRINT(...)\
-{\
-    TCHAR strBuffer[1024];\
-    _stprintf_s(strBuffer, __VA_ARGS__, _T(""));\
-    OutputDebugString(strBuffer);\
-}
-
-#define BEATS_PRINT_VARIABLE(infoStr, ...)\
-    {\
-    TCHAR strBuffer[1024];\
-    _stprintf_s(strBuffer, infoStr, __VA_ARGS__);\
-    OutputDebugString(strBuffer);\
-    }
+    #if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
+        #define BEATS_PRINT(...)\
+        {\
+            TCHAR strBuffer[1024];\
+            _stprintf_s(strBuffer, __VA_ARGS__, _T(""));\
+            OutputDebugString(strBuffer);\
+        }
+    #elif (BEATS_PLATFORM == BEATS_PLATFORM_ANDROID)
+        #define BEATS_PRINT(...)\
+        {\
+            TCHAR strBuffer[1024];\
+            _stprintf_s(strBuffer, __VA_ARGS__);\
+            __android_log_print(ANDROID_LOG_INFO,_T("BEATS_PRINT"),strBuffer);\
+        }
+    #else
+        #define BEATS_PRINT(...)\
+        {\
+            TCHAR strBuffer[1024];\
+            _stprintf_s(strBuffer, __VA_ARGS__);\
+            _tprintf(strBuffer);\
+        }
+    #endif
 #else
-#define BEATS_PRINT(...)\
-{\
-    TCHAR strBuffer[1024];\
-    _stprintf(strBuffer, __VA_ARGS__, _T(""));\
-    _tprintf(strBuffer);\
-}
-
-#define BEATS_PRINT_VARIABLE(infoStr, ...)\
-    {\
-    TCHAR strBuffer[1024];\
-    _stprintf_s(strBuffer, infoStr, __VA_ARGS__);\
-    _tprintf(strBuffer);\
-    }
-#endif
-
-#else
-#define BEATS_PRINT(...)
-#define BEATS_PRINT_VARIABLE(infoStr, ...)
+    #define BEATS_PRINT(...)
 #endif
 
 

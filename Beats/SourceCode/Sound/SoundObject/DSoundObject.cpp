@@ -374,9 +374,7 @@ void CDSoundObject::PrintPlayingProgress()
     for (int i = 0; i < 100; ++i)
     {
         bool isItEof = eofRate != -1 && i == eofRate;
-        bool isPlayed = i < rate;
-        
-        BEATS_PRINT_VARIABLE(isItEof ? _T("2") : isPlayed ? _T("1") : _T("0"));
+        bool isPlayed = i < rate;        
     }
     BEATS_PRINT(_T("\n"));
 }
@@ -388,7 +386,6 @@ void CDSoundObject::PrintLoadingData(unsigned int startByte)
     for (int i = 0; i < 100; ++i)
     {
         bool isLoadingData = i >= rate && i <= pieceRate;
-        BEATS_PRINT_VARIABLE(isLoadingData ? _T("8") : _T("0"));
     }
     BEATS_PRINT(_T("\n"));
 }
