@@ -112,4 +112,16 @@
 
 #endif
 
+#ifdef _UNICODE
+#define TString std::wstring
+#define TOfstream std::wofstream
+#define TIfstream std::wifstream
+#define TStringstream std::wstringstream
+#else
+#define TString std::string
+#define TOfstream std::ofstream
+#define TIfstream std::ifstream
+#define TStringstream std::stringstream
+#endif
+
 #endif

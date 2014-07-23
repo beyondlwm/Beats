@@ -39,7 +39,9 @@ static TCHAR szBeatsDialogBuffer[10240] = {0};
         #define BEATS_ASSERT(condition, ...)\
         if (!(condition))\
         {\
-            __android_log_assert(#condition, "Android_Assert", __VA_ARGS__);\
+            TCHAR errorInfo[2048];\
+            _stprintf(errorInfo, ##__VA_ARGS__, _T(""));\
+            __android_log_assert(#condition, "Android_Assert", _T("%s"), errorInfo);\
         }
     #else
         #define BEATS_ASSERT(condition, ...)\
@@ -72,21 +74,21 @@ static TCHAR szBeatsDialogBuffer[10240] = {0};
         #define BEATS_PRINT(...)\
         {\
             TCHAR strBuffer[1024];\
-            _stprintf_s(strBuffer, __VA_ARGS__, _T(""));\
+            _stprintf_s(strBuffer, ##__VA_ARGS__, _T(""));\
             OutputDebugString(strBuffer);\
         }
     #elif (BEATS_PLATFORM == BEATS_PLATFORM_ANDROID)
         #define BEATS_PRINT(...)\
         {\
             TCHAR strBuffer[1024];\
-            _stprintf_s(strBuffer, __VA_ARGS__);\
-            __android_log_print(ANDROID_LOG_INFO,_T("BEATS_PRINT"),strBuffer);\
+            _stprintf(strBuffer, ##__VA_ARGS__, _T(""));\
+            __android_log_print(ANDROID_LOG_INFO,_T("BEATS_PRINT"), _T("%s"), strBuffer);\
         }
     #else
         #define BEATS_PRINT(...)\
         {\
             TCHAR strBuffer[1024];\
-            _stprintf_s(strBuffer, __VA_ARGS__);\
+            _stprintf_s(strBuffer, ##__VA_ARGS__, _T(""));\
             _tprintf(strBuffer);\
         }
     #endif
@@ -125,10 +127,10 @@ private:\
 //////////////////////////////////////////////////////////////////////////
 // Delete
 #define BEATS_SAFE_DELETE(p) \
-    if (p != NULL)\
+    if ((p) != NULL)\
 {\
-    delete p;\
-    p = NULL;\
+    delete (p);\
+    (p) = NULL;\
 }
 
 #define BEATS_SAFE_DELETE_ARRAY(p) if (p!=NULL){delete[] p; p = NULL;}

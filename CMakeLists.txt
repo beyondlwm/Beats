@@ -10,8 +10,7 @@ INCLUDE_DIRECTORIES(
 		${CMAKE_SOURCE_DIR}
 		${CMAKE_SOURCE_DIR}/Platform
 		${CMAKE_SOURCE_DIR}/Platform/${PLATFORM_FOLDER}
-		${CMAKE_SOURCE_DIR}/Beats/Lib/boost_1_55_0
-)
+		${ANDROID_NDK}/platforms/android-${ANDROID_API_LEVEL}/arch-arm/usr/include)
 
 ADD_SUBDIRECTORY(Utility)
 ADD_SUBDIRECTORY(Components)
