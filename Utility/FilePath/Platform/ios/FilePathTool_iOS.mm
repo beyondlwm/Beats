@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Utility/FilePath/FilePathTool.h"
 #import <Foundation/Foundation.h>
+#include "StringHelper/StringHelper.h"
 
 bool CFilePathTool::Exists(const TCHAR* pszPath)
 {
