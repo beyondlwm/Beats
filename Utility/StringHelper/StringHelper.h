@@ -31,7 +31,7 @@ public:
     void ConvertToTCHAR(const wchar_t* pData, TCHAR* pBuffer, size_t bufferLength);
     void ConvertToTCHAR( const char* pData, TCHAR* pBuffer, size_t bufferLength );
     void ConvertToCHAR( const TCHAR* pData, char* pBuffer, size_t bufferLength );
-    void ConvertToWCHAR( const TCHAR* pData, wchar_t* pBuffer, size_t bufferLength );
+    void ConvertToWCHAR( const TCHAR* pData, wchar_t* pBuffer, size_t bufferLength ) const;
 
     // Filter and Find
     TString FilterString(const TCHAR* pData, const std::vector<TString>& filters);

@@ -118,7 +118,7 @@ void CStringHelper::ConvertToCHAR( const TCHAR* pData, char* pBuffer, size_t buf
 #endif
 }
 
-void CStringHelper::ConvertToWCHAR( const TCHAR* pData, wchar_t* pBuffer, size_t bufferLength )
+void CStringHelper::ConvertToWCHAR( const TCHAR* pData, wchar_t* pBuffer, size_t bufferLength ) const
 {
 #ifdef _UNICODE
     bufferLength; // Fix warning C4100.
@@ -329,7 +329,7 @@ CStringHelper::EStringCharacterType CStringHelper::GetCharacterType(wchar_t char
 CStringHelper::EStringCharacterType CStringHelper::GetCharacterType(const char* pszChar) const
 {
     wchar_t buffer;
-    swprintf(&buffer, sizeof(buffer), L"%hs", pszChar);
+    ConvertToWCHAR(pszChar, &buffer, sizeof(buffer));
     return GetCharacterType(buffer);
 }
 
