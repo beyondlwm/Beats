@@ -39,9 +39,10 @@ static TCHAR szBeatsDialogBuffer[10240] = {0};
         #define BEATS_ASSERT(condition, ...)\
         if (!(condition))\
         {\
-            TCHAR errorInfo[2048];\
-            _stprintf(errorInfo, ##__VA_ARGS__, _T(""));\
-            __android_log_assert(#condition, "Android_Assert", _T("%s"), errorInfo);\
+            _stprintf(szBeatsDialogBuffer, ##__VA_ARGS__, _T(""));\
+            TCHAR szPos[MAX_PATH];\
+            _stprintf(szPos, _T("\nAt FILE:%s Line:%d"), _T(__FILE__), __LINE__);\
+            __android_log_assert(#condition, "Android_Assert", _T("%s %s"), szBeatsDialogBuffer, szPos);\
         }
     #else
         #define BEATS_ASSERT(condition, ...)\
@@ -73,23 +74,20 @@ static TCHAR szBeatsDialogBuffer[10240] = {0};
     #if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
         #define BEATS_PRINT(...)\
         {\
-            TCHAR strBuffer[1024];\
-            _stprintf_s(strBuffer, ##__VA_ARGS__, _T(""));\
-            OutputDebugString(strBuffer);\
+            _stprintf_s(szBeatsDialogBuffer, ##__VA_ARGS__, _T(""));\
+            OutputDebugString(szBeatsDialogBuffer);\
         }
     #elif (BEATS_PLATFORM == BEATS_PLATFORM_ANDROID)
         #define BEATS_PRINT(...)\
         {\
-            TCHAR strBuffer[1024];\
-            _stprintf(strBuffer, ##__VA_ARGS__, _T(""));\
-            __android_log_print(ANDROID_LOG_INFO,_T("BEATS_PRINT"), _T("%s"), strBuffer);\
+            _stprintf(szBeatsDialogBuffer, ##__VA_ARGS__, _T(""));\
+            __android_log_print(ANDROID_LOG_INFO,_T("BEATS_PRINT"), _T("%s"), szBeatsDialogBuffer);\
         }
     #else
         #define BEATS_PRINT(...)\
         {\
-            TCHAR strBuffer[1024];\
-            _stprintf_s(strBuffer, ##__VA_ARGS__, _T(""));\
-            _tprintf(strBuffer);\
+            _stprintf_s(szBeatsDialogBuffer, ##__VA_ARGS__, _T(""));\
+            _tprintf(szBeatsDialogBuffer);\
         }
     #endif
 #else
