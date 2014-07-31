@@ -21,6 +21,8 @@ public:
     bool Canonical(TCHAR* pszOutBuffer, const TCHAR* pszOriginPath);
     bool LoadFile(CSerializer* pSerializer, const TCHAR* pszFilePath, const TCHAR* pszMode);
     TString FileFullPath(const TCHAR* pszFilePath);
+    TString ConvertToUnixPath(const TCHAR* pszFilePath) const;
+    TString ConvertToWindowsPath(const TCHAR* pszFilePath) const;
 
 #if (BEATS_PLATFORM == BEATS_PLATFORM_ANDROID)
     void SetAssetManager(class AAssetManager* pMgr);

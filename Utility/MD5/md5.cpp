@@ -169,7 +169,7 @@ void CMD5::Update(std::ifstream &in)
             in.read(buffer, BUFFER_SIZE);
             length = in.gcount();
             if (length > 0)
-                Update(buffer, length);
+                Update(buffer, (size_t)length);
         }
         BEATS_SAFE_DELETE_ARRAY(buffer);
     }

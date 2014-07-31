@@ -64,3 +64,30 @@ bool CFilePathTool::LoadFile(CSerializer* pSerializer, const TCHAR* pszFilePath,
 #endif
     return bRet;
 }
+
+TString CFilePathTool::ConvertToUnixPath(const TCHAR* pszFilePath) const
+{
+    TCHAR szBuffer[MAX_PATH];
+    _tcscpy(szBuffer, pszFilePath);
+    TCHAR* pReader = _tcsstr(szBuffer, _T("\\"));
+    while(pReader != NULL)
+    {
+        *pReader = _T('/');
+        pReader = _tcsstr(pReader, _T("\\"));
+    }
+    return szBuffer;
+}
+
+TString CFilePathTool::ConvertToWindowsPath(const TCHAR* pszFilePath) const
+{
+    TCHAR szBuffer[MAX_PATH];
+    _tcscpy(szBuffer, pszFilePath);
+    TCHAR* pReader = _tcsstr(szBuffer, _T("/"));
+    while(pReader != NULL)
+    {
+        *pReader = _T('\\');
+        pReader = _tcsstr(pReader, _T("/"));
+    }
+    return szBuffer;
+
+}

@@ -82,7 +82,13 @@ TString CFilePathTool::RootPath( const TCHAR* pszPath )
 
 bool CFilePathTool::Canonical(TCHAR* pszOutBuffer, const TCHAR* pszOriginPath)
 {
-    return PathCanonicalize(pszOutBuffer, pszOriginPath) != FALSE;
+    //PathCanonicalize only available for windows style path.
+    TString strWndPath = CFilePathTool::GetInstance()->ConvertToWindowsPath(pszOriginPath);
+    bool bRet = PathCanonicalize(pszOutBuffer, strWndPath.c_str()) != FALSE;
+    BEATS_ASSERT(bRet, _T("Path canonicalize failed!"));
+    strWndPath = CFilePathTool::GetInstance()->ConvertToUnixPath(pszOutBuffer);
+    _tcscpy(pszOutBuffer, strWndPath.c_str());
+    return bRet;
 }
 
 TString CFilePathTool::FileFullPath(const TCHAR* pszFilePath)
@@ -100,9 +106,10 @@ TString CFilePathTool::FileFullPath(const TCHAR* pszFilePath)
             TCHAR curWorkingPath[MAX_PATH];
             ::GetModuleFileName(NULL, curWorkingPath, MAX_PATH);
             strRootPath = ParentPath(curWorkingPath);
+            strRootPath = ConvertToUnixPath(strRootPath.c_str());
         }
         strRet.assign(strRootPath);
-        strRet.append(_T("\\")).append(pszFilePath);
+        strRet.append(_T("/")).append(pszFilePath);
     }
     return strRet;
 }
