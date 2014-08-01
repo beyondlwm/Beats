@@ -17,7 +17,7 @@ class CSerializer
 public:
     CSerializer(size_t size = DefaultSerializerBufferSize, void* data = NULL);
     CSerializer(const CSerializer& rhs);
-    CSerializer(const TCHAR* pFilePath, const TCHAR* pszMode = _T("rb"));
+    CSerializer(const TCHAR* pFilePath, const TCHAR* pszMode = _T("rb"), size_t uStartPos = 0, size_t uDataLength = 0);
     CSerializer(FILE* pFile, size_t startPos = 0, size_t dataLength = 0);
 
     ~CSerializer();
@@ -53,7 +53,7 @@ public:
     void SetBuffer(const unsigned char* buffer, size_t uBufferLength);
 
     void Serialize(const void* pData, size_t size);
-    bool Serialize(const TCHAR* pFilePath, const TCHAR* pszMode = _T("rb"));
+    bool Serialize(const TCHAR* pFilePath, const TCHAR* pszMode = _T("rb"), size_t uStartPos = 0, size_t uDataLength = 0);
     bool Serialize(FILE* pFile, size_t startPos = 0, size_t dataLength = 0);
     void Serialize(CSerializer& serializer, size_t uDataSize = 0xFFFFFFFF);
 

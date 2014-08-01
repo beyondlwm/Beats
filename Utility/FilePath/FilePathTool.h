@@ -19,7 +19,7 @@ public:
     TString MakeAbsolute(const TCHAR* pszStartPath, const TCHAR* pszRelativePath);
     TString RootPath(const TCHAR* pszPath);
     bool Canonical(TCHAR* pszOutBuffer, const TCHAR* pszOriginPath);
-    bool LoadFile(CSerializer* pSerializer, const TCHAR* pszFilePath, const TCHAR* pszMode);
+    bool LoadFile(CSerializer* pSerializer, const TCHAR* pszFilePath, const TCHAR* pszMode, size_t uStartPos = 0, size_t uDataLength = 0);
     TString FileFullPath(const TCHAR* pszFilePath);
     TString ConvertToUnixPath(const TCHAR* pszFilePath) const;
     TString ConvertToWindowsPath(const TCHAR* pszFilePath) const;

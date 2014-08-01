@@ -25,7 +25,7 @@ CSerializer::CSerializer( const CSerializer& rhs )
     SetWritePos(rhs.GetWritePos());
 }
 
-CSerializer::CSerializer(const TCHAR* pFilePath, const TCHAR* pszMode /*= _T("rb")*/)
+CSerializer::CSerializer(const TCHAR* pFilePath, const TCHAR* pszMode /*= _T("rb")*/, size_t uStartPos/* = 0*/, size_t uDataLength/* = 0*/)
 : m_size(0)
 , m_pBuffer(NULL)
 , m_pReadPtr(NULL)
@@ -115,9 +115,9 @@ void CSerializer::Serialize( const void* pData, size_t size )
 
 }
 
-bool CSerializer::Serialize( const TCHAR* pFilePath, const TCHAR* pszMode /* = _T("rb")*/)
+bool CSerializer::Serialize( const TCHAR* pFilePath, const TCHAR* pszMode /* = _T("rb")*/, size_t uStartPos/* = 0*/, size_t uDataLength/* = 0*/)
 {
-    return CFilePathTool::GetInstance()->LoadFile(this, pFilePath, pszMode);
+    return CFilePathTool::GetInstance()->LoadFile(this, pFilePath, pszMode, uStartPos, uDataLength);
 }
 
 bool CSerializer::Serialize( FILE* pFile, size_t startPos /*= 0*/, size_t dataLength /*= 0*/ )

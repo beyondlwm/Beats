@@ -2,14 +2,15 @@
 #include "componentbase.h"
 
 CComponentBase::CComponentBase()
-: m_bInitialize(false)
+: m_bLoaded(false)
+, m_bInitialize(false)
 , m_id(0xFFFFFFFF)
 {
 }
 
 CComponentBase::~CComponentBase()
 {
-    BEATS_ASSERT(!m_bInitialize, _T("Call Uninitialize before delete the component!"));
+    BEATS_ASSERT(!m_bInitialize && !m_bLoaded, _T("Call Uninitialize before delete the component!"));
 }
 
 size_t CComponentBase::GetId() const
@@ -22,6 +23,18 @@ void CComponentBase::SetId(size_t id)
     m_id = id;
 }
 
+void CComponentBase::Load()
+{
+    BEATS_ASSERT(!m_bLoaded, _T("Can't load a component twice!"));
+    m_bLoaded = true;
+}
+
+void CComponentBase::Unload()
+{
+    BEATS_ASSERT(m_bLoaded, _T("Component is not loaded in uninitialize!"));
+    m_bLoaded = false;
+}
+
 bool CComponentBase::IsInitialized()
 {
     return m_bInitialize;
@@ -31,10 +44,18 @@ void CComponentBase::Initialize()
 {
     BEATS_ASSERT(!m_bInitialize, _T("Can't initialize a component twice!"));
     m_bInitialize = true;
+    if(!m_bLoaded)
+    {
+        Load();
+    }
 }
 
 void CComponentBase::Uninitialize()
 {
+    if (m_bLoaded)
+    {
+        Unload();
+    }
     BEATS_ASSERT(m_bInitialize, _T("Can't uninitialize a component twice!"));
     m_bInitialize = false;
 }

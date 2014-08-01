@@ -18,7 +18,7 @@ CFilePathTool::~CFilePathTool()
 
 }
 
-bool CFilePathTool::LoadFile(CSerializer* pSerializer, const TCHAR* pszFilePath, const TCHAR* pszMode)
+bool CFilePathTool::LoadFile(CSerializer* pSerializer, const TCHAR* pszFilePath, const TCHAR* pszMode, size_t uStartPos/* = 0*/, size_t uDataLength/* = 0*/)
 {
     BEATS_ASSERT(pSerializer != NULL, _T("Serializer can't be null!"));
     BEATS_ASSERT(pszFilePath != NULL, _T("File path is NULL!"));
@@ -41,7 +41,13 @@ bool CFilePathTool::LoadFile(CSerializer* pSerializer, const TCHAR* pszFilePath,
             if (pFile)
             {
                 off_t uFileSize = AAsset_getLength(pFile);
+                if (uDataLength != 0)
+                {
+                    BEATS_ASSERT(uDataLength <= uFileSize - uStartPos);
+                    uFileSize = uDataLength;
+                }
                 pSerializer->ValidateBuffer(uFileSize);
+                AAsset_seek(pFile, uStartPos, SEEK_SET);
                 int bytesread = AAsset_read(pFile, pSerializer->GetWritePtr(), uFileSize);
                 pSerializer->SetWritePos(uFileSize);
                 BEATS_ASSERT(uFileSize == bytesread);
@@ -57,7 +63,7 @@ bool CFilePathTool::LoadFile(CSerializer* pSerializer, const TCHAR* pszFilePath,
         BEATS_ASSERT(pFile != NULL, _T("Can't open file %s"), pszFilePath);
         if (pFile != NULL)
         {
-            pSerializer->Serialize(pFile);
+            pSerializer->Serialize(pFile, uStartPos, uDataLength);
             fclose(pFile);
         }
     }

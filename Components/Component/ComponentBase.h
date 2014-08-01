@@ -34,7 +34,9 @@ public:
     void SetId(size_t id);
 
     bool IsInitialized();
-    virtual void Initialize();
+    virtual void Load(); // this method do some load stuff, which can be done in other thread.
+    virtual void Unload();
+    virtual void Initialize();// this method can only be called in main thread, including render operation.
     virtual void Uninitialize();
 
     virtual void ReflectData(CSerializer& serializer);
@@ -44,6 +46,7 @@ public:
     virtual bool OnDependencyChange(void* pComponentAddr, CComponentBase* pComponent);
     virtual bool OnDependencyListChange(void* pComponentAddr, EDependencyChangeAction action, CComponentBase* pComponent);
 private:
+    bool m_bLoaded;
     bool m_bInitialize;
     size_t m_id;
 };
