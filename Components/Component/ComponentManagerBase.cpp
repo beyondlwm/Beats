@@ -101,8 +101,11 @@ void CComponentManagerBase::UninitializeAllInstance()
     }
     for (size_t i = 0; i < allComponent.size(); ++i)
     {
-        allComponent[i]->Uninitialize();
-        m_pUninitializedComponents->push_back(allComponent[i]);
+        if (allComponent[i]->IsInitialized())
+        {
+            allComponent[i]->Uninitialize();
+            m_pUninitializedComponents->push_back(allComponent[i]);
+        }
     }
 }
 
