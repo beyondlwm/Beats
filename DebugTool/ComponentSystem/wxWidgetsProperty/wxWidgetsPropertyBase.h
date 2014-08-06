@@ -29,9 +29,9 @@ public:
     virtual void SetValueList(const std::vector<TString>& valueList) override;
     virtual wxPGProperty* CreateWxProperty() = 0;
     virtual void SetValue(wxVariant& value, bool bSaveValue = true) = 0;
-    virtual void SaveToXML(TiXmlElement* pParentNode);
-    virtual void LoadFromXML(TiXmlElement* pNode);
-    virtual void AnalyseUIParameter(const TCHAR* parameter);
+    virtual void SaveToXML(TiXmlElement* pParentNode) override;
+    virtual void LoadFromXML(TiXmlElement* pNode) override;
+    virtual void AnalyseUIParameter(const TCHAR* parameter) override;
     virtual bool AnalyseUIParameterImpl(const std::vector<TString>& parameterUnit) = 0;
 
 private:

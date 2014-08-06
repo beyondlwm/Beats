@@ -35,7 +35,7 @@ REGISTER_PROPERTY_DESC(eRPT_Int, CIntPropertyDescription)
 REGISTER_PROPERTY_DESC(eRPT_Str, CStringPropertyDescription)
 REGISTER_PROPERTY_DESC(eRPT_UInt, CUIntPropertyDescription)
 REGISTER_PROPERTY_DESC(eRPT_Ptr, CPtrPropertyDescription)
-REGISTER_PROPERTY_DESC(eRPT_List, CListPropertyDescriptionEx)
+REGISTER_PROPERTY_DESC(eRPT_List, CListPropertyDescription)
 REGISTER_PROPERTY_DESC(eRPT_Enum, CEnumPropertyDescription)
 REGISTER_PROPERTY_DESC(eRPT_Map, CMapPropertyDescription)
 

@@ -103,6 +103,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="ComponentSystem\wxWidgetsProperty\ColorPropertyDescription.h" />
+    <ClInclude Include="ComponentSystem\wxWidgetsProperty\ListPropertyDescription.h" />
     <ClInclude Include="ComponentSystem\wxWidgetsProperty\MapPropertyDescription.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
@@ -128,7 +129,6 @@
     <ClInclude Include="ComponentSystem\wxWidgetsProperty\EnumPropertyDescription.h" />
     <ClInclude Include="ComponentSystem\wxWidgetsProperty\FloatPropertyDescription.h" />
     <ClInclude Include="ComponentSystem\wxWidgetsProperty\IntPropertyDescription.h" />
-    <ClInclude Include="ComponentSystem\wxWidgetsProperty\ListPropertyDescriptionEx.h" />
     <ClInclude Include="ComponentSystem\wxWidgetsProperty\PropertyTrigger.h" />
     <ClInclude Include="ComponentSystem\wxWidgetsProperty\PtrPropertyDescription.h" />
     <ClInclude Include="ComponentSystem\wxWidgetsProperty\StringPropertyDescription.h" />
@@ -151,6 +151,7 @@
     <ClCompile Include="BeatsDebugTool.cpp" />
     <ClCompile Include="ComponentsPage.cpp" />
     <ClCompile Include="ComponentSystem\wxWidgetsProperty\ColorPropertyDescription.cpp" />
+    <ClCompile Include="ComponentSystem\wxWidgetsProperty\ListPropertyDescription.cpp" />
     <ClCompile Include="ComponentSystem\wxWidgetsProperty\MapPropertyDescription.cpp" />
     <ClCompile Include="DebugTool.cpp" />
     <ClCompile Include="InfoSystemPage.cpp" />
@@ -178,7 +179,6 @@
     <ClCompile Include="ComponentSystem\wxWidgetsProperty\EnumPropertyDescription.cpp" />
     <ClCompile Include="ComponentSystem\wxWidgetsProperty\FloatPropertyDescription.cpp" />
     <ClCompile Include="ComponentSystem\wxWidgetsProperty\IntPropertyDescription.cpp" />
-    <ClCompile Include="ComponentSystem\wxWidgetsProperty\ListPropertyDescriptionEx.cpp" />
     <ClCompile Include="ComponentSystem\wxWidgetsProperty\PropertyTrigger.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
       <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>

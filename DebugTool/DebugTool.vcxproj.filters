@@ -117,9 +117,6 @@
     <ClInclude Include="ComponentSystem\wxWidgetsProperty\IntPropertyDescription.h">
       <Filter>Source Files\ComponentSystem\WxwidgetsProperty</Filter>
     </ClInclude>
-    <ClInclude Include="ComponentSystem\wxWidgetsProperty\ListPropertyDescriptionEx.h">
-      <Filter>Source Files\ComponentSystem\WxwidgetsProperty</Filter>
-    </ClInclude>
     <ClInclude Include="ComponentSystem\wxWidgetsProperty\PropertyTrigger.h">
       <Filter>Source Files\ComponentSystem\WxwidgetsProperty</Filter>
     </ClInclude>
@@ -151,6 +148,9 @@
       <Filter>Source Files\ComponentSystem\WxwidgetsProperty</Filter>
     </ClInclude>
     <ClInclude Include="ComponentSystem\wxWidgetsProperty\MapPropertyDescription.h">
+      <Filter>Source Files\ComponentSystem\WxwidgetsProperty</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentSystem\wxWidgetsProperty\ListPropertyDescription.h">
       <Filter>Source Files\ComponentSystem\WxwidgetsProperty</Filter>
     </ClInclude>
   </ItemGroup>
@@ -246,9 +246,6 @@
     <ClCompile Include="ComponentSystem\wxWidgetsProperty\IntPropertyDescription.cpp">
       <Filter>Source Files\ComponentSystem\WxwidgetsProperty</Filter>
     </ClCompile>
-    <ClCompile Include="ComponentSystem\wxWidgetsProperty\ListPropertyDescriptionEx.cpp">
-      <Filter>Source Files\ComponentSystem\WxwidgetsProperty</Filter>
-    </ClCompile>
     <ClCompile Include="ComponentSystem\wxWidgetsProperty\PropertyTrigger.cpp">
       <Filter>Source Files\ComponentSystem\WxwidgetsProperty</Filter>
     </ClCompile>
@@ -280,6 +277,9 @@
       <Filter>Source Files\ComponentSystem\WxwidgetsProperty</Filter>
     </ClCompile>
     <ClCompile Include="ComponentSystem\wxWidgetsProperty\MapPropertyDescription.cpp">
+      <Filter>Source Files\ComponentSystem\WxwidgetsProperty</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentSystem\wxWidgetsProperty\ListPropertyDescription.cpp">
       <Filter>Source Files\ComponentSystem\WxwidgetsProperty</Filter>
     </ClCompile>
   </ItemGroup>

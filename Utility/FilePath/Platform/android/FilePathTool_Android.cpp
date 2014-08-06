@@ -114,24 +114,29 @@ TString CFilePathTool::FileName(const TCHAR* pszPath)
 TString CFilePathTool::MakeRelative(const TCHAR* pszFrom, const TCHAR* pszTo)
 {
     // TODO: Unimplement
+    BEATS_WARNING(false, _T("Call unimplement function %s"), __FUNCTION__);
     return _T("");
 }
 
 TString CFilePathTool::MakeAbsolute(const TCHAR* pszStartPath, const TCHAR* pszRelativePath)
 {
     // TODO: Unimplement
+    BEATS_WARNING(false, _T("Call unimplement function %s"), __FUNCTION__);
     return _T("");
 }
 
 TString CFilePathTool::RootPath( const TCHAR* pszPath )
 {
     // TODO: Unimplement
-    return _T("");
+    BEATS_WARNING(false, _T("Call unimplement function %s"), __FUNCTION__);
+    return ASSET_ROOT_PATH;
 }
 
 bool CFilePathTool::Canonical(TCHAR* pszOutBuffer, const TCHAR* pszOriginPath)
 {
     // TODO: Unimplement
+    _tcscpy(pszOutBuffer, pszOriginPath);
+    BEATS_WARNING(false, _T("Call unimplement function %s"), __FUNCTION__);
     return false;
 }
 

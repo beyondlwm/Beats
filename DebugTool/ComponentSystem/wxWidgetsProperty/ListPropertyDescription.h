@@ -4,13 +4,13 @@
 #include "wxwidgetsPropertyBase.h"
 #include "../../../Utility/TinyXML/tinyxml.h"
 
-class CListPropertyDescriptionEx : public CWxwidgetsPropertyBase
+class CListPropertyDescription : public CWxwidgetsPropertyBase
 {
     typedef CWxwidgetsPropertyBase super;
 public:
-    CListPropertyDescriptionEx(CSerializer* pSerializer);
-    CListPropertyDescriptionEx(const CListPropertyDescriptionEx& rRef);
-    virtual ~CListPropertyDescriptionEx();
+    CListPropertyDescription(CSerializer* pSerializer);
+    CListPropertyDescription(const CListPropertyDescription& rRef);
+    virtual ~CListPropertyDescription();
 
     virtual bool IsContainerProperty() override;
     bool IsFixed() const;
@@ -33,7 +33,7 @@ public:
     virtual CPropertyDescriptionBase* CreateNewInstance();
     virtual void GetValueAsChar(EValueType type, char* pOut) const override;
     virtual bool GetValueByTChar(const TCHAR* pIn, void* pOutValue) override;
-    virtual void LoadFromXML(TiXmlElement* pNode);
+    virtual void LoadFromXML(TiXmlElement* pNode) override;
     virtual void Serialize(CSerializer& serializer, EValueType eValueType = eVT_SavedValue) override;
 
 private:

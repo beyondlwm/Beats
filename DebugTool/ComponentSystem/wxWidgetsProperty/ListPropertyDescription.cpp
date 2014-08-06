@@ -8,7 +8,7 @@
 
 static const TString EMPTY_STRING = _T("Empty");
 
-CListPropertyDescriptionEx::CListPropertyDescriptionEx(CSerializer* pSerializer)
+CListPropertyDescription::CListPropertyDescription(CSerializer* pSerializer)
 : super(eRPT_List)
 , m_uMaxCount(INT_MAX)
 , m_bFixCount(false)
@@ -23,7 +23,7 @@ CListPropertyDescriptionEx::CListPropertyDescriptionEx(CSerializer* pSerializer)
     InitializeValue(EMPTY_STRING);
 }
 
-CListPropertyDescriptionEx::CListPropertyDescriptionEx(const CListPropertyDescriptionEx& rRef)
+CListPropertyDescription::CListPropertyDescription(const CListPropertyDescription& rRef)
 : super(rRef)
 , m_uMaxCount(rRef.m_uMaxCount)
 , m_bFixCount(rRef.m_bFixCount)
@@ -32,13 +32,13 @@ CListPropertyDescriptionEx::CListPropertyDescriptionEx(const CListPropertyDescri
     InitializeValue(EMPTY_STRING);
 }
 
-CListPropertyDescriptionEx::~CListPropertyDescriptionEx()
+CListPropertyDescription::~CListPropertyDescription()
 {
     BEATS_SAFE_DELETE(m_pChildTemplate);
     DestroyValue<TString>();
 }
 
-bool CListPropertyDescriptionEx::AnalyseUIParameterImpl(const std::vector<TString>& result)
+bool CListPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>& result)
 {
     std::vector<TString> cache;
     for (size_t i = 0; i < result.size(); ++i)
@@ -77,7 +77,7 @@ bool CListPropertyDescriptionEx::AnalyseUIParameterImpl(const std::vector<TStrin
     return true;
 }
 
-wxPGProperty* CListPropertyDescriptionEx::CreateWxProperty()
+wxPGProperty* CListPropertyDescription::CreateWxProperty()
 {
     wxPGProperty* pProperty = new wxStringProperty(wxPG_LABEL, wxPG_LABEL);
     pProperty->SetClientData(this);
@@ -95,7 +95,7 @@ wxPGProperty* CListPropertyDescriptionEx::CreateWxProperty()
     return pProperty;
 }
 
-void CListPropertyDescriptionEx::SetValue( wxVariant& value, bool bSaveValue/* = true*/ )
+void CListPropertyDescription::SetValue( wxVariant& value, bool bSaveValue/* = true*/ )
 {
     TString strNewValue = value.GetString();
     SetValueWithType(&strNewValue, eVT_CurrentValue);
@@ -105,7 +105,7 @@ void CListPropertyDescriptionEx::SetValue( wxVariant& value, bool bSaveValue/* =
     }
 }
 
-bool CListPropertyDescriptionEx::CopyValue(void* pSourceValue, void* pTargetValue)
+bool CListPropertyDescription::CopyValue(void* pSourceValue, void* pTargetValue)
 {
     bool bRet = *(TString*)pTargetValue != *(TString*)pSourceValue;
     if (bRet)
@@ -115,7 +115,7 @@ bool CListPropertyDescriptionEx::CopyValue(void* pSourceValue, void* pTargetValu
     return bRet;
 }
 
-bool CListPropertyDescriptionEx::IsDataSame( bool bWithDefaultOrXML )
+bool CListPropertyDescription::IsDataSame( bool bWithDefaultOrXML )
 {
     bool bRet = false;
     if (bWithDefaultOrXML)
@@ -130,38 +130,38 @@ bool CListPropertyDescriptionEx::IsDataSame( bool bWithDefaultOrXML )
     return bRet;
 }
 
-bool CListPropertyDescriptionEx::IsFixed() const
+bool CListPropertyDescription::IsFixed() const
 {
     return m_bFixCount;
 }
 
-void CListPropertyDescriptionEx::SetFixed(bool bFixedFlag)
+void CListPropertyDescription::SetFixed(bool bFixedFlag)
 {
     m_bFixCount = bFixedFlag;
 }
 
-size_t CListPropertyDescriptionEx::GetMaxCount() const
+size_t CListPropertyDescription::GetMaxCount() const
 {
     return m_uMaxCount;
 }
 
-void CListPropertyDescriptionEx::SetMaxCount(size_t uMaxCount)
+void CListPropertyDescription::SetMaxCount(size_t uMaxCount)
 {
     m_uMaxCount = uMaxCount;
 }
 
-void CListPropertyDescriptionEx::SetTemplateProperty(CPropertyDescriptionBase* pTemplateProperty)
+void CListPropertyDescription::SetTemplateProperty(CPropertyDescriptionBase* pTemplateProperty)
 {
     BEATS_SAFE_DELETE(m_pChildTemplate);
     m_pChildTemplate = pTemplateProperty;
 }
 
-CPropertyDescriptionBase* CListPropertyDescriptionEx::GetTemplateProperty() const
+CPropertyDescriptionBase* CListPropertyDescription::GetTemplateProperty() const
 {
     return m_pChildTemplate;
 }
 
-CPropertyDescriptionBase* CListPropertyDescriptionEx::CreateInstance()
+CPropertyDescriptionBase* CListPropertyDescription::CreateInstance()
 {
     CPropertyDescriptionBase* pRet = NULL;
     if (m_pChildren->size() < m_uMaxCount)
@@ -182,12 +182,12 @@ CPropertyDescriptionBase* CListPropertyDescriptionEx::CreateInstance()
     return pRet;
 }
 
-bool CListPropertyDescriptionEx::IsContainerProperty()
+bool CListPropertyDescription::IsContainerProperty()
 {
     return true;
 }
 
-CPropertyDescriptionBase* CListPropertyDescriptionEx::AddChild(CPropertyDescriptionBase* pProperty)
+CPropertyDescriptionBase* CListPropertyDescription::AddChild(CPropertyDescriptionBase* pProperty)
 {
     if (pProperty == NULL)
     {
@@ -198,7 +198,7 @@ CPropertyDescriptionBase* CListPropertyDescriptionEx::AddChild(CPropertyDescript
     return pProperty;
 }
 
-bool CListPropertyDescriptionEx::DeleteChild(CPropertyDescriptionBase* pProperty, bool bKeepOrder)
+bool CListPropertyDescription::DeleteChild(CPropertyDescriptionBase* pProperty, bool bKeepOrder)
 {
     BEATS_ASSERT((*m_pChildren).size() > 0 && pProperty != NULL);
     bool bRet = super::DeleteChild(pProperty, bKeepOrder);
@@ -211,13 +211,13 @@ bool CListPropertyDescriptionEx::DeleteChild(CPropertyDescriptionBase* pProperty
     return bRet;
 }
 
-void CListPropertyDescriptionEx::DeleteAllChild()
+void CListPropertyDescription::DeleteAllChild()
 {
     super::DeleteAllChild();
     ResetName();
 }
 
-void CListPropertyDescriptionEx::ResetChildName()
+void CListPropertyDescription::ResetChildName()
 {
     for (size_t i = 0; i < m_pChildren->size(); ++i)
     {
@@ -228,7 +228,7 @@ void CListPropertyDescriptionEx::ResetChildName()
     }
 }
 
-void CListPropertyDescriptionEx::ResetName()
+void CListPropertyDescription::ResetName()
 {
     wxString strName;
     GetCurrentName(strName);
@@ -236,7 +236,7 @@ void CListPropertyDescriptionEx::ResetName()
     SetValue(var, false);
 }
 
-void CListPropertyDescriptionEx::GetCurrentName( wxString& strName )
+void CListPropertyDescription::GetCurrentName( wxString& strName )
 {
     if (m_pChildren->size() == 0)
     {
@@ -248,7 +248,7 @@ void CListPropertyDescriptionEx::GetCurrentName( wxString& strName )
     }
 }
 
-void CListPropertyDescriptionEx::LoadFromXML( TiXmlElement* pNode )
+void CListPropertyDescription::LoadFromXML( TiXmlElement* pNode )
 {
     super::LoadFromXML(pNode);
     TiXmlElement* pVarElement = pNode->FirstChildElement("VariableNode");
@@ -273,9 +273,9 @@ void CListPropertyDescriptionEx::LoadFromXML( TiXmlElement* pNode )
     }
 }
 
-CPropertyDescriptionBase* CListPropertyDescriptionEx::Clone(bool bCloneValue)
+CPropertyDescriptionBase* CListPropertyDescription::Clone(bool bCloneValue)
 {
-    CListPropertyDescriptionEx* pNewProperty = static_cast<CListPropertyDescriptionEx*>(super::Clone(bCloneValue));
+    CListPropertyDescription* pNewProperty = static_cast<CListPropertyDescription*>(super::Clone(bCloneValue));
     if (bCloneValue)
     {
         for (size_t i = 0; i < m_pChildren->size(); ++i)
@@ -288,24 +288,24 @@ CPropertyDescriptionBase* CListPropertyDescriptionEx::Clone(bool bCloneValue)
     return pNewProperty;
 }
 
-CPropertyDescriptionBase* CListPropertyDescriptionEx::CreateNewInstance()
+CPropertyDescriptionBase* CListPropertyDescription::CreateNewInstance()
 {
-    CListPropertyDescriptionEx* pNewProperty = new CListPropertyDescriptionEx(*this);
+    CListPropertyDescription* pNewProperty = new CListPropertyDescription(*this);
     return pNewProperty;
 }
 
-void CListPropertyDescriptionEx::GetValueAsChar( EValueType type, char* pOut ) const
+void CListPropertyDescription::GetValueAsChar( EValueType type, char* pOut ) const
 {
     CStringHelper::GetInstance()->ConvertToCHAR(((TString*)GetValue(type))->c_str(), pOut, 128);
 }
 
-bool CListPropertyDescriptionEx::GetValueByTChar(const TCHAR* /*pIn*/, void* /*pOutValue*/)
+bool CListPropertyDescription::GetValueByTChar(const TCHAR* /*pIn*/, void* /*pOutValue*/)
 {
     // Do nothing.
     return true;
 }
 
-void CListPropertyDescriptionEx::Serialize( CSerializer& serializer , EValueType eValueType/* = eVT_SavedValue*/)
+void CListPropertyDescription::Serialize( CSerializer& serializer , EValueType eValueType/* = eVT_SavedValue*/)
 {
     serializer << m_pChildren->size();
     for (size_t i = 0; i < m_pChildren->size(); ++i)
