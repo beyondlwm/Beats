@@ -96,6 +96,7 @@ public:
     virtual void SaveToXML(TiXmlElement* pParentNode) = 0;
     virtual void LoadFromXML(TiXmlElement* pNode) = 0;
     virtual void Serialize(CSerializer& serializer, EValueType eValueType = eVT_SavedValue) = 0;
+    virtual void Deserialize(CSerializer& serializer, EValueType eValueType = eVT_CurrentValue) = 0;
     virtual bool CopyValue(void* pSourceValue, void* pTargetValue) = 0;
 
 protected:

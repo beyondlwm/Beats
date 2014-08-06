@@ -154,3 +154,8 @@ void CEnumPropertyDescription::Serialize( CSerializer& serializer , EValueType e
 {
     serializer << *(int*)m_valueArray[eValueType];
 }
+
+void CEnumPropertyDescription::Deserialize(CSerializer& serializer, EValueType eValueType /*= eVT_CurrentValue*/)
+{
+    serializer >> *(int*)m_valueArray[eValueType];
+}

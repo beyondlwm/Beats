@@ -27,6 +27,7 @@ public:
     virtual bool GetValueByTChar(const TCHAR* pIn, void* pOutValue) override;
     virtual void LoadFromXML(TiXmlElement* pNode);
     virtual void Serialize(CSerializer& serializer, EValueType eValueType = eVT_SavedValue) override;
+    virtual void Deserialize(CSerializer& serializer, EValueType eValueType = eVT_CurrentValue) override;
     virtual bool AnalyseUIParameterImpl(const std::vector<TString>& parameterUnit);
 
 private:

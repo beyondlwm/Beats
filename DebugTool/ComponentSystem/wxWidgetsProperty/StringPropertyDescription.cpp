@@ -125,3 +125,8 @@ void CStringPropertyDescription::Serialize( CSerializer& serializer , EValueType
 {
     serializer << *(TString*)m_valueArray[eValueType];
 }
+
+void CStringPropertyDescription::Deserialize(CSerializer& serializer, EValueType eValueType /*= eVT_CurrentValue*/)
+{
+    serializer >> *(TString*)m_valueArray[eValueType];
+}

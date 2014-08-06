@@ -268,6 +268,18 @@ void CMapPropertyDescription::Serialize( CSerializer& serializer , EValueType eV
     }
 }
 
+void CMapPropertyDescription::Deserialize(CSerializer& serializer, EValueType eValueType /*= eVT_CurrentValue*/)
+{
+    DeleteAllChild();
+    size_t uChildrenCount = 0;
+    serializer >> uChildrenCount;
+    for (size_t i = 0; i < uChildrenCount; ++i)
+    {
+        (*m_pChildren)[i]->GetChild(0)->Deserialize(serializer, eValueType);
+        (*m_pChildren)[i]->GetChild(1)->Deserialize(serializer, eValueType);
+    }
+}
+
 bool CMapPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>& /*parameterUnit*/)
 {
     return true;

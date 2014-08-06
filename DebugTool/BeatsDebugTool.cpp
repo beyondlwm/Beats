@@ -195,7 +195,7 @@ extern "C"
             CPerformDetector::GetInstance()->StartDetectNode(type, id);
         }
     }
-    void BEATS_PERFORMDETECT_INIT_FUNC( const wchar_t* typeName[], size_t size )
+    void BEATS_PERFORMDETECT_INIT_FUNC( const TCHAR* typeName[], size_t size )
     {
         if (CBDTWxApp::m_bInit && CBDTWxApp::GetBDTWxApp()->IsFrameValid() && CBDTWxApp::GetBDTWxApp()->IsEnable(eBDTFT_Performance))
         {

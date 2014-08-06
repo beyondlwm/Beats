@@ -193,7 +193,7 @@ bool CDXVerDetector::GetDirectXVerionViaFileVersions( DWORD* pdwDirectXVersionMa
                 // flle is >= DX1.0 version, so we must be at least DX1.0
                 if( pdwDirectXVersionMajor ) *pdwDirectXVersionMajor = 1;
                 if( pdwDirectXVersionMinor ) *pdwDirectXVersionMinor = 0;
-                if( pCDXVerDetectorsionLetter ) *pCDXVerDetectorsionLetter = TEXT('');
+                if( pCDXVerDetectorsionLetter ) *pCDXVerDetectorsionLetter = TEXT(' ');
                 bFound = true;
             }
 
@@ -202,7 +202,7 @@ bool CDXVerDetector::GetDirectXVerionViaFileVersions( DWORD* pdwDirectXVersionMa
                 // flle is is >= DX2.0 version, so we must DX2.0 or DX2.0a (no redist change)
                 if( pdwDirectXVersionMajor ) *pdwDirectXVersionMajor = 2;
                 if( pdwDirectXVersionMinor ) *pdwDirectXVersionMinor = 0;
-                if( pCDXVerDetectorsionLetter ) *pCDXVerDetectorsionLetter = TEXT('');
+                if( pCDXVerDetectorsionLetter ) *pCDXVerDetectorsionLetter = TEXT(' ');
                 bFound = true;
             }
 
@@ -211,7 +211,7 @@ bool CDXVerDetector::GetDirectXVerionViaFileVersions( DWORD* pdwDirectXVersionMa
                 // flle is is >= DX3.0 version, so we must be at least DX3.0
                 if( pdwDirectXVersionMajor ) *pdwDirectXVersionMajor = 3;
                 if( pdwDirectXVersionMinor ) *pdwDirectXVersionMinor = 0;
-                if( pCDXVerDetectorsionLetter ) *pCDXVerDetectorsionLetter = TEXT('');
+                if( pCDXVerDetectorsionLetter ) *pCDXVerDetectorsionLetter = TEXT(' ');
                 bFound = true;
             }
         }
@@ -241,7 +241,7 @@ bool CDXVerDetector::GetDirectXVerionViaFileVersions( DWORD* pdwDirectXVersionMa
                 // ddraw.dll is the DX5.0 version, so we must be DX5.0 or DX5.2 (no redist change)
                 if( pdwDirectXVersionMajor ) *pdwDirectXVersionMajor = 5;
                 if( pdwDirectXVersionMinor ) *pdwDirectXVersionMinor = 0;
-                if( pCDXVerDetectorsionLetter ) *pCDXVerDetectorsionLetter = TEXT('');
+                if( pCDXVerDetectorsionLetter ) *pCDXVerDetectorsionLetter = TEXT(' ');
                 bFound = true;
             }
 
@@ -250,7 +250,7 @@ bool CDXVerDetector::GetDirectXVerionViaFileVersions( DWORD* pdwDirectXVersionMa
                 // ddraw.dll is the DX6.0 version, so we must be at least DX6.0
                 if( pdwDirectXVersionMajor ) *pdwDirectXVersionMajor = 6;
                 if( pdwDirectXVersionMinor ) *pdwDirectXVersionMinor = 0;
-                if( pCDXVerDetectorsionLetter ) *pCDXVerDetectorsionLetter = TEXT('');
+                if( pCDXVerDetectorsionLetter ) *pCDXVerDetectorsionLetter = TEXT(' ');
                 bFound = true;
             }
 
@@ -259,7 +259,7 @@ bool CDXVerDetector::GetDirectXVerionViaFileVersions( DWORD* pdwDirectXVersionMa
                 // ddraw.dll is the DX6.1 version, so we must be at least DX6.1
                 if( pdwDirectXVersionMajor ) *pdwDirectXVersionMajor = 6;
                 if( pdwDirectXVersionMinor ) *pdwDirectXVersionMinor = 1;
-                if( pCDXVerDetectorsionLetter ) *pCDXVerDetectorsionLetter = TEXT('');
+                if( pCDXVerDetectorsionLetter ) *pCDXVerDetectorsionLetter = TEXT(' ');
                 bFound = true;
             }
         }
@@ -291,7 +291,7 @@ bool CDXVerDetector::GetDirectXVerionViaFileVersions( DWORD* pdwDirectXVersionMa
                 // ddraw.dll is the DX7.0 version, so we must be at least DX7.0
                 if( pdwDirectXVersionMajor ) *pdwDirectXVersionMajor = 7;
                 if( pdwDirectXVersionMinor ) *pdwDirectXVersionMinor = 0;
-                if( pCDXVerDetectorsionLetter ) *pCDXVerDetectorsionLetter = TEXT('');
+                if( pCDXVerDetectorsionLetter ) *pCDXVerDetectorsionLetter = TEXT(' ');
                 bFound = true;
             }
         }
@@ -322,7 +322,7 @@ bool CDXVerDetector::GetDirectXVerionViaFileVersions( DWORD* pdwDirectXVersionMa
                 // ddraw.dll is the DX8.0 version, so we must be at least DX8.0 or DX8.0a (no redist change)
                 if( pdwDirectXVersionMajor ) *pdwDirectXVersionMajor = 8;
                 if( pdwDirectXVersionMinor ) *pdwDirectXVersionMinor = 0;
-                if( pCDXVerDetectorsionLetter ) *pCDXVerDetectorsionLetter = TEXT('');
+                if( pCDXVerDetectorsionLetter ) *pCDXVerDetectorsionLetter = TEXT(' ');
                 bFound = true;
             }
         }

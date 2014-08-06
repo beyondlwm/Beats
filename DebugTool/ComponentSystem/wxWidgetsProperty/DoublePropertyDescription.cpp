@@ -137,3 +137,8 @@ void CDoublePropertyDescription::Serialize( CSerializer& serializer , EValueType
 {
     serializer << *(double*)m_valueArray[eValueType];
 }
+
+void CDoublePropertyDescription::Deserialize(CSerializer& serializer, EValueType eValueType /*= eVT_CurrentValue*/)
+{
+    serializer >> *(double*)m_valueArray[eValueType];
+}

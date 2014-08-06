@@ -137,3 +137,8 @@ void CIntPropertyDescription::Serialize( CSerializer& serializer , EValueType eV
 {
     serializer << *(int*)m_valueArray[eValueType];
 }
+
+void CIntPropertyDescription::Deserialize(CSerializer& serializer, EValueType eValueType /*= eVT_CurrentValue*/)
+{
+    serializer >> *(int*)m_valueArray[eValueType];
+}

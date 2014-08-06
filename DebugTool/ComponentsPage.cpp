@@ -18,7 +18,7 @@
 #include "ComponentSystem/ComponentRenderWindow.h"
 #include "ComponentSystem/wxWidgetsProperty/wxWidgetsPropertyBase.h"
 #include "ComponentSystem/wxWidgetsProperty/PtrPropertyDescription.h"
-#include "ComponentSystem/wxWidgetsProperty/ListPropertyDescriptionEx.h"
+#include "ComponentSystem/wxWidgetsProperty/ListPropertyDescription.h"
 #include "ComponentSystem/PtrEditor/wxPtrButtonEditor.h"
 #include "ComponentSystem/ComponentGraphics_DX.h"
 #include "FilePath/FilePathTool.h"

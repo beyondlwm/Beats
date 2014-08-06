@@ -136,3 +136,8 @@ void CFloatPropertyDescription::Serialize( CSerializer& serializer , EValueType 
 {
     serializer << *(float*)m_valueArray[eValueType];
 }
+
+void CFloatPropertyDescription::Deserialize(CSerializer& serializer, EValueType eValueType /*= eVT_CurrentValue*/)
+{
+    serializer >> *(float*)m_valueArray[eValueType];
+}

@@ -6,7 +6,7 @@
 #include "../../DebugTool/BDTWxFrame.h"
 #include "../../Utility/Serializer/Serializer.h"
 #include "../wxWidgetsProperty/PtrPropertyDescription.h"
-#include "../wxWidgetsProperty/ListPropertyDescriptionEx.h"
+#include "../wxWidgetsProperty/ListPropertyDescription.h"
 #include "../wxWidgetsProperty/MapPropertyDescription.h"
 
 IMPLEMENT_DYNAMIC_CLASS(wxPtrButtonEditor, wxPGTextCtrlEditor)

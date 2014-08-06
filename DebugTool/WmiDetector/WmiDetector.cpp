@@ -2,6 +2,7 @@
 #include <comdef.h>
 #include <comutil.h>
 #include "WmiDetector.h"
+#include "StringHelper\StringHelper.h"
 #pragma comment(lib,"WbemUuid.lib")  
 
 CWmiDetector* CWmiDetector::m_pInstance = NULL;
@@ -169,11 +170,13 @@ void CWmiDetector::VariantToString(const LPVARIANT pVar,TString &chRetValue) con
     bool isU32Value = false;
     int u32Value = 0;
 
-    switch(pVar->vt)  
+    switch(pVar->vt)
     {  
-    case VT_BSTR:  
+    case VT_BSTR:
         {
-            chRetValue.assign(pVar->bstrVal);
+            TCHAR szBuffer[10240];
+            CStringHelper::GetInstance()->ConvertToTCHAR((const wchar_t*)pVar->pbstrVal, szBuffer, 10240);
+            chRetValue.assign(szBuffer);
             //delete space suffix
             chRetValue = chRetValue.substr(0, chRetValue.find_last_not_of(' ') + 1);
         }  
@@ -200,35 +203,37 @@ void CWmiDetector::VariantToString(const LPVARIANT pVar,TString &chRetValue) con
             isU32Value = true;
             u32Value = pVar->ulVal;
         }  
-        break;  
+        break;
 
-    case VT_BSTR|VT_ARRAY:  
+    case VT_BSTR|VT_ARRAY:
         {  
-            hr = SafeArrayAccessData(pVar->parray,(void HUGEP**)&pBstr);  
-            hr = SafeArrayUnaccessData(pVar->parray);  
-            chRetValue.assign(pBstr->GetBSTR());  
-        }  
-        break;  
+            hr = SafeArrayAccessData(pVar->parray,(void HUGEP**)&pBstr);
+            hr = SafeArrayUnaccessData(pVar->parray);
+            TCHAR szBuffer[10240];
+            CStringHelper::GetInstance()->ConvertToTCHAR((const wchar_t*)pBstr->GetBSTR(), szBuffer, 10240);
+            chRetValue.assign(szBuffer);
+        }
+        break;
 
-    case VT_I4|VT_ARRAY:  
+    case VT_I4|VT_ARRAY:
         {  
-            SafeArrayGetLBound(pVar->parray,1,&low);   
-            SafeArrayGetUBound(pVar->parray,1,&high);  
+            SafeArrayGetLBound(pVar->parray,1,&low);
+            SafeArrayGetUBound(pVar->parray,1,&high);
 
-            hr=SafeArrayAccessData(pVar->parray,(void HUGEP**)&pBuf);  
-            hr=SafeArrayUnaccessData(pVar->parray);  
-            TString strTmp;  
-            high=min(high,MAX_PATH*2-1);  
-            for(i=low;i<=high;++i)  
+            hr=SafeArrayAccessData(pVar->parray,(void HUGEP**)&pBuf);
+            hr=SafeArrayUnaccessData(pVar->parray);
+            TString strTmp;
+            high=min(high,MAX_PATH*2-1);
+            for(i=low;i<=high;++i)
             {  
                 TCHAR cache[32];
                 _stprintf_s(cache, _T("%02X"), pBuf[i]);
-                chRetValue.append(cache);  
-            }  
-        }  
-        break;  
-    default:  
-        break;  
+                chRetValue.append(cache);
+            }
+        }
+        break;
+    default:
+        break;
     }
     if (isU32Value)
     {
@@ -442,7 +447,7 @@ bool CWmiDetector::GetStrFromFirmwareTables(size_t targetId, unsigned char* tabl
         MultiByteToWideChar(CP_ACP, MB_COMPOSITE, array_of_string_entries[targetId], strlen(array_of_string_entries[targetId]), temp, 256);
         out.assign(temp);
 #else
-        out.assign(out.assign(temp));
+        out.assign(array_of_string_entries[targetId]);
 #endif
     }
     return true;
@@ -493,7 +498,9 @@ void CWmiDetector::DebugEnumClassProperty(const TCHAR* pNameSpace, const TString
                     }
                     TString result;
                     VariantToString(&vtProp, result);
-                    OutputDebugString(propName);
+                    TCHAR szBuffer[10240];
+                    CStringHelper::GetInstance()->ConvertToTCHAR((const wchar_t*)propName, szBuffer, 10240);
+                    OutputDebugString(szBuffer);
                     OutputDebugString(_T(":\n"));
                     OutputDebugString(result.c_str());
                     OutputDebugString(_T("\n"));

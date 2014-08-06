@@ -23,7 +23,7 @@ extern "C" {
     // run this to shutdown running threads etc.
     MY_DLL_DECL void BEATS_UNINIT_DEBUG_TOOL_FUNC();
 
-    MY_DLL_DECL void BEATS_PERFORMDETECT_INIT_FUNC(const wchar_t* typeName[], size_t size);
+    MY_DLL_DECL void BEATS_PERFORMDETECT_INIT_FUNC(const TCHAR* typeName[], size_t size);
 
     MY_DLL_DECL void BEATS_PERFORMDETECT_START_IMPL_FUNC(int type, bool isStaticRecord = false, size_t id = 0);
     MY_DLL_DECL float BEATS_PERFORMDETECT_STOP_IMPL_FUNC(int type);
@@ -172,7 +172,7 @@ public:
     TFuncType1 pBEATS_INIT_DEBUG_TOOL;
     TFuncType1 pBEATS_PERFORMDETECT_RESET;
     TFuncType1 pBEATS_UNINIT_DEBUG_TOOL;
-    typedef void(*TFuncType2)(const wchar_t* typeName[], size_t size);
+    typedef void(*TFuncType2)(const TCHAR* typeName[], size_t size);
     TFuncType2 pBEATS_PERFORMDETECT_INIT;
     typedef void(*TFuncType3)(int type, bool, size_t);
     TFuncType3 pBEATS_PERFORMDETECT_START_IMPL;

@@ -534,7 +534,6 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
                     if (bNeedSnyc)\
                     {\
                         ptrProperty = NULL;\
-                        size_t uDepGuid = ptrProperty->REFLECT_GUID;\
                         CComponentInstanceManager::GetInstance()->AddDependencyResolver(NULL, 0 , uGuid, uInstanceId, &ptrProperty, false);\
                     }\
                 }\
@@ -602,4 +601,18 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
 #endif
 
 #endif
+
+#ifdef EDITOR_MODE
+#define UPDATE_PROPERTY_PROXY(property)\
+    {\
+    CComponentProxy* pProxy = GetProxyComponent();\
+    CPropertyDescriptionBase* pProperty = pProxy->GetPropertyDescription(_T(#property));\
+    CSerializer serializer;\
+    serializer << property;\
+    pProperty->Deserialize(serializer);\
+    }
+#else
+#define UPDATE_PROPERTY_PROXY(property)
+#endif
+
 #endif

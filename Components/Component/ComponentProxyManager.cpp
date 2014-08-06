@@ -335,17 +335,6 @@ void CComponentProxyManager::RegisterPropertyCreator( size_t enumType, TCreatePr
 CPropertyDescriptionBase* CComponentProxyManager::CreateProperty( size_t propertyType, CSerializer* serializer )
 {
     CPropertyDescriptionBase* pPropertyBase = (*(*m_pPropertyCreatorMap)[propertyType])(serializer);
-    size_t startPos = serializer->GetReadPos();
-    size_t dataLenghth = 0;
-    (*serializer) >> dataLenghth;
-    pPropertyBase->DeserializeBasicInfo(*serializer);
-    TCHAR* pParameter = NULL;
-    TCHAR** pParameterHolder = &pParameter;
-    serializer->Read(pParameterHolder);
-    pPropertyBase->AnalyseUIParameter(pParameter);
-    BEATS_ASSERT(dataLenghth == serializer->GetReadPos() - startPos, _T("Read data of property: %s in component: %d Failed, Data Length :%d while require %d"), pPropertyBase->GetBasicInfo()->m_variableName.c_str(), pPropertyBase->GetOwner()->GetGuid(), dataLenghth, serializer->GetReadPos() - startPos);
-    serializer->SetReadPos(startPos + dataLenghth);
-
     return pPropertyBase;
 }
 

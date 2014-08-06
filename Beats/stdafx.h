@@ -22,7 +22,7 @@
 #ifndef _WIN32_IE            // Allow use of features specific to IE 6.0 or later.
 #define _WIN32_IE 0x0600    // Change this to the appropriate value to target other versions of IE.
 #endif
-
+#define NOMINMAX
 #define WIN32_LEAN_AND_MEAN        // Exclude rarely-used stuff from Windows headers
 // Windows Header Files:
 #include <windows.h>
@@ -91,23 +91,23 @@ namespace NBDT
         ePT_ForceTo32Bit = 0xffffffff
     };
 
-    static const  wchar_t* perfromanceStr[] =
+    static const TCHAR* perfromanceStr[] =
     {
-        L"RunTimePerformance",
-        L"Input",
-        L"CaptureMouse",
-        L"CaptureKeyboard",
-        L"InputCallBack",
-        L"Render",
-        L"RenderCache",
-        L"RenderParticle",
-        L"UpdateUI",
-        L"UpdateUISystem",
-        L"UpdateUIPages",
+        _T("RunTimePerformance"),
+        _T("Input"),
+        _T("CaptureMouse"),
+        _T("CaptureKeyboard"),
+        _T("InputCallBack"),
+        _T("Render"),
+        _T("RenderCache"),
+        _T("RenderParticle"),
+        _T("UpdateUI"),
+        _T("UpdateUISystem"),
+        _T("UpdateUIPages"),
 
-        L"Physics",
-        L"Object",
-        L"Task",
+        _T("Physics"),
+        _T("Object"),
+        _T("Task"),
     };
 }
 

@@ -245,6 +245,27 @@ void CPtrPropertyDescription::Serialize(CSerializer& serializer, EValueType eVal
     }
 }
 
+void CPtrPropertyDescription::Deserialize(CSerializer& serializer, EValueType /*eValueType*/ /*= eVT_CurrentValue*/)
+{
+    bool bHasInstance = false;
+    serializer >> bHasInstance;
+    if (bHasInstance)
+    {
+        if (m_pInstance == NULL)
+        {
+            CreateInstance();
+        }
+        m_pInstance->Deserialize(serializer);
+    }
+    else
+    {
+        if (m_pInstance != NULL)
+        {
+            DestroyInstance(true);
+        }
+    }
+}
+
 void CPtrPropertyDescription::Initialize()
 {
     super::Initialize();

@@ -21,6 +21,7 @@ public:
     virtual void GetValueAsChar(EValueType type, char* pOut) const override;
     virtual bool GetValueByTChar(const TCHAR* pIn, void* pOutValue) override;
     virtual void Serialize(CSerializer& serializer, EValueType eValueType = eVT_SavedValue) override;
+    virtual void Deserialize(CSerializer& serializer, EValueType eValueType = eVT_CurrentValue) override;
 
 private:
     double m_dMinValue;

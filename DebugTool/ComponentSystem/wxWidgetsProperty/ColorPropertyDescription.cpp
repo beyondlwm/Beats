@@ -142,3 +142,8 @@ void CColorPropertyDescription::Serialize( CSerializer& serializer, EValueType e
     uColor = r | g | b | a;
     serializer << uColor;
 }
+
+void CColorPropertyDescription::Deserialize(CSerializer& serializer, EValueType eValueType /*= eVT_CurrentValue*/)
+{
+    serializer >> *(size_t*)m_valueArray[eValueType];
+}

@@ -119,3 +119,8 @@ void CBoolPropertyDescription::Serialize( CSerializer& serializer , EValueType e
 {
     serializer << *(bool*)m_valueArray[eValueType];
 }
+
+void CBoolPropertyDescription::Deserialize(CSerializer& serializer, EValueType eValueType/* = eVT_CurrentValue*/)
+{
+    serializer >> *(bool*)m_valueArray[eValueType];
+}

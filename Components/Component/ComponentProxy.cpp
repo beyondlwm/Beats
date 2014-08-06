@@ -90,6 +90,16 @@ void CComponentProxy::Deserialize( CSerializer& serializer )
             serializer >> ePropertyType;
             CPropertyDescriptionBase* pPropertyBase = CComponentProxyManager::GetInstance()->CreateProperty(ePropertyType, &serializer);
             this->AddProperty(pPropertyBase);
+            size_t startPos = serializer.GetReadPos();
+            size_t dataLenghth = 0;
+            serializer >> dataLenghth;
+            pPropertyBase->DeserializeBasicInfo(serializer);
+            TCHAR* pParameter = NULL;
+            TCHAR** pParameterHolder = &pParameter;
+            serializer.Read(pParameterHolder);
+            pPropertyBase->AnalyseUIParameter(pParameter);
+            BEATS_ASSERT(dataLenghth == serializer.GetReadPos() - startPos, _T("Read data of property: %s in component GUID:0x%x %s Failed, Data Length :%d while require %d"), pPropertyBase->GetBasicInfo()->m_variableName.c_str(), this->GetGuid(), this->GetClassStr(), dataLenghth, serializer.GetReadPos() - startPos);
+            serializer.SetReadPos(startPos + dataLenghth);
             ++uPropertyCounter;
             BEATS_ASSERT(uPropertyCounter <= uPropertyCounter);
         }

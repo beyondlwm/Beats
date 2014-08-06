@@ -10,7 +10,7 @@
 #include "wxWidgetsProperty/BoolPropertyDescription.h"
 #include "wxWidgetsProperty/FloatPropertyDescription.h"
 #include "wxWidgetsProperty/IntPropertyDescription.h"
-#include "wxWidgetsProperty/ListPropertyDescriptionEx.h"
+#include "wxWidgetsProperty/ListPropertyDescription.h"
 #include "wxWidgetsProperty/StringPropertyDescription.h"
 #include "wxWidgetsProperty/UIntPropertyDescription.h"
 #include "wxWidgetsProperty/PtrPropertyDescription.h"
@@ -44,7 +44,7 @@ struct SLuancher
     SLuancher()
     {
         std::vector<TString> scanPath;
-        scanPath.push_back(_T("E:/Project/Beats_GitHub/DebugTool/ComponentSystem"));
+        scanPath.push_back(_T("E:/Programming/BeatsGitHub/DebugTool/ComponentSystem"));
         CEnumStrGenerator::GetInstance()->Init(scanPath, ENGINE_ENUM_INFO_FILE);
     }
     ~SLuancher()

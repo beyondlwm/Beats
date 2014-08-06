@@ -3,7 +3,7 @@
 #include "../../../Utility/Serializer/Serializer.h"
 #include "../../BDTWxApp.h"
 #include "../../BDTWxFrame.h"
-#include "ListPropertyDescriptionEx.h"
+#include "ListPropertyDescription.h"
 #include "../../Components/Component/ComponentProxyManager.h"
 
 static const TString EMPTY_STRING = _T("Empty");
@@ -311,5 +311,17 @@ void CListPropertyDescription::Serialize( CSerializer& serializer , EValueType e
     for (size_t i = 0; i < m_pChildren->size(); ++i)
     {
         (*m_pChildren)[i]->Serialize(serializer, eValueType);
+    }
+}
+
+void CListPropertyDescription::Deserialize(CSerializer& serializer, EValueType eValueType /*= eVT_CurrentValue*/)
+{
+    DeleteAllChild();
+    size_t uChildCount = 0;
+    serializer >> uChildCount;
+    for (size_t i = 0; i < uChildCount; ++i)
+    {
+        CPropertyDescriptionBase* pChild = AddChild(NULL);
+        pChild->Deserialize(serializer, eValueType);
     }
 }
