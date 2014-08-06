@@ -89,7 +89,6 @@ void CComponentProxy::Deserialize( CSerializer& serializer )
             EReflectPropertyType ePropertyType;
             serializer >> ePropertyType;
             CPropertyDescriptionBase* pPropertyBase = CComponentProxyManager::GetInstance()->CreateProperty(ePropertyType, &serializer);
-            pPropertyBase->Deserialize(serializer);
             this->AddProperty(pPropertyBase);
             ++uPropertyCounter;
             BEATS_ASSERT(uPropertyCounter <= uPropertyCounter);

@@ -89,21 +89,6 @@ const SharePtr<SBasicPropertyInfo>& CPropertyDescriptionBase::GetBasicInfo() con
     return *m_pBasicInfo;
 }
 
-bool CPropertyDescriptionBase::Deserialize( CSerializer& serializer )
-{
-    size_t startPos = serializer.GetReadPos();
-    size_t dataLenghth = 0;
-    serializer >> dataLenghth;
-    DeserializeBasicInfo(serializer);
-    TCHAR* pParameter = NULL;
-    TCHAR** pParameterHolder = &pParameter;
-    serializer.Read(pParameterHolder);
-    this->AnalyseUIParameter(pParameter);
-    BEATS_ASSERT(dataLenghth == serializer.GetReadPos() - startPos, _T("Read data of property: %s in component: %d Failed, Data Length :%d while require %d"), (*m_pBasicInfo)->m_variableName.c_str(), m_pOwner->GetGuid(), dataLenghth, serializer.GetReadPos() - startPos);
-    serializer.SetReadPos(startPos + dataLenghth);
-    return true;
-}
-
 bool CPropertyDescriptionBase::DeserializeBasicInfo(CSerializer& serializer)
 {
     TCHAR* buff = NULL;

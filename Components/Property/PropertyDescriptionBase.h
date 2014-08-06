@@ -34,8 +34,6 @@ public:
     void SetBasicInfo(const SBasicPropertyInfo& info);
     const SharePtr<SBasicPropertyInfo>& GetBasicInfo() const;
 
-    bool Deserialize(CSerializer& serializer);
-
     virtual CPropertyDescriptionBase* AddChild(CPropertyDescriptionBase* pProperty);
     virtual bool DeleteChild(CPropertyDescriptionBase* pProperty, bool bKeepChildOrder = false);
     virtual void DeleteAllChild();
@@ -70,10 +68,12 @@ public:
 
     void* GetValue(EValueType type) const;
     void SetValueWithType(void* pValue, EValueType type, bool bForceUpdateHostComponent = false);
+    bool DeserializeBasicInfo(CSerializer& serializer);
 
     virtual void Initialize();
     virtual void Uninitialize();
     virtual bool IsContainerProperty();
+
     //Editor mode only
     virtual void SetValueList(const std::vector<TString>& valueList);
     virtual CComponentProxy* GetInstanceComponent() const;
@@ -97,9 +97,6 @@ public:
     virtual void LoadFromXML(TiXmlElement* pNode) = 0;
     virtual void Serialize(CSerializer& serializer, EValueType eValueType = eVT_SavedValue) = 0;
     virtual bool CopyValue(void* pSourceValue, void* pTargetValue) = 0;
-
-protected:
-    bool DeserializeBasicInfo(CSerializer& serializer);
 
 protected:
     bool m_bInitialized;
