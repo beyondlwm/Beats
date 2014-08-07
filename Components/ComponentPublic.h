@@ -34,6 +34,16 @@
 #define PROPERTY_KEYWORD_SPLIT_STR _T(":")
 #define COMPONENT_SYSTEM_VERSION 4
 
+template<typename T>
+inline void InitValue(const T& param)
+{
+    //TODO: I don't know how to init a template value, so this is the HACK way.
+    if (sizeof(T) <= 4)
+    {
+        memset((void*)&param, 0, sizeof(T));
+    }
+}
+
 struct SSerilaizerExtraInfo
 {
     SSerilaizerExtraInfo()
@@ -65,13 +75,13 @@ inline EReflectPropertyType GetEnumType(T& value, CSerializer* pSerializer)
 }
 
 template<typename T>
-inline void DeserializeVarialble(T& value, CSerializer* pSerializer)
+inline void DeserializeVariable(T& value, CSerializer* pSerializer)
 {
     *pSerializer >> value;
 }
 
 template<typename T>
-inline void DeserializeVarialble(T*& value, CSerializer* pSerializer)
+inline void DeserializeVariable(T*& value, CSerializer* pSerializer)
 {
     bool bHasInstance = false;
     *pSerializer >> bHasInstance;
@@ -91,6 +101,10 @@ inline void DeserializeVarialble(T*& value, CSerializer* pSerializer)
                 BEATS_ASSERT(pProperty != NULL && pProperty->GetInstanceComponent() != NULL &&  pProperty->GetInstanceComponent()->GetHostComponent() != NULL);
                 value = dynamic_cast<T*>(pProperty->GetInstanceComponent()->GetHostComponent());
                 BEATS_ASSERT(value != NULL);
+                // If we are in editor mode, when a pointer become an instance from NULL
+                // it means there is no need to read more info from the pSerializer, because it is a construct operation.
+                //This line is useless and unnecessary. But if you call this, the pSerializer will be read finished.
+                //value->ReflectData(*pSerializer);
             }
             else
             {
@@ -165,7 +179,7 @@ inline void ClearMap(std::map<T1, T2*>& value)
 #endif
 
 template<typename T>
-inline void DeserializeVarialble(std::vector<T>& value, CSerializer* pSerializer)
+inline void DeserializeVariable(std::vector<T>& value, CSerializer* pSerializer)
 {
     size_t childCount = 0;
     *pSerializer >> childCount;
@@ -186,7 +200,8 @@ inline void DeserializeVarialble(std::vector<T>& value, CSerializer* pSerializer
             CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pSubProperty);
         }
 #endif
-        DeserializeVarialble(value[i], pSerializer);
+        BEATS_ASSERT(typeid(T) != typeid(bool), _T("std::vector<bool> is not supported! it's a very specific version of stl, it's not a container!"));
+        DeserializeVariable(value[i], pSerializer);
 #ifdef EDITOR_MODE
         CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pCurrReflectProperty);
 #endif
@@ -194,7 +209,7 @@ inline void DeserializeVarialble(std::vector<T>& value, CSerializer* pSerializer
 }
 
 template<typename T1, typename T2>
-inline void DeserializeVarialble(std::map<T1, T2>& value, CSerializer* pSerializer)
+inline void DeserializeVariable(std::map<T1, T2>& value, CSerializer* pSerializer)
 {
     EReflectPropertyType keyType;
     EReflectPropertyType valueType;
@@ -222,7 +237,7 @@ inline void DeserializeVarialble(std::map<T1, T2>& value, CSerializer* pSerializ
             CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pKeyProperty);
         }
 #endif
-        DeserializeVarialble(key, pSerializer);
+        DeserializeVariable(key, pSerializer);
         T2 myValue;
         InitValue(myValue);
 #ifdef EDITOR_MODE
@@ -234,7 +249,7 @@ inline void DeserializeVarialble(std::map<T1, T2>& value, CSerializer* pSerializ
             CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pValueProperty);
         }
 #endif
-        DeserializeVarialble(myValue, pSerializer);
+        DeserializeVariable(myValue, pSerializer);
         BEATS_ASSERT(value.find(key) == value.end(), _T("A map can't have two same key value!"));
         value[key] = myValue;
 #ifdef EDITOR_MODE
@@ -314,15 +329,7 @@ inline EReflectPropertyType GetEnumType(classType& value, CSerializer* pSerializ
     return enumType;\
 }
 
-template<typename T>
-inline void InitValue(const T& param)
-{
-    //TODO: I don't know how to init a template value, so this is the HACK way.
-    if (sizeof(T) <= 4)
-    {
-        memset((void*)&param, 0, sizeof(T));
-    }
-}
+
 
 #define REGISTER_PROPERTY_DESC(enumType, propertyDescriptionType)\
     CPropertyDescriptionBase* CreateProperty_##propertyDescriptionType(CSerializer* serilaizer)\
@@ -444,7 +451,7 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
 
 #else
 #ifndef EDITOR_MODE
-    #define DECLARE_PROPERTY(serializer, property, editable, color, displayName, catalog, tip, parameter) DeserializeVarialble(property, &serializer);
+    #define DECLARE_PROPERTY(serializer, property, editable, color, displayName, catalog, tip, parameter) DeserializeVariable(property, &serializer);
 
     #define DECLARE_DEPENDENCY(serializer, ptrProperty, displayName, dependencyType)\
     {\
@@ -492,7 +499,7 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
                 if (bNeedHandleSync)\
                 {\
                     CComponentProxyManager::GetInstance()->SetReflectCheckFlag(false);\
-                    DeserializeVarialble(property, &serializer);\
+                    DeserializeVariable(property, &serializer);\
                     CComponentProxyManager::GetInstance()->SetReflectCheckFlag(bReflectCheckFlag);\
                 }\
                 if (pDescriptionBase != NULL && bReflectCheckFlag)\
@@ -534,6 +541,11 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
                     if (bNeedSnyc)\
                     {\
                         ptrProperty = NULL;\
+                        size_t uDepGuid = ptrProperty->REFLECT_GUID;\
+                        (void)uDepGuid;\
+                        BEATS_ASSERT(CComponentProxyManager::GetInstance()->IsParent(uDepGuid, uGuid),\
+                            _T("GUID mismatched. GUID of dependency:0x%x, GUID in datafile:0x%x"),\
+                            uDepGuid, uGuid);\
                         CComponentInstanceManager::GetInstance()->AddDependencyResolver(NULL, 0 , uGuid, uInstanceId, &ptrProperty, false);\
                     }\
                 }\
@@ -560,7 +572,7 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
         bool bReflectCheckFlag = CComponentProxyManager::GetInstance()->GetReflectCheckFlag();\
         if (!bReflectCheckFlag || pDescriptionBase  == NULL)\
         {\
-            if (!bReflectCheckFlag || pDependency == NULL || _tcscmp(pDependency->GetVariableName(), _T(#ptrProperty)) == 0)\
+            if (!bReflectCheckFlag || pDependencyList == NULL || _tcscmp(pDependencyList->GetVariableName(), _T(#ptrProperty)) == 0)\
             {\
                 size_t uLineCount = 0;\
                 serializer >> uLineCount;\
@@ -580,6 +592,7 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
                     ptrProperty.clear();\
                     ptrProperty.resize(1);\
                     size_t uDepGuid = ptrProperty[0]->REFLECT_GUID;\
+                    (void)uDepGuid;\
                     ptrProperty.clear();\
                     for (size_t i = 0; i < uLineCount; ++i)\
                     {\
@@ -605,11 +618,15 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
 #ifdef EDITOR_MODE
 #define UPDATE_PROPERTY_PROXY(property)\
     {\
-    CComponentProxy* pProxy = GetProxyComponent();\
-    CPropertyDescriptionBase* pProperty = pProxy->GetPropertyDescription(_T(#property));\
-    CSerializer serializer;\
-    serializer << property;\
-    pProperty->Deserialize(serializer);\
+        CComponentProxy* pProxy = GetProxyComponent();\
+        if(pProxy) \
+        { \
+            CPropertyDescriptionBase* pProperty = pProxy->GetPropertyDescription(_T(#property));\
+            BEATS_ASSERT(pProperty != NULL, _T("Can not find property %s in component %s GUID:0x%x"), _T(#property), this->GetClassStr(), this->GetGuid());\
+            CSerializer serializer;\
+            serializer << property;\
+            pProperty->Deserialize(serializer);\
+        } \
     }
 #else
 #define UPDATE_PROPERTY_PROXY(property)

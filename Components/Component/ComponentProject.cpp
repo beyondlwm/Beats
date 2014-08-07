@@ -35,6 +35,7 @@ CComponentProject::~CComponentProject()
 CComponentProjectDirectory* CComponentProject::LoadProject(const TCHAR* pszProjectFile, std::map<size_t, std::vector<size_t> >& conflictIdMap)
 {
     CloseProject();
+    BEATS_ASSERT(CFilePathTool::GetInstance()->IsAbsolute(pszProjectFile), _T("Only accept absolute path!"));
     if (pszProjectFile != NULL && pszProjectFile[0] != 0)
     {
         m_strProjectFilePath = CFilePathTool::GetInstance()->ParentPath(pszProjectFile);
