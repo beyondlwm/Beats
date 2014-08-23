@@ -37,7 +37,8 @@ void CComponentInstanceManager::Import( CSerializer& serializer)
     {
         size_t uComponentTemplateCount = 0;
         serializer >> uComponentTemplateCount;
-        CComponentProjectDirectory* pRootProject = m_pProject->GetRootDirectory();
+        CComponentProjectDirectory* pRootProject = new CComponentProjectDirectory(NULL, _T("Root"));
+        m_pProject->SetRootDirectory(pRootProject);
         pRootProject->Deserialize(serializer);
 
         // 1. Load binarize data.

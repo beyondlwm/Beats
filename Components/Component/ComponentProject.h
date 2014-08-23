@@ -31,6 +31,7 @@ public:
     void UnregisterComponent(size_t componentId);
 
     CComponentProjectDirectory* GetRootDirectory() const;
+    void SetRootDirectory(CComponentProjectDirectory* pDirectory);
 
     const TString& GetProjectFilePath() const;
     const TString& GetProjectFileName() const;

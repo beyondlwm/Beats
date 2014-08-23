@@ -410,6 +410,11 @@ CComponentProjectDirectory* CComponentProject::GetRootDirectory() const
     return m_pProjectDirectory;
 }
 
+void CComponentProject::SetRootDirectory(CComponentProjectDirectory* pDirectory)
+{
+    m_pProjectDirectory = pDirectory;
+}
+
 const TString& CComponentProject::GetProjectFilePath() const
 {
     return m_strProjectFilePath;

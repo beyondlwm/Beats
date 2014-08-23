@@ -153,7 +153,6 @@ void CComponentProjectDirectory::Deserialize(CSerializer& serializer)
     {
         CComponentProjectDirectory* pDirectory = new CComponentProjectDirectory(this, _T(""));
         pDirectory->Deserialize(serializer);
-        m_pChildrenVec->push_back(pDirectory);
     }
 }
 
