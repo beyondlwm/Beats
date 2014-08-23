@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "ComponentProject.h"
-#include "ComponentProjectData.h"
+#include "ComponentProjectDirectory.h"
 #include "ComponentProxyManager.h"
 #include "Utility/StringHelper/StringHelper.h"
 #include "Utility/TinyXML/tinyxml.h"
@@ -10,7 +10,7 @@
 #include "FilePath/FilePathTool.h"
 
 CComponentProject::CComponentProject()
-: m_pProjectData(NULL)
+: m_pProjectDirectory(NULL)
 , m_pComponentFiles(new std::vector<TString>)
 , m_pComponentToTypeMap(new std::map<size_t, size_t>)
 , m_pComponentToFileMap(new std::map<size_t, size_t>)
@@ -23,7 +23,7 @@ CComponentProject::CComponentProject()
 
 CComponentProject::~CComponentProject()
 {
-    BEATS_SAFE_DELETE(m_pProjectData);
+    BEATS_SAFE_DELETE(m_pProjectDirectory);
     BEATS_SAFE_DELETE(m_pComponentFiles);
     BEATS_SAFE_DELETE(m_pComponentToTypeMap);
     BEATS_SAFE_DELETE(m_pComponentToFileMap);
@@ -51,8 +51,8 @@ CComponentProjectDirectory* CComponentProject::LoadProject(const TCHAR* pszProje
             TiXmlElement* pRootElement = document.RootElement();
             TCHAR szTName[MAX_PATH];
             CStringHelper::GetInstance()->ConvertToTCHAR(pRootElement->Value(), szTName, MAX_PATH);
-            m_pProjectData = new CComponentProjectDirectory(NULL, szTName);
-            LoadXMLProject(pRootElement, m_pProjectData, conflictIdMap);
+            m_pProjectDirectory = new CComponentProjectDirectory(NULL, szTName);
+            LoadXMLProject(pRootElement, m_pProjectDirectory, conflictIdMap);
         }
         else
         {
@@ -63,7 +63,7 @@ CComponentProjectDirectory* CComponentProject::LoadProject(const TCHAR* pszProje
             MessageBox(NULL, info, _T("Load File Failed"), MB_OK | MB_ICONERROR);
         }
     }
-    return m_pProjectData;
+    return m_pProjectDirectory;
 }
 
 bool CComponentProject::CloseProject()
@@ -71,10 +71,10 @@ bool CComponentProject::CloseProject()
     bool bRet = false;
     CComponentProxyManager::GetInstance()->CloseFile();
     CComponentProxyManager::GetInstance()->GetIdManager()->Reset();
-    if (m_pProjectData != NULL)
+    if (m_pProjectDirectory != NULL)
     {
         bRet = true;
-        BEATS_SAFE_DELETE(m_pProjectData);
+        BEATS_SAFE_DELETE(m_pProjectDirectory);
     }
     m_pComponentFiles->clear();
 
@@ -95,7 +95,7 @@ void CComponentProject::SaveProject()
     document.LinkEndChild(pDeclaration);
     TiXmlElement* pRootElement = new TiXmlElement("Root");
     document.LinkEndChild(pRootElement);
-    SaveProjectFile(pRootElement, m_pProjectData);
+    SaveProjectFile(pRootElement, m_pProjectDirectory);
     char savePathCHAR[MAX_PATH];
     TString strFullPath = m_strProjectFilePath;
     strFullPath.append(_T("/")).append(m_strProjectFileName);
@@ -107,7 +107,7 @@ void CComponentProject::SaveProjectFile( TiXmlElement* pParentNode, const CCompo
 {
     //Root doesn't need to save/load.
     TiXmlElement* pNewDirectoryElement = pParentNode;
-    if (p != m_pProjectData)
+    if (p != m_pProjectDirectory)
     {
         pNewDirectoryElement = new TiXmlElement("Directory");
         char szName[MAX_PATH];
@@ -402,7 +402,7 @@ void CComponentProject::ReloadFile(size_t uFileID)
 
 CComponentProjectDirectory* CComponentProject::GetRootDirectory() const
 {
-    return m_pProjectData;
+    return m_pProjectDirectory;
 }
 
 const TString& CComponentProject::GetProjectFilePath() const

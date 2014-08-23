@@ -210,7 +210,7 @@
     <ClInclude Include="Component\ComponentInstanceManager.h" />
     <ClInclude Include="Component\ComponentManagerBase.h" />
     <ClInclude Include="Component\ComponentProject.h" />
-    <ClInclude Include="Component\ComponentProjectData.h" />
+    <ClInclude Include="Component\ComponentProjectDirectory.h" />
     <ClInclude Include="Component\ComponentProxy.h" />
     <ClInclude Include="Component\ComponentProxyManager.h" />
     <ClInclude Include="ComponentPublic.h" />
@@ -226,7 +226,7 @@
     <ClCompile Include="Component\ComponentInstanceManager.cpp" />
     <ClCompile Include="Component\ComponentManagerBase.cpp" />
     <ClCompile Include="Component\ComponentProject.cpp" />
-    <ClCompile Include="Component\ComponentProjectData.cpp" />
+    <ClCompile Include="Component\ComponentProjectDirectory.cpp" />
     <ClCompile Include="Component\ComponentProxy.cpp" />
     <ClCompile Include="Component\ComponentProxyManager.cpp" />
     <ClCompile Include="DependencyDescription.cpp" />

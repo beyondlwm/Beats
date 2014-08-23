@@ -7,7 +7,7 @@
 #include <d3dx9.h>
 #include "../Components/Component/ComponentProxyManager.h"
 #include "../Components/Component/ComponentProject.h"
-#include "../Components/Component/ComponentProjectData.h"
+#include "../Components/Component/ComponentProjectDirectory.h"
 #include "../Components/ComponentPublic.h"
 #include "../Components/Component/ComponentProxy.h"
 #include "../Components/Component/ComponentGraphic.h"

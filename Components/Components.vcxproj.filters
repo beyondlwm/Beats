@@ -13,9 +13,6 @@
     <ClCompile Include="Component\ComponentProject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Component\ComponentProjectData.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Component\ComponentProxyManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -40,6 +37,9 @@
     <ClCompile Include="Component\ComponentInstanceManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Component\ComponentProjectDirectory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Component\ComponentBase.h">
@@ -52,9 +52,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Component\ComponentProject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Component\ComponentProjectData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Component\ComponentProxyManager.h">
@@ -91,6 +88,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ComponentLauncher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Component\ComponentProjectDirectory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

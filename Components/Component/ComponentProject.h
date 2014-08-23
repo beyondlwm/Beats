@@ -49,7 +49,7 @@ private:
     void SaveProjectFile( TiXmlElement* pParentNode, const CComponentProjectDirectory* p);
 
 private:
-    CComponentProjectDirectory* m_pProjectData;
+    CComponentProjectDirectory* m_pProjectDirectory;
     std::vector<TString>* m_pComponentFiles;
     std::map<size_t, size_t>* m_pComponentToTypeMap;
     std::map<size_t, size_t>* m_pComponentToFileMap;

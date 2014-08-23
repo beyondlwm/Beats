@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "ComponentProjectData.h"
+#include "ComponentProjectDirectory.h"
 #include "ComponentProject.h"
 #include "ComponentProxyManager.h"
 
