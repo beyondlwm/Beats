@@ -55,6 +55,7 @@ private:
     std::map<size_t, size_t>* m_pComponentToFileMap;
     std::map<size_t, std::vector<size_t> >* m_pFileToComponentMap;
     std::map<size_t, std::vector<size_t> >* m_pTypeToComponentMap;
+    // Store property replace info, size_t is the guid of component, map is the old property name and new property name.
     std::map<size_t, std::map<TString, TString> >* m_pPropertyMaintainMap;
 
     TString m_strProjectFilePath;

@@ -33,6 +33,8 @@ void CComponentInstanceManager::Import( CSerializer& serializer)
     }
     else
     {
+        size_t uComponentCount = 0;
+        serializer >> uComponentCount;
         // 1. Load binarize data.
         size_t uFileCount = 0;
         serializer >> uFileCount;

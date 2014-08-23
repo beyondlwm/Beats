@@ -4,19 +4,7 @@
 #include "../expdef.h"
 
 #include "ComponentManagerBase.h"
-
-class CComponentBase;
-class CComponentProxy;
-class CIdManager;
-class CPropertyDescriptionBase;
-class TiXmlElement;
 class CSerializer;
-class CDependencyDescription;
-class CComponentBase;
-struct SDependencyResolver;
-class CComponentProject;
-class CComponentGraphic;
-
 class COMPONENTS_DLL_DECL CComponentInstanceManager : public CComponentManagerBase
 {
     typedef CComponentManagerBase super;

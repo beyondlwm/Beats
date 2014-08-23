@@ -149,6 +149,7 @@ void CComponentProxyManager::Export(const std::vector<TString>& fileList, const 
     BEATS_ASSERT(pSavePath != NULL);
     CSerializer serializer;
     serializer << COMPONENT_SYSTEM_VERSION;
+    serializer << GetComponentTemplateMap()->size();
     serializer << fileList.size();
     TString workingFileCache = m_currentWorkingFilePath;
     if (m_currentWorkingFilePath.length() > 0)
