@@ -21,7 +21,8 @@ public:
     const std::set<size_t>& GetFileList() const;
     CComponentProjectDirectory* GetParent() const;
 
-    bool IsDirectory();
+    void Serialize(CSerializer& serializer) const;
+    void Deserialize(CSerializer& serializer);
 
 private:
     CComponentProjectDirectory* m_pParent;

@@ -35,7 +35,7 @@ public:
     const TString& GetProjectFilePath() const;
     const TString& GetProjectFileName() const;
 
-    TString GetComponentFileName(size_t id) const;
+    const TString& GetComponentFileName(size_t id) const;
     size_t GetComponentFileId(const TString& strFileName) const;
 
     size_t QueryFileId(size_t uComponentId, bool bOnlyInProjectFile);
@@ -43,6 +43,8 @@ public:
 
     void RegisterPropertyMaintainInfo(size_t uComponentGuid, const TString& strOriginPropertyName, const TString& strReplacePropertyName);
     bool GetReplacePropertyName(size_t uComponentGuid, const TString& strOriginPropertyName, TString& strResult);
+
+    const std::vector<TString>* GetFileList() const;
 
 private:
     void LoadXMLProject(TiXmlElement* pNode, CComponentProjectDirectory* pProjectDirectory, std::map<size_t, std::vector<size_t> >& conflictIdMap);

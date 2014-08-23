@@ -121,6 +121,42 @@ CComponentProjectDirectory* CComponentProjectDirectory::GetParent() const
     return m_pParent;
 }
 
+void CComponentProjectDirectory::Serialize(CSerializer& serializer) const
+{
+    serializer << m_strName;
+    serializer << m_pFilesSet->size();
+    for (std::set<size_t>::iterator iter = m_pFilesSet->begin(); iter != m_pFilesSet->end(); ++iter)
+    {
+        serializer << *iter;
+    }
+    serializer << m_pChildrenVec->size();
+    for (size_t i = 0; i < m_pChildrenVec->size(); ++i)
+    {
+        (*m_pChildrenVec)[i]->Serialize(serializer);
+    }
+}
+
+void CComponentProjectDirectory::Deserialize(CSerializer& serializer)
+{
+    serializer >> m_strName;
+    size_t uFileCount = 0;
+    serializer >> uFileCount;
+    for (size_t i = 0; i < uFileCount; ++i)
+    {
+        size_t uFileId = 0;
+        serializer >> uFileId;
+        m_pFilesSet->insert(uFileId);
+    }
+    size_t uChildrenCount = 0;
+    serializer >> uChildrenCount;
+    for (size_t i = 0; i < uChildrenCount; ++i)
+    {
+        CComponentProjectDirectory* pDirectory = new CComponentProjectDirectory(this, _T(""));
+        pDirectory->Deserialize(serializer);
+        m_pChildrenVec->push_back(pDirectory);
+    }
+}
+
 bool CComponentProjectDirectory::DeleteAll(bool bUpdateProject)
 {
     for (std::vector<CComponentProjectDirectory*>::iterator iter = m_pChildrenVec->begin(); iter != m_pChildrenVec->end(); ++iter)
@@ -140,9 +176,4 @@ bool CComponentProjectDirectory::DeleteAll(bool bUpdateProject)
         m_pFilesSet->clear();
     }
     return true;
-}
-
-bool CComponentProjectDirectory::IsDirectory()
-{
-    return m_pFilesSet != NULL && m_pChildrenVec != NULL;
 }

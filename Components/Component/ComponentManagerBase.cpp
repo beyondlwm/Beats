@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ComponentManagerBase.h"
 #include "Utility/IdManager/IdManager.h"
+#include "ComponentProject.h"
 
 void DefaultAddDependencyFunc(void* pContainer, void* pDependency)
 {
@@ -10,6 +11,7 @@ void DefaultAddDependencyFunc(void* pContainer, void* pDependency)
 CComponentManagerBase::CComponentManagerBase()
 {
     m_pIdManager = new CIdManager;
+    m_pProject = new CComponentProject;
     m_pComponentTemplateMap = new std::map<size_t, CComponentBase*>;
     m_pComponentInstanceMap = new std::map<size_t, std::map<size_t, CComponentBase*>*>;
     m_pDependencyResolver = new std::vector<SDependencyResolver*>;
@@ -24,6 +26,7 @@ CComponentManagerBase::~CComponentManagerBase()
 void CComponentManagerBase::Release()
 {
     BEATS_SAFE_DELETE(m_pIdManager);
+    BEATS_SAFE_DELETE(m_pProject);
     DeleteAllInstance();
     BEATS_SAFE_DELETE(m_pComponentInstanceMap);
     
@@ -277,6 +280,11 @@ CComponentBase* CComponentManagerBase::GetComponentInstance( size_t uId , size_t
 CIdManager* CComponentManagerBase::GetIdManager() const
 {
     return m_pIdManager;
+}
+
+CComponentProject* CComponentManagerBase::GetProject() const
+{
+    return m_pProject;
 }
 
 void CComponentManagerBase::AddDependencyResolver( CDependencyDescription* pDescription, size_t uIndex, size_t uGuid, size_t uInstanceId , void* pVariableAddress, bool bIsList, TAddDependencyFunc pFunc /*= NULL*/)

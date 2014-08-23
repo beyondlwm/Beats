@@ -5,6 +5,7 @@ class CComponentBase;
 class CIdManager;
 class CSerializer;
 class CDependencyDescription;
+class CComponentProject;
 
 typedef void (*TAddDependencyFunc)(void* pContainer, void* pDependency);
 void DefaultAddDependencyFunc(void* pContainer, void* pDependency);
@@ -71,12 +72,14 @@ public:
     CComponentBase* GetComponentInstance(size_t uId, size_t uGuid = 0xFFFFFFFF);
 
     CIdManager* GetIdManager() const;
+    CComponentProject* GetProject() const;
 
     void AddDependencyResolver( CDependencyDescription* pDescription, size_t uIndex, size_t uGuid, size_t uInstanceId, void* pVariableAddress, bool bIsList, TAddDependencyFunc pFunc = NULL);
     virtual void ResolveDependency() = 0;
 
 protected:
     CIdManager* m_pIdManager;
+    CComponentProject* m_pProject;
     std::map<size_t, CComponentBase*>* m_pComponentTemplateMap;
     std::map<size_t, std::map<size_t, CComponentBase*>*>* m_pComponentInstanceMap;
     std::vector<SDependencyResolver*>* m_pDependencyResolver;

@@ -1040,20 +1040,12 @@ void CBDTWxFrame::OnExportButtonClick(wxCommandEvent& /*event*/)
     CUtilityManager::GetInstance()->AcquireSingleFilePath(false, NULL, szBinaryPath, _T("选择要导出的文件"), BINARIZE_FILE_EXTENSION_FILTER, NULL);
     if (szBinaryPath.length() > 0)
     {
-        std::vector<TString> filesToExport;
-        for (std::map<TString, wxTreeItemId>::iterator iter = m_componentFileListMap.begin(); iter != m_componentFileListMap.end(); ++iter)
-        {
-            CComponentFileTreeItemData* pData = (CComponentFileTreeItemData*)m_pComponentFileTreeControl->GetItemData(iter->second);
-            BEATS_ASSERT(pData != NULL && !pData->IsDirectory());
-            TString filePath(pData->GetFileName());
-            filesToExport.push_back(filePath);
-        }
         TString pExtensionStr = CFilePathTool::GetInstance()->Extension(szBinaryPath.c_str()).c_str();
         if (_tcsicmp(pExtensionStr.c_str(), BINARIZE_FILE_EXTENSION) != 0)
         {
             szBinaryPath.append(BINARIZE_FILE_EXTENSION);
         }
-        CComponentProxyManager::GetInstance()->Export(filesToExport, szBinaryPath.c_str());
+        CComponentProxyManager::GetInstance()->Export(szBinaryPath.c_str());
         //Export function will cause these operation: open->export->close->change file->open->...->restore open the origin file.
         //So we will update the dependency line as if we have just open a new file.
         m_pComponentRenderWindow->UpdateAllDependencyLine();

@@ -6,6 +6,8 @@
 #include "Utility/StringHelper/StringHelper.h"
 #include "Utility/UtilityManager.h"
 #include "Utility/IdManager/IdManager.h"
+#include "ComponentProjectDirectory.h"
+#include "ComponentProject.h"
 
 CComponentInstanceManager* CComponentInstanceManager::m_pInstance = NULL;
 
@@ -33,8 +35,11 @@ void CComponentInstanceManager::Import( CSerializer& serializer)
     }
     else
     {
-        size_t uComponentCount = 0;
-        serializer >> uComponentCount;
+        size_t uComponentTemplateCount = 0;
+        serializer >> uComponentTemplateCount;
+        CComponentProjectDirectory* pRootProject = m_pProject->GetRootDirectory();
+        pRootProject->Deserialize(serializer);
+
         // 1. Load binarize data.
         size_t uFileCount = 0;
         serializer >> uFileCount;

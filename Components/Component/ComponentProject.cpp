@@ -245,6 +245,11 @@ bool CComponentProject::GetReplacePropertyName(size_t uComponentGuid, const TStr
     return bRet;
 }
 
+const std::vector<TString>* CComponentProject::GetFileList() const
+{
+    return m_pComponentFiles;
+}
+
 size_t CComponentProject::RegisterFile(const TString& strFileName, std::map<size_t, std::vector<size_t> >& failedId, size_t uSpecifyFileId/* = 0xFFFFFFFF*/)
 {
     size_t uFileID = 0xFFFFFFFF;
@@ -415,15 +420,10 @@ const TString& CComponentProject::GetProjectFileName() const
     return m_strProjectFileName;
 }
 
-TString CComponentProject::GetComponentFileName(size_t id) const
+const TString& CComponentProject::GetComponentFileName(size_t id) const
 {
-    TString strRet;
     BEATS_ASSERT(id < m_pComponentFiles->size(), _T("Invalid id %d in CComponentProject::GetComponentFileName"), id);
-    if (id < m_pComponentFiles->size())
-    {
-        strRet = (*m_pComponentFiles)[id];
-    }
-    return strRet;
+    return (*m_pComponentFiles)[id];
 }
 
 size_t CComponentProject::GetComponentFileId(const TString& strFileName) const

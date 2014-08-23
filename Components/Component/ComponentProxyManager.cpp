@@ -15,6 +15,7 @@
 #include "ComponentInstance.h"
 #include "FilePath/FilePathTool.h"
 #include <algorithm>
+#include "ComponentProjectDirectory.h"
 
 CComponentProxyManager* CComponentProxyManager::m_pInstance = NULL;
 
@@ -24,7 +25,6 @@ CComponentProxyManager::CComponentProxyManager()
     , m_pCurrReflectPropertyDescription(NULL)
     , m_pCurrReflectDependency(NULL)
 {
-    m_pProject = new CComponentProject;
     m_pPropertyCreatorMap = new std::map<size_t, TCreatePropertyFunc>();
     m_pComponentInheritMap = new std::map<size_t, std::vector<size_t> >();
 }
@@ -37,7 +37,6 @@ CComponentProxyManager::~CComponentProxyManager()
     BEATS_SAFE_DELETE(m_pComponentTemplateMap);
     BEATS_SAFE_DELETE(m_pDependencyResolver);
     BEATS_SAFE_DELETE(m_pUninitializedComponents);
-    BEATS_SAFE_DELETE(m_pProject);
     BEATS_SAFE_DELETE(m_pPropertyCreatorMap);
     BEATS_SAFE_DELETE(m_pComponentInheritMap);
 }
@@ -144,21 +143,25 @@ const TString& CComponentProxyManager::GetCurrentWorkingFilePath() const
     return m_currentWorkingFilePath;
 }
 
-void CComponentProxyManager::Export(const std::vector<TString>& fileList, const TCHAR* pSavePath)
+void CComponentProxyManager::Export(const TCHAR* pSavePath)
 {
     BEATS_ASSERT(pSavePath != NULL);
     CSerializer serializer;
     serializer << COMPONENT_SYSTEM_VERSION;
     serializer << GetComponentTemplateMap()->size();
-    serializer << fileList.size();
+    CComponentProjectDirectory* pRootProject = m_pProject->GetRootDirectory();
+    pRootProject->Serialize(serializer);
     TString workingFileCache = m_currentWorkingFilePath;
     if (m_currentWorkingFilePath.length() > 0)
     {
         CloseFile();
     }
-    for (size_t i = 0; i < fileList.size(); ++i)
+    size_t uFileCount = m_pProject->GetFileList()->size();
+    serializer << uFileCount;
+    for (size_t i = 0; i < uFileCount; ++i)
     {
-        OpenFile(fileList[i].c_str());
+        const TString& strFileName = m_pProject->GetFileList()->at(i);
+        OpenFile(strFileName.c_str());
         size_t uComponentCount = 0;
         size_t uWritePos = serializer.GetWritePos();
         serializer << uComponentCount;
@@ -176,7 +179,7 @@ void CComponentProxyManager::Export(const std::vector<TString>& fileList, const 
         serializer << uComponentCount;
         serializer.SetWritePos(uCurWritePos);
         // We just open the file to do export operation, it's not possible to change the file, so we don't refresh the project data to save time.
-        SaveToFile(fileList[i].c_str());
+        SaveToFile(strFileName.c_str());
         CloseFile(false);
     }
     serializer.Deserialize(pSavePath);
@@ -238,11 +241,6 @@ TString CComponentProxyManager::QueryComponentName(size_t uGuid) const
         }
     }
     return strRet;
-}
-
-CComponentProject* CComponentProxyManager::GetProject() const
-{
-    return m_pProject;
 }
 
 void CComponentProxyManager::SaveTemplate(const TCHAR* pszFilePath)
