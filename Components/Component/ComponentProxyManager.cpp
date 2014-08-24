@@ -161,6 +161,7 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
     for (size_t i = 0; i < uFileCount; ++i)
     {
         const TString& strFileName = m_pProject->GetFileList()->at(i);
+        BEATS_ASSERT(m_pProject->GetComponentFileId(strFileName) == i);
         OpenFile(strFileName.c_str());
         size_t uComponentCount = 0;
         size_t uWritePos = serializer.GetWritePos();

@@ -3,9 +3,25 @@
 
 #include "../expdef.h"
 
-
 class TiXmlElement;
 class CComponentProjectDirectory;
+struct SFileDataLayout
+{
+    SFileDataLayout()
+        : m_uStartPos(0)
+        , m_uDataSize(0)
+    {
+
+    }
+    SFileDataLayout(size_t uStartPos, size_t uDataSize)
+        : m_uStartPos(uStartPos)
+        , m_uDataSize(uDataSize)
+    {
+
+    }
+    size_t m_uStartPos;
+    size_t m_uDataSize;
+};
 
 class COMPONENTS_DLL_DECL CComponentProject
 {
@@ -47,6 +63,12 @@ public:
 
     const std::vector<TString>* GetFileList() const;
 
+    void RegisterFileLayoutInfo(size_t uFileId, size_t uStartPos, size_t uDataLength);
+
+    const TString& GetLaunchStartLogicPath() const;
+    void SetLaunchStartLogicPath(const TString& strPath);
+    CComponentProjectDirectory* FindProjectDirectory(const TString& strLogicPath) const;
+
 private:
     void LoadXMLProject(TiXmlElement* pNode, CComponentProjectDirectory* pProjectDirectory, std::map<size_t, std::vector<size_t> >& conflictIdMap);
     void SaveProjectFile( TiXmlElement* pParentNode, const CComponentProjectDirectory* p);
@@ -60,9 +82,12 @@ private:
     std::map<size_t, std::vector<size_t> >* m_pTypeToComponentMap;
     // Store property replace info, size_t is the guid of component, map is the old property name and new property name.
     std::map<size_t, std::map<TString, TString> >* m_pPropertyMaintainMap;
+    // This member only available in game mode, to save the info about file data layout in the export file.
+    std::map<size_t, SFileDataLayout>* m_pFileDataLayout;
 
     TString m_strProjectFilePath;
     TString m_strProjectFileName;
+    TString m_strLaunchStartLogicPath;
 };
 
 #endif

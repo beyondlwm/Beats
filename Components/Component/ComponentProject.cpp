@@ -17,6 +17,7 @@ CComponentProject::CComponentProject()
 , m_pFileToComponentMap(new std::map<size_t, std::vector<size_t> >)
 , m_pTypeToComponentMap(new std::map<size_t, std::vector<size_t> >)
 , m_pPropertyMaintainMap(new std::map<size_t, std::map<TString, TString> >)
+, m_pFileDataLayout(new std::map<size_t, SFileDataLayout>)
 {
 
 }
@@ -30,6 +31,7 @@ CComponentProject::~CComponentProject()
     BEATS_SAFE_DELETE(m_pFileToComponentMap);
     BEATS_SAFE_DELETE(m_pTypeToComponentMap);
     BEATS_SAFE_DELETE(m_pPropertyMaintainMap);
+    BEATS_SAFE_DELETE(m_pFileDataLayout);
 }
 
 CComponentProjectDirectory* CComponentProject::LoadProject(const TCHAR* pszProjectFile, std::map<size_t, std::vector<size_t> >& conflictIdMap)
@@ -248,6 +250,35 @@ bool CComponentProject::GetReplacePropertyName(size_t uComponentGuid, const TStr
 const std::vector<TString>* CComponentProject::GetFileList() const
 {
     return m_pComponentFiles;
+}
+
+void CComponentProject::RegisterFileLayoutInfo(size_t uFileId, size_t uStartPos, size_t uDataLength)
+{
+    BEATS_ASSERT(m_pFileDataLayout->find(uFileId) == m_pFileDataLayout->end(), _T("File layout info already exists! id %d"), uFileId);
+    (*m_pFileDataLayout)[uFileId] = SFileDataLayout(uStartPos, uDataLength);
+}
+
+const TString& CComponentProject::GetLaunchStartLogicPath() const
+{
+    return m_strLaunchStartLogicPath;
+}
+
+void CComponentProject::SetLaunchStartLogicPath(const TString& strPath)
+{
+    m_strLaunchStartLogicPath = strPath;
+}
+
+CComponentProjectDirectory* CComponentProject::FindProjectDirectory(const TString& strLogicPath) const
+{
+    std::vector<TString> vecDirectories;
+    CStringHelper::GetInstance()->SplitString(strLogicPath.c_str(), _T("/"), vecDirectories);
+    CComponentProjectDirectory* pCurDirectory = m_pProjectDirectory;
+    for (size_t i = 0; i < vecDirectories.size(); ++i)
+    {
+        pCurDirectory = pCurDirectory->FindChild(vecDirectories[i].c_str());
+        BEATS_ASSERT(pCurDirectory != NULL);
+    }
+    return pCurDirectory;
 }
 
 size_t CComponentProject::RegisterFile(const TString& strFileName, std::map<size_t, std::vector<size_t> >& failedId, size_t uSpecifyFileId/* = 0xFFFFFFFF*/)

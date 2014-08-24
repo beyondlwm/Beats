@@ -20,9 +20,12 @@ public:
     const std::vector<CComponentProjectDirectory*>& GetChildren() const;
     const std::set<size_t>& GetFileList() const;
     CComponentProjectDirectory* GetParent() const;
+    CComponentProjectDirectory* FindChild(const TCHAR* pszChildName) const;
 
     void Serialize(CSerializer& serializer) const;
     void Deserialize(CSerializer& serializer);
+
+    TString GenerateLogicPath() const;
 
 private:
     CComponentProjectDirectory* m_pParent;

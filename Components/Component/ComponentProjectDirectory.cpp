@@ -121,6 +121,20 @@ CComponentProjectDirectory* CComponentProjectDirectory::GetParent() const
     return m_pParent;
 }
 
+CComponentProjectDirectory* CComponentProjectDirectory::FindChild(const TCHAR* pszChildName) const
+{
+    CComponentProjectDirectory* pRet = NULL;
+    for (size_t i = 0; i < m_pChildrenVec->size(); ++i)
+    {
+        if (m_pChildrenVec->at(i)->GetName().compare(pszChildName) == 0)
+        {
+            pRet = m_pChildrenVec->at(i);
+            break;
+        }
+    }
+    return pRet;
+}
+
 void CComponentProjectDirectory::Serialize(CSerializer& serializer) const
 {
     serializer << m_strName;
@@ -154,6 +168,24 @@ void CComponentProjectDirectory::Deserialize(CSerializer& serializer)
         CComponentProjectDirectory* pDirectory = new CComponentProjectDirectory(this, _T(""));
         pDirectory->Deserialize(serializer);
     }
+}
+
+TString CComponentProjectDirectory::GenerateLogicPath() const
+{
+    std::vector<TString> vecPath;
+    const CComponentProjectDirectory* pCurDirectory = this;
+    while (pCurDirectory != NULL)
+    {
+        vecPath.push_back(pCurDirectory->GetName());
+        pCurDirectory = pCurDirectory->GetParent();
+    }
+    TString strRet;
+    while (vecPath.size() > 0)
+    {
+        strRet.append(vecPath.back()).append(_T("/"));
+        vecPath.pop_back();
+    }
+    return strRet;
 }
 
 bool CComponentProjectDirectory::DeleteAll(bool bUpdateProject)
