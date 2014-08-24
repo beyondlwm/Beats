@@ -97,12 +97,17 @@ void CComponentProject::SaveProject()
     document.LinkEndChild(pDeclaration);
     TiXmlElement* pRootElement = new TiXmlElement("Root");
     document.LinkEndChild(pRootElement);
+    TiXmlElement* pStartDirectoryNode = new TiXmlElement("StartDirectory");
+    char szBuffer[10240];
+    CStringHelper::GetInstance()->ConvertToCHAR(m_strLaunchStartLogicPath.c_str(), szBuffer, MAX_PATH);
+    pStartDirectoryNode->SetAttribute("Path", szBuffer);
+    pRootElement->LinkEndChild(pStartDirectoryNode);
+
     SaveProjectFile(pRootElement, m_pProjectDirectory);
-    char savePathCHAR[MAX_PATH];
     TString strFullPath = m_strProjectFilePath;
     strFullPath.append(_T("/")).append(m_strProjectFileName);
-    CStringHelper::GetInstance()->ConvertToCHAR(strFullPath.c_str(), savePathCHAR, MAX_PATH);
-    document.SaveFile(savePathCHAR);
+    CStringHelper::GetInstance()->ConvertToCHAR(strFullPath.c_str(), szBuffer, MAX_PATH);
+    document.SaveFile(szBuffer);
 }
 
 void CComponentProject::SaveProjectFile( TiXmlElement* pParentNode, const CComponentProjectDirectory* p)
@@ -531,6 +536,13 @@ void CComponentProject::LoadXMLProject(TiXmlElement* pNode, CComponentProjectDir
             CStringHelper::GetInstance()->ConvertToTCHAR(pPath, szTPath, MAX_PATH);
             TString strFilePath = CFilePathTool::GetInstance()->MakeAbsolute(m_strProjectFilePath.c_str(), szTPath);
             pProjectDirectory->AddFile(strFilePath.c_str(), conflictIdMap);
+        }
+        else if (strcmp(pText, "StartDirectory") == 0)
+        {
+            const char* pPath = pElement->Attribute("Path");
+            TCHAR szTPath[MAX_PATH];
+            CStringHelper::GetInstance()->ConvertToTCHAR(pPath, szTPath, MAX_PATH);
+            m_strLaunchStartLogicPath = szTPath;
         }
         else
         {
