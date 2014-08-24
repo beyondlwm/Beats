@@ -104,16 +104,13 @@ public:
     bool AcquireMuiltyFilePath(bool bAllowDirectory, HWND hwnd, std::vector<TString>& result, const TCHAR* Tiltle, const TCHAR* filter, const TCHAR* pszInitialPath);
     bool AcquireDirectory(HWND hwnd, TString& strDirectoryPath, const TCHAR* pszTitle);
     // File Directory
-    bool FillDirectory(SDirectory& fileList, bool bFillSubDirectory = true, CFileFilter* pFileFilter = NULL);
+    bool FillDirectory(SDirectory& fileList, bool bFillSubDirectory = true, CFileFilter* pFileFilter = NULL, unsigned long long* pFileSize = NULL);
     unsigned long long BuildDirectoryToList(SDirectory* pDirectory, std::vector<TFileData*>& listToAppend);
     void SerializeDirectory(SDirectory* pDirectory, CSerializer& serializer);
     void DeserializeDirectory(SDirectory* pDirectory, CSerializer& serializer, long long* pTotalDataSize = NULL, size_t* pFileCount = NULL);
 
     // MD5
     bool CalcMD5(CMD5& md5, SDirectory& fileList);
-
-    //Thread
-    void SetThreadName(DWORD dwThreadId, const char* pszThreadName);
 
 #endif
     bool WriteDataToFile(FILE* pFile, void* pData, size_t uDataLength, size_t uRetryCount = 20);

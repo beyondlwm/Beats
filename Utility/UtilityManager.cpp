@@ -163,7 +163,12 @@ bool CUtilityManager::AcquireMuiltyFilePath(bool bAllowDirectory, HWND hwnd, std
                 for (size_t i = 1; i < files.size(); ++i)
                 {
                     TString& strFileFullPath = result[i - 1];
-                    strFileFullPath.append(files[0]).append(_T("/")).append(files[i]);
+                    strFileFullPath.append(files[0]);
+                    if (files[0].back() != _T('/') && files[0].back() != _T('\\'))
+                    {
+                        strFileFullPath.append(_T("/"));
+                    }
+                    strFileFullPath.append(files[i]);
                 }
             }
         }
@@ -215,32 +220,7 @@ bool CUtilityManager::CalcMD5( CMD5& md5, SDirectory& fileList )
     return bRet;
 }
 
-void CUtilityManager::SetThreadName( DWORD dwThreadId, const char* pszThreadName )
-{
-#ifdef _DEBUG
-    static const size_t MS_VC_EXCEPTION = 0x406d1388;
-    struct
-    {
-        DWORD dwType;        // must be 0x1000
-        LPCSTR szName;       // pointer to name (in same addr space)
-        DWORD dwThreadID;    // thread ID (-1 caller thread)
-        DWORD dwFlags;       // reserved for future use, most be zero
-    } info;
-    info.dwType = 0x1000;
-    info.szName = pszThreadName;
-    info.dwThreadID = dwThreadId;
-    info.dwFlags = 0;
-    __try
-    {
-        RaiseException(MS_VC_EXCEPTION, 0, sizeof(info) / sizeof(DWORD), (DWORD *)&info);
-    }
-    _except (EXCEPTION_CONTINUE_EXECUTION)
-    {
-    }
-#endif
-}
-
-bool CUtilityManager::FillDirectory(SDirectory& fileList, bool bFillSubDirectory/* = true*/, CFileFilter* pFileFilter/* = NULL*/)
+bool CUtilityManager::FillDirectory(SDirectory& fileList, bool bFillSubDirectory/* = true*/, CFileFilter* pFileFilter/* = NULL*/, unsigned long long* pFileSize/* = NULL*/)
 {
     std::string tmp;
     TString& directoryPath = fileList.m_szPath;
@@ -275,7 +255,7 @@ bool CUtilityManager::FillDirectory(SDirectory& fileList, bool bFillSubDirectory
 
                     if (bFillSubDirectory)
                     {
-                        FillDirectory(*pSubDir, true, pFileFilter);
+                        FillDirectory(*pSubDir, true, pFileFilter, pFileSize);
                     }
                 }
             }
@@ -285,9 +265,13 @@ bool CUtilityManager::FillDirectory(SDirectory& fileList, bool bFillSubDirectory
                 memcpy(pFindData, &FindFileData, sizeof(TFileData));
                 pFindData->dwReserved1 = (DWORD)(&fileList);
                 fileList.m_pFileList->push_back(pFindData);
-
-                long long uFileSize = FindFileData.nFileSizeHigh;
-                uFileSize = uFileSize << 32;
+                if (pFileSize != NULL)
+                {
+                    unsigned long long uFileSize = pFindData->nFileSizeHigh;
+                    uFileSize = uFileSize << 32;
+                    uFileSize += pFindData->nFileSizeLow;
+                    *pFileSize += uFileSize;
+                }
             }
         }
         bFindFile = FindNextFile(hFind, &FindFileData);

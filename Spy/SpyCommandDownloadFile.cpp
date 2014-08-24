@@ -37,6 +37,7 @@ bool CSpyCommandDownloadFile::ExecuteImpl( SharePtr<SSocketContext>& pSocketCont
     case eDMS_ClientRequest:
         {
             std::map<TString, SDirectory*> lookUpMap;
+            unsigned long long uAllFilesSize = 0;
             for (size_t i = 0; i < m_downloadFiles.size(); ++i)
             {
                 WIN32_FILE_ATTRIBUTE_DATA fileData;
@@ -72,6 +73,11 @@ bool CSpyCommandDownloadFile::ExecuteImpl( SharePtr<SSocketContext>& pSocketCont
                         pFindFileData->dwReserved0 = 0;
                         pFindFileData->dwReserved1 = (DWORD)pFileList;
                         pFileList->m_pFileList->push_back(pFindFileData);
+
+                        unsigned long long uFileSize = fileData.nFileSizeHigh;
+                        uFileSize = uFileSize << 32;
+                        uFileSize += fileData.nFileSizeLow;
+                        uAllFilesSize += uFileSize;
                     }
                     else
                     {
@@ -87,6 +93,7 @@ bool CSpyCommandDownloadFile::ExecuteImpl( SharePtr<SSocketContext>& pSocketCont
                             pFileList->m_data.ftLastAccessTime = fileData.ftLastAccessTime;
                             pFileList->m_data.ftLastWriteTime = fileData.ftLastWriteTime;
                             pFileList->m_data.dwFileAttributes = fileData.dwFileAttributes;
+                            //NOTICE: I don't know the meaning of dirctory's size. it's not right!
                             pFileList->m_data.nFileSizeHigh = fileData.nFileSizeHigh;
                             pFileList->m_data.nFileSizeLow = fileData.nFileSizeLow;
                             _tcscpy(pFileList->m_data.cFileName, strFileName.c_str());
@@ -98,7 +105,7 @@ bool CSpyCommandDownloadFile::ExecuteImpl( SharePtr<SSocketContext>& pSocketCont
                         {
                             pFileList = iter->second;
                         }
-                        CUtilityManager::GetInstance()->FillDirectory(*pFileList, true, m_pFileFilter);
+                        CUtilityManager::GetInstance()->FillDirectory(*pFileList, true, m_pFileFilter, &uAllFilesSize);
                         if (m_bHasFilterData)
                         {
                             BEATS_SAFE_DELETE(m_pFileFilter);
@@ -122,9 +129,9 @@ bool CSpyCommandDownloadFile::ExecuteImpl( SharePtr<SSocketContext>& pSocketCont
                 pDownloadFiles->push_back(iter->second);
             }
             CServerDownloadMissionContext* pDownloadMissionContext = new CServerDownloadMissionContext(pSocketContext, pDownloadFiles, this->m_bUploadMode, eDR_PieceFirst, m_storePath);
+            pDownloadMissionContext->SetTotalSize(uAllFilesSize);
             size_t uDownloadMissionThreadId;
             _beginthreadex(NULL, 0, (unsigned(_stdcall*)(void*))SvrDownloadMissionThreadFunc, pDownloadMissionContext, 0, &uDownloadMissionThreadId);
-            CUtilityManager::GetInstance()->SetThreadName(uDownloadMissionThreadId, "SvrDownMissionThread");
         }
         break;
     case eDMS_ServerFeedBack:
@@ -133,7 +140,6 @@ bool CSpyCommandDownloadFile::ExecuteImpl( SharePtr<SSocketContext>& pSocketCont
             m_pClientDownloadMissionContext->m_bUploadMode = this->m_bUploadMode;
             size_t uClientDownloadMissionThreadId;
             _beginthreadex(NULL, 0, (unsigned(_stdcall*)(void*))ClientDownloadMissionThreadFunc, m_pClientDownloadMissionContext, 0, &uClientDownloadMissionThreadId);
-            CUtilityManager::GetInstance()->SetThreadName(uClientDownloadMissionThreadId, "CliDownMissionThread");
         }
         break;
     case eDMS_ServerFinished:
@@ -332,7 +338,6 @@ DWORD CSpyCommandDownloadFile::SvrDownloadMissionThreadFunc( LPVOID param )
                 {
                     size_t uSvrDownloadWorkThreadId;
                     threadHandle[uThreadCount++] = (HANDLE)_beginthreadex(NULL, 0, (unsigned(_stdcall*)(void*))SvrDownloadWorkThreadFunc, pSvrDownloadMissionContext, 0, &uSvrDownloadWorkThreadId);
-                    CUtilityManager::GetInstance()->SetThreadName(uSvrDownloadWorkThreadId, "SvrDownWorkThread");
                     --iReadCount;
                 }
                 if (++uSelectCount >= WORK_THREAD_COUNT)
@@ -376,6 +381,10 @@ DWORD CSpyCommandDownloadFile::SvrDownloadWorkThreadFunc(LPVOID param)
             {
                 const SDirectory* pDirectory = (SDirectory*)(info.m_pData->dwReserved1);
                 TString szFilePath = pDirectory->m_szPath;
+                if (szFilePath.back() != _T('\\') && szFilePath.back() != _T('/'))
+                {
+                    szFilePath.append(_T("/"));
+                }
                 szFilePath.append(info.m_pData->cFileName);
                 HANDLE hFileHandle = ::CreateFile(szFilePath.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, NULL);
                 BEATS_WARNING(hFileHandle != INVALID_HANDLE_VALUE, _T("Create File %s failed!"), szFilePath.c_str());
@@ -441,6 +450,7 @@ DWORD CSpyCommandDownloadFile::SvrDownloadWorkThreadFunc(LPVOID param)
 #ifdef _DEBUG
                 if (pSvrDownloadMissionContext->IsUploadMode())
                 {
+                    BEATS_ASSERT(pSvrDownloadMissionContext->GetTotalSize() != 0);
                     BEATS_PRINT(_T("Task finished File Id %d: %s file size: %lld threadId %d Progress:%f\n"), info.m_uFileIndex, info.m_pData->cFileName, 
                         uFileSizeForNow, GetCurrentThreadId(), (float)newUploadSize / pSvrDownloadMissionContext->GetTotalSize());
                 }
@@ -517,7 +527,6 @@ DWORD CSpyCommandDownloadFile::ClientDownloadMissionThreadFunc(LPVOID param)
     {
         size_t uClientDownloadWorkThreadId;
         threadHandle[i] = (HANDLE)_beginthreadex(NULL, 0, (unsigned(_stdcall*)(void*))ClientDownloadWorkThreadFunc, pDownloadMissionContext, 0, &uClientDownloadWorkThreadId);
-        CUtilityManager::GetInstance()->SetThreadName(uClientDownloadWorkThreadId, "CliDownWorkThread");
     }
     WaitForMultipleObjectsEx((DWORD)WORK_THREAD_COUNT, threadHandle, TRUE, INFINITE, FALSE);
     BEATS_SAFE_DELETE(pDownloadMissionContext);

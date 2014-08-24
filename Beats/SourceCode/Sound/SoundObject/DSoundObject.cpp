@@ -25,7 +25,6 @@ CDSoundObject::CDSoundObject(ESoundType type)
     BOOL result = InitializeCriticalSectionAndSpinCount(&m_CSLoadData, 4000);
     BEATS_ASSERT(result != 0, _T("Failed to initialize critical section!"));
     m_hCheckPlayEndThread = (HANDLE)(_beginthreadex(NULL, 0, (unsigned (__stdcall*)(void*))CheckPlayEndProc, (void*)this, CREATE_SUSPENDED, (unsigned*)(&m_checkPlayEndThreadID)));
-    CUtilityManager::GetInstance()->SetThreadName(m_checkPlayEndThreadID, "CheckPlayEnd");
     for (size_t i = 0; i < THREAD_COUNT; ++i)
     {
         m_destructEvent[i] = CreateEvent(NULL, FALSE, FALSE, NULL);
@@ -91,7 +90,6 @@ bool CDSoundObject::CreateNotifyThread()
     }
 
     m_hNotifyThread = (HANDLE)(_beginthreadex(NULL, 0, (unsigned (__stdcall*)(void*))NotifyHandleProc, (void*)this, 0, (unsigned int*)(&m_uiNotifyThreadID)));
-    CUtilityManager::GetInstance()->SetThreadName(m_uiNotifyThreadID, "SoundNotifyThread");
     BEATS_ASSERT(m_hNotifyThread != NULL, _T("Create Notify thread failed!"));
     HRESULT hr = m_pDSBuffer->QueryInterface(IID_IDirectSoundNotify8, (void**)&m_pDSNotify);
     if(hr == DS_OK)
@@ -366,26 +364,17 @@ void CDSoundObject::PrintPlayingProgress()
     DWORD playPos;
     m_pDSBuffer->GetCurrentPosition(&playPos,NULL);
     int rate = (long)((float)playPos / m_bufferSize * 100);
-    int eofRate = -1;
-    if (m_EOFPosInBuffer != INVALID_EOF_POS)
-    {
-        eofRate = (int)((float)m_EOFPosInBuffer * 100 / m_bufferSize );
-    }
-    for (int i = 0; i < 100; ++i)
-    {
-        bool isItEof = eofRate != -1 && i == eofRate;
-        bool isPlayed = i < rate;        
-    }
-    BEATS_PRINT(_T("\n"));
+    BEATS_PRINT(_T("Playing Progress: %d\n"), rate);
 }
 
 void CDSoundObject::PrintLoadingData(unsigned int startByte)
 {
     long rate = (long)((float)startByte * 100 / m_bufferSize);
     long pieceRate = (long)((float)100 / BUFFER_PIECE_COUNT) + rate;
+    bool isLoadingData = false;
     for (int i = 0; i < 100; ++i)
     {
-        bool isLoadingData = i >= rate && i <= pieceRate;
+        isLoadingData = i >= rate && i <= pieceRate;
     }
-    BEATS_PRINT(_T("\n"));
+    BEATS_PRINT(_T("Is Loading data %s\n"), isLoadingData ? _T("true") : _T("false"));
 }

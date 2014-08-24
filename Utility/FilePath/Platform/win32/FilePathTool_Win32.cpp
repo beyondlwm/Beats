@@ -6,7 +6,6 @@
 bool CFilePathTool::Exists(const TCHAR* pszPath)
 {
     BEATS_ASSERT(pszPath != NULL && _tcslen(pszPath) > 0);
-    BEATS_ASSERT(!IsDirectory(pszPath));
     return PathFileExists(pszPath) != FALSE;
 }
 

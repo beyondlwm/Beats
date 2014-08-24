@@ -60,7 +60,8 @@ public:
     CRITICAL_SECTION& GetContextCriticalSection();
     const long long& GetUploadSize() const;
     void SetUploadSize(const long long& uSize);
-    const long long& GetTotalSize() const;
+    const unsigned long long& GetTotalSize() const;
+    void SetTotalSize(const unsigned long long& uFileSize);
 
 private:
     bool GetTaskFromDownloading(SDownloadingTaskInfo& taskInfo);
@@ -77,7 +78,7 @@ private:
     SOCKET m_listenSocket;
     size_t m_uCurDownloadFileIndex;
     SharePtr<SSocketContext> m_pSocketContext;
-    long long m_uTotalFileSize;
+    unsigned long long m_uTotalFileSize;
     long long m_uUploadedSize;
     TString m_strStorePath;
     std::vector<WIN32_FIND_DATA*> m_downloadTaskList;

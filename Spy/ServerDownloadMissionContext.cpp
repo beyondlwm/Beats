@@ -190,7 +190,12 @@ void CServerDownloadMissionContext::SetUploadSize(const long long& uSize)
     m_uUploadedSize = uSize;
 }
 
-const long long& CServerDownloadMissionContext::GetTotalSize() const
+const unsigned long long& CServerDownloadMissionContext::GetTotalSize() const
 {
     return m_uTotalFileSize;
+}
+
+void CServerDownloadMissionContext::SetTotalSize(const unsigned long long& uFileSize)
+{
+    m_uTotalFileSize = uFileSize;
 }

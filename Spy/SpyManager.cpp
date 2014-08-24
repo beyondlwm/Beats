@@ -166,11 +166,8 @@ bool CSpyManager::InitializeNetwork()
                     m_iMaxFD = m_listenSocket;
                     size_t uLoopThreadId, uRecvThreadId, uSendThreadId;
                     m_hLoopThread = (HANDLE)(_beginthreadex(NULL, 0, (unsigned (__stdcall*)(void*))LoopThreadFunc, (void*)this, 0, &uLoopThreadId));
-                    CUtilityManager::GetInstance()->SetThreadName(uLoopThreadId, "NetLoop");
                     m_hRecvThread = (HANDLE)(_beginthreadex(NULL, 0, (unsigned (__stdcall*)(void*))NetworkReceiveThreadFunc, (void*)this, 0, &uRecvThreadId));
-                    CUtilityManager::GetInstance()->SetThreadName(uRecvThreadId, "NetRecv");
                     m_hSendThread = (HANDLE)(_beginthreadex(NULL, 0, (unsigned (__stdcall*)(void*))NetworkSendThreadFunc, (void*)this, 0, &uSendThreadId));
-                    CUtilityManager::GetInstance()->SetThreadName(uSendThreadId, "NetSend");
 
                     bRet = true;
                 }
