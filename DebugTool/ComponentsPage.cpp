@@ -1170,8 +1170,8 @@ void CBDTWxFrame::InitializeComponentTree(CComponentProjectDirectory* pProjectDa
         InitializeComponentTree(*iter, newDirectoryId);
     }
 
-    const std::set<size_t>& files = pProjectData->GetFileList();
-    for (std::set<size_t>::const_iterator iter = files.begin(); iter != files.end(); ++iter)
+    const std::vector<size_t>& files = pProjectData->GetFileList();
+    for (std::vector<size_t>::const_iterator iter = files.begin(); iter != files.end(); ++iter)
     {
         TString strComopnentFileName = CComponentProxyManager::GetInstance()->GetProject()->GetComponentFileName(*iter);
         CComponentFileTreeItemData* pData = new CComponentFileTreeItemData(NULL, strComopnentFileName);

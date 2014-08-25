@@ -40,12 +40,20 @@ void CComponentInstanceManager::Import( CSerializer& serializer)
         CComponentProjectDirectory* pRootProject = new CComponentProjectDirectory(NULL, _T("Root"));
         m_pProject->SetRootDirectory(pRootProject);
         pRootProject->Deserialize(serializer);
-
+        TString strStartupDirectory;
+        serializer >> strStartupDirectory;
+        m_pProject->SetLaunchStartLogicPath(strStartupDirectory);
         // 1. Load binarize data.
         size_t uFileCount = 0;
         serializer >> uFileCount;
         for (size_t j = 0; j < uFileCount; ++j)
         {
+            size_t uStartPos = 0;
+            serializer >> uStartPos;
+            BEATS_ASSERT(uStartPos == (serializer.GetReadPos() - sizeof(uStartPos)), _T("File start pos not match!"));
+            size_t uFileSize = 0;
+            serializer >> uFileSize;
+            m_pProject->RegisterFileLayoutInfo(j, uStartPos, uFileSize);
             size_t uComponentCount = 0;
             serializer >> uComponentCount;
             for (size_t i = 0; i < uComponentCount; ++i)
@@ -58,8 +66,9 @@ void CComponentInstanceManager::Import( CSerializer& serializer)
                 BEATS_ASSERT(uStartPos + uDataSize == serializer.GetReadPos(), _T("Component Data Not Match!\nGot an error when import data for component %x %s instance id %d\nRequired size: %d, Actual size: %d"), uGuid, pComponent->GetClassStr(), uId, uDataSize, serializer.GetReadPos() - uStartPos);
                 serializer.SetReadPos(uStartPos + uDataSize);
             }
+            BEATS_ASSERT(serializer.GetReadPos() - uStartPos == uFileSize, _T("File Data NOt Match!\nGot an error when import data for file %d Required size:%d Actual size %d"), j, uFileSize, serializer.GetReadPos() - uStartPos);
         }
-
+        BEATS_ASSERT(serializer.GetReadPos() == serializer.GetWritePos(), _T("Some data are not loaded completly. loaded data size %d, all data size %d"), serializer.GetReadPos(), serializer.GetWritePos());
         // 2. Resolve dependency.
         CComponentInstanceManager::GetInstance()->ResolveDependency();
         

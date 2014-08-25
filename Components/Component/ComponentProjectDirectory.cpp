@@ -11,14 +11,14 @@ CComponentProjectDirectory::CComponentProjectDirectory(CComponentProjectDirector
     {
         pParent->m_pChildrenVec->push_back(this);
     }
-    m_pFilesSet = new std::set<size_t>();
+    m_pFilesList = new std::vector<size_t>();
     m_pChildrenVec = new std::vector<CComponentProjectDirectory*>();
 }
 
 CComponentProjectDirectory::~CComponentProjectDirectory()
 {
     DeleteAll(false);
-    BEATS_SAFE_DELETE(m_pFilesSet);
+    BEATS_SAFE_DELETE(m_pFilesList);
     BEATS_SAFE_DELETE(m_pChildrenVec);
 }
 
@@ -26,8 +26,20 @@ bool CComponentProjectDirectory::AddFile(const TString& strFileName, std::map<si
 {
     CComponentProject* pProject = CComponentProxyManager::GetInstance()->GetProject();
     size_t uFileId = pProject->RegisterFile(strFileName, conflictMap);
-    BEATS_ASSERT(m_pFilesSet->find(uFileId) == m_pFilesSet->end());
-    m_pFilesSet->insert(uFileId);
+#ifdef _DEBUG
+    bool bFind = false;
+    for (size_t i = 0; i < m_pFilesList->size(); ++i)
+    {
+        if (m_pFilesList->at(i) == uFileId)
+        {
+            bFind = true;
+            break;
+        }
+    }
+    BEATS_ASSERT(!bFind, _T("File %s is already registered with id %d"), strFileName.c_str(), uFileId);
+
+#endif
+    m_pFilesList->push_back(uFileId);
     return true;
 }
 
@@ -54,22 +66,25 @@ CComponentProjectDirectory* CComponentProjectDirectory::AddDirectory(const TStri
 bool CComponentProjectDirectory::DeleteFile(size_t uFileId)
 {
     bool bRet = false;
-    if (m_pFilesSet->find(uFileId) != m_pFilesSet->end())
+    for (std::vector<size_t>::iterator iter = m_pFilesList->begin(); iter != m_pFilesList->end(); ++iter)
     {
-        m_pFilesSet->erase(uFileId);
-
-        CComponentProxyManager* pComopnentManager = CComponentProxyManager::GetInstance();
-        CComponentProject* pProject = pComopnentManager->GetProject();
-        TString strFileName = pProject->GetComponentFileName(uFileId);
-        bool bDeleteCurWorkingFile = strFileName.compare(pComopnentManager->GetCurrentWorkingFilePath()) == 0;
-        if (bDeleteCurWorkingFile)
+        if (*iter == uFileId)
         {
-            pComopnentManager->CloseFile();
+            m_pFilesList->erase(iter);
+            CComponentProxyManager* pComopnentManager = CComponentProxyManager::GetInstance();
+            CComponentProject* pProject = pComopnentManager->GetProject();
+            TString strFileName = pProject->GetComponentFileName(uFileId);
+            bool bDeleteCurWorkingFile = strFileName.compare(pComopnentManager->GetCurrentWorkingFilePath()) == 0;
+            if (bDeleteCurWorkingFile)
+            {
+                pComopnentManager->CloseFile();
+            }
+            pProject->UnregisterFile(uFileId);
+            bRet = true;
+            break;
         }
-        pProject->UnregisterFile(uFileId);
-        bRet = true;
     }
-    else
+    if (!bRet)
     {
         for (std::vector<CComponentProjectDirectory*>::iterator iter = m_pChildrenVec->begin(); iter != m_pChildrenVec->end(); ++iter)
         {
@@ -111,9 +126,9 @@ const std::vector<CComponentProjectDirectory*>& CComponentProjectDirectory::GetC
     return *m_pChildrenVec;
 }
 
-const std::set<size_t>& CComponentProjectDirectory::GetFileList() const
+const std::vector<size_t>& CComponentProjectDirectory::GetFileList() const
 {
-    return *m_pFilesSet;
+    return *m_pFilesList;
 }
 
 CComponentProjectDirectory* CComponentProjectDirectory::GetParent() const
@@ -138,8 +153,8 @@ CComponentProjectDirectory* CComponentProjectDirectory::FindChild(const TCHAR* p
 void CComponentProjectDirectory::Serialize(CSerializer& serializer) const
 {
     serializer << m_strName;
-    serializer << m_pFilesSet->size();
-    for (std::set<size_t>::iterator iter = m_pFilesSet->begin(); iter != m_pFilesSet->end(); ++iter)
+    serializer << m_pFilesList->size();
+    for (std::vector<size_t>::iterator iter = m_pFilesList->begin(); iter != m_pFilesList->end(); ++iter)
     {
         serializer << *iter;
     }
@@ -159,7 +174,7 @@ void CComponentProjectDirectory::Deserialize(CSerializer& serializer)
     {
         size_t uFileId = 0;
         serializer >> uFileId;
-        m_pFilesSet->insert(uFileId);
+        m_pFilesList->push_back(uFileId);
     }
     size_t uChildrenCount = 0;
     serializer >> uChildrenCount;
@@ -197,14 +212,14 @@ bool CComponentProjectDirectory::DeleteAll(bool bUpdateProject)
     m_pChildrenVec->clear();
     if (bUpdateProject)
     {
-        while (m_pFilesSet->size() != 0)
+        while (m_pFilesList->size() != 0)
         {
-            DeleteFile(*m_pFilesSet->begin());
+            DeleteFile(*m_pFilesList->begin());
         }
     }
     else
     {
-        m_pFilesSet->clear();
+        m_pFilesList->clear();
     }
     return true;
 }

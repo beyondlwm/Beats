@@ -129,9 +129,9 @@ void CComponentProject::SaveProjectFile( TiXmlElement* pParentNode, const CCompo
         SaveProjectFile(pNewDirectoryElement, *iter);
     }
 
-    const std::set<size_t>& files = p->GetFileList();
+    const std::vector<size_t>& files = p->GetFileList();
 
-    for (std::set<size_t>::const_iterator iter = files.begin(); iter != files.end(); ++iter)
+    for (std::vector<size_t>::const_iterator iter = files.begin(); iter != files.end(); ++iter)
     {
         TiXmlElement* pNewFileElement = new TiXmlElement("File");
         size_t uFileNameId = *iter;

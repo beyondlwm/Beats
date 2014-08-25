@@ -18,7 +18,7 @@ public:
 
     const TString& GetName() const;
     const std::vector<CComponentProjectDirectory*>& GetChildren() const;
-    const std::set<size_t>& GetFileList() const;
+    const std::vector<size_t>& GetFileList() const;
     CComponentProjectDirectory* GetParent() const;
     CComponentProjectDirectory* FindChild(const TCHAR* pszChildName) const;
 
@@ -30,7 +30,7 @@ public:
 private:
     CComponentProjectDirectory* m_pParent;
     TString m_strName;
-    std::set<size_t>* m_pFilesSet;
+    std::vector<size_t>* m_pFilesList;
     std::vector<CComponentProjectDirectory*>* m_pChildrenVec;
 };
 

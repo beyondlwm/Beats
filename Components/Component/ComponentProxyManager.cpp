@@ -151,6 +151,7 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
     serializer << GetComponentTemplateMap()->size();
     CComponentProjectDirectory* pRootProject = m_pProject->GetRootDirectory();
     pRootProject->Serialize(serializer);
+    serializer << m_pProject->GetLaunchStartLogicPath();
     TString workingFileCache = m_currentWorkingFilePath;
     if (m_currentWorkingFilePath.length() > 0)
     {
@@ -161,10 +162,12 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
     for (size_t i = 0; i < uFileCount; ++i)
     {
         const TString& strFileName = m_pProject->GetFileList()->at(i);
-        BEATS_ASSERT(m_pProject->GetComponentFileId(strFileName) == i);
         OpenFile(strFileName.c_str());
         size_t uComponentCount = 0;
         size_t uWritePos = serializer.GetWritePos();
+        serializer << uWritePos;// File Start pos.
+        serializer << uWritePos;// File size placeholder.
+        serializer.GetWritePos();
         serializer << uComponentCount;
         for (std::map<size_t, std::map<size_t, CComponentBase*>*>::iterator iter = m_pComponentInstanceMap->begin(); iter != m_pComponentInstanceMap->end(); ++iter)
         {
@@ -177,6 +180,8 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
         }
         size_t uCurWritePos = serializer.GetWritePos();
         serializer.SetWritePos(uWritePos);
+        size_t uFileDataSize = uCurWritePos - uWritePos;
+        serializer << uFileDataSize; // Exclude file size.
         serializer << uComponentCount;
         serializer.SetWritePos(uCurWritePos);
         // We just open the file to do export operation, it's not possible to change the file, so we don't refresh the project data to save time.
