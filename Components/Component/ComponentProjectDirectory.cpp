@@ -108,7 +108,7 @@ void CComponentProjectDirectory::InsertFile(size_t uFileId, size_t uPrevFileId/*
             break;
         }
     }
-    BEATS_ASSERT(bFind, _T("Can't insert file with id %d which exists already!"), uFileId);
+    BEATS_ASSERT(!bFind, _T("Can't insert file with id %d which exists already!"), uFileId);
 #endif
     if (uPrevFileId != 0xFFFFFFFF)
     {

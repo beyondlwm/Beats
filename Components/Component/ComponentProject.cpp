@@ -283,7 +283,8 @@ CComponentProjectDirectory* CComponentProject::FindProjectDirectory(const TStrin
     std::vector<TString> vecDirectories;
     CStringHelper::GetInstance()->SplitString(strLogicPath.c_str(), _T("/"), vecDirectories);
     CComponentProjectDirectory* pCurDirectory = m_pProjectDirectory;
-    for (size_t i = 0; i < vecDirectories.size(); ++i)
+    //Ignore the root, so start from 1.
+    for (size_t i = 1; i < vecDirectories.size(); ++i)
     {
         pCurDirectory = pCurDirectory->FindChild(vecDirectories[i].c_str());
         BEATS_ASSERT(pCurDirectory != NULL);
