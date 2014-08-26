@@ -11,6 +11,7 @@
 
 CComponentProject::CComponentProject()
 : m_pProjectDirectory(NULL)
+, m_pStartDirectory(NULL)
 , m_pComponentFiles(new std::vector<TString>)
 , m_pComponentToTypeMap(new std::map<size_t, size_t>)
 , m_pComponentToFileMap(new std::map<size_t, size_t>)
@@ -54,7 +55,10 @@ CComponentProjectDirectory* CComponentProject::LoadProject(const TCHAR* pszProje
             TCHAR szTName[MAX_PATH];
             CStringHelper::GetInstance()->ConvertToTCHAR(pRootElement->Value(), szTName, MAX_PATH);
             m_pProjectDirectory = new CComponentProjectDirectory(NULL, szTName);
-            LoadXMLProject(pRootElement, m_pProjectDirectory, conflictIdMap);
+            TString strStartLogicPath;
+            LoadXMLProject(pRootElement, m_pProjectDirectory, strStartLogicPath, conflictIdMap);
+            m_pStartDirectory = FindProjectDirectory(strStartLogicPath);
+            BEATS_ASSERT(m_pStartDirectory);
         }
         else
         {
@@ -98,8 +102,9 @@ void CComponentProject::SaveProject()
     TiXmlElement* pRootElement = new TiXmlElement("Root");
     document.LinkEndChild(pRootElement);
     TiXmlElement* pStartDirectoryNode = new TiXmlElement("StartDirectory");
+    TString strStartLogicPath = m_pStartDirectory->GenerateLogicPath();
     char szBuffer[10240];
-    CStringHelper::GetInstance()->ConvertToCHAR(m_strLaunchStartLogicPath.c_str(), szBuffer, MAX_PATH);
+    CStringHelper::GetInstance()->ConvertToCHAR(strStartLogicPath.c_str(), szBuffer, MAX_PATH);
     pStartDirectoryNode->SetAttribute("Path", szBuffer);
     pRootElement->LinkEndChild(pStartDirectoryNode);
 
@@ -263,14 +268,14 @@ void CComponentProject::RegisterFileLayoutInfo(size_t uFileId, size_t uStartPos,
     (*m_pFileDataLayout)[uFileId] = SFileDataLayout(uStartPos, uDataLength);
 }
 
-const TString& CComponentProject::GetLaunchStartLogicPath() const
+CComponentProjectDirectory* CComponentProject::GetLaunchStartDirectory() const
 {
-    return m_strLaunchStartLogicPath;
+    return m_pStartDirectory;
 }
 
-void CComponentProject::SetLaunchStartLogicPath(const TString& strPath)
+void CComponentProject::SetLaunchStartDirectory(CComponentProjectDirectory* pDirectory)
 {
-    m_strLaunchStartLogicPath = strPath;
+    m_pStartDirectory = pDirectory;
 }
 
 CComponentProjectDirectory* CComponentProject::FindProjectDirectory(const TString& strLogicPath) const
@@ -514,7 +519,7 @@ size_t CComponentProject::QueryFileId(size_t uComponentId, bool bOnlyInProjectFi
     return uRet;
 }
 
-void CComponentProject::LoadXMLProject(TiXmlElement* pNode, CComponentProjectDirectory* pProjectDirectory, std::map<size_t, std::vector<size_t> >& conflictIdMap)
+void CComponentProject::LoadXMLProject(TiXmlElement* pNode, CComponentProjectDirectory* pProjectDirectory, TString& startLogicPath, std::map<size_t, std::vector<size_t> >& conflictIdMap)
 {
     BEATS_ASSERT(pProjectDirectory != NULL && pNode != NULL);
     TiXmlElement* pElement = pNode->FirstChildElement();
@@ -527,7 +532,7 @@ void CComponentProject::LoadXMLProject(TiXmlElement* pNode, CComponentProjectDir
             TCHAR szTName[MAX_PATH];
             CStringHelper::GetInstance()->ConvertToTCHAR(pName, szTName, MAX_PATH);
             CComponentProjectDirectory* pNewProjectFile = new CComponentProjectDirectory(pProjectDirectory, szTName);
-            LoadXMLProject(pElement, pNewProjectFile, conflictIdMap);
+            LoadXMLProject(pElement, pNewProjectFile, startLogicPath, conflictIdMap);
         }
         else if (strcmp(pText, "File") == 0)
         {
@@ -542,7 +547,7 @@ void CComponentProject::LoadXMLProject(TiXmlElement* pNode, CComponentProjectDir
             const char* pPath = pElement->Attribute("Path");
             TCHAR szTPath[MAX_PATH];
             CStringHelper::GetInstance()->ConvertToTCHAR(pPath, szTPath, MAX_PATH);
-            m_strLaunchStartLogicPath = szTPath;
+            startLogicPath = szTPath;
         }
         else
         {

@@ -42,7 +42,9 @@ void CComponentInstanceManager::Import( CSerializer& serializer)
         pRootProject->Deserialize(serializer);
         TString strStartupDirectory;
         serializer >> strStartupDirectory;
-        m_pProject->SetLaunchStartLogicPath(strStartupDirectory);
+        CComponentProjectDirectory* pStartDirectory = m_pProject->FindProjectDirectory(strStartupDirectory);
+        BEATS_ASSERT(pStartDirectory != NULL);
+        m_pProject->SetLaunchStartDirectory(pStartDirectory);
         // 1. Load binarize data.
         size_t uFileCount = 0;
         serializer >> uFileCount;

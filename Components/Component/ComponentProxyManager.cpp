@@ -151,7 +151,7 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
     serializer << GetComponentTemplateMap()->size();
     CComponentProjectDirectory* pRootProject = m_pProject->GetRootDirectory();
     pRootProject->Serialize(serializer);
-    serializer << m_pProject->GetLaunchStartLogicPath();
+    serializer << m_pProject->GetLaunchStartDirectory()->GenerateLogicPath();
     TString workingFileCache = m_currentWorkingFilePath;
     if (m_currentWorkingFilePath.length() > 0)
     {

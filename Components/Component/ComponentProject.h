@@ -65,16 +65,17 @@ public:
 
     void RegisterFileLayoutInfo(size_t uFileId, size_t uStartPos, size_t uDataLength);
 
-    const TString& GetLaunchStartLogicPath() const;
-    void SetLaunchStartLogicPath(const TString& strPath);
+    CComponentProjectDirectory* GetLaunchStartDirectory() const;
+    void SetLaunchStartDirectory(CComponentProjectDirectory* pDirectory);
     CComponentProjectDirectory* FindProjectDirectory(const TString& strLogicPath) const;
 
 private:
-    void LoadXMLProject(TiXmlElement* pNode, CComponentProjectDirectory* pProjectDirectory, std::map<size_t, std::vector<size_t> >& conflictIdMap);
+    void LoadXMLProject(TiXmlElement* pNode, CComponentProjectDirectory* pProjectDirectory, TString& startLogicPath, std::map<size_t, std::vector<size_t> >& conflictIdMap);
     void SaveProjectFile( TiXmlElement* pParentNode, const CComponentProjectDirectory* p);
 
 private:
     CComponentProjectDirectory* m_pProjectDirectory;
+    CComponentProjectDirectory* m_pStartDirectory;
     std::vector<TString>* m_pComponentFiles;
     std::map<size_t, size_t>* m_pComponentToTypeMap;
     std::map<size_t, size_t>* m_pComponentToFileMap;
@@ -87,7 +88,6 @@ private:
 
     TString m_strProjectFilePath;
     TString m_strProjectFileName;
-    TString m_strLaunchStartLogicPath;
 };
 
 #endif
