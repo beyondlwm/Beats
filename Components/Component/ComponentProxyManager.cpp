@@ -179,8 +179,8 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
             }
         }
         size_t uCurWritePos = serializer.GetWritePos();
-        serializer.SetWritePos(uWritePos);
         size_t uFileDataSize = uCurWritePos - uWritePos;
+        serializer.SetWritePos(uWritePos + sizeof(size_t));// Skip file start pos.
         serializer << uFileDataSize; // Exclude file size.
         serializer << uComponentCount;
         serializer.SetWritePos(uCurWritePos);

@@ -63,7 +63,93 @@ CComponentProjectDirectory* CComponentProjectDirectory::AddDirectory(const TStri
     return pRet;
 }
 
+void CComponentProjectDirectory::InsertDirectory(CComponentProjectDirectory* pDirectory, CComponentProjectDirectory* pPrevDirectory/* = NULL*/)
+{
+#ifdef _DEBUG
+    for (size_t i = 0; i < m_pChildrenVec->size(); i++)
+    {
+        if (m_pChildrenVec->at(i) == pDirectory)
+        {
+            BEATS_ASSERT(false, _T("Can't insert a directory which already exists"));
+            break;
+        }
+    }
+#endif
+    if (pPrevDirectory != NULL)
+    {
+        bool bFind = false;
+        for (auto iter = m_pChildrenVec->begin(); iter != m_pChildrenVec->end(); ++iter)
+        {
+            if (*iter == pPrevDirectory)
+            {
+                m_pChildrenVec->insert(iter, pDirectory);
+                bFind = true;
+                break;
+            }
+        }
+        BEATS_ASSERT(bFind, _T("Previous directory is not found!"));
+    }
+    else
+    {
+        m_pChildrenVec->push_back(pDirectory);
+    }
+    pDirectory->SetParent(this);
+}
+
+void CComponentProjectDirectory::InsertFile(size_t uFileId, size_t uPrevFileId/* = 0xFFFFFFFF*/)
+{
+#ifdef _DEBUG
+    bool bFind = false;
+    for (size_t i = 0; i < m_pFilesList->size(); ++i)
+    {
+        if (m_pFilesList->at(i) == uFileId)
+        {
+            bFind = true;
+            break;
+        }
+    }
+    BEATS_ASSERT(bFind, _T("Can't insert file with id %d which exists already!"), uFileId);
+#endif
+    if (uPrevFileId != 0xFFFFFFFF)
+    {
+        bool bFind = false;
+        for (auto iter = m_pFilesList->begin(); iter != m_pFilesList->end(); ++iter)
+        {
+            if (*iter == uPrevFileId)
+            {
+                bFind = true;
+                m_pFilesList->insert(iter, uFileId);
+                break;
+            }
+        }
+        BEATS_ASSERT(bFind, _T("Can't insert file %d before previous file %d"), uFileId, uPrevFileId);
+    }
+    else
+    {
+        m_pFilesList->push_back(uFileId);
+    }
+}
+
 bool CComponentProjectDirectory::DeleteFile(size_t uFileId)
+{
+    bool bRet = false;
+    if (RemoveFile(uFileId))
+    {
+        CComponentProxyManager* pComopnentManager = CComponentProxyManager::GetInstance();
+        CComponentProject* pProject = pComopnentManager->GetProject();
+        TString strFileName = pProject->GetComponentFileName(uFileId);
+        bool bDeleteCurWorkingFile = strFileName.compare(pComopnentManager->GetCurrentWorkingFilePath()) == 0;
+        if (bDeleteCurWorkingFile)
+        {
+            pComopnentManager->CloseFile();
+        }
+        pProject->UnregisterFile(uFileId);
+        bRet = true;
+    }
+    return bRet;
+}
+
+bool CComponentProjectDirectory::RemoveFile(size_t uFileId)
 {
     bool bRet = false;
     for (std::vector<size_t>::iterator iter = m_pFilesList->begin(); iter != m_pFilesList->end(); ++iter)
@@ -71,15 +157,6 @@ bool CComponentProjectDirectory::DeleteFile(size_t uFileId)
         if (*iter == uFileId)
         {
             m_pFilesList->erase(iter);
-            CComponentProxyManager* pComopnentManager = CComponentProxyManager::GetInstance();
-            CComponentProject* pProject = pComopnentManager->GetProject();
-            TString strFileName = pProject->GetComponentFileName(uFileId);
-            bool bDeleteCurWorkingFile = strFileName.compare(pComopnentManager->GetCurrentWorkingFilePath()) == 0;
-            if (bDeleteCurWorkingFile)
-            {
-                pComopnentManager->CloseFile();
-            }
-            pProject->UnregisterFile(uFileId);
             bRet = true;
             break;
         }
@@ -88,7 +165,7 @@ bool CComponentProjectDirectory::DeleteFile(size_t uFileId)
     {
         for (std::vector<CComponentProjectDirectory*>::iterator iter = m_pChildrenVec->begin(); iter != m_pChildrenVec->end(); ++iter)
         {
-            bRet = (*iter)->DeleteFile(uFileId);
+            bRet = (*iter)->RemoveFile(uFileId);
             if (bRet)
             {
                 break;
@@ -101,20 +178,29 @@ bool CComponentProjectDirectory::DeleteFile(size_t uFileId)
 
 bool CComponentProjectDirectory::DeleteDirectory(CComponentProjectDirectory* pDirectory)
 {
+    bool bRet = RemoveDirectory(pDirectory);
+    if (bRet)
+    {
+        BEATS_SAFE_DELETE(pDirectory);
+    }
+    return bRet;
+}
+
+bool CComponentProjectDirectory::RemoveDirectory(CComponentProjectDirectory* pDirectory)
+{
     bool bRet = false;
     for (std::vector<CComponentProjectDirectory*>::iterator iter = m_pChildrenVec->begin(); iter != m_pChildrenVec->end(); ++iter)
     {
         if ((*iter) == pDirectory)
         {
             m_pChildrenVec->erase(iter);
-            BEATS_SAFE_DELETE(pDirectory);
+            pDirectory->SetParent(NULL);
             bRet = true;
             break;
         }
     }
     return bRet;
 }
-
 
 const TString& CComponentProjectDirectory::GetName() const
 {
@@ -129,6 +215,12 @@ const std::vector<CComponentProjectDirectory*>& CComponentProjectDirectory::GetC
 const std::vector<size_t>& CComponentProjectDirectory::GetFileList() const
 {
     return *m_pFilesList;
+}
+
+void CComponentProjectDirectory::SetParent(CComponentProjectDirectory* pParent)
+{
+    BEATS_ASSERT(m_pParent == NULL || pParent == NULL);
+    m_pParent = pParent;
 }
 
 CComponentProjectDirectory* CComponentProjectDirectory::GetParent() const
