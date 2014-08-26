@@ -64,6 +64,7 @@ public:
     const std::vector<TString>* GetFileList() const;
 
     void RegisterFileLayoutInfo(size_t uFileId, size_t uStartPos, size_t uDataLength);
+    bool QueryFileLayoutInfo(size_t uFileId, size_t& uStartPos, size_t& uDataLength);
 
     CComponentProjectDirectory* GetLaunchStartDirectory() const;
     void SetLaunchStartDirectory(CComponentProjectDirectory* pDirectory);

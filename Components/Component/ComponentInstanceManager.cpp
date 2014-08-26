@@ -13,6 +13,7 @@ CComponentInstanceManager* CComponentInstanceManager::m_pInstance = NULL;
 
 CComponentInstanceManager::CComponentInstanceManager()
 {
+    m_pSerializer = new CSerializer;
 }
 
 CComponentInstanceManager::~CComponentInstanceManager()
@@ -21,10 +22,13 @@ CComponentInstanceManager::~CComponentInstanceManager()
     // Don't remove GetInstance(), it is force to create an instance of CUtilityManager, so we can visit the member of it.
     CUtilityManager::GetInstance();
     CUtilityManager::Destroy();
+    BEATS_SAFE_DELETE(m_pSerializer);
 }
 
-void CComponentInstanceManager::Import( CSerializer& serializer)
+CSerializer* CComponentInstanceManager::Import(const TCHAR* pszFilePath)
 {
+    m_pSerializer->Serialize(pszFilePath);
+    CSerializer& serializer = *m_pSerializer;
     size_t uVersion = 0;
     serializer >> uVersion;
     if (uVersion != COMPONENT_SYSTEM_VERSION)
@@ -45,7 +49,7 @@ void CComponentInstanceManager::Import( CSerializer& serializer)
         CComponentProjectDirectory* pStartDirectory = m_pProject->FindProjectDirectory(strStartupDirectory);
         BEATS_ASSERT(pStartDirectory != NULL);
         m_pProject->SetLaunchStartDirectory(pStartDirectory);
-        // 1. Load binarize data.
+        // 1. Load binarize data and file sturcture.
         size_t uFileCount = 0;
         serializer >> uFileCount;
         for (size_t j = 0; j < uFileCount; ++j)
@@ -56,27 +60,43 @@ void CComponentInstanceManager::Import( CSerializer& serializer)
             size_t uFileSize = 0;
             serializer >> uFileSize;
             m_pProject->RegisterFileLayoutInfo(j, uStartPos, uFileSize);
-            size_t uComponentCount = 0;
-            serializer >> uComponentCount;
-            for (size_t i = 0; i < uComponentCount; ++i)
-            {
-                size_t uDataSize, uGuid, uId;
-                size_t uStartPos = serializer.GetReadPos();
-                serializer >> uDataSize >> uGuid >> uId;
-                CComponentBase* pComponent = CComponentInstanceManager::GetInstance()->CreateComponent(uGuid, false, false, uId, true, &serializer, false);
-                pComponent;
-                BEATS_ASSERT(uStartPos + uDataSize == serializer.GetReadPos(), _T("Component Data Not Match!\nGot an error when import data for component %x %s instance id %d\nRequired size: %d, Actual size: %d"), uGuid, pComponent->GetClassStr(), uId, uDataSize, serializer.GetReadPos() - uStartPos);
-                serializer.SetReadPos(uStartPos + uDataSize);
-            }
-            BEATS_ASSERT(serializer.GetReadPos() - uStartPos == uFileSize, _T("File Data NOt Match!\nGot an error when import data for file %d Required size:%d Actual size %d"), j, uFileSize, serializer.GetReadPos() - uStartPos);
+            BEATS_ASSERT(uStartPos + uFileSize <= serializer.GetWritePos(), _T("Data overflow!"));
+            serializer.SetReadPos(uStartPos + uFileSize);
         }
         BEATS_ASSERT(serializer.GetReadPos() == serializer.GetWritePos(), _T("Some data are not loaded completly. loaded data size %d, all data size %d"), serializer.GetReadPos(), serializer.GetWritePos());
+        
+        // 2. Load start up file.
+        LoadDirectory(pStartDirectory);
+        
         // 2. Resolve dependency.
         CComponentInstanceManager::GetInstance()->ResolveDependency();
         
         // 3. Call Initialize.
         InitializeAllInstance();
     }
+    return m_pSerializer;
+}
+
+void CComponentInstanceManager::LoadDirectory(CComponentProjectDirectory* pDirectory)
+{
+    std::vector<CComponentProjectDirectory*> loadingDirectories;
+    CComponentProjectDirectory* pCurDirectory = pDirectory;
+    while (pCurDirectory != NULL)
+    {
+        loadingDirectories.push_back(pCurDirectory);
+        pCurDirectory = pCurDirectory->GetParent();
+    }
+    while (loadingDirectories.size() > 0)
+    {
+        pCurDirectory = loadingDirectories.back();
+        LoadDirectoryFiles(pCurDirectory);
+        loadingDirectories.pop_back();
+    }
+}
+
+CSerializer* CComponentInstanceManager::GetFileSerializer() const
+{
+    return m_pSerializer;
 }
 
 void CComponentInstanceManager::ResolveDependency()
@@ -105,4 +125,37 @@ void CComponentInstanceManager::ResolveDependency()
 size_t CComponentInstanceManager::GetVersion()
 {
     return COMPONENT_SYSTEM_VERSION;
+}
+
+void CComponentInstanceManager::LoadDirectoryFiles(CComponentProjectDirectory* pDirectory)
+{
+    size_t uFileCount = pDirectory->GetFileList().size();
+    for (size_t i = 0; i < uFileCount; ++i)
+    {
+        size_t uFileId = pDirectory->GetFileList().at(i);
+        size_t uFileStartPos = 0;
+        size_t uFileDataLength = 0;
+        bool bRet = m_pProject->QueryFileLayoutInfo(uFileId, uFileStartPos, uFileDataLength);
+        BEATS_ASSERT(bRet, _T("Query file layout info failed! file id %d"), uFileId);
+        if (bRet)
+        {
+            m_pSerializer->SetReadPos(uFileStartPos);
+            size_t uFileStartPosRead, uFileDataLengthRead;
+            *m_pSerializer >> uFileStartPosRead >> uFileDataLengthRead;
+            BEATS_ASSERT(uFileStartPosRead == uFileStartPos && uFileDataLengthRead == uFileDataLength);
+            size_t uComponentCount = 0;
+            *m_pSerializer >> uComponentCount;
+            for (size_t j = 0; j < uComponentCount; ++j)
+            {
+                size_t uComponentDataSize, uGuid, uId;
+                size_t uComponentStartPos = m_pSerializer->GetReadPos();
+                *m_pSerializer >> uComponentDataSize >> uGuid >> uId;
+                CComponentBase* pComponent = CComponentInstanceManager::GetInstance()->CreateComponent(uGuid, false, false, uId, true, m_pSerializer, false);
+                pComponent;
+                BEATS_ASSERT(uComponentStartPos + uComponentDataSize == m_pSerializer->GetReadPos(), _T("Component Data Not Match!\nGot an error when import data for component %x %s instance id %d\nRequired size: %d, Actual size: %d"), uGuid, pComponent->GetClassStr(), uId, uComponentDataSize, m_pSerializer->GetReadPos() - uComponentStartPos);
+                m_pSerializer->SetReadPos(uComponentStartPos + uComponentDataSize);
+            }
+            BEATS_ASSERT(m_pSerializer->GetReadPos() - uFileStartPos == uFileDataLength, _T("File Data NOt Match!\nGot an error when import data for file %d Required size:%d Actual size %d"), uFileId, uFileDataLength, m_pSerializer->GetReadPos() - uFileStartPos);
+        }
+    }
 }

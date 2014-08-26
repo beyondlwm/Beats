@@ -268,6 +268,19 @@ void CComponentProject::RegisterFileLayoutInfo(size_t uFileId, size_t uStartPos,
     (*m_pFileDataLayout)[uFileId] = SFileDataLayout(uStartPos, uDataLength);
 }
 
+bool CComponentProject::QueryFileLayoutInfo(size_t uFileId, size_t& uStartPos, size_t& uDataLength)
+{
+    bool bRet = false;
+    auto iter = m_pFileDataLayout->find(uFileId);
+    if (iter != m_pFileDataLayout->end())
+    {
+        uStartPos = iter->second.m_uStartPos;
+        uDataLength = iter->second.m_uDataSize;
+        bRet = true;
+    }
+    return bRet;
+}
+
 CComponentProjectDirectory* CComponentProject::GetLaunchStartDirectory() const
 {
     return m_pStartDirectory;
