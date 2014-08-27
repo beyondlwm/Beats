@@ -6,6 +6,7 @@
 class CComponentProxy;
 class CPropertyDescriptionBase;
 class CComponentGraphic;
+class CComponentReference;
 
 typedef CComponentProxy* (*TCreateComponentEditorProxyFunc)(CComponentGraphic* pGraphics, size_t guid, size_t parentGuid, TCHAR* className);
 typedef CComponentGraphic* (*TCreateGraphicFunc)();
@@ -55,6 +56,11 @@ public:
 
     bool IsParent(size_t uParentGuid, size_t uChildGuid) const;
 
+    void RegisterComponentReference(CComponentReference* pReference);
+    void UnregisterComponentReference(CComponentReference* pReference);
+    const std::map<size_t, std::vector<CComponentReference*>>& GetReferenceMap() const;
+
+    CComponentReference* CreateReference(CComponentProxy* pProxy);
 private:
     void LoadTemplateDataFromXML(const TCHAR* pWorkingPath);
     void LoadTemplateDataFromSerializer(CSerializer& serializer, TCreateComponentEditorProxyFunc func, TCreateGraphicFunc pGraphicFunc);
@@ -69,6 +75,9 @@ private:
     std::map<size_t, TString> m_abstractComponentNameMap;
     // This map save the inherit relationship for all components. so when we instance a component pointer, we can decide which instance to generate.
     std::map<size_t, std::vector<size_t> >* m_pComponentInheritMap;
+
+    // This map store all reference info, key value is the real component id.
+    std::map<size_t, std::vector<CComponentReference*>> m_referenceMap;
 };
 
 

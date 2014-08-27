@@ -66,6 +66,7 @@ enum EComponentAeraRectType
 enum EComponentTexture
 {
     eCT_RectBG,
+    eCT_RefRectBG,
     eCT_ConnectRect,
     eCT_SelectedRectBG,
     eCT_NormalLine,

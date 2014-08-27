@@ -38,7 +38,11 @@ void CComponentGraphic::SetPosition( int x, int y )
 void CComponentGraphic::CaculateSize()
 {
     BEATS_ASSERT(m_pOwner != NULL);
-    size_t bodySize = m_pOwner->GetDependencies().size() * DEPENDENCY_HEIGHT;
+    size_t bodySize = 0;
+    if (m_pOwner->GetDependencies() != NULL)
+    {
+        bodySize = m_pOwner->GetDependencies()->size() * DEPENDENCY_HEIGHT;
+    }    
     // Notice: we only consider graphics width = body width + connection width, dependency width are ignored.
     m_width = MIN_WIDTH + CONNECTION_WIDTH;
     m_height = HEADER_HEIGHT + bodySize;

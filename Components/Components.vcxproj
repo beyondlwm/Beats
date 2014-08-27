@@ -214,6 +214,7 @@
     <ClInclude Include="Component\ComponentProxy.h" />
     <ClInclude Include="Component\ComponentProxyManager.h" />
     <ClInclude Include="ComponentPublic.h" />
+    <ClInclude Include="Component\ComponentReference.h" />
     <ClInclude Include="DependencyDescription.h" />
     <ClInclude Include="DependencyDescriptionLine.h" />
     <ClInclude Include="expdef.h" />
@@ -229,6 +230,7 @@
     <ClCompile Include="Component\ComponentProjectDirectory.cpp" />
     <ClCompile Include="Component\ComponentProxy.cpp" />
     <ClCompile Include="Component\ComponentProxyManager.cpp" />
+    <ClCompile Include="Component\ComponentReference.cpp" />
     <ClCompile Include="DependencyDescription.cpp" />
     <ClCompile Include="DependencyDescriptionLine.cpp" />
     <ClCompile Include="Property\PropertyDescriptionBase.cpp" />

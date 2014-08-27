@@ -40,6 +40,9 @@
     <ClCompile Include="Component\ComponentProjectDirectory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Component\ComponentReference.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Component\ComponentBase.h">
@@ -91,6 +94,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Component\ComponentProjectDirectory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Component\ComponentReference.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

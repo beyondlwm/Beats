@@ -17,6 +17,7 @@ class COMPONENTS_DLL_DECL CComponentProxy : public CComponentBase
 {
     typedef CComponentBase super;
 public:
+    CComponentProxy();//Only ComponentReference should use this constructor.
     CComponentProxy(CComponentGraphic* pGraphics);
     CComponentProxy(CComponentGraphic* pGraphics, size_t uGuid, size_t uParentGuid, const TCHAR* pszClassName);
     virtual ~CComponentProxy();
@@ -42,11 +43,11 @@ public:
     CPropertyDescriptionBase* GetPropertyDescription(const TCHAR* pszVariableName) const;
 
     CDependencyDescription* GetDependency(size_t uIndex);
-    const std::vector<CDependencyDescription*>& GetDependencies();
+    const std::vector<CDependencyDescription*>* GetDependencies();
     void AddDependencyDescription(CDependencyDescription* pDependencyDesc);
     void AddBeConnectedDependencyDescriptionLine(CDependencyDescriptionLine* pDependencyDescLine);
     void RemoveBeConnectedDependencyDescriptionLine(CDependencyDescriptionLine* pDependencyDescLine);
-    const std::vector<CDependencyDescriptionLine*>& GetBeConnectedDependencyLines();
+    const std::vector<CDependencyDescriptionLine*>* GetBeConnectedDependencyLines();
 
     //Simulate the real component.
     static const size_t REFLECT_GUID = 1;

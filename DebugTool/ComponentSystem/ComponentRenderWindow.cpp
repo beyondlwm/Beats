@@ -473,18 +473,23 @@ void CComponentRenderWindow::OnMouseMove( wxMouseEvent& event )
                     int gridPosY = 0;
                     ConvertWorldPosToGridPos(&worldPos, &gridPosX, &gridPosY);
                     pSelectedComponent->GetGraphics()->SetPosition(gridPosX, gridPosY);
-                    for (size_t i = 0; i < pSelectedComponent->GetDependencies().size(); ++i)
+                    const std::vector<CDependencyDescription*>* pDependencies = pSelectedComponent->GetDependencies();
+                    if (pDependencies != NULL)
                     {
-                        CDependencyDescription* pDesc = pSelectedComponent->GetDependencies()[i];
-                        size_t uLineCount = pDesc->GetDependencyLineCount();
-                        for (size_t j = 0; j < uLineCount; ++j)
+                        for (size_t i = 0; i < pDependencies->size(); ++i)
                         {
-                            pDesc->GetDependencyLine(j)->UpdateRect(m_cellSize);
+                            CDependencyDescription* pDesc = pDependencies->at(i);
+                            size_t uLineCount = pDesc->GetDependencyLineCount();
+                            for (size_t j = 0; j < uLineCount; ++j)
+                            {
+                                pDesc->GetDependencyLine(j)->UpdateRect(m_cellSize);
+                            }
                         }
                     }
-                    for (size_t i = 0; i < pSelectedComponent->GetBeConnectedDependencyLines().size(); ++i)
+                    const std::vector<CDependencyDescriptionLine*>* pBeConnectedLine = pSelectedComponent->GetBeConnectedDependencyLines();
+                    for (size_t i = 0; i < pBeConnectedLine->size(); ++i)
                     {
-                        CDependencyDescriptionLine* pDescLine = pSelectedComponent->GetBeConnectedDependencyLines()[i];
+                        CDependencyDescriptionLine* pDescLine = pBeConnectedLine->at(i);
                         pDescLine->UpdateRect(m_cellSize);
                     }
                     //BEATS_PRINT(_T("You must dragging component instance %s to worldPos %f %f, gridPos %d %d\n"), pSelectedComponent->GetClassName(), worldPos.x, worldPos.y, gridPosX, gridPosY);
@@ -701,23 +706,27 @@ CComponentProxy* CComponentRenderWindow::HitTestForComponent( wxPoint pos, EComp
             }
             //check dependency line.
             CComponentProxy* pComponentProxy = static_cast<CComponentProxy*>(subIter->second);
-            for (size_t i = 0; i < pComponentProxy->GetDependencies().size() && !bFoundResult; ++i)
+            const std::vector<CDependencyDescription*>* pDependencies = pComponentProxy->GetDependencies();
+            if (pDependencies != NULL)
             {
-                CDependencyDescription* pDependency = pComponentProxy->GetDependency(i);
-                int iDependencyX, iDependencyY;
-                pGraphics->GetDependencyPosition(i, &iDependencyX, &iDependencyY);
-                for (size_t j = 0; j < pDependency->GetDependencyLineCount(); ++j)
+                for (size_t i = 0; i < pDependencies->size() && !bFoundResult; ++i)
                 {
-                    CDependencyDescriptionLine* pLine = pDependency->GetDependencyLine(j);
-                    bool bInLine = pLine->HitTest(fClickWorldPosX, fClickWorldPosY);
-                    if (bInLine)
+                    CDependencyDescription* pDependency = pDependencies->at(i);
+                    int iDependencyX, iDependencyY;
+                    pGraphics->GetDependencyPosition(i, &iDependencyX, &iDependencyY);
+                    for (size_t j = 0; j < pDependency->GetDependencyLineCount(); ++j)
                     {
-                        if (pOutAreaType != NULL && pReturnData != NULL)
+                        CDependencyDescriptionLine* pLine = pDependency->GetDependencyLine(j);
+                        bool bInLine = pLine->HitTest(fClickWorldPosX, fClickWorldPosY);
+                        if (bInLine)
                         {
-                            *pOutAreaType = eCART_DependencyLine;
-                            *pReturnData = pLine;
-                            bFoundResult = true;
-                            break;
+                            if (pOutAreaType != NULL && pReturnData != NULL)
+                            {
+                                *pOutAreaType = eCART_DependencyLine;
+                                *pReturnData = pLine;
+                                bFoundResult = true;
+                                break;
+                            }
                         }
                     }
                 }
@@ -852,14 +861,18 @@ void CComponentRenderWindow::UpdateAllDependencyLine()
         for (; subIter != iter->second->rend(); ++subIter)
         {
             CComponentProxy* pComponent = static_cast<CComponentProxy*>(subIter->second);
-            size_t uDepedencyCount = pComponent->GetDependencies().size();
-            for (size_t i = 0; i < uDepedencyCount; ++i)
+            const std::vector<CDependencyDescription*>* pDependencies = pComponent->GetDependencies();
+            if (pDependencies != NULL)
             {
-                CDependencyDescription* pDesc = pComponent->GetDependency(i);
-                size_t uDependencyLineCount = pDesc->GetDependencyLineCount();
-                for (size_t j = 0; j < uDependencyLineCount; ++j)
+                size_t uDepedencyCount = pDependencies->size();
+                for (size_t i = 0; i < uDepedencyCount; ++i)
                 {
-                    pDesc->GetDependencyLine(j)->UpdateRect(m_cellSize);
+                    CDependencyDescription* pDesc = pDependencies->at(i);
+                    size_t uDependencyLineCount = pDesc->GetDependencyLineCount();
+                    for (size_t j = 0; j < uDependencyLineCount; ++j)
+                    {
+                        pDesc->GetDependencyLine(j)->UpdateRect(m_cellSize);
+                    }
                 }
             }
         }

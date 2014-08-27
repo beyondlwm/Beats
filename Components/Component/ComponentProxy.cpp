@@ -14,6 +14,20 @@
 #include <string>
 #include "ComponentInstance.h"
 
+CComponentProxy::CComponentProxy()
+    : m_bIsTemplate(false)
+    , m_uGuid(0)
+    , m_uParentGuid(0)
+    , m_pGraphics(NULL)
+    , m_pHostComponent(NULL)
+    , m_pDependenciesDescription(NULL)
+    , m_pBeConnectedDependencyLines(NULL)
+    , m_pSerializeOrder(NULL)
+    , m_pProperties(NULL)
+{
+
+}
+
 CComponentProxy::CComponentProxy(CComponentGraphic* pGraphics)
 : m_bIsTemplate(false)
 , m_uGuid(0)
@@ -111,7 +125,7 @@ void CComponentProxy::Deserialize( CSerializer& serializer )
             serializer >> type;
             size_t uGuid;
             serializer >> uGuid;
-            CDependencyDescription* pNewDependency = new CDependencyDescription(type, uGuid, this, this->GetDependencies().size(), bIsList);
+            CDependencyDescription* pNewDependency = new CDependencyDescription(type, uGuid, this, m_pDependenciesDescription->size(), bIsList);
             TCHAR* pName = NULL;
             TCHAR** pNameHolder = &pName;
             serializer.Read(pNameHolder);
@@ -136,12 +150,15 @@ CComponentBase* CComponentProxy::Clone(bool bCloneValue, CSerializer* /*pSeriali
         CPropertyDescriptionBase* pNewProperty = (*m_pProperties)[i]->Clone(bCloneValue);
         pNewInstance->AddProperty(pNewProperty);
     }
-    for (size_t i = 0; i < m_pDependenciesDescription->size(); ++i)
+    if (m_pDependenciesDescription != NULL)
     {
-        CDependencyDescription* pDependency = (*m_pDependenciesDescription)[i];
-        CDependencyDescription* pNewDependency = new CDependencyDescription(pDependency->GetType(), pDependency->GetDependencyGuid(), pNewInstance, pNewInstance->GetDependencies().size(), pDependency->IsListType());
-        pNewDependency->SetDisplayName(pDependency->GetDisplayName());
-        pNewDependency->SetVariableName(pDependency->GetVariableName());
+        for (size_t i = 0; i < m_pDependenciesDescription->size(); ++i)
+        {
+            CDependencyDescription* pDependency = (*m_pDependenciesDescription)[i];
+            CDependencyDescription* pNewDependency = new CDependencyDescription(pDependency->GetType(), pDependency->GetDependencyGuid(), pNewInstance, pNewInstance->GetDependencies()->size(), pDependency->IsListType());
+            pNewDependency->SetDisplayName(pDependency->GetDisplayName());
+            pNewDependency->SetVariableName(pDependency->GetVariableName());
+        }
     }
     pNewInstance->m_pSerializeOrder->assign(m_pSerializeOrder->begin(), m_pSerializeOrder->end());
     pNewInstance->GetGraphics()->CaculateSize();
@@ -458,9 +475,9 @@ CDependencyDescription* CComponentProxy::GetDependency(size_t index)
     return (*m_pDependenciesDescription)[index];
 }
 
-const std::vector<CDependencyDescription*>& CComponentProxy::GetDependencies()
+const std::vector<CDependencyDescription*>* CComponentProxy::GetDependencies()
 {
-    return *m_pDependenciesDescription;
+    return m_pDependenciesDescription;
 }
 
 void CComponentProxy::AddDependencyDescription(CDependencyDescription* pDependencyDesc )
@@ -516,9 +533,9 @@ void CComponentProxy::RemoveBeConnectedDependencyDescriptionLine( CDependencyDes
     BEATS_ASSERT(bRet);
 }
 
-const std::vector<CDependencyDescriptionLine*>& CComponentProxy::GetBeConnectedDependencyLines()
+const std::vector<CDependencyDescriptionLine*>* CComponentProxy::GetBeConnectedDependencyLines()
 {
-    return *m_pBeConnectedDependencyLines;
+    return m_pBeConnectedDependencyLines;
 }
 
 void CComponentProxy::AddProperty(CPropertyDescriptionBase* pProperty)

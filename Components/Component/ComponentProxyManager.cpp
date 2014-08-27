@@ -16,6 +16,7 @@
 #include "FilePath/FilePathTool.h"
 #include <algorithm>
 #include "ComponentProjectDirectory.h"
+#include "ComponentReference.h"
 
 CComponentProxyManager* CComponentProxyManager::m_pInstance = NULL;
 
@@ -460,6 +461,46 @@ bool CComponentProxyManager::IsParent(size_t uParentGuid, size_t uChildGuid) con
         }
     }
     return bRet;
+}
+
+void CComponentProxyManager::RegisterComponentReference(CComponentReference* pReference)
+{
+    size_t uId = pReference->GetHostComponent()->GetId();
+    if (m_referenceMap.find(uId) == m_referenceMap.end())
+    {
+        m_referenceMap[uId] = std::vector<CComponentReference*>();
+    }
+    m_referenceMap[uId].push_back(pReference);
+}
+
+void CComponentProxyManager::UnregisterComponentReference(CComponentReference* pReference)
+{
+    size_t uId = pReference->GetHostComponent()->GetId();
+    BEATS_ASSERT(m_referenceMap.find(uId) != m_referenceMap.end());
+    std::vector<CComponentReference*>& referenceList = m_referenceMap[uId];
+    for (auto iter = referenceList.begin(); iter != referenceList.end(); ++iter)
+    {
+        if (*iter == pReference)
+        {
+            referenceList.erase(iter);
+            break;
+        }
+    }
+    if (referenceList.size() == 0)
+    {
+        m_referenceMap.erase(uId);
+    }
+}
+
+const std::map<size_t, std::vector<CComponentReference*>>& CComponentProxyManager::GetReferenceMap() const
+{
+    return m_referenceMap;
+}
+
+CComponentReference* CComponentProxyManager::CreateReference(CComponentProxy* pProxy)
+{
+    CComponentReference* pRet = new CComponentReference(pProxy);
+    return pRet;
 }
 
 void CComponentProxyManager::LoadTemplateDataFromXML(const TCHAR* pszPath)

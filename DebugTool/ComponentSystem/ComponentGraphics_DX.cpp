@@ -181,119 +181,122 @@ void CComponentGraphic_DX::DrawHead(float cellSize)
 
 void CComponentGraphic_DX::DrawDependencies( float cellSize )
 {
-    size_t uDependencyCount = m_pOwner->GetDependencies().size();
-    for (int i = 0; i < (int)uDependencyCount; ++i)
+    if (m_pOwner->GetDependencies() != NULL)
     {
-        // 1. Draw background.
-        m_pRenderDevice->SetTexture(0, m_pTextures[eCT_RectBG]);
-        SVertex dependencyPoints[4];
-        dependencyPoints[0].m_position.x = m_gridPosX * cellSize;    // Left top
-        dependencyPoints[0].m_position.y = (m_gridPosY - HEADER_HEIGHT - i * DEPENDENCY_HEIGHT) * cellSize;    
-        dependencyPoints[0].m_position.z = (float)m_gridPosZ;    
-        dependencyPoints[0].m_color = 0xffffffff;
-        dependencyPoints[0].m_uv.x = 0;
-        dependencyPoints[0].m_uv.y = 0;
-
-        dependencyPoints[1].m_position.x = m_gridPosX * cellSize;    // Left down
-        dependencyPoints[1].m_position.y = (m_gridPosY - HEADER_HEIGHT - (i + 1) * DEPENDENCY_HEIGHT) * cellSize;
-        dependencyPoints[1].m_position.z = (float)m_gridPosZ;    
-        dependencyPoints[1].m_color = 0xffffffff;
-        dependencyPoints[1].m_uv.x = 0;
-        dependencyPoints[1].m_uv.y = 1;
-
-        dependencyPoints[2].m_position.x = (m_gridPosX + MIN_WIDTH) * cellSize;    // Right top
-        dependencyPoints[2].m_position.y = (m_gridPosY - HEADER_HEIGHT - i * DEPENDENCY_HEIGHT) * cellSize ;
-        dependencyPoints[2].m_position.z = (float)m_gridPosZ;    
-        dependencyPoints[2].m_color = 0xffffffff;
-        dependencyPoints[2].m_uv.x = 1;
-        dependencyPoints[2].m_uv.y = 0;
-
-        dependencyPoints[3].m_position.x = (m_gridPosX + MIN_WIDTH) * cellSize;    // Right down
-        dependencyPoints[3].m_position.y = (m_gridPosY - HEADER_HEIGHT - (i + 1) * DEPENDENCY_HEIGHT) * cellSize;
-        dependencyPoints[3].m_position.z = (float)m_gridPosZ;    
-        dependencyPoints[3].m_color = 0xffffffff;
-        dependencyPoints[3].m_uv.x = 1;
-        dependencyPoints[3].m_uv.y = 1;
-
-        m_pRenderDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, dependencyPoints, sizeof(SVertex));
-
-        // 2. Draw dependency name.
-        IDirect3DSurface9* pSurface = NULL;
-        m_pRenderDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &pSurface);
-        D3DSURFACE_DESC surfaceDesc;
-        pSurface->GetDesc(&surfaceDesc);
-        pSurface->Release();
-        D3DVIEWPORT9 viewPort;
-        m_pRenderDevice->GetViewport(&viewPort);    
-        float dYRate = (float)surfaceDesc.Height / viewPort.Height;
-        float dXRate = (float)surfaceDesc.Width / viewPort.Width;
-        D3DMATRIX viewMatrix;
-        m_pRenderDevice->GetTransform(D3DTS_VIEW, &viewMatrix);
-        int x = (int)((m_gridPosX * cellSize + viewMatrix._41) / dXRate + viewPort.Width * 0.5f);
-        int y = (int)((-m_gridPosY * cellSize - viewMatrix._42) / dYRate + viewPort.Height * 0.5f);
-        RECT rc2;
-        rc2.left = x;
-        rc2.right = rc2.left + (long)((MIN_WIDTH * cellSize) / dXRate);
-        rc2.top = y + (int)((i * DEPENDENCY_HEIGHT + HEADER_HEIGHT) * cellSize) + HEADER_HEIGHT;
-        rc2.bottom = rc2.top + (long)((DEPENDENCY_HEIGHT * cellSize) / dYRate);
-        m_pFont->DrawText(NULL, m_pOwner->GetDependency(i)->GetDisplayName(), -1,  &rc2, DT_CENTER | DT_VCENTER | DT_SINGLELINE, 0xffffffff);
-
-        // 3. Draw Connect rect.
-        CDependencyDescription* pDescription = m_pOwner->GetDependency(i);
-        BEATS_ASSERT(pDescription != NULL);
-        bool bConnected = pDescription->GetDependencyLineCount() > 0;
-        EComponentTexture textureType = eCT_Count;
-        EDependencyType descriptionType = pDescription->GetType();
-        bool bIsList = pDescription->IsListType();
-        if (bConnected)
+        size_t uDependencyCount = m_pOwner->GetDependencies()->size();
+        for (int i = 0; i < (int)uDependencyCount; ++i)
         {
-            textureType = bIsList ? eCT_ConnectedDependencyList : eCT_ConnectedDependency;
-        }
-        else
-        {
-            if (bIsList)
+            // 1. Draw background.
+            m_pRenderDevice->SetTexture(0, m_pTextures[eCT_RectBG]);
+            SVertex dependencyPoints[4];
+            dependencyPoints[0].m_position.x = m_gridPosX * cellSize;    // Left top
+            dependencyPoints[0].m_position.y = (m_gridPosY - HEADER_HEIGHT - i * DEPENDENCY_HEIGHT) * cellSize;    
+            dependencyPoints[0].m_position.z = (float)m_gridPosZ;    
+            dependencyPoints[0].m_color = 0xffffffff;
+            dependencyPoints[0].m_uv.x = 0;
+            dependencyPoints[0].m_uv.y = 0;
+
+            dependencyPoints[1].m_position.x = m_gridPosX * cellSize;    // Left down
+            dependencyPoints[1].m_position.y = (m_gridPosY - HEADER_HEIGHT - (i + 1) * DEPENDENCY_HEIGHT) * cellSize;
+            dependencyPoints[1].m_position.z = (float)m_gridPosZ;    
+            dependencyPoints[1].m_color = 0xffffffff;
+            dependencyPoints[1].m_uv.x = 0;
+            dependencyPoints[1].m_uv.y = 1;
+
+            dependencyPoints[2].m_position.x = (m_gridPosX + MIN_WIDTH) * cellSize;    // Right top
+            dependencyPoints[2].m_position.y = (m_gridPosY - HEADER_HEIGHT - i * DEPENDENCY_HEIGHT) * cellSize ;
+            dependencyPoints[2].m_position.z = (float)m_gridPosZ;    
+            dependencyPoints[2].m_color = 0xffffffff;
+            dependencyPoints[2].m_uv.x = 1;
+            dependencyPoints[2].m_uv.y = 0;
+
+            dependencyPoints[3].m_position.x = (m_gridPosX + MIN_WIDTH) * cellSize;    // Right down
+            dependencyPoints[3].m_position.y = (m_gridPosY - HEADER_HEIGHT - (i + 1) * DEPENDENCY_HEIGHT) * cellSize;
+            dependencyPoints[3].m_position.z = (float)m_gridPosZ;    
+            dependencyPoints[3].m_color = 0xffffffff;
+            dependencyPoints[3].m_uv.x = 1;
+            dependencyPoints[3].m_uv.y = 1;
+
+            m_pRenderDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, dependencyPoints, sizeof(SVertex));
+
+            // 2. Draw dependency name.
+            IDirect3DSurface9* pSurface = NULL;
+            m_pRenderDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &pSurface);
+            D3DSURFACE_DESC surfaceDesc;
+            pSurface->GetDesc(&surfaceDesc);
+            pSurface->Release();
+            D3DVIEWPORT9 viewPort;
+            m_pRenderDevice->GetViewport(&viewPort);    
+            float dYRate = (float)surfaceDesc.Height / viewPort.Height;
+            float dXRate = (float)surfaceDesc.Width / viewPort.Width;
+            D3DMATRIX viewMatrix;
+            m_pRenderDevice->GetTransform(D3DTS_VIEW, &viewMatrix);
+            int x = (int)((m_gridPosX * cellSize + viewMatrix._41) / dXRate + viewPort.Width * 0.5f);
+            int y = (int)((-m_gridPosY * cellSize - viewMatrix._42) / dYRate + viewPort.Height * 0.5f);
+            RECT rc2;
+            rc2.left = x;
+            rc2.right = rc2.left + (long)((MIN_WIDTH * cellSize) / dXRate);
+            rc2.top = y + (int)((i * DEPENDENCY_HEIGHT + HEADER_HEIGHT) * cellSize) + HEADER_HEIGHT;
+            rc2.bottom = rc2.top + (long)((DEPENDENCY_HEIGHT * cellSize) / dYRate);
+            m_pFont->DrawText(NULL, m_pOwner->GetDependency(i)->GetDisplayName(), -1,  &rc2, DT_CENTER | DT_VCENTER | DT_SINGLELINE, 0xffffffff);
+
+            // 3. Draw Connect rect.
+            CDependencyDescription* pDescription = m_pOwner->GetDependency(i);
+            BEATS_ASSERT(pDescription != NULL);
+            bool bConnected = pDescription->GetDependencyLineCount() > 0;
+            EComponentTexture textureType = eCT_Count;
+            EDependencyType descriptionType = pDescription->GetType();
+            bool bIsList = pDescription->IsListType();
+            if (bConnected)
             {
-                textureType = descriptionType == eDT_Strong ? eCT_StrongDependencyList : eCT_WeakDependencyList;
+                textureType = bIsList ? eCT_ConnectedDependencyList : eCT_ConnectedDependency;
             }
             else
             {
-                textureType = descriptionType == eDT_Strong ? eCT_StrongDependency : eCT_WeakDependency;
+                if (bIsList)
+                {
+                    textureType = descriptionType == eDT_Strong ? eCT_StrongDependencyList : eCT_WeakDependencyList;
+                }
+                else
+                {
+                    textureType = descriptionType == eDT_Strong ? eCT_StrongDependency : eCT_WeakDependency;
+                }
             }
+            BEATS_ASSERT(textureType != eCT_Count);
+            m_pRenderDevice->SetTexture(0, m_pTextures[textureType]);
+
+            dependencyPoints[0].m_position.x = (m_gridPosX + MIN_WIDTH) * cellSize;    // Left top
+            dependencyPoints[0].m_position.y = (m_gridPosY - HEADER_HEIGHT - i * DEPENDENCY_HEIGHT) * cellSize;    
+            dependencyPoints[0].m_position.z = (float)m_gridPosZ;    
+            dependencyPoints[0].m_color = 0xffffffff;
+            dependencyPoints[0].m_uv.x = 0;
+            dependencyPoints[0].m_uv.y = 0;
+
+            dependencyPoints[1].m_position.x = (m_gridPosX + MIN_WIDTH) * cellSize;    // Left down
+            dependencyPoints[1].m_position.y = (m_gridPosY - HEADER_HEIGHT - (i + 1) * DEPENDENCY_HEIGHT) * cellSize;
+            dependencyPoints[1].m_position.z = (float)m_gridPosZ;    
+            dependencyPoints[1].m_color = 0xffffffff;
+            dependencyPoints[1].m_uv.x = 0;
+            dependencyPoints[1].m_uv.y = 1;
+
+            dependencyPoints[2].m_position.x = (m_gridPosX + MIN_WIDTH + CONNECTION_WIDTH) * cellSize;    // Right top
+            dependencyPoints[2].m_position.y = (m_gridPosY - HEADER_HEIGHT - i * DEPENDENCY_HEIGHT) * cellSize;
+            dependencyPoints[2].m_position.z = (float)m_gridPosZ;    
+            dependencyPoints[2].m_color = 0xffffffff;
+            dependencyPoints[2].m_uv.x = 1;
+            dependencyPoints[2].m_uv.y = 0;
+
+            dependencyPoints[3].m_position.x = (m_gridPosX + MIN_WIDTH + CONNECTION_WIDTH) * cellSize;    // Right down
+            dependencyPoints[3].m_position.y = (m_gridPosY - HEADER_HEIGHT - (i + 1) * DEPENDENCY_HEIGHT) * cellSize;
+            dependencyPoints[3].m_position.z = (float)m_gridPosZ;    
+            dependencyPoints[3].m_color = 0xffffffff;
+            dependencyPoints[3].m_uv.x = 1;
+            dependencyPoints[3].m_uv.y = 1;
+            m_pRenderDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, dependencyPoints, sizeof(SVertex));
+
+            // 4. Draw the line.
+            DrawDependencyLine(cellSize, m_pOwner->GetDependency(i));
         }
-        BEATS_ASSERT(textureType != eCT_Count);
-        m_pRenderDevice->SetTexture(0, m_pTextures[textureType]);
-
-        dependencyPoints[0].m_position.x = (m_gridPosX + MIN_WIDTH) * cellSize;    // Left top
-        dependencyPoints[0].m_position.y = (m_gridPosY - HEADER_HEIGHT - i * DEPENDENCY_HEIGHT) * cellSize;    
-        dependencyPoints[0].m_position.z = (float)m_gridPosZ;    
-        dependencyPoints[0].m_color = 0xffffffff;
-        dependencyPoints[0].m_uv.x = 0;
-        dependencyPoints[0].m_uv.y = 0;
-
-        dependencyPoints[1].m_position.x = (m_gridPosX + MIN_WIDTH) * cellSize;    // Left down
-        dependencyPoints[1].m_position.y = (m_gridPosY - HEADER_HEIGHT - (i + 1) * DEPENDENCY_HEIGHT) * cellSize;
-        dependencyPoints[1].m_position.z = (float)m_gridPosZ;    
-        dependencyPoints[1].m_color = 0xffffffff;
-        dependencyPoints[1].m_uv.x = 0;
-        dependencyPoints[1].m_uv.y = 1;
-
-        dependencyPoints[2].m_position.x = (m_gridPosX + MIN_WIDTH + CONNECTION_WIDTH) * cellSize;    // Right top
-        dependencyPoints[2].m_position.y = (m_gridPosY - HEADER_HEIGHT - i * DEPENDENCY_HEIGHT) * cellSize;
-        dependencyPoints[2].m_position.z = (float)m_gridPosZ;    
-        dependencyPoints[2].m_color = 0xffffffff;
-        dependencyPoints[2].m_uv.x = 1;
-        dependencyPoints[2].m_uv.y = 0;
-
-        dependencyPoints[3].m_position.x = (m_gridPosX + MIN_WIDTH + CONNECTION_WIDTH) * cellSize;    // Right down
-        dependencyPoints[3].m_position.y = (m_gridPosY - HEADER_HEIGHT - (i + 1) * DEPENDENCY_HEIGHT) * cellSize;
-        dependencyPoints[3].m_position.z = (float)m_gridPosZ;    
-        dependencyPoints[3].m_color = 0xffffffff;
-        dependencyPoints[3].m_uv.x = 1;
-        dependencyPoints[3].m_uv.y = 1;
-        m_pRenderDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, dependencyPoints, sizeof(SVertex));
-
-        // 4. Draw the line.
-        DrawDependencyLine(cellSize, m_pOwner->GetDependency(i));
     }
 }
 
