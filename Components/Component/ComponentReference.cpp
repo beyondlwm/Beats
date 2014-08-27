@@ -2,33 +2,38 @@
 #include "ComponentReference.h"
 
 CComponentReference::CComponentReference(CComponentProxy* pComponentHost)
-    : super(NULL)
-    , m_pComponentHost(pComponentHost)
+    : m_pHostProxy(pComponentHost)
 {
-    BEATS_ASSERT(m_pComponentHost != NULL);
+    BEATS_ASSERT(m_pHostProxy != NULL);
     m_pProperties = (std::vector<CPropertyDescriptionBase*>*)pComponentHost->GetPropertyPool();
-    m_pDependenciesDescription = new std::vector<CDependencyDescription*>();
     m_pBeConnectedDependencyLines = new std::vector<CDependencyDescriptionLine*>();
+    SetDisplayName(m_pHostProxy->GetDisplayName().c_str());
+    SetUserDefineDisplayName(m_pHostProxy->GetUserDefineDisplayName().c_str());
+    SetCatalogName(m_pHostProxy->GetCatalogName().c_str());
 }
 
 CComponentReference::~CComponentReference()
 {
     m_pProperties = NULL;
     BEATS_SAFE_DELETE(m_pBeConnectedDependencyLines);
-    BEATS_SAFE_DELETE(m_pDependenciesDescription);
+}
+
+CComponentProxy* CComponentReference::GetHostProxy()
+{
+    return m_pHostProxy;
 }
 
 size_t CComponentReference::GetGuid() const
 {
-    return m_pComponentHost->GetGuid();
+    return m_pHostProxy->GetGuid();
 }
 
 size_t CComponentReference::GetParentGuid() const
 {
-    return m_pComponentHost->GetGuid();
+    return m_pHostProxy->GetGuid();
 }
 
 const TCHAR* CComponentReference::GetClassStr() const
 {
-    return m_pComponentHost->GetClassStr();
+    return m_pHostProxy->GetClassStr();
 }

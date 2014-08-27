@@ -267,6 +267,12 @@ CComponentGraphic* CComponentProxy::GetGraphics()
     return m_pGraphics;
 }
 
+void CComponentProxy::SetGraphics(CComponentGraphic* pGraphics)
+{
+    m_pGraphics = pGraphics;
+    m_pGraphics->SetOwner(this);
+}
+
 void CComponentProxy::SetHostComponent(CComponentInstance* pComponent)
 {
     BEATS_ASSERT(m_pHostComponent == NULL || pComponent == NULL, _T("SetHostComponent should be called only once!"));

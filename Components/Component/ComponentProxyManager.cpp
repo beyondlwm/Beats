@@ -465,7 +465,7 @@ bool CComponentProxyManager::IsParent(size_t uParentGuid, size_t uChildGuid) con
 
 void CComponentProxyManager::RegisterComponentReference(CComponentReference* pReference)
 {
-    size_t uId = pReference->GetHostComponent()->GetId();
+    size_t uId = pReference->GetHostProxy()->GetId();
     if (m_referenceMap.find(uId) == m_referenceMap.end())
     {
         m_referenceMap[uId] = std::vector<CComponentReference*>();
@@ -475,7 +475,7 @@ void CComponentProxyManager::RegisterComponentReference(CComponentReference* pRe
 
 void CComponentProxyManager::UnregisterComponentReference(CComponentReference* pReference)
 {
-    size_t uId = pReference->GetHostComponent()->GetId();
+    size_t uId = pReference->GetHostProxy()->GetId();
     BEATS_ASSERT(m_referenceMap.find(uId) != m_referenceMap.end());
     std::vector<CComponentReference*>& referenceList = m_referenceMap[uId];
     for (auto iter = referenceList.begin(); iter != referenceList.end(); ++iter)
@@ -500,6 +500,11 @@ const std::map<size_t, std::vector<CComponentReference*>>& CComponentProxyManage
 CComponentReference* CComponentProxyManager::CreateReference(CComponentProxy* pProxy)
 {
     CComponentReference* pRet = new CComponentReference(pProxy);
+    pRet->SetId(m_pIdManager->GenerateId());
+    CComponentGraphic* pGraphics = pProxy->GetGraphics()->Clone();
+    pRet->SetGraphics(pGraphics);
+    RegisterInstance(pRet);
+    RegisterComponentReference(pRet);
     return pRet;
 }
 

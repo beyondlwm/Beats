@@ -29,6 +29,7 @@ public:
     const TString& GetUserDefineDisplayName() const;
     void SetUserDefineDisplayName(const TCHAR* pszUserDefineDisplayName);
     CComponentGraphic* GetGraphics();
+    void SetGraphics(CComponentGraphic* pGraphics);
 
     void SetHostComponent(CComponentInstance* pComponent);
     CComponentInstance* GetHostComponent() const;
