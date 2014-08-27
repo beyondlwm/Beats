@@ -16,6 +16,7 @@ CComponentProject::CComponentProject()
 , m_pComponentToTypeMap(new std::map<size_t, size_t>)
 , m_pComponentToFileMap(new std::map<size_t, size_t>)
 , m_pFileToComponentMap(new std::map<size_t, std::vector<size_t> >)
+, m_pFileToDirectoryMap(new std::map<size_t, CComponentProjectDirectory*>)
 , m_pTypeToComponentMap(new std::map<size_t, std::vector<size_t> >)
 , m_pPropertyMaintainMap(new std::map<size_t, std::map<TString, TString> >)
 , m_pFileDataLayout(new std::map<size_t, SFileDataLayout>)
@@ -30,6 +31,7 @@ CComponentProject::~CComponentProject()
     BEATS_SAFE_DELETE(m_pComponentToTypeMap);
     BEATS_SAFE_DELETE(m_pComponentToFileMap);
     BEATS_SAFE_DELETE(m_pFileToComponentMap);
+    BEATS_SAFE_DELETE(m_pFileToDirectoryMap);
     BEATS_SAFE_DELETE(m_pTypeToComponentMap);
     BEATS_SAFE_DELETE(m_pPropertyMaintainMap);
     BEATS_SAFE_DELETE(m_pFileDataLayout);
@@ -57,7 +59,7 @@ CComponentProjectDirectory* CComponentProject::LoadProject(const TCHAR* pszProje
             m_pProjectDirectory = new CComponentProjectDirectory(NULL, szTName);
             TString strStartLogicPath;
             LoadXMLProject(pRootElement, m_pProjectDirectory, strStartLogicPath, conflictIdMap);
-            m_pStartDirectory = FindProjectDirectory(strStartLogicPath);
+            m_pStartDirectory = FindProjectDirectory(strStartLogicPath, false);
             BEATS_ASSERT(m_pStartDirectory);
         }
         else
@@ -75,7 +77,8 @@ CComponentProjectDirectory* CComponentProject::LoadProject(const TCHAR* pszProje
 bool CComponentProject::CloseProject()
 {
     bool bRet = false;
-    CComponentProxyManager::GetInstance()->CloseFile();
+    const TString& strFilePath = CComponentProxyManager::GetInstance()->GetCurrentWorkingFilePath();
+    CComponentProxyManager::GetInstance()->CloseFile(strFilePath.c_str());
     CComponentProxyManager::GetInstance()->GetIdManager()->Reset();
     if (m_pProjectDirectory != NULL)
     {
@@ -291,18 +294,34 @@ void CComponentProject::SetLaunchStartDirectory(CComponentProjectDirectory* pDir
     m_pStartDirectory = pDirectory;
 }
 
-CComponentProjectDirectory* CComponentProject::FindProjectDirectory(const TString& strLogicPath) const
+CComponentProjectDirectory* CComponentProject::FindProjectDirectory(const TString& strPath, bool bAbsoluteOrLogicPath) const
 {
-    std::vector<TString> vecDirectories;
-    CStringHelper::GetInstance()->SplitString(strLogicPath.c_str(), _T("/"), vecDirectories);
-    CComponentProjectDirectory* pCurDirectory = m_pProjectDirectory;
-    //Ignore the root, so start from 1.
-    for (size_t i = 1; i < vecDirectories.size(); ++i)
+    CComponentProjectDirectory* pCurDirectory = NULL;
+    if (bAbsoluteOrLogicPath)
     {
-        pCurDirectory = pCurDirectory->FindChild(vecDirectories[i].c_str());
-        BEATS_ASSERT(pCurDirectory != NULL);
+        size_t uFileId = CComponentProxyManager::GetInstance()->GetProject()->GetComponentFileId(strPath);
+        BEATS_ASSERT(uFileId != 0xFFFFFFFF);
+        pCurDirectory = (*m_pFileToDirectoryMap)[uFileId];
     }
+    else
+    {
+        std::vector<TString> vecDirectories;
+        CStringHelper::GetInstance()->SplitString(strPath.c_str(), _T("/"), vecDirectories);
+        pCurDirectory = m_pProjectDirectory;
+        //Ignore the root, so start from 1.
+        for (size_t i = 1; i < vecDirectories.size(); ++i)
+        {
+            pCurDirectory = pCurDirectory->FindChild(vecDirectories[i].c_str());
+            BEATS_ASSERT(pCurDirectory != NULL);
+        }
+    }
+
     return pCurDirectory;
+}
+
+std::map<size_t, std::vector<size_t> >* CComponentProject::GetFileToComponentMap() const
+{
+    return m_pFileToComponentMap;
 }
 
 size_t CComponentProject::RegisterFile(const TString& strFileName, std::map<size_t, std::vector<size_t> >& failedId, size_t uSpecifyFileId/* = 0xFFFFFFFF*/)
@@ -517,19 +536,18 @@ size_t CComponentProject::QueryFileId(size_t uComponentId, bool bOnlyInProjectFi
     if (!bOnlyInProjectFile)
     {
         // 2. If the component is in the file which we are working on, research it since its dynamic records.
-        size_t uCurrentWorkingFileID = GetComponentFileId(CComponentProxyManager::GetInstance()->GetCurrentWorkingFilePath());
-        if (uCurrentWorkingFileID != 0xFFFFFFFF)
+        const std::map<size_t, CComponentProxy*>& componentsInScene = CComponentProxyManager::GetInstance()->GetComponentsInCurScene();
+        bool bInCurrentWorkingFile = componentsInScene.find(uComponentId) != componentsInScene.end();
+        if (bInCurrentWorkingFile)
         {
-            if (uRet == 0xFFFFFFFF || uRet == uCurrentWorkingFileID)
-            {
-                CComponentBase* pComponent = CComponentProxyManager::GetInstance()->GetComponentInstance(uComponentId);
-                // Can't find the data in static records since we may add the new component dynamically OR
-                // Find the data in static records but we have delete it dynamically.
-                uRet = pComponent != NULL ? uCurrentWorkingFileID : 0xFFFFFFFF;
-            }
+            // Can't find the data in static records since we may add the new component dynamically OR
+            // Find the data in static records but we have delete it dynamically.
+            const TString& strCurWorkingFile = CComponentProxyManager::GetInstance()->GetCurrentWorkingFilePath();
+            BEATS_ASSERT(!strCurWorkingFile.empty());
+            uRet = GetComponentFileId(strCurWorkingFile);
+            BEATS_ASSERT(CComponentProxyManager::GetInstance()->GetComponentInstance(uComponentId) != NULL);
         }
     }
-
     return uRet;
 }
 
@@ -555,6 +573,7 @@ void CComponentProject::LoadXMLProject(TiXmlElement* pNode, CComponentProjectDir
             CStringHelper::GetInstance()->ConvertToTCHAR(pPath, szTPath, MAX_PATH);
             TString strFilePath = CFilePathTool::GetInstance()->MakeAbsolute(m_strProjectFilePath.c_str(), szTPath);
             pProjectDirectory->AddFile(strFilePath.c_str(), conflictIdMap);
+            (*m_pFileToDirectoryMap)[m_pComponentFiles->size() - 1] = pProjectDirectory;
         }
         else if (strcmp(pText, "StartDirectory") == 0)
         {
@@ -573,27 +592,35 @@ void CComponentProject::LoadXMLProject(TiXmlElement* pNode, CComponentProjectDir
 
 void CComponentProject::RegisterComponent(size_t uFileID, size_t uComponentGuid, size_t uComponentId)
 {
-    // 1. Add in component -> file map.
-    BEATS_ASSERT(m_pComponentToFileMap->find(uComponentId) == m_pComponentToFileMap->end(), _T("An id can't be requested successfully twice!"));
-    (*m_pComponentToFileMap)[uComponentId] = uFileID;
-
-    // 2. Add in component -> type map.
-    BEATS_ASSERT(m_pComponentToTypeMap->find(uComponentId) == m_pComponentToTypeMap->end(), _T("An id can't be requested successfully twice!"));
-    (*m_pComponentToTypeMap)[uComponentId] = uComponentGuid;
-
-    // 3. Add in type -> component map.
-    if (m_pTypeToComponentMap->find(uComponentGuid) == m_pTypeToComponentMap->end())
+    if (uFileID == 0xFFFFFFFF)
     {
-        (*m_pTypeToComponentMap)[uComponentGuid] = std::vector<size_t>();
+        const TString& strCurFilePath = CComponentProxyManager::GetInstance()->GetCurrentWorkingFilePath();
+        uFileID = GetComponentFileId(strCurFilePath);
     }
-    (*m_pTypeToComponentMap)[uComponentGuid].push_back(uComponentId);
-
-    // 4. Add in file - > component map.
-    if (m_pFileToComponentMap->find(uFileID) == m_pFileToComponentMap->end())
+    if (uFileID != 0xFFFFFFFF)
     {
-        (*m_pFileToComponentMap)[uFileID] = std::vector<size_t>();
+        // 1. Add in component -> file map.
+        BEATS_ASSERT(m_pComponentToFileMap->find(uComponentId) == m_pComponentToFileMap->end(), _T("An id can't be requested successfully twice!"));
+        (*m_pComponentToFileMap)[uComponentId] = uFileID;
+
+        // 2. Add in component -> type map.
+        BEATS_ASSERT(m_pComponentToTypeMap->find(uComponentId) == m_pComponentToTypeMap->end(), _T("An id can't be requested successfully twice!"));
+        (*m_pComponentToTypeMap)[uComponentId] = uComponentGuid;
+
+        // 3. Add in type -> component map.
+        if (m_pTypeToComponentMap->find(uComponentGuid) == m_pTypeToComponentMap->end())
+        {
+            (*m_pTypeToComponentMap)[uComponentGuid] = std::vector<size_t>();
+        }
+        (*m_pTypeToComponentMap)[uComponentGuid].push_back(uComponentId);
+
+        // 4. Add in file - > component map.
+        if (m_pFileToComponentMap->find(uFileID) == m_pFileToComponentMap->end())
+        {
+            (*m_pFileToComponentMap)[uFileID] = std::vector<size_t>();
+        }
+        (*m_pFileToComponentMap)[uFileID].push_back(uComponentId);
     }
-    (*m_pFileToComponentMap)[uFileID].push_back(uComponentId);
 }
 
 void CComponentProject::UnregisterComponent(size_t uComponentId)

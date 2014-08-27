@@ -7,6 +7,7 @@ class CComponentProxy;
 class CPropertyDescriptionBase;
 class CComponentGraphic;
 class CComponentReference;
+class CComponentProjectDirectory;
 
 typedef CComponentProxy* (*TCreateComponentEditorProxyFunc)(CComponentGraphic* pGraphics, size_t guid, size_t parentGuid, TCHAR* className);
 typedef CComponentGraphic* (*TCreateGraphicFunc)();
@@ -19,7 +20,10 @@ class CComponentProxyManager : public CComponentManagerBase
 public:
     // param bOpenAsCopy means we will create a new file from template file.
     void OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy = false);
-    void CloseFile(bool bRefreshProjectData = true);
+    void LoadFile(const TCHAR* pszFilePath);
+    void LoadFileFromDirectory(CComponentProjectDirectory* pDirectory);
+
+    void CloseFile(const TCHAR* pszFilePath, bool bRefreshProjectData = true);
     const TString& GetCurrentWorkingFilePath() const;
 
     void Export(const TCHAR* pSavePath);
@@ -61,6 +65,11 @@ public:
     const std::map<size_t, std::vector<CComponentReference*>>& GetReferenceMap() const;
 
     CComponentReference* CreateReference(CComponentProxy* pProxy);
+
+    const std::map<size_t, CComponentProxy*>& GetComponentsInCurScene() const;
+    void OnCreateComponentInScene(CComponentProxy* pProxy);
+    void OnDeleteComponentInScene(CComponentProxy* pProxy);
+
 private:
     void LoadTemplateDataFromXML(const TCHAR* pWorkingPath);
     void LoadTemplateDataFromSerializer(CSerializer& serializer, TCreateComponentEditorProxyFunc func, TCreateGraphicFunc pGraphicFunc);
@@ -78,6 +87,8 @@ private:
 
     // This map store all reference info, key value is the real component id.
     std::map<size_t, std::vector<CComponentReference*>> m_referenceMap;
+
+    std::map<size_t, CComponentProxy*> m_proxyInCurScene;
 };
 
 

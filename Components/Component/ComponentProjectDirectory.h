@@ -31,6 +31,7 @@ public:
     void Deserialize(CSerializer& serializer);
 
     TString GenerateLogicPath() const;
+    TString MakeRelativeLogicPath(CComponentProjectDirectory* pFromDirectory);
 
 private:
     CComponentProjectDirectory* m_pParent;

@@ -45,97 +45,160 @@ CComponentProxyManager::~CComponentProxyManager()
 void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /*= false */)
 {
     m_bLoadingFilePhase = true;
-    if (!bOpenAsCopy || !m_currentWorkingFilePath.empty()) // We must first open a file,then we can copy from the pFilePath.
+    CComponentProjectDirectory* pDirectory = m_pProject->FindProjectDirectory(pFilePath, true);
+    CComponentProjectDirectory* pCurDirectory = m_pProject->GetRootDirectory();
+    BEATS_ASSERT(pDirectory != NULL);
+    std::vector<TString> logicPaths;
+    TString strLogicPath;
+    bool bIgnoreRoot = false;
+    if (m_currentWorkingFilePath.empty())
     {
-        char tmp[MAX_PATH] = {0};
-        CStringHelper::GetInstance()->ConvertToCHAR(pFilePath, tmp, MAX_PATH);
-        TiXmlDocument document(tmp);
-        bool loadSuccess = document.LoadFile(TIXML_ENCODING_LEGACY);
-        if (loadSuccess)
+        strLogicPath = pDirectory->GenerateLogicPath();
+        bIgnoreRoot = true;
+    }
+    else
+    {
+        pCurDirectory = m_pProject->FindProjectDirectory(m_currentWorkingFilePath, true);
+        BEATS_ASSERT(pCurDirectory != NULL);
+        strLogicPath = pDirectory->MakeRelativeLogicPath(pCurDirectory);
+        CloseFile(m_currentWorkingFilePath.c_str(), true);
+    }
+    CStringHelper::GetInstance()->SplitString(strLogicPath.c_str(), _T("/"), logicPaths);
+    size_t i = bIgnoreRoot ? 1 : 0;
+    // Don't load last directory, because we only load one file of it.
+    for (; i < logicPaths.size() - 1; ++i)
+    {
+        if (logicPaths[i].compare(_T("..")) == 0)
         {
-            TiXmlElement* pRootElement = document.RootElement();
-            TiXmlElement* pComponentListNode = pRootElement->FirstChildElement("Components");
-            std::vector<CComponentProxy*> copyOpenComponents;
-            if (pComponentListNode != NULL )
+            // If i == 0, the first go-up is finshed by close the current file.
+            if (i != 0)
             {
-                std::vector<int> reservedId; 
-                TiXmlElement* pComponentElement = pComponentListNode->FirstChildElement("Component");
-                while (pComponentElement != NULL && loadSuccess)
+                const std::vector<size_t>& fileList = pCurDirectory->GetParent()->GetFileList();
+                for (size_t i = 0; i < fileList.size(); ++i)
                 {
-                    const char* pGuidStr = pComponentElement->Attribute("GUID");
-                    char* pStopPos = NULL;
-                    int guid = strtoul(pGuidStr, &pStopPos, 16);
-                    TiXmlElement* pInstanceElement = pComponentElement->FirstChildElement("Instance");
-                    while (pInstanceElement != NULL && loadSuccess)
-                    {
-                        int id = -1;
-                        pInstanceElement->Attribute("Id", &id);
-                        BEATS_ASSERT(id != -1);
-                        CComponentProxy* pComopnent = (CComponentProxy*)(CreateComponent(guid, false, false, id, false, NULL, false));
-                        pComopnent->LoadFromXML(pInstanceElement);
-                        pInstanceElement = pInstanceElement->NextSiblingElement("Instance");
-                    }
-                    pComponentElement = pComponentElement->NextSiblingElement("Component");
+                    const TString& strFileName = m_pProject->GetComponentFileName(fileList[i]);
+                    CloseFile(strFileName.c_str(), false);
                 }
-            }
-            ResolveDependency();
-            InitializeAllInstance();
-            CComponentInstanceManager::GetInstance()->InitializeAllInstance();
-            if (bOpenAsCopy)
-            {
-                std::vector<CComponentBase*> allInstance;
-                std::map<size_t, std::map<size_t, CComponentBase*>*>::iterator iter = m_pComponentInstanceMap->begin();
-                for (; iter != m_pComponentInstanceMap->end(); ++iter)
-                {
-                    std::map<size_t, CComponentBase*>::iterator subIter = iter->second->begin();
-                    for (; subIter != iter->second->end(); ++subIter)
-                    {
-                        allInstance.push_back(subIter->second);
-                    }
-                }
-                for (size_t i = 0; i < allInstance.size(); ++i)
-                {
-                    UnregisterInstance(allInstance[i]);
-                    allInstance[i]->SetId(m_pIdManager->GenerateId());
-                    RegisterInstance(allInstance[i]);
-                }
-            }
-            else
-            {
-                m_currentWorkingFilePath.assign(pFilePath);
+                pCurDirectory = pCurDirectory->GetParent();
             }
         }
         else
         {
-            TCHAR info[MAX_PATH];
-            TCHAR reason[MAX_PATH];
-            CStringHelper::GetInstance()->ConvertToTCHAR(document.ErrorDesc(), reason, MAX_PATH);
-            _stprintf(info, _T("Load file :%s Failed!Reason:%s"), pFilePath, reason);
-            MessageBox(NULL, info, _T("Load File Failed"), MB_OK | MB_ICONERROR);
+            CComponentProjectDirectory* pDirectory = pCurDirectory->FindChild(logicPaths[i].c_str());
+            BEATS_ASSERT(pDirectory != NULL);
+            LoadFileFromDirectory(pDirectory);
+            pCurDirectory = pDirectory;
         }
     }
+    LoadFile(pFilePath);
+    ResolveDependency();
+    InitializeAllInstance();
+    CComponentInstanceManager::GetInstance()->InitializeAllInstance();
+    m_currentWorkingFilePath.assign(pFilePath);
+    size_t uFileId = m_pProject->GetComponentFileId(m_currentWorkingFilePath);
+    std::map<size_t, std::vector<size_t> >* pFileToComponentMap = m_pProject->GetFileToComponentMap();
+    auto fileToComponentIter = pFileToComponentMap->find(uFileId);
+    if (fileToComponentIter != pFileToComponentMap->end())
+    {
+       std::vector<size_t>& componentList = fileToComponentIter->second;
+       for (size_t i = 0; i < componentList.size(); ++i)
+       {
+           BEATS_ASSERT(m_proxyInCurScene.find(componentList[i]) == m_proxyInCurScene.end());
+           m_proxyInCurScene[componentList[i]] = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(componentList[i]));
+       }
+    }
+    //TODO: bOpenAsCopy seems useless.
+    bOpenAsCopy;
     m_bLoadingFilePhase = false;
 }
 
-void CComponentProxyManager::CloseFile(bool bRefreshProjectData)
+void CComponentProxyManager::LoadFile(const TCHAR* pszFilePath)
 {
-    if (m_currentWorkingFilePath.length() > 0)
+    char tmp[MAX_PATH] = {0};
+    CStringHelper::GetInstance()->ConvertToCHAR(pszFilePath, tmp, MAX_PATH);
+    TiXmlDocument document(tmp);
+    bool loadSuccess = document.LoadFile(TIXML_ENCODING_LEGACY);
+    if (loadSuccess)
     {
-        CComponentInstanceManager::GetInstance()->UninitializeAllInstance();
-        BEATS_ASSERT(m_pComponentInstanceMap->size() == 0, _T("component proxy is not totally cleared! check uninitialize function!"));
-        BEATS_ASSERT(CComponentInstanceManager::GetInstance()->GetComponentInstanceMap()->size() == 0, 
-            _T("component instance is not totally cleared! check uninitialize function!"));
+        TiXmlElement* pRootElement = document.RootElement();
+        TiXmlElement* pComponentListNode = pRootElement->FirstChildElement("Components");
+        std::vector<CComponentProxy*> copyOpenComponents;
+        if (pComponentListNode != NULL )
+        {
+            std::vector<int> reservedId; 
+            TiXmlElement* pComponentElement = pComponentListNode->FirstChildElement("Component");
+            while (pComponentElement != NULL && loadSuccess)
+            {
+                const char* pGuidStr = pComponentElement->Attribute("GUID");
+                char* pStopPos = NULL;
+                int guid = strtoul(pGuidStr, &pStopPos, 16);
+                TiXmlElement* pInstanceElement = pComponentElement->FirstChildElement("Instance");
+                while (pInstanceElement != NULL && loadSuccess)
+                {
+                    int id = -1;
+                    pInstanceElement->Attribute("Id", &id);
+                    BEATS_ASSERT(id != -1);
+                    CComponentProxy* pComopnent = (CComponentProxy*)(CreateComponent(guid, false, false, id, false, NULL, false));
+                    pComopnent->LoadFromXML(pInstanceElement);
+                    pInstanceElement = pInstanceElement->NextSiblingElement("Instance");
+                }
+                pComponentElement = pComponentElement->NextSiblingElement("Component");
+            }
+        }
+    }
+    else
+    {
+        TCHAR info[MAX_PATH];
+        TCHAR reason[MAX_PATH];
+        CStringHelper::GetInstance()->ConvertToTCHAR(document.ErrorDesc(), reason, MAX_PATH);
+        _stprintf(info, _T("Load file :%s Failed!Reason:%s"), pszFilePath, reason);
+        MessageBox(NULL, info, _T("Load File Failed"), MB_OK | MB_ICONERROR);
+    }
+}
 
-        CComponentInstanceManager::GetInstance()->DeleteAllInstance();
+void CComponentProxyManager::LoadFileFromDirectory(CComponentProjectDirectory* pDirectory)
+{
+    const std::vector<size_t>& fileList = pDirectory->GetFileList();
+    for (size_t i = 0; i < fileList.size(); ++i)
+    {
+        const TString& strFileName = m_pProject->GetComponentFileName(fileList[i]);
+        LoadFile(strFileName.c_str());
+    }
+}
+
+void CComponentProxyManager::CloseFile(const TCHAR* pszFilePath, bool bRefreshProjectData)
+{
+    if (_tcslen(pszFilePath) > 0)
+    {
+        if (m_currentWorkingFilePath.compare(pszFilePath) == 0)
+        {
+            m_proxyInCurScene.clear();
+        }
+        size_t uFileId = m_pProject->GetComponentFileId(pszFilePath);
+        std::map<size_t, std::vector<size_t> >* pFileToComponentMap = m_pProject->GetFileToComponentMap();
+        auto iter = pFileToComponentMap->find(uFileId);
+        BEATS_ASSERT(iter != pFileToComponentMap->end());
+        std::vector<CComponentBase*> componentToDelete;
+        for (size_t i = 0;i < iter->second.size(); ++i)
+        {
+            size_t uComponentId = iter->second.at(i);
+            CComponentBase* pComponent = CComponentInstanceManager::GetInstance()->GetComponentInstance(uComponentId);
+            BEATS_ASSERT(pComponent != NULL);
+            pComponent->Uninitialize();
+            componentToDelete.push_back(pComponent);
+        }
+        for (size_t i = 0; i < componentToDelete.size(); ++i)
+        {
+            BEATS_SAFE_DELETE(componentToDelete[i]);
+        }
         if (bRefreshProjectData)
         {
             // When we close a file, we may have saved it or reverted the change
             // However, no matter which way we have chosen, we just reload the whole file to keep the id manager is working in the right way.
-            size_t uFileId = m_pProject->GetComponentFileId(m_currentWorkingFilePath);
+            size_t uFileId = m_pProject->GetComponentFileId(pszFilePath);
             BEATS_ASSERT(uFileId != 0xFFFFFFFF);
             m_pProject->ReloadFile(uFileId);
         }
-        m_currentWorkingFilePath.clear();
     }
 }
 
@@ -156,7 +219,7 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
     TString workingFileCache = m_currentWorkingFilePath;
     if (m_currentWorkingFilePath.length() > 0)
     {
-        CloseFile();
+        CloseFile(m_currentWorkingFilePath.c_str());
     }
     size_t uFileCount = m_pProject->GetFileList()->size();
     serializer << uFileCount;
@@ -506,6 +569,23 @@ CComponentReference* CComponentProxyManager::CreateReference(CComponentProxy* pP
     RegisterInstance(pRet);
     RegisterComponentReference(pRet);
     return pRet;
+}
+
+const std::map<size_t, CComponentProxy*>& CComponentProxyManager::GetComponentsInCurScene() const
+{
+    return m_proxyInCurScene;
+}
+
+void CComponentProxyManager::OnCreateComponentInScene(CComponentProxy* pProxy)
+{
+    BEATS_ASSERT(m_proxyInCurScene.find(pProxy->GetId()) == m_proxyInCurScene.end());
+    m_proxyInCurScene[pProxy->GetId()] = pProxy;
+}
+
+void CComponentProxyManager::OnDeleteComponentInScene(CComponentProxy* pProxy)
+{
+    BEATS_ASSERT(m_proxyInCurScene.find(pProxy->GetId()) != m_proxyInCurScene.end());
+    m_proxyInCurScene.erase(pProxy->GetId());
 }
 
 void CComponentProxyManager::LoadTemplateDataFromXML(const TCHAR* pszPath)

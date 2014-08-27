@@ -68,7 +68,9 @@ public:
 
     CComponentProjectDirectory* GetLaunchStartDirectory() const;
     void SetLaunchStartDirectory(CComponentProjectDirectory* pDirectory);
-    CComponentProjectDirectory* FindProjectDirectory(const TString& strLogicPath) const;
+    CComponentProjectDirectory* FindProjectDirectory(const TString& strPath, bool bAbsoluteOrLogicPath) const;
+
+    std::map<size_t, std::vector<size_t> >* GetFileToComponentMap() const;
 
 private:
     void LoadXMLProject(TiXmlElement* pNode, CComponentProjectDirectory* pProjectDirectory, TString& startLogicPath, std::map<size_t, std::vector<size_t> >& conflictIdMap);
@@ -81,6 +83,7 @@ private:
     std::map<size_t, size_t>* m_pComponentToTypeMap;
     std::map<size_t, size_t>* m_pComponentToFileMap;
     std::map<size_t, std::vector<size_t> >* m_pFileToComponentMap;
+    std::map<size_t, CComponentProjectDirectory*>* m_pFileToDirectoryMap;
     std::map<size_t, std::vector<size_t> >* m_pTypeToComponentMap;
     // Store property replace info, size_t is the guid of component, map is the old property name and new property name.
     std::map<size_t, std::map<TString, TString> >* m_pPropertyMaintainMap;

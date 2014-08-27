@@ -817,7 +817,8 @@ void CBDTWxFrame::OnComponentFileListMenuClicked( wxMenuEvent& event )
                 else
                 {
                     BEATS_ASSERT(item == m_pComponentFileTreeControl->GetRootItem(), _T("Only root doesn't have a parent!"));
-                    CComponentProxyManager::GetInstance()->CloseFile();
+                    const TString& strFilePath = CComponentProxyManager::GetInstance()->GetCurrentWorkingFilePath();
+                    CComponentProxyManager::GetInstance()->CloseFile(strFilePath.c_str());
                     pProject->GetRootDirectory()->DeleteAll(true);
                     m_pComponentFileTreeControl->DeleteChildren(item);// Never delete the root item.
                 }
@@ -916,7 +917,7 @@ void CBDTWxFrame::CloseComponentFile(bool bRemindSave /*= true*/)
             }
         }
 
-        pComponentManager->CloseFile();
+        pComponentManager->CloseFile(strCurWorkingFile.c_str());
         m_pComponentRenderWindowSizer->GetStaticBox()->SetLabel(_T("Î´ÃüÃû"));
         size_t uPageCount = m_pComponentPageNoteBook->GetPageCount();
         int iComponentListPageIndex = -1;

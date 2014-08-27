@@ -46,7 +46,7 @@ CSerializer* CComponentInstanceManager::Import(const TCHAR* pszFilePath)
         pRootProject->Deserialize(serializer);
         TString strStartupDirectory;
         serializer >> strStartupDirectory;
-        CComponentProjectDirectory* pStartDirectory = m_pProject->FindProjectDirectory(strStartupDirectory);
+        CComponentProjectDirectory* pStartDirectory = m_pProject->FindProjectDirectory(strStartupDirectory, false);
         BEATS_ASSERT(pStartDirectory != NULL);
         m_pProject->SetLaunchStartDirectory(pStartDirectory);
         // 1. Load binarize data and file sturcture.

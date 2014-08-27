@@ -141,7 +141,7 @@ bool CComponentProjectDirectory::DeleteFile(size_t uFileId)
         bool bDeleteCurWorkingFile = strFileName.compare(pComopnentManager->GetCurrentWorkingFilePath()) == 0;
         if (bDeleteCurWorkingFile)
         {
-            pComopnentManager->CloseFile();
+            pComopnentManager->CloseFile(strFileName.c_str());
         }
         pProject->UnregisterFile(uFileId);
         bRet = true;
@@ -291,6 +291,42 @@ TString CComponentProjectDirectory::GenerateLogicPath() const
     {
         strRet.append(vecPath.back()).append(_T("/"));
         vecPath.pop_back();
+    }
+    return strRet;
+}
+
+TString CComponentProjectDirectory::MakeRelativeLogicPath(CComponentProjectDirectory* pFromDirectory)
+{
+    CComponentProjectDirectory* pCurDirectory = pFromDirectory;
+    std::vector<CComponentProjectDirectory*> fromPath;
+    while (pCurDirectory != NULL)
+    {
+        fromPath.push_back(pCurDirectory);
+        pCurDirectory = pCurDirectory->GetParent();
+    }
+    pCurDirectory = this;
+    std::vector<CComponentProjectDirectory*> toPath;
+    while (pCurDirectory != NULL)
+    {
+        toPath.push_back(pCurDirectory);
+        pCurDirectory = pCurDirectory->GetParent();
+    }
+    BEATS_ASSERT(toPath.back() == fromPath.back() && toPath.back() == CComponentProxyManager::GetInstance()->GetProject()->GetRootDirectory());
+    while (fromPath.size() > 0 && toPath.size() > 0 && fromPath.back() == toPath.back())
+    {
+        fromPath.pop_back();
+        toPath.pop_back();
+    }
+    TString strRet;
+    while (fromPath.size() > 0)
+    {
+        strRet.append(_T("../"));
+        fromPath.pop_back();
+    }
+    while (toPath.size() > 0)
+    {
+        strRet.append(toPath.back()->GetName());
+        toPath.pop_back();
     }
     return strRet;
 }
