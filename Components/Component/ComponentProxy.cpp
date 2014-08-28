@@ -25,7 +25,7 @@ CComponentProxy::CComponentProxy()
     , m_pSerializeOrder(NULL)
     , m_pProperties(NULL)
 {
-
+    m_pBeConnectedDependencyLines = new std::vector<CDependencyDescriptionLine*>();
 }
 
 CComponentProxy::CComponentProxy(CComponentGraphic* pGraphics)
@@ -350,10 +350,6 @@ void CComponentProxy::SaveToXML( TiXmlElement* pNode, bool bSaveOnlyNoneNativePa
 
 void CComponentProxy::LoadFromXML( TiXmlElement* pNode )
 {
-    const char* pFilePath = pNode->GetDocument()->Value();
-    TCHAR szFilePath[MAX_PATH];
-    CStringHelper::GetInstance()->ConvertToTCHAR(pFilePath, szFilePath, MAX_PATH);
-
     int x = 0;
     int y = 0;
     if (pNode->Attribute("PosX", &x) && pNode->Attribute("PosY", &y))
@@ -430,6 +426,9 @@ void CComponentProxy::LoadFromXML( TiXmlElement* pNode )
         }
         if (matchTypeProperties.size() > 0)
         {
+            const char* pFilePath = pNode->GetDocument()->Value();
+            TCHAR szFilePath[MAX_PATH];
+            CStringHelper::GetInstance()->ConvertToTCHAR(pFilePath, szFilePath, MAX_PATH);
             TCHAR szInform[1024];
             _stprintf(szInform, _T("Data:%s (In file\n%s\nComponent %s GUID:0x%x)is no longer valid in this version, contact developer for more information!\nTo Ignore click\"Yes\"\nReallocate click\"No\"\n"),
                 szTCHARVariableName,
@@ -589,6 +588,11 @@ void CComponentProxy::Save()
     {
         (*m_pProperties)[i]->Save();
     }
+}
+
+size_t CComponentProxy::GetProxyId()
+{
+    return GetId();
 }
 
 void CComponentProxy::Initialize()

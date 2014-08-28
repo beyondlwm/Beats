@@ -8,6 +8,7 @@
 #include "Utility/StringHelper/StringHelper.h"
 #include "Utility/Serializer/Serializer.h"
 #include "Component/ComponentInstance.h"
+#include "Component/ComponentReference.h"
 
 CDependencyDescription::CDependencyDescription(EDependencyType type, size_t dependencyGuid, CComponentProxy* pOwner, size_t uIndex, bool bIsList)
 : m_type(type)
@@ -127,14 +128,15 @@ void CDependencyDescription::SaveToXML( TiXmlElement* pParentNode )
         TiXmlElement* pDependencyElement = new TiXmlElement("Dependency");
         char szVariableName[MAX_PATH];
         CStringHelper::GetInstance()->ConvertToCHAR(m_variableName.c_str(), szVariableName, MAX_PATH);
-        pDependencyElement->SetAttribute("VariableName", szVariableName);        
+        pDependencyElement->SetAttribute("VariableName", szVariableName);
 
         for (size_t i = 0; i < m_dependencyLine.size(); ++i)
         {
             TiXmlElement* pDependencyNodeElement = new TiXmlElement("DependencyNode");
-            pDependencyNodeElement->SetAttribute("Id", (int)m_dependencyLine[i]->GetConnectedComponent()->GetId());
+            CComponentProxy* pProxy = m_dependencyLine[i]->GetConnectedComponent();
+            pDependencyNodeElement->SetAttribute("Id", (int)pProxy->GetId());
             char szGUIDHexStr[32] = {0};
-            sprintf(szGUIDHexStr, "0x%lx", m_dependencyLine[i]->GetConnectedComponent()->GetGuid());
+            sprintf(szGUIDHexStr, "0x%lx", pProxy->GetGuid());
             pDependencyNodeElement->SetAttribute("Guid", szGUIDHexStr);
             pDependencyElement->LinkEndChild(pDependencyNodeElement);
         }
@@ -276,6 +278,12 @@ void CDependencyDescription::Serialize(CSerializer& serializer)
     for (size_t j = 0; j < uLineCount; ++j)
     {
         CComponentBase* pConnectedComponent = this->GetDependencyLine(j)->GetConnectedComponent();
+        CComponentReference* pComponentReference = dynamic_cast<CComponentReference*>(pConnectedComponent);
+        if (pComponentReference != NULL)
+        {
+            pConnectedComponent = pComponentReference->GetHostProxy();
+            BEATS_ASSERT(pConnectedComponent != NULL);
+        }
         BEATS_ASSERT(pConnectedComponent != NULL);
         serializer << pConnectedComponent->GetId();
         serializer << pConnectedComponent->GetGuid();

@@ -57,7 +57,7 @@ public:
     virtual size_t GetParentGuid() const override;
     virtual const TCHAR* GetClassStr() const;
     void Save();
-
+    virtual size_t GetProxyId();
     virtual CComponentBase* Clone(bool bCloneValue, CSerializer* pSerializer, size_t id, bool bCallInitFunc = true) override;
 
     ///*
@@ -78,13 +78,13 @@ protected:
     std::vector<CPropertyDescriptionBase*>* m_pProperties;
     std::vector<CDependencyDescription*>* m_pDependenciesDescription;
     std::vector<CDependencyDescriptionLine*>* m_pBeConnectedDependencyLines;
+    CComponentInstance* m_pHostComponent;
 
 private:
     bool m_bIsTemplate;
     size_t m_uGuid;
     size_t m_uParentGuid;
     CComponentGraphic* m_pGraphics;
-    CComponentInstance* m_pHostComponent;
     std::vector<char>* m_pSerializeOrder; // this variable save the order of property/dependency data comes in when deserialize. we have to keep the order when serialize.
     TString m_strClassName;
     TString m_strDisplayName;

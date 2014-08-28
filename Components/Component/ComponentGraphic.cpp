@@ -6,7 +6,8 @@
 #include "DependencyDescription.h"
 
 CComponentGraphic::CComponentGraphic()
-: m_pOwner(NULL)
+: m_bIsReference(false)
+, m_pOwner(NULL)
 , m_width(0)
 , m_height(0)
 , m_gridPosX(0)
@@ -46,6 +47,16 @@ void CComponentGraphic::CaculateSize()
     // Notice: we only consider graphics width = body width + connection width, dependency width are ignored.
     m_width = MIN_WIDTH + CONNECTION_WIDTH;
     m_height = HEADER_HEIGHT + bodySize;
+}
+
+bool CComponentGraphic::IsReference() const
+{
+    return m_bIsReference;
+}
+
+void CComponentGraphic::SetReferenceFlag(bool bReferenceFlag)
+{
+    m_bIsReference = bReferenceFlag;
 }
 
 void CComponentGraphic::GetPosition(int* pOutX, int* pOutY)

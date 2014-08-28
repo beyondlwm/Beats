@@ -20,11 +20,12 @@ class CComponentProxyManager : public CComponentManagerBase
 public:
     // param bOpenAsCopy means we will create a new file from template file.
     void OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy = false);
-    void LoadFile(const TCHAR* pszFilePath);
-    void LoadFileFromDirectory(CComponentProjectDirectory* pDirectory);
+    void LoadFile(const TCHAR* pszFilePath, std::vector<CComponentProxy*>* pComponentContainer);
+    void LoadFileFromDirectory(CComponentProjectDirectory* pDirectory, std::vector<CComponentProxy*>* pComponentContainer);
 
     void CloseFile(const TCHAR* pszFilePath, bool bRefreshProjectData = true);
     const TString& GetCurrentWorkingFilePath() const;
+    const TString& GetCurrentViewFilePath() const;
 
     void Export(const TCHAR* pSavePath);
 
@@ -62,9 +63,10 @@ public:
 
     void RegisterComponentReference(CComponentReference* pReference);
     void UnregisterComponentReference(CComponentReference* pReference);
-    const std::map<size_t, std::vector<CComponentReference*>>& GetReferenceMap() const;
+    const std::map<size_t, std::vector<CComponentReference*>>& GetReferenceIdMap() const;
+    const std::map<size_t, CComponentReference*>& GetReferenceMap() const;
 
-    CComponentReference* CreateReference(CComponentProxy* pProxy);
+    CComponentReference* CreateReference(size_t uProxyId, size_t uReferenceGuid, size_t uId = 0xFFFFFFFF);
 
     const std::map<size_t, CComponentProxy*>& GetComponentsInCurScene() const;
     void OnCreateComponentInScene(CComponentProxy* pProxy);
@@ -78,6 +80,7 @@ private:
     bool m_bLoadingFilePhase;
     bool m_bReflectCheckFlag;
     TString m_currentWorkingFilePath;
+    TString m_currentViewFilePath;
     CPropertyDescriptionBase* m_pCurrReflectPropertyDescription;
     CDependencyDescription* m_pCurrReflectDependency;
     std::map<size_t, TCreatePropertyFunc>* m_pPropertyCreatorMap;
@@ -86,9 +89,11 @@ private:
     std::map<size_t, std::vector<size_t> >* m_pComponentInheritMap;
 
     // This map store all reference info, key value is the real component id.
-    std::map<size_t, std::vector<CComponentReference*>> m_referenceMap;
+    std::map<size_t, std::vector<CComponentReference*>> m_referenceIdMap;
+    std::map<size_t, CComponentReference*> m_referenceMap;
 
     std::map<size_t, CComponentProxy*> m_proxyInCurScene;
+    std::set<size_t> m_loadedFiles;
 };
 
 

@@ -37,7 +37,6 @@ void CComponentManagerBase::Release()
     BEATS_SAFE_DELETE(m_pUninitializedComponents);
 }
 
-
 void CComponentManagerBase::InitializeAllInstance()
 {
     std::map<size_t, std::map<size_t, CComponentBase*>*>::iterator iter = m_pComponentInstanceMap->begin();

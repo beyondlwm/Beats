@@ -1,21 +1,28 @@
 #include "stdafx.h"
 #include "ComponentReference.h"
+#include "Utility/TinyXML/tinyxml.h"
+#include "ComponentGraphic.h"
+
+CComponentReference::CComponentReference(size_t uProxyId, size_t uProxyGuid, CComponentGraphic* pGraphics)
+    : m_uReferenceId(uProxyId)
+    , m_uReferenceGuid(uProxyGuid)
+    , m_pHostProxy(NULL)
+{
+    SetGraphics(pGraphics);
+    pGraphics->SetReferenceFlag(true);
+}
 
 CComponentReference::CComponentReference(CComponentProxy* pComponentHost)
     : m_pHostProxy(pComponentHost)
+    , m_uReferenceGuid(m_pHostProxy->GetGuid())
+    , m_uReferenceId(m_pHostProxy->GetId())
 {
     BEATS_ASSERT(m_pHostProxy != NULL);
-    m_pProperties = (std::vector<CPropertyDescriptionBase*>*)pComponentHost->GetPropertyPool();
-    m_pBeConnectedDependencyLines = new std::vector<CDependencyDescriptionLine*>();
-    SetDisplayName(m_pHostProxy->GetDisplayName().c_str());
-    SetUserDefineDisplayName(m_pHostProxy->GetUserDefineDisplayName().c_str());
-    SetCatalogName(m_pHostProxy->GetCatalogName().c_str());
+    SetGraphics(pComponentHost->GetGraphics()->Clone());
 }
 
 CComponentReference::~CComponentReference()
 {
-    m_pProperties = NULL;
-    BEATS_SAFE_DELETE(m_pBeConnectedDependencyLines);
 }
 
 CComponentProxy* CComponentReference::GetHostProxy()
@@ -23,17 +30,92 @@ CComponentProxy* CComponentReference::GetHostProxy()
     return m_pHostProxy;
 }
 
+size_t CComponentReference::GetProxyId()
+{
+    return m_uReferenceId;
+}
+
 size_t CComponentReference::GetGuid() const
 {
-    return m_pHostProxy->GetGuid();
+    return m_uReferenceGuid;
 }
 
 size_t CComponentReference::GetParentGuid() const
 {
-    return m_pHostProxy->GetGuid();
+    return super::GetParentGuid();
 }
 
 const TCHAR* CComponentReference::GetClassStr() const
 {
-    return m_pHostProxy->GetClassStr();
+    return super::GetClassStr();
+}
+
+void CComponentReference::SaveToXML(TiXmlElement* pNode, bool bSaveOnlyNoneNativePart/* = false*/)
+{
+    TiXmlElement* pInstanceElement = new TiXmlElement("Reference");
+    pInstanceElement->SetAttribute("Id", (int)GetId());
+    int posX = 0;
+    int posY = 0;
+    if (GetGraphics())
+    {
+        GetGraphics()->GetPosition(&posX, &posY);
+    }
+    pInstanceElement->SetAttribute("PosX", posX);
+    pInstanceElement->SetAttribute("PosY", posY);
+    pInstanceElement->SetAttribute("ReferenceId", m_uReferenceId);
+    if (GetUserDefineDisplayName().length() > 0)
+    {
+        char szBuffer[MAX_PATH];
+        CStringHelper::GetInstance()->ConvertToCHAR(GetUserDefineDisplayName().c_str(), szBuffer, MAX_PATH);
+        pInstanceElement->SetAttribute("UserDefineName", szBuffer);
+    }
+    pNode->LinkEndChild(pInstanceElement);
+}
+
+void CComponentReference::LoadFromXML(TiXmlElement* pNode)
+{
+    int x = 0;
+    int y = 0;
+    if (pNode->Attribute("PosX", &x) && pNode->Attribute("PosY", &y))
+    {
+        GetGraphics()->SetPosition(x, y);
+    }
+    int nReferenceId = -1;
+    pNode->Attribute("ReferenceId", &nReferenceId);
+    m_uReferenceId = nReferenceId;
+
+    const char* pszUserDefineName = pNode->Attribute("UserDefineName");
+    if (pszUserDefineName != NULL)
+    {
+        TCHAR szBuffer[MAX_PATH];
+        CStringHelper::GetInstance()->ConvertToTCHAR(pszUserDefineName, szBuffer, MAX_PATH);
+        SetUserDefineDisplayName(szBuffer);
+    }
+}
+
+void CComponentReference::Initialize()
+{
+    CComponentBase::Initialize();
+    if (m_pHostProxy == NULL)
+    {
+        m_pHostProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(m_uReferenceId, m_uReferenceGuid));
+        BEATS_ASSERT(m_pHostProxy != NULL);
+    }
+#ifdef _DEBUG
+    else
+    {
+        BEATS_ASSERT(m_pHostProxy->GetGuid() == m_uReferenceGuid && m_pHostProxy->GetId() == m_uReferenceId);
+    }
+#endif
+    m_pProperties = (std::vector<CPropertyDescriptionBase*>*)m_pHostProxy->GetPropertyPool();
+    m_pHostComponent = m_pHostProxy->GetHostComponent();
+    SetDisplayName(m_pHostProxy->GetDisplayName().c_str());
+    SetUserDefineDisplayName(m_pHostProxy->GetUserDefineDisplayName().c_str());
+    SetCatalogName(m_pHostProxy->GetCatalogName().c_str());
+}
+
+void CComponentReference::Uninitialize()
+{
+    CComponentBase::Uninitialize();
+    m_pProperties = NULL;
 }

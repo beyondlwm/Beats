@@ -412,14 +412,20 @@ bool CComponentProject::AnalyseFile(const TString& strFileName, std::map<size_t,
                 std::vector<size_t>& idList = outResult[uComponentGuid];
                 while (pComponentElement != NULL)
                 {
-                    TiXmlElement* pInstanceElement = pComponentElement->FirstChildElement("Instance");
+                    TiXmlElement* pInstanceElement = pComponentElement->FirstChildElement();
                     while (pInstanceElement != NULL)
                     {
-                        int id = -1;
-                        pInstanceElement->Attribute("Id", &id);
-                        BEATS_ASSERT(id != -1);
-                        idList.push_back(id);
-                        pInstanceElement = pInstanceElement->NextSiblingElement("Instance");
+                        bool bFindProxy = _strcmpi(pInstanceElement->Value(), "Instance") == 0 ||
+                                        _strcmpi(pInstanceElement->Value(), "Reference") == 0;
+                        BEATS_ASSERT(bFindProxy, _T("Read invalid data!"));
+                        if (bFindProxy)
+                        {
+                            int id = -1;
+                            pInstanceElement->Attribute("Id", &id);
+                            BEATS_ASSERT(id != -1);
+                            idList.push_back(id);
+                        }
+                        pInstanceElement = pInstanceElement->NextSiblingElement();
                     }
                     pComponentElement = pComponentElement->NextSiblingElement("Component");
                 }
