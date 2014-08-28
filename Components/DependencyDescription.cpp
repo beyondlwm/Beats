@@ -132,8 +132,10 @@ void CDependencyDescription::SaveToXML( TiXmlElement* pParentNode )
 
         for (size_t i = 0; i < m_dependencyLine.size(); ++i)
         {
+            // Most of the time, we need to get the real connected component of the reference, as if the reference doesn't exists.
+            // However, we need the reference info when we save the component info.
             TiXmlElement* pDependencyNodeElement = new TiXmlElement("DependencyNode");
-            CComponentProxy* pProxy = m_dependencyLine[i]->GetConnectedComponent();
+            CComponentProxy* pProxy = m_dependencyLine[i]->GetConnectedComponent(false);
             pDependencyNodeElement->SetAttribute("Id", (int)pProxy->GetId());
             char szGUIDHexStr[32] = {0};
             sprintf(szGUIDHexStr, "0x%lx", pProxy->GetGuid());

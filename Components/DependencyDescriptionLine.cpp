@@ -167,13 +167,13 @@ CDependencyDescription* CDependencyDescriptionLine::GetOwnerDependency()
     return m_pOwner;
 }
 
-CComponentProxy* CDependencyDescriptionLine::GetConnectedComponent()
+CComponentProxy* CDependencyDescriptionLine::GetConnectedComponent(bool bNeedReference)
 {
     CComponentProxy* pRet = m_pConnectedComponent;
     if (m_pConnectedComponent != NULL)
     {
         bool bIsReference = m_pConnectedComponent->GetProxyId() != m_pConnectedComponent->GetId();
-        if (bIsReference)
+        if (bIsReference && bNeedReference)
         {
             pRet = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(m_pConnectedComponent->GetProxyId()));
         }

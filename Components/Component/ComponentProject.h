@@ -35,7 +35,7 @@ public:
 
     // Register file only when: 1. Load Project. 2.Add File. 3. Reload the file when close file(No matter save or not).
     // Unregister file only when: 1. Delete file. 2. Reset the id when close file.
-    size_t RegisterFile(const TString& strFileName, std::map<size_t, std::vector<size_t> >& failedId, size_t uSpecifyFileId = 0xFFFFFFFF);
+    size_t RegisterFile(CComponentProjectDirectory* pDirectory, const TString& strFileName, std::map<size_t, std::vector<size_t> >& failedId, size_t uSpecifyFileId = 0xFFFFFFFF);
     bool AnalyseFile(const TString& strFileName, std::map<size_t, std::vector<size_t> >& outResult);
     bool UnregisterFile(size_t uFileID);
     void ReloadFile(size_t uFileID);
@@ -71,7 +71,7 @@ public:
     CComponentProjectDirectory* FindProjectDirectory(const TString& strPath, bool bAbsoluteOrLogicPath) const;
 
     std::map<size_t, std::vector<size_t> >* GetFileToComponentMap() const;
-
+    std::map<size_t, std::vector<size_t>>* GetIdToReferenceMap() const;
 private:
     void LoadXMLProject(TiXmlElement* pNode, CComponentProjectDirectory* pProjectDirectory, TString& startLogicPath, std::map<size_t, std::vector<size_t> >& conflictIdMap);
     void SaveProjectFile( TiXmlElement* pParentNode, const CComponentProjectDirectory* p);
@@ -89,6 +89,8 @@ private:
     std::map<size_t, std::map<TString, TString> >* m_pPropertyMaintainMap;
     // This member only available in game mode, to save the info about file data layout in the export file.
     std::map<size_t, SFileDataLayout>* m_pFileDataLayout;
+    // Key is the proxy id of the real component, and the value is the reference ids
+    std::map<size_t, std::vector<size_t>>* m_pReferenceIdMap;
 
     TString m_strProjectFilePath;
     TString m_strProjectFileName;

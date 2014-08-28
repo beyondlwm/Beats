@@ -62,11 +62,14 @@ CComponentProxy::~CComponentProxy()
 {
     BEATS_ASSERT(m_pHostComponent == NULL || m_pHostComponent->GetId() == GetId());
     ClearProperty();
-    for (size_t i = 0; i < m_pDependenciesDescription->size(); ++i)
+    if (m_pDependenciesDescription != NULL)
     {
-        BEATS_SAFE_DELETE((*m_pDependenciesDescription)[i]);
+        for (size_t i = 0; i < m_pDependenciesDescription->size(); ++i)
+        {
+            BEATS_SAFE_DELETE((*m_pDependenciesDescription)[i]);
+        }
+        BEATS_SAFE_DELETE(m_pDependenciesDescription);
     }
-    BEATS_SAFE_DELETE(m_pDependenciesDescription);
 
     // In CDependencyDescriptionLine's destructor function, it will reduce the number in m_pBeConnectedDependencyLines.
     while (m_pBeConnectedDependencyLines->size() > 0)
@@ -555,11 +558,14 @@ void CComponentProxy::AddProperty(CPropertyDescriptionBase* pProperty)
 
 void CComponentProxy::ClearProperty()
 {
-    for (size_t i = 0; i < m_pProperties->size(); ++i)
+    if (m_pProperties != NULL)
     {
-        BEATS_SAFE_DELETE((*m_pProperties)[i]);
+        for (size_t i = 0; i < m_pProperties->size(); ++i)
+        {
+            BEATS_SAFE_DELETE((*m_pProperties)[i]);
+        }
+        m_pProperties->clear();
     }
-    m_pProperties->clear();
 }
 
 const std::vector<CPropertyDescriptionBase*>* CComponentProxy::GetPropertyPool() const
@@ -617,8 +623,11 @@ void CComponentProxy::Uninitialize()
         CComponentProxyManager::GetInstance()->UnregisterInstance(this);
         CComponentProxyManager::GetInstance()->GetIdManager()->RecycleId(uComponentId);
     }
-    for (size_t i = 0; i < (*m_pProperties).size(); ++i)
+    if (m_pProperties != NULL)
     {
-        (*m_pProperties)[i]->Uninitialize();
+        for (size_t i = 0; i < (*m_pProperties).size(); ++i)
+        {
+            (*m_pProperties)[i]->Uninitialize();
+        }
     }
 }

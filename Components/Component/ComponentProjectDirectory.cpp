@@ -25,7 +25,7 @@ CComponentProjectDirectory::~CComponentProjectDirectory()
 bool CComponentProjectDirectory::AddFile(const TString& strFileName, std::map<size_t, std::vector<size_t> >& conflictMap)
 {
     CComponentProject* pProject = CComponentProxyManager::GetInstance()->GetProject();
-    size_t uFileId = pProject->RegisterFile(strFileName, conflictMap);
+    size_t uFileId = pProject->RegisterFile(this, strFileName, conflictMap);
 #ifdef _DEBUG
     bool bFind = false;
     for (size_t i = 0; i < m_pFilesList->size(); ++i)

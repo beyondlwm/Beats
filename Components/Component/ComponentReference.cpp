@@ -80,9 +80,6 @@ void CComponentReference::LoadFromXML(TiXmlElement* pNode)
     {
         GetGraphics()->SetPosition(x, y);
     }
-    int nReferenceId = -1;
-    pNode->Attribute("ReferenceId", &nReferenceId);
-    m_uReferenceId = nReferenceId;
 
     const char* pszUserDefineName = pNode->Attribute("UserDefineName");
     if (pszUserDefineName != NULL)
@@ -116,6 +113,8 @@ void CComponentReference::Initialize()
 
 void CComponentReference::Uninitialize()
 {
-    CComponentBase::Uninitialize();
     m_pProperties = NULL;
+    m_pHostComponent = NULL;
+    super::Uninitialize();
+    CComponentProxyManager::GetInstance()->UnregisterComponentReference(this);
 }

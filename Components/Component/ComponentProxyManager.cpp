@@ -44,9 +44,13 @@ CComponentProxyManager::~CComponentProxyManager()
 
 void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /*= false */)
 {
+    // 2. File is at the same directory: close current file and open it.
+    // 3. File is in the son directory: don't close current, load rest files of directory and go on.
+    // 4. File is in other different directory: close current and change directory.
     CComponentProject* pProject = CComponentProxyManager::GetInstance()->GetProject();
     size_t uFileId = pProject->GetComponentFileId(pFilePath);
     BEATS_ASSERT(uFileId != 0xFFFFFFFF);
+    // 1. File is in the parent directory (loaded before): just change the content of m_proxyInCurScene
     if (m_loadedFiles.find(uFileId) != m_loadedFiles.end())
     {
         m_proxyInCurScene.clear();
@@ -185,8 +189,9 @@ void CComponentProxyManager::LoadFile(const TCHAR* pszFilePath, std::vector<CCom
                     }
                     else if (_stricmp(pInstanceElement->Value(), "Reference") == 0)
                     {
-                        // TODO: Use 0 for now, we will reset the value in LoadFromXML.
-                        pComponent = CreateReference(0, guid, id);
+                        int nReferenceId = -1;
+                        pInstanceElement->Attribute("ReferenceId", &nReferenceId);
+                        pComponent = CreateReference(nReferenceId, guid, id);
                     }
                     pComponent->LoadFromXML(pInstanceElement);
                     if (pComponentContainer != NULL)
@@ -613,7 +618,6 @@ void CComponentProxyManager::RegisterComponentReference(CComponentReference* pRe
     m_referenceIdMap[uId].push_back(pReference);
     BEATS_ASSERT(m_referenceMap.find(pReference->GetId()) == m_referenceMap.end());
     m_referenceMap[pReference->GetId()] = pReference;
-    RegisterInstance(pReference);
 }
 
 void CComponentProxyManager::UnregisterComponentReference(CComponentReference* pReference)
@@ -635,8 +639,6 @@ void CComponentProxyManager::UnregisterComponentReference(CComponentReference* p
     }
     BEATS_ASSERT(m_referenceMap.find(pReference->GetId()) != m_referenceMap.end());
     m_referenceMap.erase(pReference->GetId());
-
-    UnregisterInstance(pReference);
 }
 
 const std::map<size_t, std::vector<CComponentReference*>>& CComponentProxyManager::GetReferenceIdMap() const
@@ -656,6 +658,7 @@ CComponentReference* CComponentProxyManager::CreateReference(size_t uProxyId, si
     CComponentReference* pRet = new CComponentReference(uProxyId, uReferenceGuid, pTemplate->GetGraphics()->Clone());
     pRet->SetId(uId == 0xFFFFFFFF ? m_pIdManager->GenerateId() : uId);
     RegisterComponentReference(pRet);
+    RegisterInstance(pRet);
     return pRet;
 }
 
@@ -673,7 +676,61 @@ void CComponentProxyManager::OnCreateComponentInScene(CComponentProxy* pProxy)
 void CComponentProxyManager::OnDeleteComponentInScene(CComponentProxy* pProxy)
 {
     BEATS_ASSERT(m_proxyInCurScene.find(pProxy->GetId()) != m_proxyInCurScene.end());
-    m_proxyInCurScene.erase(pProxy->GetId());
+    bool bIsReference = pProxy->GetId() != pProxy->GetProxyId();
+    if (bIsReference)
+    {
+        CComponentReference* pReference = dynamic_cast<CComponentReference*>(pProxy);
+        BEATS_ASSERT(pReference != NULL);
+        pReference->Uninitialize();
+        BEATS_SAFE_DELETE(pReference);
+        m_proxyInCurScene.erase(pProxy->GetId());
+    }
+    else
+    {
+        size_t uProxyId = pProxy->GetId();
+        std::vector<size_t> allReferenceId;
+        std::map<size_t, std::vector<size_t>>* pIdToReferenceMap = m_pProject->GetIdToReferenceMap();
+        std::map<size_t, std::vector<size_t>>::iterator idToRefIter = pIdToReferenceMap->find(uProxyId);
+        if (idToRefIter != pIdToReferenceMap->end())
+        {
+            allReferenceId = idToRefIter->second;
+        }
+        std::map<size_t, std::vector<CComponentReference*>>::iterator iter = m_referenceIdMap.find(uProxyId);
+        if (iter != m_referenceIdMap.end())
+        {
+            for (size_t i = 0; i < iter->second.size(); ++i)
+            {
+                allReferenceId.push_back(iter->second.at(i)->GetId());
+            }
+        }
+        if (allReferenceId.size() > 0)
+        {
+            TCHAR szBuffer[10240];
+            _stprintf(szBuffer, _T("无法删除该组件，请先删除位于以下位置的%d个引用：\n"), allReferenceId.size());
+            TString strInfo;
+            strInfo.append(szBuffer);
+            for (size_t i = 0; i < allReferenceId.size(); ++i)
+            {
+                size_t uRefId = allReferenceId[i];
+                size_t uFileId = m_pProject->QueryFileId(uRefId, false);
+                const TString& strFilePath = m_pProject->GetComponentFileName(uFileId);
+                _stprintf(szBuffer, _T("%d. %s\n"), i, strFilePath.c_str());
+                strInfo.append(szBuffer);
+            }
+            MessageBox(NULL, strInfo.c_str(), _T("无法删除"), MB_OK);
+        }
+        else
+        {
+            CComponentInstance* pHostComponent = pProxy->GetHostComponent();
+            if (pHostComponent != NULL)
+            {
+                BEATS_ASSERT(m_proxyInCurScene.find(pProxy->GetId()) != m_proxyInCurScene.end())
+                m_proxyInCurScene.erase(pProxy->GetId());
+                pHostComponent->Uninitialize();
+                BEATS_SAFE_DELETE(pHostComponent);
+            }
+        }
+    }
 }
 
 void CComponentProxyManager::LoadTemplateDataFromXML(const TCHAR* pszPath)

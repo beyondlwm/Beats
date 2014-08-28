@@ -20,6 +20,7 @@ CComponentProject::CComponentProject()
 , m_pTypeToComponentMap(new std::map<size_t, std::vector<size_t> >)
 , m_pPropertyMaintainMap(new std::map<size_t, std::map<TString, TString> >)
 , m_pFileDataLayout(new std::map<size_t, SFileDataLayout>)
+, m_pReferenceIdMap(new std::map<size_t, std::vector<size_t> >)
 {
 
 }
@@ -35,6 +36,7 @@ CComponentProject::~CComponentProject()
     BEATS_SAFE_DELETE(m_pTypeToComponentMap);
     BEATS_SAFE_DELETE(m_pPropertyMaintainMap);
     BEATS_SAFE_DELETE(m_pFileDataLayout);
+    BEATS_SAFE_DELETE(m_pReferenceIdMap);
 }
 
 CComponentProjectDirectory* CComponentProject::LoadProject(const TCHAR* pszProjectFile, std::map<size_t, std::vector<size_t> >& conflictIdMap)
@@ -324,7 +326,12 @@ std::map<size_t, std::vector<size_t> >* CComponentProject::GetFileToComponentMap
     return m_pFileToComponentMap;
 }
 
-size_t CComponentProject::RegisterFile(const TString& strFileName, std::map<size_t, std::vector<size_t> >& failedId, size_t uSpecifyFileId/* = 0xFFFFFFFF*/)
+std::map<size_t, std::vector<size_t>>* CComponentProject::GetIdToReferenceMap() const
+{
+    return m_pReferenceIdMap;
+}
+
+size_t CComponentProject::RegisterFile(CComponentProjectDirectory* pDirectory, const TString& strFileName, std::map<size_t, std::vector<size_t> >& failedId, size_t uSpecifyFileId/* = 0xFFFFFFFF*/)
 {
     size_t uFileID = 0xFFFFFFFF;
     if (uSpecifyFileId != 0xFFFFFFFF)
@@ -382,6 +389,8 @@ size_t CComponentProject::RegisterFile(const TString& strFileName, std::map<size
             }
         }
     }
+    BEATS_ASSERT(m_pFileToDirectoryMap->find(uFileID) == m_pFileToDirectoryMap->end());
+    (*m_pFileToDirectoryMap)[uFileID] = pDirectory;
     return uFileID;
 }
 
@@ -415,8 +424,8 @@ bool CComponentProject::AnalyseFile(const TString& strFileName, std::map<size_t,
                     TiXmlElement* pInstanceElement = pComponentElement->FirstChildElement();
                     while (pInstanceElement != NULL)
                     {
-                        bool bFindProxy = _strcmpi(pInstanceElement->Value(), "Instance") == 0 ||
-                                        _strcmpi(pInstanceElement->Value(), "Reference") == 0;
+                        bool bIsReference = _strcmpi(pInstanceElement->Value(), "Reference") == 0;
+                        bool bFindProxy = _strcmpi(pInstanceElement->Value(), "Instance") == 0 || bIsReference;
                         BEATS_ASSERT(bFindProxy, _T("Read invalid data!"));
                         if (bFindProxy)
                         {
@@ -424,6 +433,17 @@ bool CComponentProject::AnalyseFile(const TString& strFileName, std::map<size_t,
                             pInstanceElement->Attribute("Id", &id);
                             BEATS_ASSERT(id != -1);
                             idList.push_back(id);
+                            if (bIsReference)
+                            {
+                                int proxyId = -1;
+                                pInstanceElement->Attribute("ReferenceId", &proxyId);
+                                BEATS_ASSERT(proxyId != -1);
+                                if (m_pReferenceIdMap->find(proxyId) == m_pReferenceIdMap->end())
+                                {
+                                    (*m_pReferenceIdMap)[proxyId] = std::vector<size_t>();
+                                }
+                                (*m_pReferenceIdMap)[proxyId].push_back(id);
+                            }
                         }
                         pInstanceElement = pInstanceElement->NextSiblingElement();
                     }
@@ -469,18 +489,22 @@ bool CComponentProject::UnregisterFile(size_t uFileId)
         }
     }
     m_pFileToComponentMap->erase(uFileId);
+    BEATS_ASSERT(m_pFileToDirectoryMap->find(uFileId) != m_pFileToDirectoryMap->end());
+    m_pFileToDirectoryMap->erase(uFileId);
     return bRet;
 }
 
 void CComponentProject::ReloadFile(size_t uFileID)
 {
     TString strFileName = GetComponentFileName(uFileID);
+    BEATS_ASSERT(m_pFileToDirectoryMap->find(uFileID) != m_pFileToDirectoryMap->end());
+    CComponentProjectDirectory* pDirectory = (*m_pFileToDirectoryMap)[uFileID];
     bool bRet = UnregisterFile(uFileID);
     BEATS_ASSERT(bRet && strFileName.length() > 0);
     if (bRet && strFileName.length() > 0)
     {
         std::map<size_t, std::vector<size_t> > failedId;
-        RegisterFile(strFileName, failedId, uFileID);
+        RegisterFile(pDirectory, strFileName, failedId, uFileID);
         BEATS_ASSERT(failedId.size() == 0, _T("Impossible to have any failture here!"));
     }
 }
