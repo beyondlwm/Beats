@@ -222,11 +222,11 @@ void CComponentProxyManager::LoadFile(const TCHAR* pszFilePath, std::vector<CCom
                     pInstanceElement->Attribute("Id", &id);
                     BEATS_ASSERT(id != -1);
                     CComponentProxy* pComponent = NULL;
-                    if (_stricmp(pInstanceElement->Value(), "Instance") == 0)
+                    if (strcmp(pInstanceElement->Value(), "Instance") == 0)
                     {
                         pComponent = (CComponentProxy*)(CreateComponent(guid, false, false, id, false, NULL, false));
                     }
-                    else if (_stricmp(pInstanceElement->Value(), "Reference") == 0)
+                    else if (strcmp(pInstanceElement->Value(), "Reference") == 0)
                     {
                         int nReferenceId = -1;
                         pInstanceElement->Attribute("ReferenceId", &nReferenceId);

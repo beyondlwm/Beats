@@ -5,7 +5,6 @@
 #include "Utility/StringHelper/StringHelper.h"
 #include "Utility/TinyXML/tinyxml.h"
 #include "Utility/IdManager/IdManager.h"
-#include <string>
 #include "Utility/UtilityManager.h"
 #include "FilePath/FilePathTool.h"
 
@@ -190,7 +189,7 @@ void CComponentProject::ResolveIdForFile(size_t uFileId, size_t idToResolve, boo
                 const char* pszGuidStr = pComponentElement->Attribute("GUID");
                 char* pStopPos = NULL;
                 size_t uComponentGuid = strtoul(pszGuidStr, &pStopPos, 16);
-                BEATS_ASSERT(*pStopPos == NULL, _T("Guid value %s is not a 0x value at file %s."), pszGuidStr, strFileName.c_str());
+                BEATS_ASSERT(*pStopPos == 0, _T("Guid value %s is not a 0x value at file %s."), pszGuidStr, strFileName.c_str());
                 RegisterComponent(uFileId, uComponentGuid, iNewID);
                 while (pComponentElement != NULL)
                 {
@@ -416,7 +415,7 @@ bool CComponentProject::AnalyseFile(const TString& strFileName, std::map<size_t,
                 const char* pszGuidStr = pComponentElement->Attribute("GUID");
                 char* pStopPos = NULL;
                 size_t uComponentGuid = strtoul(pszGuidStr, &pStopPos, 16);
-                BEATS_ASSERT(*pStopPos == NULL, _T("Guid value %s is not a 0x value at file %s."), pszGuidStr, strFileName.c_str());
+                BEATS_ASSERT(*pStopPos == 0, _T("Guid value %s is not a 0x value at file %s."), pszGuidStr, strFileName.c_str());
                 if (outResult.find(uComponentGuid) == outResult.end())
                 {
                     outResult[uComponentGuid] = std::vector<size_t>();
@@ -427,8 +426,8 @@ bool CComponentProject::AnalyseFile(const TString& strFileName, std::map<size_t,
                     TiXmlElement* pInstanceElement = pComponentElement->FirstChildElement();
                     while (pInstanceElement != NULL)
                     {
-                        bool bIsReference = _strcmpi(pInstanceElement->Value(), "Reference") == 0;
-                        bool bFindProxy = _strcmpi(pInstanceElement->Value(), "Instance") == 0 || bIsReference;
+                        bool bIsReference = strcmp(pInstanceElement->Value(), "Reference") == 0;
+                        bool bFindProxy = strcmp(pInstanceElement->Value(), "Instance") == 0 || bIsReference;
                         BEATS_ASSERT(bFindProxy, _T("Read invalid data!"));
                         if (bFindProxy)
                         {
