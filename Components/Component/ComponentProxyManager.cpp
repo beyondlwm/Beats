@@ -50,6 +50,7 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /
     BEATS_ASSERT(uFileId != 0xFFFFFFFF);
     std::vector<CComponentProxy*> loadedComponents;
     bool bLoadThisFile = true;
+    bool bNewAddThisFile = false;
     // 1. File is in the parent directory (loaded before): just change the content of m_proxyInCurScene
     if (m_loadedFiles.find(uFileId) != m_loadedFiles.end())
     {
@@ -117,25 +118,35 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /
                 }
                 else// 4. File is in other different directory: close current and change directory.
                 {
-                    CloseFile(m_currentWorkingFilePath.c_str(), true);
-                    CComponentProjectDirectory* pCurLoopDirectory = pCurDirectory->GetParent();
-                    for (int i = 1; i < (int)logicPaths.size() - 1; ++i)
+                    // This means the file should be already loaded (since it's in the parent directory)
+                    // But it is not in the m_loadedFiles, so this file must be a new added one
+                    // So we do some nothing as if it is already loaded.
+                    if (logicPaths.back().compare(_T("..")) == 0)
                     {
-                        if (logicPaths[i].compare(_T("..")) == 0)
+                        bNewAddThisFile = true;
+                    }
+                    else
+                    {
+                        CloseFile(m_currentWorkingFilePath.c_str(), true);
+                        CComponentProjectDirectory* pCurLoopDirectory = pCurDirectory->GetParent();
+                        for (int i = 1; i < (int)logicPaths.size() - 1; ++i)
                         {
-                            const std::vector<size_t>& fileList = pCurLoopDirectory->GetFileList();
-                            for (size_t i = 0; i < fileList.size(); ++i)
+                            if (logicPaths[i].compare(_T("..")) == 0)
                             {
-                                const TString& strFileName = m_pProject->GetComponentFileName(fileList[i]);
-                                CloseFile(strFileName.c_str(), false);
+                                const std::vector<size_t>& fileList = pCurLoopDirectory->GetFileList();
+                                for (size_t i = 0; i < fileList.size(); ++i)
+                                {
+                                    const TString& strFileName = m_pProject->GetComponentFileName(fileList[i]);
+                                    CloseFile(strFileName.c_str(), false);
+                                }
+                                pCurLoopDirectory = pCurLoopDirectory->GetParent();
                             }
-                            pCurLoopDirectory = pCurLoopDirectory->GetParent();
-                        }
-                        else
-                        {
-                            pCurLoopDirectory = pCurLoopDirectory->FindChild(logicPaths[i].c_str());
-                            BEATS_ASSERT(pCurLoopDirectory != NULL);
-                            LoadFileFromDirectory(pCurLoopDirectory, &loadedComponents);
+                            else
+                            {
+                                pCurLoopDirectory = pCurLoopDirectory->FindChild(logicPaths[i].c_str());
+                                BEATS_ASSERT(pCurLoopDirectory != NULL);
+                                LoadFileFromDirectory(pCurLoopDirectory, &loadedComponents);
+                            }
                         }
                     }
                 }
@@ -146,14 +157,17 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /
     if (bLoadThisFile)
     {
         LoadFile(pFilePath, &loadedComponents);
-        m_currentWorkingFilePath.assign(pFilePath);
-        m_currentViewFilePath.assign(pFilePath);
-    }
-    else
-    {
-        m_currentViewFilePath.assign(pFilePath);
+        if (!bNewAddThisFile)
+        {
+            m_currentWorkingFilePath.assign(pFilePath);
+        }
     }
 
+    if (m_currentViewFilePath.compare(pFilePath) != 0)
+    {
+        SaveCurFile();
+        m_currentViewFilePath.assign(pFilePath);
+    }
     ResolveDependency();
     for (size_t i = 0; i < loadedComponents.size(); ++i)
     {
@@ -303,7 +317,7 @@ void CComponentProxyManager::CloseFile(const TCHAR* pszFilePath, bool bRefreshPr
             {
                 size_t uComponentId = iter->second.at(i);
                 CComponentProxy* pComponentProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(uComponentId));
-                // This may be null, because some comopnents can be uninitialized by other component's uninitialize.
+                // This may be null, because some components can be uninitialized by other component's uninitialize.
                 if (pComponentProxy != NULL)
                 {
                     CComponentBase* pComponent = pComponentProxy;
@@ -500,14 +514,9 @@ void CComponentProxyManager::SaveTemplate(const TCHAR* pszFilePath)
     document.SaveFile(pathInChar);
 }
 
-void CComponentProxyManager::SaveToFile( const TCHAR* pFileName /* = NULL*/)
+void CComponentProxyManager::SaveCurFile()
 {
-    if (pFileName == NULL)
-    {
-        pFileName = m_currentWorkingFilePath.c_str();
-    }
-    BEATS_ASSERT(_tcslen(pFileName) > 0);
-    if (_tcslen(pFileName) > 0)
+    if (!m_currentViewFilePath.empty())
     {
         TiXmlDocument document;
         TiXmlDeclaration* pDeclaration = new TiXmlDeclaration("1.0","","");
@@ -547,8 +556,11 @@ void CComponentProxyManager::SaveToFile( const TCHAR* pFileName /* = NULL*/)
         }
         pRootElement->LinkEndChild(pComponentListElement);
         char pathInChar[MAX_PATH] = {0};
-        CStringHelper::GetInstance()->ConvertToCHAR(pFileName, pathInChar, MAX_PATH);
+        CStringHelper::GetInstance()->ConvertToCHAR(m_currentViewFilePath.c_str(), pathInChar, MAX_PATH);
         document.SaveFile(pathInChar);
+        size_t uFileId = m_pProject->GetComponentFileId(m_currentViewFilePath);
+        BEATS_ASSERT(uFileId != 0xFFFFFFFF);
+        m_pProject->ReloadFile(uFileId);
     }
 }
 

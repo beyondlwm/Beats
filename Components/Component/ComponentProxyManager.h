@@ -34,7 +34,7 @@ public:
     TString QueryComponentName(size_t uGuid) const;
 
     void SaveTemplate(const TCHAR* pszFilePath);
-    void SaveToFile(const TCHAR* pFileName = NULL);
+    void SaveCurFile();
 
     void RegisterPropertyCreator(size_t enumType, TCreatePropertyFunc func);
     CPropertyDescriptionBase* CreateProperty(size_t propertyType, CSerializer* serializer);

@@ -913,7 +913,7 @@ void CBDTWxFrame::CloseComponentFile(bool bRemindSave /*= true*/)
             int iRet = wxMessageBox(wxString::Format(_T("是否要保存当前文件?\n%s"), strCurWorkingFile.c_str()), _T("保存文件"), wxYES_NO);
             if (iRet == wxYES)
             {
-                pComponentManager->SaveToFile(strCurWorkingFile.c_str());
+                pComponentManager->SaveCurFile();
             }
         }
 
@@ -1002,7 +1002,7 @@ void CBDTWxFrame::OnComponentSaveButtonClick(wxCommandEvent& /*event*/)
                 const TString curWorkingFile = CComponentProxyManager::GetInstance()->GetCurrentWorkingFilePath();
                 if (curWorkingFile.length() > 0)
                 {
-                    CComponentProxyManager::GetInstance()->SaveToFile(curWorkingFile.c_str());
+                    CComponentProxyManager::GetInstance()->SaveCurFile();
                 }
             }
             UpdatePropertyGrid();

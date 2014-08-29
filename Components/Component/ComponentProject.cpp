@@ -52,6 +52,7 @@ CComponentProjectDirectory* CComponentProject::LoadProject(const TCHAR* pszProje
 
         TiXmlDocument document;
         bool bLoadSuccess = document.LoadFile(szProjectFileChar);
+        BEATS_ASSERT(bLoadSuccess, _T("Load file %s failed!"), szProjectFileChar);
         if (bLoadSuccess)
         {
             TiXmlElement* pRootElement = document.RootElement();
