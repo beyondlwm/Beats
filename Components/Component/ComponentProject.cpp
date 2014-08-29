@@ -80,7 +80,10 @@ bool CComponentProject::CloseProject()
 {
     bool bRet = false;
     const TString& strFilePath = CComponentProxyManager::GetInstance()->GetCurrentWorkingFilePath();
-    CComponentProxyManager::GetInstance()->CloseFile(strFilePath.c_str());
+    if (!strFilePath.empty())
+    {
+        CComponentProxyManager::GetInstance()->CloseFile(strFilePath.c_str());
+    }
     CComponentProxyManager::GetInstance()->GetIdManager()->Reset();
     if (m_pProjectDirectory != NULL)
     {

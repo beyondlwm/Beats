@@ -325,7 +325,7 @@ TString CComponentProjectDirectory::MakeRelativeLogicPath(CComponentProjectDirec
     }
     while (toPath.size() > 0)
     {
-        strRet.append(toPath.back()->GetName());
+        strRet.append(toPath.back()->GetName()).append(_T("/"));
         toPath.pop_back();
     }
     return strRet;
