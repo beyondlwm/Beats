@@ -329,7 +329,7 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
     pRootProject->Serialize(serializer);
     serializer << m_pProject->GetLaunchStartDirectory()->GenerateLogicPath();
     TString workingFileCache = m_currentWorkingFilePath;
-    if (m_currentWorkingFilePath.length() > 0)
+    if (!m_currentWorkingFilePath.empty())
     {
         CloseFile(m_currentWorkingFilePath.c_str());
     }
@@ -349,9 +349,19 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
         {
             for (std::map<size_t, CComponentBase*>::iterator subIter = iter->second->begin(); subIter != iter->second->end(); ++subIter)
             {
-                ++uComponentCount;
                 CComponentProxy* pProxy = static_cast<CComponentProxy*>(subIter->second);
-                pProxy->Serialize(serializer, eVT_SavedValue);
+                // Don't export component reference
+                if (pProxy->GetProxyId() == pProxy->GetId())
+                {
+                    pProxy->Serialize(serializer, eVT_SavedValue);
+                    ++uComponentCount;
+                }
+#ifdef _DEBUG
+                else
+                {
+                    BEATS_ASSERT(dynamic_cast<CComponentReference*>(pProxy) != NULL);
+                }
+#endif
             }
         }
         size_t uCurWritePos = serializer.GetWritePos();
