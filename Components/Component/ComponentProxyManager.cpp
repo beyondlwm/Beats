@@ -328,40 +328,51 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
     CComponentProjectDirectory* pRootProject = m_pProject->GetRootDirectory();
     pRootProject->Serialize(serializer);
     serializer << m_pProject->GetLaunchStartDirectory()->GenerateLogicPath();
-    TString workingFileCache = m_currentWorkingFilePath;
-    if (!m_currentWorkingFilePath.empty())
-    {
-        CloseFile(m_currentWorkingFilePath.c_str());
-    }
+
     size_t uFileCount = m_pProject->GetFileList()->size();
     serializer << uFileCount;
     for (size_t i = 0; i < uFileCount; ++i)
     {
         const TString& strFileName = m_pProject->GetFileList()->at(i);
-        OpenFile(strFileName.c_str());
+        BEATS_ASSERT(m_pProject->GetComponentFileId(strFileName) == i);
+        std::map<size_t, std::vector<size_t> >* pFileToComponent = m_pProject->GetFileToComponentMap();
+        std::map<size_t, std::vector<size_t> >::iterator iter = pFileToComponent->find(i);
+        BEATS_ASSERT(iter != pFileToComponent->end());
+        const std::vector<size_t>& componentsInFile = iter->second;
         size_t uComponentCount = 0;
         size_t uWritePos = serializer.GetWritePos();
         serializer << uWritePos;// File Start pos.
         serializer << uWritePos;// File size placeholder.
         serializer.GetWritePos();
         serializer << uComponentCount;
-        for (std::map<size_t, std::map<size_t, CComponentBase*>*>::iterator iter = m_pComponentInstanceMap->begin(); iter != m_pComponentInstanceMap->end(); ++iter)
+        if (m_loadedFiles.find(i) != m_loadedFiles.end())
         {
-            for (std::map<size_t, CComponentBase*>::iterator subIter = iter->second->begin(); subIter != iter->second->end(); ++subIter)
+            for (size_t j = 0; j < componentsInFile.size(); ++j)
             {
-                CComponentProxy* pProxy = static_cast<CComponentProxy*>(subIter->second);
+                CComponentProxy* pProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(componentsInFile[j]));
                 // Don't export component reference
                 if (pProxy->GetProxyId() == pProxy->GetId())
                 {
                     pProxy->Serialize(serializer, eVT_SavedValue);
                     ++uComponentCount;
                 }
-#ifdef _DEBUG
-                else
+            }
+        }
+        else
+        {
+            std::vector<CComponentProxy*> vecComponents;
+            LoadFile(strFileName.c_str(), &vecComponents);
+            for (size_t j = 0; j < vecComponents.size(); ++j)
+            {
+                CComponentProxy* pProxy = vecComponents[j];
+                pProxy->Initialize();
+                if (pProxy->GetProxyId() == pProxy->GetId())
                 {
-                    BEATS_ASSERT(dynamic_cast<CComponentReference*>(pProxy) != NULL);
+                    pProxy->Serialize(serializer, eVT_SavedValue);
+                    ++uComponentCount;
                 }
-#endif
+                pProxy->Uninitialize();
+                BEATS_SAFE_DELETE(pProxy);
             }
         }
         size_t uCurWritePos = serializer.GetWritePos();
@@ -370,16 +381,8 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
         serializer << uFileDataSize; // Exclude file size.
         serializer << uComponentCount;
         serializer.SetWritePos(uCurWritePos);
-        // We just open the file to do export operation, it's not possible to change the file, so we don't refresh the project data to save time.
-        SaveToFile(strFileName.c_str());
-        CloseFile(false);
     }
     serializer.Deserialize(pSavePath);
-    //Restore the file which was opened before export.
-    if (workingFileCache.length() > 0)
-    {
-        OpenFile(workingFileCache.c_str());
-    }
 }
 
 void CComponentProxyManager::QueryDerivedClass(size_t uBaseClassGuid, std::vector<size_t>& result, bool bRecurse ) const

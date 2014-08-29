@@ -281,7 +281,7 @@ void CDependencyDescription::Serialize(CSerializer& serializer)
     {
         // Don't Return any reference, returen the real proxy.
         CComponentBase* pConnectedComponent = this->GetDependencyLine(j)->GetConnectedComponent(true);
-        BEATS_ASSERT(pConnectedComponent != NULL && dynamic_cast<CComponentReference*>(pConnectedComponent) != NULL);
+        BEATS_ASSERT(pConnectedComponent != NULL && dynamic_cast<CComponentReference*>(pConnectedComponent) == NULL);
         serializer << pConnectedComponent->GetId();
         serializer << pConnectedComponent->GetGuid();
     }
