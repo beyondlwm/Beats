@@ -558,6 +558,12 @@ void CComponentProxyManager::SaveCurFile()
         char pathInChar[MAX_PATH] = {0};
         CStringHelper::GetInstance()->ConvertToCHAR(m_currentViewFilePath.c_str(), pathInChar, MAX_PATH);
         document.SaveFile(pathInChar);
+
+        // Recycle all id, because we will reload it in CComponentProject::ReloadFile
+        for (auto iter = componentsInScene.begin(); iter != componentsInScene.end(); ++iter)
+        {
+            m_pIdManager->RecycleId(iter->first);
+        }
         size_t uFileId = m_pProject->GetComponentFileId(m_currentViewFilePath);
         BEATS_ASSERT(uFileId != 0xFFFFFFFF);
         m_pProject->ReloadFile(uFileId);
