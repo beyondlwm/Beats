@@ -14,8 +14,11 @@ public:
     void RecycleId(size_t id);
     void Reset();
     bool IsIdFree(size_t id);
+    void Lock();
+    void UnLock();
 
 private:
+    bool m_bLock;
     size_t m_lastId;
     std::set<size_t> m_freeIdPool;
 };

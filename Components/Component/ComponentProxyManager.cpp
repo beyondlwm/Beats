@@ -281,6 +281,9 @@ void CComponentProxyManager::LoadFileFromDirectory(CComponentProjectDirectory* p
 
 void CComponentProxyManager::CloseFile(const TCHAR* pszFilePath)
 {
+    // TODO: Lock id manager, since we will recycle id in component's uninitialize function.
+    // However, we don't want that, so we lock the id manager for now.
+    m_pIdManager->Lock();
     BEATS_ASSERT(_tcslen(pszFilePath) > 0, _T("Can't close empty file!"));
     std::vector<CComponentBase*> componentToDelete;
     // Closing file is not current scene, query id from the static data: m_pProject.
@@ -348,6 +351,7 @@ void CComponentProxyManager::CloseFile(const TCHAR* pszFilePath)
         BEATS_SAFE_DELETE(componentToDelete[i]);
     }
     m_loadedFiles.erase(uFileId);
+    m_pIdManager->UnLock();
 }
 
 const TString& CComponentProxyManager::GetCurrentWorkingFilePath() const

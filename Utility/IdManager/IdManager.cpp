@@ -3,6 +3,7 @@
 
 CIdManager::CIdManager()
 : m_lastId(0)
+, m_bLock(false)
 {
 
 }
@@ -30,21 +31,24 @@ size_t CIdManager::GenerateId()
 
 void CIdManager::RecycleId( size_t id )
 {
-    BEATS_ASSERT( id < m_lastId, _T("Can't recycle an id which is not reserved."));
-    if (id < m_lastId)
+    if (!m_bLock)
     {
-        if (id == m_lastId - 1)
+        BEATS_ASSERT( id < m_lastId, _T("Can't recycle an id which is not reserved."));
+        if (id < m_lastId)
         {
-            --m_lastId;
-            while (m_freeIdPool.find(m_lastId - 1) != m_freeIdPool.end())
+            if (id == m_lastId - 1)
             {
-                m_freeIdPool.erase(--m_lastId);
+                --m_lastId;
+                while (m_freeIdPool.find(m_lastId - 1) != m_freeIdPool.end())
+                {
+                    m_freeIdPool.erase(--m_lastId);
+                }
             }
-        }
-        else
-        {
-            BEATS_ASSERT(m_freeIdPool.find(id) == m_freeIdPool.end(), _T("Id: %d can't be recycled twice!"), id);
-            m_freeIdPool.insert(id);
+            else
+            {
+                BEATS_ASSERT(m_freeIdPool.find(id) == m_freeIdPool.end(), _T("Id: %d can't be recycled twice!"), id);
+                m_freeIdPool.insert(id);
+            }
         }
     }
 }
@@ -85,4 +89,16 @@ bool CIdManager::IsIdFree(size_t id)
 {
     bool bRet = id >= m_lastId || m_freeIdPool.find(id) != m_freeIdPool.end();
     return bRet;
+}
+
+void CIdManager::Lock()
+{
+    BEATS_ASSERT(!m_bLock, _T("Can't lock id manager twice!"));
+    m_bLock = true;
+}
+
+void CIdManager::UnLock()
+{
+    BEATS_ASSERT(m_bLock, _T("Can't unlock id manager twice!"));
+    m_bLock = false;
 }
