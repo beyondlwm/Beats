@@ -23,7 +23,7 @@ public:
     void LoadFile(const TCHAR* pszFilePath, std::vector<CComponentProxy*>* pComponentContainer);
     void LoadFileFromDirectory(CComponentProjectDirectory* pDirectory, std::vector<CComponentProxy*>* pComponentContainer);
 
-    void CloseFile(const TCHAR* pszFilePath, bool bRefreshProjectData = true);
+    void CloseFile(const TCHAR* pszFilePath);
     const TString& GetCurrentWorkingFilePath() const;
     const TString& GetCurrentViewFilePath() const;
 

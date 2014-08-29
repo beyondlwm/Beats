@@ -51,6 +51,13 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /
     std::vector<CComponentProxy*> loadedComponents;
     bool bLoadThisFile = true;
     bool bNewAddThisFile = false;
+    // Save cur file.
+    if (m_currentViewFilePath.compare(pFilePath) != 0)
+    {
+        SaveCurFile();
+        m_currentViewFilePath.assign(pFilePath);
+    }
+
     // 1. File is in the parent directory (loaded before): just change the content of m_proxyInCurScene
     if (m_loadedFiles.find(uFileId) != m_loadedFiles.end())
     {
@@ -87,7 +94,7 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /
             // 2. File is at the same directory: close current file and open it.
             if (strLogicPath.empty())
             {
-                CloseFile(m_currentWorkingFilePath.c_str(), true);
+                CloseFile(m_currentWorkingFilePath.c_str());
             }
             else
             {
@@ -127,7 +134,7 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /
                     }
                     else
                     {
-                        CloseFile(m_currentWorkingFilePath.c_str(), true);
+                        CloseFile(m_currentWorkingFilePath.c_str());
                         CComponentProjectDirectory* pCurLoopDirectory = pCurDirectory->GetParent();
                         for (int i = 1; i < (int)logicPaths.size() - 1; ++i)
                         {
@@ -137,7 +144,7 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /
                                 for (size_t i = 0; i < fileList.size(); ++i)
                                 {
                                     const TString& strFileName = m_pProject->GetComponentFileName(fileList[i]);
-                                    CloseFile(strFileName.c_str(), false);
+                                    CloseFile(strFileName.c_str());
                                 }
                                 pCurLoopDirectory = pCurLoopDirectory->GetParent();
                             }
@@ -163,11 +170,6 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /
         }
     }
 
-    if (m_currentViewFilePath.compare(pFilePath) != 0)
-    {
-        SaveCurFile();
-        m_currentViewFilePath.assign(pFilePath);
-    }
     ResolveDependency();
     for (size_t i = 0; i < loadedComponents.size(); ++i)
     {
@@ -277,7 +279,7 @@ void CComponentProxyManager::LoadFileFromDirectory(CComponentProjectDirectory* p
     }
 }
 
-void CComponentProxyManager::CloseFile(const TCHAR* pszFilePath, bool bRefreshProjectData)
+void CComponentProxyManager::CloseFile(const TCHAR* pszFilePath)
 {
     BEATS_ASSERT(_tcslen(pszFilePath) > 0, _T("Can't close empty file!"));
     std::vector<CComponentBase*> componentToDelete;
@@ -285,16 +287,26 @@ void CComponentProxyManager::CloseFile(const TCHAR* pszFilePath, bool bRefreshPr
     size_t uFileId = m_pProject->GetComponentFileId(pszFilePath);
     if (m_currentWorkingFilePath.compare(pszFilePath) == 0)
     {
+#ifdef _DEBUG
+        for (auto iter = m_proxyInCurScene.begin(); iter != m_proxyInCurScene.end(); ++iter)
+        {
+            BEATS_ASSERT(iter->second->IsInitialized());
+        }
+#endif
         //Closing current file, just get the m_proxyInCurScene
         for (auto iter = m_proxyInCurScene.begin(); iter != m_proxyInCurScene.end(); ++iter)
         {
-            CComponentBase* pComponent = iter->second;
-            if (iter->second->GetProxyId() == iter->second->GetId())
+            // It is possible that some components are uninitialized by other's uninitialize.
+            if (iter->second->IsInitialized())
             {
-                pComponent = iter->second->GetHostComponent();
+                CComponentBase* pComponent = iter->second;
+                if (iter->second->GetProxyId() == iter->second->GetId())
+                {
+                    pComponent = iter->second->GetHostComponent();
+                }
+                pComponent->Uninitialize();
+                componentToDelete.push_back(pComponent);
             }
-            pComponent->Uninitialize();
-            componentToDelete.push_back(pComponent);
         }
         m_proxyInCurScene.clear();
     }
@@ -310,7 +322,7 @@ void CComponentProxyManager::CloseFile(const TCHAR* pszFilePath, bool bRefreshPr
             {
                 size_t uComponentId = iter->second.at(i);
                 CComponentProxy* pComponentProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(uComponentId));
-                BEATS_ASSERT(pComponentProxy != NULL);
+                BEATS_ASSERT(pComponentProxy != NULL && pComponentProxy->IsInitialized());
             }
 #endif
             for (size_t i = 0;i < iter->second.size(); ++i)
@@ -318,7 +330,7 @@ void CComponentProxyManager::CloseFile(const TCHAR* pszFilePath, bool bRefreshPr
                 size_t uComponentId = iter->second.at(i);
                 CComponentProxy* pComponentProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(uComponentId));
                 // This may be null, because some components can be uninitialized by other component's uninitialize.
-                if (pComponentProxy != NULL)
+                if (pComponentProxy != NULL && pComponentProxy->IsInitialized())
                 {
                     CComponentBase* pComponent = pComponentProxy;
                     if (pComponentProxy->GetProxyId() == pComponentProxy->GetId())
@@ -334,14 +346,6 @@ void CComponentProxyManager::CloseFile(const TCHAR* pszFilePath, bool bRefreshPr
     for (size_t i = 0; i < componentToDelete.size(); ++i)
     {
         BEATS_SAFE_DELETE(componentToDelete[i]);
-    }
-    if (bRefreshProjectData)
-    {
-        // When we close a file, we may have saved it or reverted the change
-        // However, no matter which way we have chosen, we just reload the whole file to keep the id manager is working in the right way.
-        size_t uFileId = m_pProject->GetComponentFileId(pszFilePath);
-        BEATS_ASSERT(uFileId != 0xFFFFFFFF);
-        m_pProject->ReloadFile(uFileId);
     }
     m_loadedFiles.erase(uFileId);
 }
@@ -566,6 +570,7 @@ void CComponentProxyManager::SaveCurFile()
         }
         size_t uFileId = m_pProject->GetComponentFileId(m_currentViewFilePath);
         BEATS_ASSERT(uFileId != 0xFFFFFFFF);
+        // We just reload the whole file to keep the id manager is working in the right way.
         m_pProject->ReloadFile(uFileId);
     }
 }
