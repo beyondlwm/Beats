@@ -209,6 +209,7 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /
 
 void CComponentProxyManager::LoadFile(const TCHAR* pszFilePath, std::vector<CComponentProxy*>* pComponentContainer)
 {
+    m_bLoadingFilePhase = true;
     char tmp[MAX_PATH] = {0};
     CStringHelper::GetInstance()->ConvertToCHAR(pszFilePath, tmp, MAX_PATH);
     TiXmlDocument document(tmp);
@@ -267,6 +268,7 @@ void CComponentProxyManager::LoadFile(const TCHAR* pszFilePath, std::vector<CCom
         _stprintf(info, _T("Load file :%s Failed!Reason:%s"), pszFilePath, reason);
         MessageBox(NULL, info, _T("Load File Failed"), MB_OK | MB_ICONERROR);
     }
+    m_bLoadingFilePhase = false;
 }
 
 void CComponentProxyManager::LoadFileFromDirectory(CComponentProjectDirectory* pDirectory, std::vector<CComponentProxy*>* pComponentContainer)
@@ -402,6 +404,7 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
         {
             std::vector<CComponentProxy*> vecComponents;
             LoadFile(strFileName.c_str(), &vecComponents);
+            ResolveDependency();
             for (size_t j = 0; j < vecComponents.size(); ++j)
             {
                 CComponentProxy* pProxy = vecComponents[j];
