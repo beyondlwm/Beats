@@ -37,6 +37,11 @@ bool CComponentBase::Unload()
     return true;
 }
 
+bool CComponentBase::IsLoaded() const
+{
+    return m_bLoaded;
+}
+
 bool CComponentBase::IsInitialized()
 {
     return m_bInitialize;

@@ -36,6 +36,8 @@ public:
     bool IsInitialized();
     virtual bool Load(); // this method do some load stuff, which can be done in other thread.
     virtual bool Unload();
+    bool IsLoaded() const;
+
     virtual void Initialize();// this method can only be called in main thread, including render operation.
     virtual void Uninitialize();
 

@@ -369,7 +369,9 @@ void CComponentProxy::LoadFromXML( TiXmlElement* pNode )
     std::map<TString, CPropertyDescriptionBase*> unInitializedproperties;
     for (size_t k = 0; k < m_pProperties->size(); ++k)
     {
-        BEATS_ASSERT(unInitializedproperties.find((*m_pProperties)[k]->GetBasicInfo()->m_variableName) == unInitializedproperties.end());
+        BEATS_ASSERT(unInitializedproperties.find((*m_pProperties)[k]->GetBasicInfo()->m_variableName) == unInitializedproperties.end(),
+                    _T("It's impossible to find more than one property which has same name: %s in component %s id %d"),
+                    (*m_pProperties)[k]->GetBasicInfo()->m_variableName.c_str(), GetClassStr(), GetId());
         unInitializedproperties[(*m_pProperties)[k]->GetBasicInfo()->m_variableName] = (*m_pProperties)[k];
     }
     TiXmlElement* pVarElement = pNode->FirstChildElement("VariableNode");
