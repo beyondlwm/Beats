@@ -319,6 +319,17 @@ CComponentProjectDirectory* CComponentProject::FindProjectDirectory(const TStrin
     return pCurDirectory;
 }
 
+CComponentProjectDirectory* CComponentProject::FindProjectDirectoryById(size_t uFileId)
+{
+    CComponentProjectDirectory* pRet = NULL;
+    auto iter = m_pFileToDirectoryMap->find(uFileId);
+    if (iter != m_pFileToDirectoryMap->end())
+    {
+        pRet = iter->second;
+    }
+    return pRet;
+}
+
 std::map<size_t, std::vector<size_t> >* CComponentProject::GetFileToComponentMap() const
 {
     return m_pFileToComponentMap;
@@ -327,6 +338,11 @@ std::map<size_t, std::vector<size_t> >* CComponentProject::GetFileToComponentMap
 std::map<size_t, std::vector<size_t>>* CComponentProject::GetIdToReferenceMap() const
 {
     return m_pReferenceIdMap;
+}
+
+std::map<size_t, CComponentProjectDirectory*>* CComponentProject::GetFileToDirectoryMap() const
+{
+    return m_pFileToDirectoryMap;
 }
 
 size_t CComponentProject::RegisterFile(CComponentProjectDirectory* pDirectory, const TString& strFileName, std::map<size_t, std::vector<size_t> >& failedId, size_t uSpecifyFileId/* = 0xFFFFFFFF*/)

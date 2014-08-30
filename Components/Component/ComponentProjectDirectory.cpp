@@ -259,6 +259,7 @@ void CComponentProjectDirectory::Serialize(CSerializer& serializer) const
 
 void CComponentProjectDirectory::Deserialize(CSerializer& serializer)
 {
+    std::map<size_t, CComponentProjectDirectory*>* pFileToDirectoryMap = CComponentInstanceManager::GetInstance()->GetProject()->GetFileToDirectoryMap();
     serializer >> m_strName;
     size_t uFileCount = 0;
     serializer >> uFileCount;
@@ -267,6 +268,8 @@ void CComponentProjectDirectory::Deserialize(CSerializer& serializer)
         size_t uFileId = 0;
         serializer >> uFileId;
         m_pFilesList->push_back(uFileId);
+        BEATS_ASSERT(pFileToDirectoryMap->find(uFileId) == pFileToDirectoryMap->end());
+        (*pFileToDirectoryMap)[uFileId] = this;
     }
     size_t uChildrenCount = 0;
     serializer >> uChildrenCount;

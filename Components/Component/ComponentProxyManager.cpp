@@ -289,7 +289,6 @@ void CComponentProxyManager::CloseFile(const TCHAR* pszFilePath)
     m_pIdManager->Lock();
     BEATS_ASSERT(_tcslen(pszFilePath) > 0, _T("Can't close empty file!"));
     std::vector<CComponentBase*> componentToDelete;
-    // Closing file is not current scene, query id from the static data: m_pProject.
     size_t uFileId = m_pProject->GetComponentFileId(pszFilePath);
     if (m_currentWorkingFilePath.compare(pszFilePath) == 0)
     {
@@ -318,6 +317,7 @@ void CComponentProxyManager::CloseFile(const TCHAR* pszFilePath)
     }
     else
     {
+        // Closing file is not current scene, query id from the static data: m_pProject.
         std::map<size_t, std::vector<size_t> >* pFileToComponentMap = m_pProject->GetFileToComponentMap();
         auto iter = pFileToComponentMap->find(uFileId);
         if (iter != pFileToComponentMap->end())

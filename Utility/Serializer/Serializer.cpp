@@ -32,7 +32,7 @@ CSerializer::CSerializer(const TCHAR* pFilePath, const TCHAR* pszMode /*= _T("rb
 , m_pWritePtr(NULL)
 , m_pUserData(NULL)
 {
-    Serialize(pFilePath, pszMode);
+    Serialize(pFilePath, pszMode, uStartPos, uDataLength);
 }
 
 CSerializer::CSerializer(FILE* pFile, size_t startPos, size_t dataLength)

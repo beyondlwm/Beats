@@ -12,6 +12,8 @@
 CComponentInstanceManager* CComponentInstanceManager::m_pInstance = NULL;
 
 CComponentInstanceManager::CComponentInstanceManager()
+    : m_uCurLoadFileId(0xFFFFFFFF)
+    , m_uCurWorkingFileId(0xFFFFFFFF)
 {
     m_pSerializer = new CSerializer;
 }
@@ -63,34 +65,190 @@ CSerializer* CComponentInstanceManager::Import(const TCHAR* pszFilePath)
         }
         BEATS_ASSERT(serializer.GetReadPos() == serializer.GetWritePos(), _T("Some data are not loaded completly. loaded data size %d, all data size %d"), serializer.GetReadPos(), serializer.GetWritePos());
         
-//#error:TODO
         // 2. Load start up file.
-        //LoadDirectory(pStartDirectory);
-        
-        // 2. Resolve dependency.
-        CComponentInstanceManager::GetInstance()->ResolveDependency();
-        
-        // 3. Call Initialize.
-        InitializeAllInstance();
+        SwitchFile(uStartFile);
     }
     return m_pSerializer;
 }
 
-void CComponentInstanceManager::LoadDirectory(CComponentProjectDirectory* pDirectory)
+void CComponentInstanceManager::SwitchFile(size_t uFileId)
 {
-    std::vector<CComponentProjectDirectory*> loadingDirectories;
-    CComponentProjectDirectory* pCurDirectory = pDirectory;
-    while (pCurDirectory != NULL)
+    BEATS_ASSERT(uFileId != 0xFFFFFFFF);
+    std::vector<CComponentBase*> loadedComponents;
+    bool bLoadThisFile = true;
+    // 1. File is in the parent directory (loaded before): just change the content of m_proxyInCurScene
+    if (m_loadedFiles.find(uFileId) != m_loadedFiles.end())
     {
-        loadingDirectories.push_back(pCurDirectory);
-        pCurDirectory = pCurDirectory->GetParent();
+        // Change content will be done at last. So do nothing here.
+        bLoadThisFile = false;
     }
-    while (loadingDirectories.size() > 0)
+    else
     {
-        pCurDirectory = loadingDirectories.back();
-        LoadDirectoryFiles(pCurDirectory);
-        loadingDirectories.pop_back();
+        CComponentProjectDirectory* pDirectory = m_pProject->FindProjectDirectoryById(uFileId);
+        BEATS_ASSERT(pDirectory != NULL);
+        TString strLogicPath;
+        // new open a file.
+        if (m_uCurLoadFileId == 0xFFFFFFFF)
+        {
+            std::vector<CComponentProjectDirectory*> directories;
+            CComponentProjectDirectory* pCurDirectory = pDirectory->GetParent();
+            while (pCurDirectory != NULL)
+            {
+                directories.push_back(pCurDirectory);
+                pCurDirectory = pCurDirectory->GetParent();
+            }
+            while (directories.size() > 0)
+            {
+                LoadDirectoryFiles(directories.back(), loadedComponents);
+                directories.pop_back();
+            }
+        }
+        else
+        {
+            CComponentProjectDirectory* pCurDirectory = m_pProject->FindProjectDirectoryById(m_uCurLoadFileId);
+            BEATS_ASSERT(pCurDirectory != NULL);
+            strLogicPath = pDirectory->MakeRelativeLogicPath(pCurDirectory);
+
+            // 2. File is at the same directory: close current file and open it.
+            if (strLogicPath.empty())
+            {
+                CloseFile(m_uCurLoadFileId);
+            }
+            else
+            {
+                std::vector<TString> logicPaths;
+                CStringHelper::GetInstance()->SplitString(strLogicPath.c_str(), _T("/"), logicPaths);
+                BEATS_ASSERT(logicPaths.size() > 0);
+                // 3. File is in the son directory: don't close current, load rest files of directory and go on.
+                if (logicPaths[0].compare(_T("..")) != 0)
+                {
+                    // Load rest files of the same directory.
+                    const std::vector<size_t>& fileList = pCurDirectory->GetFileList();
+                    for (size_t i = 0;i < fileList.size(); ++i)
+                    {
+                        if (fileList[i] != m_uCurLoadFileId)
+                        {
+                            LoadFile(fileList[i], loadedComponents);
+                        }
+                    }
+                    // Load sub-directory to target, but don't load the last sub-directory, because we only need one file in it, the target file.
+                    CComponentProjectDirectory* pCurLoopDirectory = pDirectory;
+                    for (int i = 1; i < (int)logicPaths.size() - 1; ++i)
+                    {
+                        pCurLoopDirectory = pCurLoopDirectory->FindChild(logicPaths[i].c_str());
+                        LoadDirectoryFiles(pCurLoopDirectory, loadedComponents);
+                    }
+                }
+                else// 4. File is in other different directory: close current and change directory.
+                {
+                    // This means the file should be already loaded (since it's in the parent directory)
+                    // But it is not in the m_loadedFiles, so this file must be a new added one
+                    // So we do some nothing as if it is already loaded.
+                    BEATS_ASSERT(logicPaths.back().compare(_T("..")) != 0);
+                    CloseFile(m_uCurLoadFileId);
+                    CComponentProjectDirectory* pCurLoopDirectory = pCurDirectory->GetParent();
+                    for (int i = 1; i < (int)logicPaths.size() - 1; ++i)
+                    {
+                        if (logicPaths[i].compare(_T("..")) == 0)
+                        {
+                            const std::vector<size_t>& fileList = pCurLoopDirectory->GetFileList();
+                            for (size_t i = 0; i < fileList.size(); ++i)
+                            {
+                                CloseFile(fileList[i]);
+                            }
+                            pCurLoopDirectory = pCurLoopDirectory->GetParent();
+                        }
+                        else
+                        {
+                            pCurLoopDirectory = pCurLoopDirectory->FindChild(logicPaths[i].c_str());
+                            BEATS_ASSERT(pCurLoopDirectory != NULL);
+                            LoadDirectoryFiles(pCurLoopDirectory, loadedComponents);
+                        }
+                    }
+                }
+            }
+        }
     }
+
+    if (bLoadThisFile)
+    {
+        m_uCurLoadFileId = uFileId;
+        LoadFile(uFileId, loadedComponents);
+    }
+
+    ResolveDependency();
+
+    for (size_t i = 0; i < loadedComponents.size(); ++i)
+    {
+        loadedComponents[i]->Initialize();
+    }
+    m_uCurWorkingFileId = uFileId;
+}
+
+void CComponentInstanceManager::LoadFile(size_t uFileId, std::vector<CComponentBase*>& loadComponents)
+{
+    size_t uFileStartPos = 0;
+    size_t uFileDataLength = 0;
+    bool bRet = m_pProject->QueryFileLayoutInfo(uFileId, uFileStartPos, uFileDataLength);
+    BEATS_ASSERT(bRet, _T("Query file layout info failed! file id %d"), uFileId);
+    if (bRet)
+    {
+        m_pSerializer->SetReadPos(uFileStartPos);
+        size_t uFileStartPosRead, uFileDataLengthRead;
+        *m_pSerializer >> uFileStartPosRead >> uFileDataLengthRead;
+        BEATS_ASSERT(uFileStartPosRead == uFileStartPos && uFileDataLengthRead == uFileDataLength);
+        size_t uComponentCount = 0;
+        *m_pSerializer >> uComponentCount;
+        for (size_t j = 0; j < uComponentCount; ++j)
+        {
+            size_t uComponentDataSize, uGuid, uId;
+            size_t uComponentStartPos = m_pSerializer->GetReadPos();
+            *m_pSerializer >> uComponentDataSize >> uGuid >> uId;
+            CComponentBase* pComponent = CComponentInstanceManager::GetInstance()->CreateComponent(uGuid, false, false, uId, true, m_pSerializer, false);
+            BEATS_ASSERT(pComponent != NULL);
+            loadComponents.push_back(pComponent);
+            BEATS_ASSERT(uComponentStartPos + uComponentDataSize == m_pSerializer->GetReadPos(), _T("Component Data Not Match!\nGot an error when import data for component %x %s instance id %d\nRequired size: %d, Actual size: %d"), uGuid, pComponent->GetClassStr(), uId, uComponentDataSize, m_pSerializer->GetReadPos() - uComponentStartPos);
+            m_pSerializer->SetReadPos(uComponentStartPos + uComponentDataSize);
+        }
+        m_loadedFiles.insert(uFileId);
+        BEATS_ASSERT(m_pSerializer->GetReadPos() - uFileStartPos == uFileDataLength, _T("File Data NOt Match!\nGot an error when import data for file %d Required size:%d Actual size %d"), uFileId, uFileDataLength, m_pSerializer->GetReadPos() - uFileStartPos);
+    }
+}
+
+void CComponentInstanceManager::CloseFile(size_t uFileId)
+{
+    BEATS_ASSERT(m_loadedFiles.find(uFileId) != m_loadedFiles.end(), _T("Can't close file which is not opened!"));
+    std::vector<CComponentBase*> componentToDelete;
+    std::map<size_t, std::vector<size_t> >* pFileToComponentMap = m_pProject->GetFileToComponentMap();
+    auto iter = pFileToComponentMap->find(uFileId);
+    if (iter != pFileToComponentMap->end())
+    {
+#ifdef _DEBUG
+        // All components must exists before they call uninitialize.
+        for (size_t i = 0;i < iter->second.size(); ++i)
+        {
+            size_t uComponentId = iter->second.at(i);
+            CComponentBase* pComponent = CComponentInstanceManager::GetInstance()->GetComponentInstance(uComponentId);
+            BEATS_ASSERT(pComponent != NULL && pComponent->IsInitialized());
+        }
+#endif
+        for (size_t i = 0;i < iter->second.size(); ++i)
+        {
+            size_t uComponentId = iter->second.at(i);
+            CComponentBase* pComponentBase = CComponentInstanceManager::GetInstance()->GetComponentInstance(uComponentId);
+            // This may be null, because some components can be uninitialized by other component's uninitialize.
+            if (pComponentBase != NULL && pComponentBase->IsInitialized())
+            {
+                pComponentBase->Uninitialize();
+                componentToDelete.push_back(pComponentBase);
+            }
+        }
+    }
+    for (size_t i = 0; i < componentToDelete.size(); ++i)
+    {
+        BEATS_SAFE_DELETE(componentToDelete[i]);
+    }
+    m_loadedFiles.erase(uFileId);
 }
 
 CSerializer* CComponentInstanceManager::GetFileSerializer() const
@@ -126,35 +284,12 @@ size_t CComponentInstanceManager::GetVersion()
     return COMPONENT_SYSTEM_VERSION;
 }
 
-void CComponentInstanceManager::LoadDirectoryFiles(CComponentProjectDirectory* pDirectory)
+void CComponentInstanceManager::LoadDirectoryFiles(CComponentProjectDirectory* pDirectory, std::vector<CComponentBase*>& loadComponents)
 {
     size_t uFileCount = pDirectory->GetFileList().size();
     for (size_t i = 0; i < uFileCount; ++i)
     {
         size_t uFileId = pDirectory->GetFileList().at(i);
-        size_t uFileStartPos = 0;
-        size_t uFileDataLength = 0;
-        bool bRet = m_pProject->QueryFileLayoutInfo(uFileId, uFileStartPos, uFileDataLength);
-        BEATS_ASSERT(bRet, _T("Query file layout info failed! file id %d"), uFileId);
-        if (bRet)
-        {
-            m_pSerializer->SetReadPos(uFileStartPos);
-            size_t uFileStartPosRead, uFileDataLengthRead;
-            *m_pSerializer >> uFileStartPosRead >> uFileDataLengthRead;
-            BEATS_ASSERT(uFileStartPosRead == uFileStartPos && uFileDataLengthRead == uFileDataLength);
-            size_t uComponentCount = 0;
-            *m_pSerializer >> uComponentCount;
-            for (size_t j = 0; j < uComponentCount; ++j)
-            {
-                size_t uComponentDataSize, uGuid, uId;
-                size_t uComponentStartPos = m_pSerializer->GetReadPos();
-                *m_pSerializer >> uComponentDataSize >> uGuid >> uId;
-                CComponentBase* pComponent = CComponentInstanceManager::GetInstance()->CreateComponent(uGuid, false, false, uId, true, m_pSerializer, false);
-                pComponent;
-                BEATS_ASSERT(uComponentStartPos + uComponentDataSize == m_pSerializer->GetReadPos(), _T("Component Data Not Match!\nGot an error when import data for component %x %s instance id %d\nRequired size: %d, Actual size: %d"), uGuid, pComponent->GetClassStr(), uId, uComponentDataSize, m_pSerializer->GetReadPos() - uComponentStartPos);
-                m_pSerializer->SetReadPos(uComponentStartPos + uComponentDataSize);
-            }
-            BEATS_ASSERT(m_pSerializer->GetReadPos() - uFileStartPos == uFileDataLength, _T("File Data NOt Match!\nGot an error when import data for file %d Required size:%d Actual size %d"), uFileId, uFileDataLength, m_pSerializer->GetReadPos() - uFileStartPos);
-        }
+        LoadFile(uFileId, loadComponents);
     }
 }
