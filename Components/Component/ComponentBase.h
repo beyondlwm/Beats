@@ -33,13 +33,15 @@ public:
     size_t GetId() const;
     void SetId(size_t id);
 
-    bool IsInitialized();
     virtual bool Load(); // this method do some load stuff, which can be done in other thread.
     virtual bool Unload();
     bool IsLoaded() const;
+    void SetLoadFlag(bool bFlag);
 
     virtual void Initialize();// this method can only be called in main thread, including render operation.
     virtual void Uninitialize();
+    bool IsInitialized();
+    void SetInitializeFlag(bool bFlag);
 
     virtual void ReflectData(CSerializer& serializer);
     // Editor mode only!

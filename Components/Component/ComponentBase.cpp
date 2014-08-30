@@ -42,6 +42,11 @@ bool CComponentBase::IsLoaded() const
     return m_bLoaded;
 }
 
+void CComponentBase::SetLoadFlag(bool bFlag)
+{
+    m_bLoaded = bFlag;
+}
+
 bool CComponentBase::IsInitialized()
 {
     return m_bInitialize;
@@ -65,6 +70,11 @@ void CComponentBase::Uninitialize()
     }
     BEATS_ASSERT(m_bInitialize, _T("Can't uninitialize a component twice!"));
     m_bInitialize = false;
+}
+
+void CComponentBase::SetInitializeFlag(bool bFlag)
+{
+    m_bInitialize = bFlag;
 }
 
 void CComponentBase::ReflectData(CSerializer& /*serializer*/)
