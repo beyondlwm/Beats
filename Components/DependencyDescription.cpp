@@ -279,10 +279,10 @@ void CDependencyDescription::Serialize(CSerializer& serializer)
     serializer << uLineCount;
     for (size_t j = 0; j < uLineCount; ++j)
     {
-        // Don't Return any reference, returen the real proxy.
-        CComponentBase* pConnectedComponent = this->GetDependencyLine(j)->GetConnectedComponent(true);
-        BEATS_ASSERT(pConnectedComponent != NULL && dynamic_cast<CComponentReference*>(pConnectedComponent) == NULL);
-        serializer << pConnectedComponent->GetId();
+        // No matter if we get proxy or reference, it doesn't matter, so we get the proxy exactly.
+        CComponentProxy* pConnectedComponent = this->GetDependencyLine(j)->GetConnectedComponent(false);
+        BEATS_ASSERT(pConnectedComponent != NULL);
+        serializer << pConnectedComponent->GetProxyId();
         serializer << pConnectedComponent->GetGuid();
     }
 }

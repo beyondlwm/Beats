@@ -22,6 +22,7 @@ CComponentProxyManager* CComponentProxyManager::m_pInstance = NULL;
 
 CComponentProxyManager::CComponentProxyManager()
     : m_bLoadingFilePhase(false)
+    , m_bExportingPhase(false)
     , m_bReflectCheckFlag(false)
     , m_pCurrReflectPropertyDescription(NULL)
     , m_pCurrReflectDependency(NULL)
@@ -363,13 +364,14 @@ const TString& CComponentProxyManager::GetCurrentViewFilePath() const
 
 void CComponentProxyManager::Export(const TCHAR* pSavePath)
 {
+    m_bExportingPhase = true;
     BEATS_ASSERT(pSavePath != NULL);
     CSerializer serializer;
     serializer << COMPONENT_SYSTEM_VERSION;
     serializer << GetComponentTemplateMap()->size();
     CComponentProjectDirectory* pRootProject = m_pProject->GetRootDirectory();
     pRootProject->Serialize(serializer);
-    serializer << m_pProject->GetLaunchStartDirectory()->GenerateLogicPath();
+    serializer << m_pProject->GetStartFile();
 
     size_t uFileCount = m_pProject->GetFileList()->size();
     serializer << uFileCount;
@@ -426,6 +428,7 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
         serializer.SetWritePos(uCurWritePos);
     }
     serializer.Deserialize(pSavePath);
+    m_bExportingPhase = false;
 }
 
 void CComponentProxyManager::QueryDerivedClass(size_t uBaseClassGuid, std::vector<size_t>& result, bool bRecurse ) const
@@ -831,6 +834,11 @@ void CComponentProxyManager::OnDeleteComponentInScene(CComponentProxy* pProxy)
             }
         }
     }
+}
+
+bool CComponentProxyManager::IsExporting() const
+{
+    return m_bExportingPhase;
 }
 
 void CComponentProxyManager::LoadTemplateDataFromXML(const TCHAR* pszPath)

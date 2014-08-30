@@ -93,10 +93,12 @@ void CComponentReference::LoadFromXML(TiXmlElement* pNode)
 void CComponentReference::Initialize()
 {
     CComponentBase::Initialize();
+    // ComponentReference's host proxy could(maybe must) be NULL in exporting phase.
+    bool bIsExporting = CComponentProxyManager::GetInstance()->IsExporting();
     if (m_pHostProxy == NULL)
     {
         m_pHostProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(m_uReferenceId, m_uReferenceGuid));
-        BEATS_ASSERT(m_pHostProxy != NULL);
+        BEATS_ASSERT(m_pHostProxy != NULL || bIsExporting);
     }
 #ifdef _DEBUG
     else
@@ -104,11 +106,14 @@ void CComponentReference::Initialize()
         BEATS_ASSERT(m_pHostProxy->GetGuid() == m_uReferenceGuid && m_pHostProxy->GetId() == m_uReferenceId);
     }
 #endif
-    m_pProperties = (std::vector<CPropertyDescriptionBase*>*)m_pHostProxy->GetPropertyPool();
-    m_pHostComponent = m_pHostProxy->GetHostComponent();
-    SetDisplayName(m_pHostProxy->GetDisplayName().c_str());
-    SetUserDefineDisplayName(m_pHostProxy->GetUserDefineDisplayName().c_str());
-    SetCatalogName(m_pHostProxy->GetCatalogName().c_str());
+    if (m_pHostProxy != NULL)
+    {
+        m_pProperties = (std::vector<CPropertyDescriptionBase*>*)m_pHostProxy->GetPropertyPool();
+        m_pHostComponent = m_pHostProxy->GetHostComponent();
+        SetDisplayName(m_pHostProxy->GetDisplayName().c_str());
+        SetUserDefineDisplayName(m_pHostProxy->GetUserDefineDisplayName().c_str());
+        SetCatalogName(m_pHostProxy->GetCatalogName().c_str());
+    }
 }
 
 void CComponentReference::Uninitialize()

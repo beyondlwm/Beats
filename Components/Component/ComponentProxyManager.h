@@ -71,12 +71,15 @@ public:
     void OnCreateComponentInScene(CComponentProxy* pProxy);
     void OnDeleteComponentInScene(CComponentProxy* pProxy);
 
+    bool IsExporting() const;
+
 private:
     void LoadTemplateDataFromXML(const TCHAR* pWorkingPath);
     void LoadTemplateDataFromSerializer(CSerializer& serializer, TCreateComponentEditorProxyFunc func, TCreateGraphicFunc pGraphicFunc);
 
 private:
     bool m_bLoadingFilePhase;
+    bool m_bExportingPhase;
     bool m_bReflectCheckFlag;
     TString m_currentViewFilePath;
     CPropertyDescriptionBase* m_pCurrReflectPropertyDescription;

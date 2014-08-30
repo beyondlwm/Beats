@@ -44,11 +44,9 @@ CSerializer* CComponentInstanceManager::Import(const TCHAR* pszFilePath)
         CComponentProjectDirectory* pRootProject = new CComponentProjectDirectory(NULL, _T("Root"));
         m_pProject->SetRootDirectory(pRootProject);
         pRootProject->Deserialize(serializer);
-        TString strStartupDirectory;
-        serializer >> strStartupDirectory;
-        CComponentProjectDirectory* pStartDirectory = m_pProject->FindProjectDirectory(strStartupDirectory, false);
-        BEATS_ASSERT(pStartDirectory != NULL);
-        m_pProject->SetLaunchStartDirectory(pStartDirectory);
+        size_t uStartFile;
+        serializer >> uStartFile;
+        m_pProject->SetStartFile(uStartFile);
         // 1. Load binarize data and file sturcture.
         size_t uFileCount = 0;
         serializer >> uFileCount;
@@ -65,8 +63,9 @@ CSerializer* CComponentInstanceManager::Import(const TCHAR* pszFilePath)
         }
         BEATS_ASSERT(serializer.GetReadPos() == serializer.GetWritePos(), _T("Some data are not loaded completly. loaded data size %d, all data size %d"), serializer.GetReadPos(), serializer.GetWritePos());
         
+//#error:TODO
         // 2. Load start up file.
-        LoadDirectory(pStartDirectory);
+        //LoadDirectory(pStartDirectory);
         
         // 2. Resolve dependency.
         CComponentInstanceManager::GetInstance()->ResolveDependency();

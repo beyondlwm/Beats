@@ -10,7 +10,7 @@
 
 CComponentProject::CComponentProject()
 : m_pProjectDirectory(NULL)
-, m_pStartDirectory(NULL)
+, m_uStartFileId(0)
 , m_pComponentFiles(new std::vector<TString>)
 , m_pComponentToTypeMap(new std::map<size_t, size_t>)
 , m_pComponentToFileMap(new std::map<size_t, size_t>)
@@ -59,10 +59,7 @@ CComponentProjectDirectory* CComponentProject::LoadProject(const TCHAR* pszProje
             TCHAR szTName[MAX_PATH];
             CStringHelper::GetInstance()->ConvertToTCHAR(pRootElement->Value(), szTName, MAX_PATH);
             m_pProjectDirectory = new CComponentProjectDirectory(NULL, szTName);
-            TString strStartLogicPath;
-            LoadXMLProject(pRootElement, m_pProjectDirectory, strStartLogicPath, conflictIdMap);
-            m_pStartDirectory = FindProjectDirectory(strStartLogicPath, false);
-            BEATS_ASSERT(m_pStartDirectory);
+            LoadXMLProject(pRootElement, m_pProjectDirectory, m_uStartFileId, conflictIdMap);
         }
         else
         {
@@ -109,16 +106,14 @@ void CComponentProject::SaveProject()
     document.LinkEndChild(pDeclaration);
     TiXmlElement* pRootElement = new TiXmlElement("Root");
     document.LinkEndChild(pRootElement);
-    TiXmlElement* pStartDirectoryNode = new TiXmlElement("StartDirectory");
-    TString strStartLogicPath = m_pStartDirectory->GenerateLogicPath();
-    char szBuffer[10240];
-    CStringHelper::GetInstance()->ConvertToCHAR(strStartLogicPath.c_str(), szBuffer, MAX_PATH);
-    pStartDirectoryNode->SetAttribute("Path", szBuffer);
+    TiXmlElement* pStartDirectoryNode = new TiXmlElement("StartFile");
+    pStartDirectoryNode->SetAttribute("StartFileId", (int)m_uStartFileId);
     pRootElement->LinkEndChild(pStartDirectoryNode);
 
     SaveProjectFile(pRootElement, m_pProjectDirectory);
     TString strFullPath = m_strProjectFilePath;
     strFullPath.append(_T("/")).append(m_strProjectFileName);
+    TCHAR szBuffer[MAX_PATH];
     CStringHelper::GetInstance()->ConvertToCHAR(strFullPath.c_str(), szBuffer, MAX_PATH);
     document.SaveFile(szBuffer);
 }
@@ -289,14 +284,14 @@ bool CComponentProject::QueryFileLayoutInfo(size_t uFileId, size_t& uStartPos, s
     return bRet;
 }
 
-CComponentProjectDirectory* CComponentProject::GetLaunchStartDirectory() const
+void CComponentProject::SetStartFile(size_t uFileId)
 {
-    return m_pStartDirectory;
+    m_uStartFileId = uFileId;
 }
 
-void CComponentProject::SetLaunchStartDirectory(CComponentProjectDirectory* pDirectory)
+size_t CComponentProject::GetStartFile() const
 {
-    m_pStartDirectory = pDirectory;
+    return m_uStartFileId;
 }
 
 CComponentProjectDirectory* CComponentProject::FindProjectDirectory(const TString& strPath, bool bAbsoluteOrLogicPath) const
@@ -584,7 +579,7 @@ size_t CComponentProject::QueryFileId(size_t uComponentId, bool bOnlyInProjectFi
     return uRet;
 }
 
-void CComponentProject::LoadXMLProject(TiXmlElement* pNode, CComponentProjectDirectory* pProjectDirectory, TString& startLogicPath, std::map<size_t, std::vector<size_t> >& conflictIdMap)
+void CComponentProject::LoadXMLProject(TiXmlElement* pNode, CComponentProjectDirectory* pProjectDirectory, size_t& uStartFileId, std::map<size_t, std::vector<size_t> >& conflictIdMap)
 {
     BEATS_ASSERT(pProjectDirectory != NULL && pNode != NULL);
     TiXmlElement* pElement = pNode->FirstChildElement();
@@ -597,7 +592,7 @@ void CComponentProject::LoadXMLProject(TiXmlElement* pNode, CComponentProjectDir
             TCHAR szTName[MAX_PATH];
             CStringHelper::GetInstance()->ConvertToTCHAR(pName, szTName, MAX_PATH);
             CComponentProjectDirectory* pNewProjectFile = new CComponentProjectDirectory(pProjectDirectory, szTName);
-            LoadXMLProject(pElement, pNewProjectFile, startLogicPath, conflictIdMap);
+            LoadXMLProject(pElement, pNewProjectFile, uStartFileId, conflictIdMap);
         }
         else if (strcmp(pText, "File") == 0)
         {
@@ -608,12 +603,12 @@ void CComponentProject::LoadXMLProject(TiXmlElement* pNode, CComponentProjectDir
             pProjectDirectory->AddFile(strFilePath.c_str(), conflictIdMap);
             (*m_pFileToDirectoryMap)[m_pComponentFiles->size() - 1] = pProjectDirectory;
         }
-        else if (strcmp(pText, "StartDirectory") == 0)
+        else if (strcmp(pText, "StartFile") == 0)
         {
-            const char* pPath = pElement->Attribute("Path");
-            TCHAR szTPath[MAX_PATH];
-            CStringHelper::GetInstance()->ConvertToTCHAR(pPath, szTPath, MAX_PATH);
-            startLogicPath = szTPath;
+            int nFileId = -1;
+            pElement->Attribute("StartFileId", &nFileId);
+            BEATS_ASSERT(nFileId != -1);
+            m_uStartFileId = nFileId;
         }
         else
         {

@@ -66,19 +66,19 @@ public:
     void RegisterFileLayoutInfo(size_t uFileId, size_t uStartPos, size_t uDataLength);
     bool QueryFileLayoutInfo(size_t uFileId, size_t& uStartPos, size_t& uDataLength);
 
-    CComponentProjectDirectory* GetLaunchStartDirectory() const;
-    void SetLaunchStartDirectory(CComponentProjectDirectory* pDirectory);
+    void SetStartFile(size_t uFileId);
+    size_t GetStartFile() const;
     CComponentProjectDirectory* FindProjectDirectory(const TString& strPath, bool bAbsoluteOrLogicPath) const;
 
     std::map<size_t, std::vector<size_t> >* GetFileToComponentMap() const;
     std::map<size_t, std::vector<size_t>>* GetIdToReferenceMap() const;
 private:
-    void LoadXMLProject(TiXmlElement* pNode, CComponentProjectDirectory* pProjectDirectory, TString& startLogicPath, std::map<size_t, std::vector<size_t> >& conflictIdMap);
+    void LoadXMLProject(TiXmlElement* pNode, CComponentProjectDirectory* pProjectDirectory, size_t& uStartFileId, std::map<size_t, std::vector<size_t> >& conflictIdMap);
     void SaveProjectFile( TiXmlElement* pParentNode, const CComponentProjectDirectory* p);
 
 private:
     CComponentProjectDirectory* m_pProjectDirectory;
-    CComponentProjectDirectory* m_pStartDirectory;
+    size_t m_uStartFileId;
     std::vector<TString>* m_pComponentFiles;
     std::map<size_t, size_t>* m_pComponentToTypeMap;
     std::map<size_t, size_t>* m_pComponentToFileMap;
