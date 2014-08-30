@@ -23,16 +23,18 @@ void CComponentBase::SetId(size_t id)
     m_id = id;
 }
 
-void CComponentBase::Load()
+bool CComponentBase::Load()
 {
     BEATS_ASSERT(!m_bLoaded, _T("Can't load a component twice!"));
     m_bLoaded = true;
+    return true;
 }
 
-void CComponentBase::Unload()
+bool CComponentBase::Unload()
 {
     BEATS_ASSERT(m_bLoaded, _T("Component is not loaded in uninitialize!"));
     m_bLoaded = false;
+    return true;
 }
 
 bool CComponentBase::IsInitialized()
