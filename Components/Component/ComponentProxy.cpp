@@ -293,7 +293,9 @@ CComponentInstance* CComponentProxy::GetHostComponent() const
 
 void CComponentProxy::UpdateHostComponent()
 {
-    if (m_pHostComponent)
+    bool bIsExporting = CComponentProxyManager::GetInstance()->IsExporting();
+    // Don't do any update host stuff when exporting, because it's useless and will cause dependency resolve failed.
+    if (m_pHostComponent && !bIsExporting)
     {
         CSerializer serializer;
         Serialize(serializer, eVT_CurrentValue);
