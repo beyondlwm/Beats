@@ -87,8 +87,17 @@ bool CEnumStrGenerator::ScanEnumInFile( const TCHAR* pFileName )
                     int iDefaultEnumValue = 0;
                     for (size_t i = 0; i < rawEnumString.size(); ++i)
                     {
-                        SEnumData* pData = AnalyseRawEnumString(rawEnumString[i], iDefaultEnumValue);
-                        pEnumData->m_enumValue.push_back(pData);
+                        // The last enum string could be empty, such as
+                        // enum {E_1, E_2,}
+                        if (!rawEnumString[i].empty())
+                        {
+                            SEnumData* pData = AnalyseRawEnumString(rawEnumString[i], iDefaultEnumValue);
+                            pEnumData->m_enumValue.push_back(pData);
+                        }
+                        else
+                        {
+                            BEATS_ASSERT(i == rawEnumString.size() - 1);
+                        }
                     }
                     pEnumData->m_enumFilePath.assign(pFileName);
                     m_enumStrPool[strName] = pEnumData;
@@ -401,7 +410,8 @@ SEnumData* CEnumStrGenerator::AnalyseRawEnumString( const TString& rawEnumStr, i
     SEnumData* pEnumData = new SEnumData;
     std::vector<TString> result;
     CStringHelper::GetInstance()->SplitString(rawEnumStr.c_str(), _T("="), result, true);
-    BEATS_ASSERT(result.size() == 2 || result.size() == 1);
+    BEATS_ASSERT(!rawEnumStr.empty(), _T("raw enum string can't be empty"));
+    BEATS_ASSERT(result.size() == 2 || result.size() == 1, _T("Split raw enum string %s failed"), rawEnumStr.c_str());
     if (result.size() == 2)
     {
         pEnumData->m_str = result[0].c_str();
