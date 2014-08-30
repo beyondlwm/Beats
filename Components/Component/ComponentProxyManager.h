@@ -24,7 +24,6 @@ public:
     void LoadFileFromDirectory(CComponentProjectDirectory* pDirectory, std::vector<CComponentProxy*>* pComponentContainer);
 
     void CloseFile(const TCHAR* pszFilePath);
-    const TString& GetCurrentWorkingFilePath() const;
     const TString& GetCurrentViewFilePath() const;
 
     void Export(const TCHAR* pSavePath);
@@ -79,7 +78,6 @@ private:
 private:
     bool m_bLoadingFilePhase;
     bool m_bReflectCheckFlag;
-    TString m_currentWorkingFilePath;
     TString m_currentViewFilePath;
     CPropertyDescriptionBase* m_pCurrReflectPropertyDescription;
     CDependencyDescription* m_pCurrReflectDependency;

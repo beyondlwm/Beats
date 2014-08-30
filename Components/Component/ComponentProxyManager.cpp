@@ -354,11 +354,6 @@ void CComponentProxyManager::CloseFile(const TCHAR* pszFilePath)
     m_pIdManager->UnLock();
 }
 
-const TString& CComponentProxyManager::GetCurrentWorkingFilePath() const
-{
-    return m_currentWorkingFilePath;
-}
-
 const TString& CComponentProxyManager::GetCurrentViewFilePath() const
 {
     return m_currentViewFilePath;

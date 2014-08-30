@@ -74,6 +74,8 @@ public:
     CIdManager* GetIdManager() const;
     CComponentProject* GetProject() const;
 
+    const TString& GetCurrentWorkingFilePath() const;
+
     void AddDependencyResolver( CDependencyDescription* pDescription, size_t uIndex, size_t uGuid, size_t uInstanceId, void* pVariableAddress, bool bIsList, TAddDependencyFunc pFunc = NULL);
     virtual void ResolveDependency() = 0;
 
@@ -84,6 +86,7 @@ protected:
     std::map<size_t, std::map<size_t, CComponentBase*>*>* m_pComponentInstanceMap;
     std::vector<SDependencyResolver*>* m_pDependencyResolver;
     std::vector<CComponentBase*>* m_pUninitializedComponents;
+    TString m_currentWorkingFilePath;
 };
 
 #endif
