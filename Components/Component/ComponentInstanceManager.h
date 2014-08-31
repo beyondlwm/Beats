@@ -17,6 +17,7 @@ public:
     void LoadFile(size_t uFileId, std::vector<CComponentBase*>& loadComponents);
     void CloseFile(size_t uFileId);
     CSerializer* GetFileSerializer() const;
+    const std::set<size_t>& GetLoadedFiles() const;
     virtual void ResolveDependency() override;
 
 private:

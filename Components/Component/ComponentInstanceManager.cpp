@@ -43,9 +43,9 @@ CSerializer* CComponentInstanceManager::Import(const TCHAR* pszFilePath)
     {
         size_t uComponentTemplateCount = 0;
         serializer >> uComponentTemplateCount;
-        CComponentProjectDirectory* pRootProject = new CComponentProjectDirectory(NULL, _T("Root"));
-        m_pProject->SetRootDirectory(pRootProject);
-        pRootProject->Deserialize(serializer);
+        CComponentProjectDirectory* pRootDirectory = new CComponentProjectDirectory(NULL, _T("Root"));
+        m_pProject->SetRootDirectory(pRootDirectory);
+        pRootDirectory->Deserialize(serializer);
         size_t uStartFile;
         serializer >> uStartFile;
         m_pProject->SetStartFile(uStartFile);
@@ -254,6 +254,11 @@ void CComponentInstanceManager::CloseFile(size_t uFileId)
 CSerializer* CComponentInstanceManager::GetFileSerializer() const
 {
     return m_pSerializer;
+}
+
+const std::set<size_t>& CComponentInstanceManager::GetLoadedFiles() const
+{
+    return m_loadedFiles;
 }
 
 void CComponentInstanceManager::ResolveDependency()

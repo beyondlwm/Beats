@@ -314,7 +314,7 @@ TString CComponentProjectDirectory::MakeRelativeLogicPath(CComponentProjectDirec
         toPath.push_back(pCurDirectory);
         pCurDirectory = pCurDirectory->GetParent();
     }
-    BEATS_ASSERT(toPath.back() == fromPath.back() && toPath.back() == CComponentProxyManager::GetInstance()->GetProject()->GetRootDirectory());
+    BEATS_ASSERT(toPath.back() == fromPath.back() && toPath.back());
     while (fromPath.size() > 0 && toPath.size() > 0 && fromPath.back() == toPath.back())
     {
         fromPath.pop_back();

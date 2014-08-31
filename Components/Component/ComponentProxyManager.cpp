@@ -407,16 +407,30 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
             std::vector<CComponentProxy*> vecComponents;
             LoadFile(strFileName.c_str(), &vecComponents);
             ResolveDependency();
+            // Do serialize and delete operation in separate steps.
+            // Because everything can be ready to serialize after initialize.
             for (size_t j = 0; j < vecComponents.size(); ++j)
             {
                 CComponentProxy* pProxy = vecComponents[j];
                 pProxy->Initialize();
+            }
+            for (size_t j = 0; j < vecComponents.size(); ++j)
+            {
+                CComponentProxy* pProxy = vecComponents[j];
                 if (pProxy->GetProxyId() == pProxy->GetId())
                 {
                     pProxy->Serialize(serializer, eVT_SavedValue);
                     ++uComponentCount;
                 }
+            }
+            for (size_t j = 0; j < vecComponents.size(); ++j)
+            {
+                CComponentProxy* pProxy = vecComponents[j];
                 pProxy->Uninitialize();
+            }
+            for (size_t j = 0; j < vecComponents.size(); ++j)
+            {
+                CComponentProxy* pProxy = vecComponents[j];
                 BEATS_SAFE_DELETE(pProxy);
             }
         }
