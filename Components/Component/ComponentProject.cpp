@@ -345,6 +345,11 @@ std::map<size_t, CComponentProjectDirectory*>* CComponentProject::GetFileToDirec
     return m_pFileToDirectoryMap;
 }
 
+std::map<size_t, size_t>* CComponentProject::GetComponentToFileMap() const
+{
+    return m_pComponentToFileMap;
+}
+
 size_t CComponentProject::RegisterFile(CComponentProjectDirectory* pDirectory, const TString& strFileName, std::map<size_t, std::vector<size_t> >& failedId, size_t uSpecifyFileId/* = 0xFFFFFFFF*/)
 {
     size_t uFileID = 0xFFFFFFFF;

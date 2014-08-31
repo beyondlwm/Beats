@@ -357,6 +357,11 @@ void CComponentProxyManager::CloseFile(const TCHAR* pszFilePath)
     m_pIdManager->UnLock();
 }
 
+const TString& CComponentProxyManager::GetCurrentWorkingFilePath() const
+{
+    return m_currentWorkingFilePath;
+}
+
 const TString& CComponentProxyManager::GetCurrentViewFilePath() const
 {
     return m_currentViewFilePath;
@@ -853,6 +858,11 @@ void CComponentProxyManager::OnDeleteComponentInScene(CComponentProxy* pProxy)
 bool CComponentProxyManager::IsExporting() const
 {
     return m_bExportingPhase;
+}
+
+const std::set<size_t>& CComponentProxyManager::GetLoadedFiles() const
+{
+    return m_loadedFiles;
 }
 
 void CComponentProxyManager::LoadTemplateDataFromXML(const TCHAR* pszPath)

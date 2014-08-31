@@ -24,6 +24,7 @@ public:
     void LoadFileFromDirectory(CComponentProjectDirectory* pDirectory, std::vector<CComponentProxy*>* pComponentContainer);
 
     void CloseFile(const TCHAR* pszFilePath);
+    const TString& GetCurrentWorkingFilePath() const;
     const TString& GetCurrentViewFilePath() const;
 
     void Export(const TCHAR* pSavePath);
@@ -72,6 +73,7 @@ public:
     void OnDeleteComponentInScene(CComponentProxy* pProxy);
 
     bool IsExporting() const;
+    const std::set<size_t>& GetLoadedFiles() const;
 
 private:
     void LoadTemplateDataFromXML(const TCHAR* pWorkingPath);
@@ -81,6 +83,7 @@ private:
     bool m_bLoadingFilePhase;
     bool m_bExportingPhase;
     bool m_bReflectCheckFlag;
+    TString m_currentWorkingFilePath;
     TString m_currentViewFilePath;
     CPropertyDescriptionBase* m_pCurrReflectPropertyDescription;
     CDependencyDescription* m_pCurrReflectDependency;

@@ -286,11 +286,6 @@ CComponentProject* CComponentManagerBase::GetProject() const
     return m_pProject;
 }
 
-const TString& CComponentManagerBase::GetCurrentWorkingFilePath() const
-{
-    return m_currentWorkingFilePath;
-}
-
 void CComponentManagerBase::AddDependencyResolver( CDependencyDescription* pDescription, size_t uIndex, size_t uGuid, size_t uInstanceId , void* pVariableAddress, bool bIsList, TAddDependencyFunc pFunc /*= NULL*/)
 {
     SDependencyResolver* pDependencyResovler = new SDependencyResolver;
