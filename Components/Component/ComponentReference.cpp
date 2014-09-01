@@ -42,12 +42,22 @@ size_t CComponentReference::GetGuid() const
 
 size_t CComponentReference::GetParentGuid() const
 {
-    return super::GetParentGuid();
+    size_t uParentGuid = 0xFFFFFFFF;
+    if (m_pHostProxy != NULL)
+    {
+        uParentGuid = m_pHostProxy->GetParentGuid();
+    }
+    return uParentGuid;
 }
 
 const TCHAR* CComponentReference::GetClassStr() const
 {
-    return super::GetClassStr();
+    const TCHAR* pszRet = _T("Reference");
+    if (m_pHostProxy != NULL)
+    {
+        pszRet = m_pHostProxy->GetClassStr();
+    }
+    return pszRet;
 }
 
 void CComponentReference::SaveToXML(TiXmlElement* pNode, bool bSaveOnlyNoneNativePart/* = false*/)
