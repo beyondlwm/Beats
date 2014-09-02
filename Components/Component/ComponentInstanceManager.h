@@ -14,6 +14,7 @@ public:
     size_t GetVersion();
     CSerializer* Import(const TCHAR* pszFilePath);
     void SwitchFile(size_t uFileId);
+    bool CalcSwitchFile(size_t uFileId, std::vector<size_t>& loadFiles, std::vector<size_t>& unloadFiles);
     void LoadFile(size_t uFileId, std::vector<CComponentBase*>& loadComponents);
     void CloseFile(size_t uFileId);
     CSerializer* GetFileSerializer() const;

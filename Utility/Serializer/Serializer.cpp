@@ -10,7 +10,16 @@ CSerializer::CSerializer(size_t size, void* data)
 , m_pWritePtr(NULL)
 , m_pUserData(NULL)
 {
-    Create(size, data);
+    if (size > 0)
+    {
+        Create(size, data);
+    }
+#ifdef _DEBUG
+    else
+    {
+        BEATS_ASSERT(data == NULL);
+    }
+#endif
 }
 
 CSerializer::CSerializer( const CSerializer& rhs )

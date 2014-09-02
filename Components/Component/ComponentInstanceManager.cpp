@@ -52,14 +52,26 @@ CSerializer* CComponentInstanceManager::Import(const TCHAR* pszFilePath)
         // 1. Load binarize data and file sturcture.
         size_t uFileCount = 0;
         serializer >> uFileCount;
-        for (size_t j = 0; j < uFileCount; ++j)
+        for (size_t i = 0; i < uFileCount; ++i)
         {
             size_t uStartPos = 0;
             serializer >> uStartPos;
             BEATS_ASSERT(uStartPos == (serializer.GetReadPos() - sizeof(uStartPos)), _T("File start pos not match!"));
             size_t uFileSize = 0;
             serializer >> uFileSize;
-            m_pProject->RegisterFileLayoutInfo(j, uStartPos, uFileSize);
+            m_pProject->RegisterFileLayoutInfo(i, uStartPos, uFileSize);
+
+            size_t uComponentCount = 0;
+            serializer >> uComponentCount;
+            for (size_t j = 0; j < uComponentCount; ++j)
+            {
+                size_t uComponentDataSize, uGuid, uId;
+                size_t uComponentStartPos = m_pSerializer->GetReadPos();
+                serializer >> uComponentDataSize >> uGuid >> uId;
+                m_pProject->RegisterComponent(i, uGuid, uId);
+                serializer.SetReadPos(uComponentStartPos + uComponentDataSize);
+            }
+
             BEATS_ASSERT(uStartPos + uFileSize <= serializer.GetWritePos(), _T("Data overflow!"));
             serializer.SetReadPos(uStartPos + uFileSize);
         }
@@ -72,6 +84,33 @@ CSerializer* CComponentInstanceManager::Import(const TCHAR* pszFilePath)
 }
 
 void CComponentInstanceManager::SwitchFile(size_t uFileId)
+{
+    BEATS_ASSERT(uFileId != 0xFFFFFFFF);
+    std::vector<size_t> loadFiles, unloadFiles;
+    bool bLoadThisFile= CalcSwitchFile(uFileId, loadFiles, unloadFiles);
+    if (bLoadThisFile)
+    {
+        m_uCurLoadFileId = uFileId;
+    }
+    std::vector<CComponentBase*> loadedComponents;
+    for (size_t i = 0; i < loadFiles.size(); ++i)
+    {
+        LoadFile(loadFiles[i], loadedComponents);
+    }
+    for (size_t i = 0; i < unloadFiles.size(); ++i)
+    {
+        CloseFile(unloadFiles[i]);
+    }
+    ResolveDependency();
+
+    for (size_t i = 0; i < loadedComponents.size(); ++i)
+    {
+        loadedComponents[i]->Initialize();
+    }
+    m_uCurWorkingFileId = uFileId;
+}
+
+bool CComponentInstanceManager::CalcSwitchFile(size_t uFileId, std::vector<size_t>& loadFiles, std::vector<size_t>& unloadFiles)
 {
     BEATS_ASSERT(uFileId != 0xFFFFFFFF);
     std::vector<CComponentBase*> loadedComponents;
@@ -99,7 +138,12 @@ void CComponentInstanceManager::SwitchFile(size_t uFileId)
             }
             while (directories.size() > 0)
             {
-                LoadDirectoryFiles(directories.back(), loadedComponents);
+                size_t uFileCount = directories.back()->GetFileList().size();
+                for (size_t i = 0; i < uFileCount; ++i)
+                {
+                    size_t uFileId = directories.back()->GetFileList().at(i);
+                    loadFiles.push_back(uFileId);
+                }
                 directories.pop_back();
             }
         }
@@ -112,7 +156,7 @@ void CComponentInstanceManager::SwitchFile(size_t uFileId)
             // 2. File is at the same directory: close current file and open it.
             if (strLogicPath.empty())
             {
-                CloseFile(m_uCurLoadFileId);
+                unloadFiles.push_back(m_uCurLoadFileId);
             }
             else
             {
@@ -128,7 +172,7 @@ void CComponentInstanceManager::SwitchFile(size_t uFileId)
                     {
                         if (fileList[i] != m_uCurLoadFileId)
                         {
-                            LoadFile(fileList[i], loadedComponents);
+                            loadFiles.push_back(fileList[i]);
                         }
                     }
                     // Load sub-directory to target, but don't load the last sub-directory, because we only need one file in it, the target file.
@@ -136,7 +180,12 @@ void CComponentInstanceManager::SwitchFile(size_t uFileId)
                     for (int i = 1; i < (int)logicPaths.size() - 1; ++i)
                     {
                         pCurLoopDirectory = pCurLoopDirectory->FindChild(logicPaths[i].c_str());
-                        LoadDirectoryFiles(pCurLoopDirectory, loadedComponents);
+                        size_t uFileCount = pCurLoopDirectory->GetFileList().size();
+                        for (size_t i = 0; i < uFileCount; ++i)
+                        {
+                            size_t uFileId = pCurLoopDirectory->GetFileList().at(i);
+                            loadFiles.push_back(uFileId);
+                        }
                     }
                 }
                 else// 4. File is in other different directory: close current and change directory.
@@ -145,7 +194,7 @@ void CComponentInstanceManager::SwitchFile(size_t uFileId)
                     // But it is not in the m_loadedFiles, so this file must be a new added one
                     // So we do some nothing as if it is already loaded.
                     BEATS_ASSERT(logicPaths.back().compare(_T("..")) != 0);
-                    CloseFile(m_uCurLoadFileId);
+                    unloadFiles.push_back(m_uCurLoadFileId);
                     CComponentProjectDirectory* pCurLoopDirectory = pCurDirectory->GetParent();
                     for (int i = 1; i < (int)logicPaths.size() - 1; ++i)
                     {
@@ -154,7 +203,7 @@ void CComponentInstanceManager::SwitchFile(size_t uFileId)
                             const std::vector<size_t>& fileList = pCurLoopDirectory->GetFileList();
                             for (size_t i = 0; i < fileList.size(); ++i)
                             {
-                                CloseFile(fileList[i]);
+                                unloadFiles.push_back(fileList[i]);
                             }
                             pCurLoopDirectory = pCurLoopDirectory->GetParent();
                         }
@@ -162,7 +211,12 @@ void CComponentInstanceManager::SwitchFile(size_t uFileId)
                         {
                             pCurLoopDirectory = pCurLoopDirectory->FindChild(logicPaths[i].c_str());
                             BEATS_ASSERT(pCurLoopDirectory != NULL);
-                            LoadDirectoryFiles(pCurLoopDirectory, loadedComponents);
+                            size_t uFileCount = pCurLoopDirectory->GetFileList().size();
+                            for (size_t i = 0; i < uFileCount; ++i)
+                            {
+                                size_t uFileId = pCurLoopDirectory->GetFileList().at(i);
+                                loadFiles.push_back(uFileId);
+                            }
                         }
                     }
                 }
@@ -172,17 +226,9 @@ void CComponentInstanceManager::SwitchFile(size_t uFileId)
 
     if (bLoadThisFile)
     {
-        m_uCurLoadFileId = uFileId;
-        LoadFile(uFileId, loadedComponents);
+        loadFiles.push_back(uFileId);
     }
-
-    ResolveDependency();
-
-    for (size_t i = 0; i < loadedComponents.size(); ++i)
-    {
-        loadedComponents[i]->Initialize();
-    }
-    m_uCurWorkingFileId = uFileId;
+    return bLoadThisFile;
 }
 
 void CComponentInstanceManager::LoadFile(size_t uFileId, std::vector<CComponentBase*>& loadComponents)
