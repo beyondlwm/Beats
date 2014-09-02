@@ -307,6 +307,11 @@ const std::set<size_t>& CComponentInstanceManager::GetLoadedFiles() const
     return m_loadedFiles;
 }
 
+void CComponentInstanceManager::SetCurLoadFileId(size_t uFileId)
+{
+    m_uCurLoadFileId = uFileId;
+}
+
 void CComponentInstanceManager::ResolveDependency()
 {
     for (size_t i = 0; i < m_pDependencyResolver->size(); ++i)

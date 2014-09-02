@@ -19,6 +19,8 @@ public:
     void CloseFile(size_t uFileId);
     CSerializer* GetFileSerializer() const;
     const std::set<size_t>& GetLoadedFiles() const;
+    void SetCurLoadFileId(size_t uFileId);
+
     virtual void ResolveDependency() override;
 
 private:
