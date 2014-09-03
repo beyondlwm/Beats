@@ -21,7 +21,8 @@
 CComponentProxyManager* CComponentProxyManager::m_pInstance = NULL;
 
 CComponentProxyManager::CComponentProxyManager()
-    : m_bLoadingFilePhase(false)
+    : m_bCreateInstanceWithProxy(true)
+    , m_bLoadingFilePhase(false)
     , m_bExportingPhase(false)
     , m_bReflectCheckFlag(false)
     , m_pCurrReflectPropertyDescription(NULL)
@@ -382,8 +383,6 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
     serializer << uFileCount;
     for (size_t i = 0; i < uFileCount; ++i)
     {
-        const TString& strFileName = m_pProject->GetFileList()->at(i);
-        BEATS_ASSERT(m_pProject->GetComponentFileId(strFileName) == i);
         std::map<size_t, std::vector<size_t> >* pFileToComponent = m_pProject->GetFileToComponentMap();
         std::map<size_t, std::vector<size_t> >::iterator iter = pFileToComponent->find(i);
         BEATS_ASSERT(iter != pFileToComponent->end());
@@ -409,8 +408,16 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
         }
         else
         {
+            const TString& strFileName = m_pProject->GetFileList()->at(i);
+            BEATS_ASSERT(m_pProject->GetComponentFileId(strFileName) == i);
             std::vector<CComponentProxy*> vecComponents;
+            CIdManager* pInstanceIdManager = CComponentInstanceManager::GetInstance()->GetIdManager();
+            // Don't create instance in LoadFile when exporting.
+            BEATS_ASSERT(m_bCreateInstanceWithProxy);
+            m_bCreateInstanceWithProxy = false;
+            m_pIdManager->Lock();
             LoadFile(strFileName.c_str(), &vecComponents);
+            BEATS_ASSERT(m_loadedFiles.find(i) != m_loadedFiles.end());
             ResolveDependency();
             // Do serialize and delete operation in separate steps.
             // Because everything can be ready to serialize after initialize.
@@ -428,6 +435,7 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
                     ++uComponentCount;
                 }
             }
+            // Don't call CloseFile, because we have nothing to do with proxy's host component.
             for (size_t j = 0; j < vecComponents.size(); ++j)
             {
                 CComponentProxy* pProxy = vecComponents[j];
@@ -438,6 +446,9 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
                 CComponentProxy* pProxy = vecComponents[j];
                 BEATS_SAFE_DELETE(pProxy);
             }
+            m_loadedFiles.erase(i);
+            m_pIdManager->UnLock();
+            m_bCreateInstanceWithProxy = true;// Restore.
         }
         size_t uCurWritePos = serializer.GetWritePos();
         size_t uFileDataSize = uCurWritePos - uWritePos;
@@ -863,6 +874,16 @@ bool CComponentProxyManager::IsExporting() const
 const std::set<size_t>& CComponentProxyManager::GetLoadedFiles() const
 {
     return m_loadedFiles;
+}
+
+bool CComponentProxyManager::IsEnableCreateInstanceWithProxy() const
+{
+    return m_bCreateInstanceWithProxy;
+}
+
+void CComponentProxyManager::SetEnableCreateInstanceWithProxy(bool bFlag)
+{
+    m_bCreateInstanceWithProxy = bFlag;
 }
 
 void CComponentProxyManager::LoadTemplateDataFromXML(const TCHAR* pszPath)

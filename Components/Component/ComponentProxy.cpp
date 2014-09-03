@@ -168,8 +168,11 @@ CComponentBase* CComponentProxy::Clone(bool bCloneValue, CSerializer* /*pSeriali
     pNewInstance->SetId(id);
     if (m_pHostComponent != NULL)
     {
-        CComponentInstance* pNewHostComponent = (CComponentInstance*)CComponentInstanceManager::GetInstance()->CreateComponentByRef(m_pHostComponent, bCloneValue, id == 0xFFFFFFFF, id);
-        pNewInstance->SetHostComponent(pNewHostComponent);
+        if (CComponentProxyManager::GetInstance()->IsEnableCreateInstanceWithProxy())
+        {
+            CComponentInstance* pNewHostComponent = (CComponentInstance*)CComponentInstanceManager::GetInstance()->CreateComponentByRef(m_pHostComponent, bCloneValue, id == 0xFFFFFFFF, id);
+            pNewInstance->SetHostComponent(pNewHostComponent);
+        }
     }
     if (bCallInitFunc)
     {

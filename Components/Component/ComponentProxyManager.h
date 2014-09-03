@@ -75,11 +75,16 @@ public:
     bool IsExporting() const;
     const std::set<size_t>& GetLoadedFiles() const;
 
+    // Useful for exporting, at that phase, no need to create any component instance.
+    bool IsEnableCreateInstanceWithProxy() const;
+    void SetEnableCreateInstanceWithProxy(bool bFlag);
+
 private:
     void LoadTemplateDataFromXML(const TCHAR* pWorkingPath);
     void LoadTemplateDataFromSerializer(CSerializer& serializer, TCreateComponentEditorProxyFunc func, TCreateGraphicFunc pGraphicFunc);
 
 private:
+    bool m_bCreateInstanceWithProxy;
     bool m_bLoadingFilePhase;
     bool m_bExportingPhase;
     bool m_bReflectCheckFlag;

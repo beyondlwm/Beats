@@ -55,26 +55,30 @@ void CIdManager::RecycleId( size_t id )
 
 bool CIdManager::ReserveId( size_t id , bool bCheckIsAlreadyRequested/* = true*/)
 {
-    bool bRet = false;
-    if (id >= m_lastId)
+    bool bRet = true;
+    if (!m_bLock)
     {
-        for (size_t i = m_lastId; i < id; ++i)
+        bRet = false;
+        if (id >= m_lastId)
         {
-            BEATS_ASSERT(m_freeIdPool.find(i) == m_freeIdPool.end());
-            m_freeIdPool.insert(i);
+            for (size_t i = m_lastId; i < id; ++i)
+            {
+                BEATS_ASSERT(m_freeIdPool.find(i) == m_freeIdPool.end());
+                m_freeIdPool.insert(i);
+            }
+            m_lastId = id + 1;
+            bRet = true;
         }
-        m_lastId = id + 1;
-        bRet = true;
-    }
-    else
-    {
-        bRet = m_freeIdPool.find(id) != m_freeIdPool.end();
-        if (bRet)
+        else
         {
-            m_freeIdPool.erase(id);
+            bRet = m_freeIdPool.find(id) != m_freeIdPool.end();
+            if (bRet)
+            {
+                m_freeIdPool.erase(id);
+            }
         }
+        BEATS_ASSERT(!bCheckIsAlreadyRequested || bRet, _T("Id: %d can't be request twice!"), id);
     }
-    BEATS_ASSERT(!bCheckIsAlreadyRequested || bRet, _T("Id: %d can't be request twice!"), id);
 
     return bRet;
 }
