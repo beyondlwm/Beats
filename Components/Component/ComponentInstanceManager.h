@@ -20,6 +20,7 @@ public:
     CSerializer* GetFileSerializer() const;
     const std::set<size_t>& GetLoadedFiles() const;
     void SetCurLoadFileId(size_t uFileId);
+    size_t GetCurLoadFileId() const;
 
     virtual void ResolveDependency() override;
 

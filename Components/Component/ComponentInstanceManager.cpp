@@ -312,6 +312,11 @@ void CComponentInstanceManager::SetCurLoadFileId(size_t uFileId)
     m_uCurLoadFileId = uFileId;
 }
 
+size_t CComponentInstanceManager::GetCurLoadFileId() const
+{
+    return m_uCurLoadFileId;
+}
+
 void CComponentInstanceManager::ResolveDependency()
 {
     for (size_t i = 0; i < m_pDependencyResolver->size(); ++i)
