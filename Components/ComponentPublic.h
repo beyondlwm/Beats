@@ -21,7 +21,6 @@
 #define GAME_COMPONENT_INFO_FILE _T("GameLaunch.eds")
 #define GAME_COMPONENT_INFO_PATCH _T("GamePatch.XML")
 #define ENGINE_ENUM_INFO_FILE _T("EngineScanData.bin")
-#define GAME_ENUM_INFO_FILE _T("GameScanData.bin")
 
 #define COMPONENT_FILE_HEADERSTR _T("ComponentFile")
 #define COMPONENT_FILE_EXTENSION _T(".bcf")
@@ -582,7 +581,7 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
                     EDependencyChangeAction action;\
                     CComponentProxy* pOperateProxy = NULL;\
                     pDependencyList->GetCurrActionParam(action, pOperateProxy);\
-                    if(pOperateProxy->IsInitialized())\
+                    if(pOperateProxy->IsInitialized() || eDCA_Delete == action)\
                     {\
                         bNeedSnyc = !this->OnDependencyListChange(&ptrProperty, action, pOperateProxy->GetHostComponent());\
                     }\
