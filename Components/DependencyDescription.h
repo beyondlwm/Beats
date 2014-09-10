@@ -25,6 +25,7 @@ enum EDependencyChangeAction
     eDCA_Add,
     eDCA_Delete,
     eDCA_Change,
+    eDCA_Ordered,
 
     eDCA_Count,
     eDCA_Force32Bit = 0xFFFFFFFF
@@ -55,6 +56,7 @@ public:
     CDependencyDescriptionLine* AddDependency(CComponentProxy* pComponentInstance);
     void RemoveDependencyLine(CDependencyDescriptionLine* pComponentInstance);
     void RemoveDependencyByIndex(size_t uIndex);
+    void SwapLineOrder(size_t uSourceIndex, size_t uTargetIndex);
     bool IsInDependency(CComponentProxy* pComponentInstance);
     void SaveToXML(TiXmlElement* pParentNode);
     void LoadFromXML(TiXmlElement* pNode);

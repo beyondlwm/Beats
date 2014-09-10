@@ -112,6 +112,23 @@ void CDependencyDescription::RemoveDependencyByIndex( size_t uIndex )
     OnDependencyChanged();
 }
 
+void CDependencyDescription::SwapLineOrder(size_t uSourceIndex, size_t uTargetIndex)
+{
+    BEATS_ASSERT(uSourceIndex != uTargetIndex);
+    BEATS_ASSERT(uSourceIndex < m_dependencyLine.size());
+    BEATS_ASSERT(uTargetIndex < m_dependencyLine.size());
+
+    CDependencyDescriptionLine* pSourceLine = m_dependencyLine[uSourceIndex];
+    CDependencyDescriptionLine* pTargetLine = m_dependencyLine[uTargetIndex];
+    BEATS_ASSERT(pSourceLine != pTargetLine);
+    CComponentProxy* pSourceProxy = pSourceLine->GetConnectedComponent(false);
+    pSourceLine->SetConnectComponent(pTargetLine->GetConnectedComponent(false));
+    pTargetLine->SetConnectComponent(pSourceProxy);
+    m_changeAction = eDCA_Ordered;
+    m_pChangeActionProxy = pSourceProxy;
+    OnDependencyChanged();
+}
+
 void CDependencyDescription::SaveToXML( TiXmlElement* pParentNode )
 {
     if (m_dependencyLine.size() == 0)
