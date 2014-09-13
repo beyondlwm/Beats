@@ -71,10 +71,13 @@ public:
     CComponentProjectDirectory* FindProjectDirectory(const TString& strPath, bool bAbsoluteOrLogicPath) const;
     CComponentProjectDirectory* FindProjectDirectoryById(size_t uFileId);
 
+    size_t QueryComponentGuid(size_t uId);
+
     std::map<size_t, std::vector<size_t> >* GetFileToComponentMap() const;
     std::map<size_t, std::vector<size_t>>* GetIdToReferenceMap() const;
     std::map<size_t, CComponentProjectDirectory*>* GetFileToDirectoryMap() const;
     std::map<size_t, size_t>* GetComponentToFileMap() const;
+
 private:
     void LoadXMLProject(TiXmlElement* pNode, CComponentProjectDirectory* pProjectDirectory, size_t& uStartFileId, std::map<size_t, std::vector<size_t> >& conflictIdMap);
     void SaveProjectFile( TiXmlElement* pParentNode, const CComponentProjectDirectory* p);

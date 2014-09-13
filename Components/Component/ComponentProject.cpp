@@ -9,17 +9,17 @@
 #include "FilePath/FilePathTool.h"
 
 CComponentProject::CComponentProject()
-: m_pProjectDirectory(NULL)
-, m_uStartFileId(0)
-, m_pComponentFiles(new std::vector<TString>)
-, m_pComponentToTypeMap(new std::map<size_t, size_t>)
-, m_pComponentToFileMap(new std::map<size_t, size_t>)
-, m_pFileToComponentMap(new std::map<size_t, std::vector<size_t> >)
-, m_pFileToDirectoryMap(new std::map<size_t, CComponentProjectDirectory*>)
-, m_pTypeToComponentMap(new std::map<size_t, std::vector<size_t> >)
-, m_pPropertyMaintainMap(new std::map<size_t, std::map<TString, TString> >)
-, m_pFileDataLayout(new std::map<size_t, SFileDataLayout>)
-, m_pReferenceIdMap(new std::map<size_t, std::vector<size_t> >)
+    : m_pProjectDirectory(NULL)
+    , m_uStartFileId(0)
+    , m_pComponentFiles(new std::vector<TString>)
+    , m_pComponentToTypeMap(new std::map<size_t, size_t>)
+    , m_pComponentToFileMap(new std::map<size_t, size_t>)
+    , m_pFileToComponentMap(new std::map<size_t, std::vector<size_t> >)
+    , m_pFileToDirectoryMap(new std::map<size_t, CComponentProjectDirectory*>)
+    , m_pTypeToComponentMap(new std::map<size_t, std::vector<size_t> >)
+    , m_pPropertyMaintainMap(new std::map<size_t, std::map<TString, TString> >)
+    , m_pFileDataLayout(new std::map<size_t, SFileDataLayout>)
+    , m_pReferenceIdMap(new std::map<size_t, std::vector<size_t> >)
 {
 
 }
@@ -330,6 +330,13 @@ CComponentProjectDirectory* CComponentProject::FindProjectDirectoryById(size_t u
     return pRet;
 }
 
+size_t CComponentProject::QueryComponentGuid(size_t uId)
+{
+    auto iter = m_pComponentToTypeMap->find(uId);
+    BEATS_ASSERT(iter != m_pComponentToTypeMap->end(), _T("Query component guid failed of id %d"), uId);
+    return iter->second;
+}
+
 std::map<size_t, std::vector<size_t> >* CComponentProject::GetFileToComponentMap() const
 {
     return m_pFileToComponentMap;
@@ -358,7 +365,7 @@ size_t CComponentProject::RegisterFile(CComponentProjectDirectory* pDirectory, c
         TString strExistsFileName = GetComponentFileName(uSpecifyFileId);
         bool bValidId = strExistsFileName.length() == 0;
         BEATS_ASSERT(bValidId, _T("Can't Specify a file pos %d for file %s, there is alreay a file %s"), 
-                                uSpecifyFileId, strFileName.c_str(), strExistsFileName.c_str());
+            uSpecifyFileId, strFileName.c_str(), strExistsFileName.c_str());
         if (bValidId)
         {
             (*m_pComponentFiles)[uSpecifyFileId].assign(strFileName);
@@ -427,7 +434,7 @@ bool CComponentProject::AnalyseFile(const TString& strFileName, std::map<size_t,
         if (pComponentListNode != NULL )
         {
             TiXmlElement* pComponentElement = pComponentListNode->FirstChildElement("Component");
-            if (pComponentElement != NULL)
+            while (pComponentElement != NULL)
             {
                 const char* pszGuidStr = pComponentElement->Attribute("GUID");
                 char* pStopPos = NULL;
@@ -438,36 +445,33 @@ bool CComponentProject::AnalyseFile(const TString& strFileName, std::map<size_t,
                     outResult[uComponentGuid] = std::vector<size_t>();
                 }
                 std::vector<size_t>& idList = outResult[uComponentGuid];
-                while (pComponentElement != NULL)
+                TiXmlElement* pInstanceElement = pComponentElement->FirstChildElement();
+                while (pInstanceElement != NULL)
                 {
-                    TiXmlElement* pInstanceElement = pComponentElement->FirstChildElement();
-                    while (pInstanceElement != NULL)
+                    bool bIsReference = strcmp(pInstanceElement->Value(), "Reference") == 0;
+                    bool bFindProxy = strcmp(pInstanceElement->Value(), "Instance") == 0 || bIsReference;
+                    BEATS_ASSERT(bFindProxy, _T("Read invalid data!"));
+                    if (bFindProxy)
                     {
-                        bool bIsReference = strcmp(pInstanceElement->Value(), "Reference") == 0;
-                        bool bFindProxy = strcmp(pInstanceElement->Value(), "Instance") == 0 || bIsReference;
-                        BEATS_ASSERT(bFindProxy, _T("Read invalid data!"));
-                        if (bFindProxy)
+                        int id = -1;
+                        pInstanceElement->Attribute("Id", &id);
+                        BEATS_ASSERT(id != -1);
+                        idList.push_back(id);
+                        if (bIsReference)
                         {
-                            int id = -1;
-                            pInstanceElement->Attribute("Id", &id);
-                            BEATS_ASSERT(id != -1);
-                            idList.push_back(id);
-                            if (bIsReference)
+                            int proxyId = -1;
+                            pInstanceElement->Attribute("ReferenceId", &proxyId);
+                            BEATS_ASSERT(proxyId != -1);
+                            if (m_pReferenceIdMap->find(proxyId) == m_pReferenceIdMap->end())
                             {
-                                int proxyId = -1;
-                                pInstanceElement->Attribute("ReferenceId", &proxyId);
-                                BEATS_ASSERT(proxyId != -1);
-                                if (m_pReferenceIdMap->find(proxyId) == m_pReferenceIdMap->end())
-                                {
-                                    (*m_pReferenceIdMap)[proxyId] = std::vector<size_t>();
-                                }
-                                (*m_pReferenceIdMap)[proxyId].push_back(id);
+                                (*m_pReferenceIdMap)[proxyId] = std::vector<size_t>();
                             }
+                            (*m_pReferenceIdMap)[proxyId].push_back(id);
                         }
-                        pInstanceElement = pInstanceElement->NextSiblingElement();
                     }
-                    pComponentElement = pComponentElement->NextSiblingElement("Component");
+                    pInstanceElement = pInstanceElement->NextSiblingElement();
                 }
+                pComponentElement = pComponentElement->NextSiblingElement("Component");
             }
         }
     }
@@ -575,7 +579,7 @@ size_t CComponentProject::GetComponentFileId(const TString& strFileName) const
 size_t CComponentProject::QueryFileId(size_t uComponentId, bool bOnlyInProjectFile)
 {
     size_t uRet = 0xFFFFFFFF;
-    
+
     // 1. Get the info from static records (in project).
     std::map<size_t, size_t>::iterator iter = m_pComponentToFileMap->find(uComponentId);
     if (iter != m_pComponentToFileMap->end())

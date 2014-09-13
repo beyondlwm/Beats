@@ -541,11 +541,14 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
                     {\
                         ptrProperty = NULL;\
                         size_t uDepGuid = ptrProperty->REFLECT_GUID;\
-                        (void)uDepGuid;\
-                        BEATS_ASSERT(CComponentProxyManager::GetInstance()->IsParent(uDepGuid, uGuid),\
-                            _T("GUID mismatched. GUID of dependency:0x%x, GUID in datafile:0x%x"),\
-                            uDepGuid, uGuid);\
-                        CComponentInstanceManager::GetInstance()->AddDependencyResolver(NULL, 0 , uGuid, uInstanceId, &ptrProperty, false);\
+                        bool bIsParent = CComponentProxyManager::GetInstance()->IsParent(uDepGuid, uGuid);\
+                        BEATS_ASSERT(bIsParent,\
+                        _T("GUID mismatched. GUID of dependency:0x%x, GUID in datafile:0x%x"),\
+                        uDepGuid, uGuid);\
+                        if (bIsParent)\
+                        {\
+                            CComponentInstanceManager::GetInstance()->AddDependencyResolver(NULL, 0 , uGuid, uInstanceId, &ptrProperty, false);\
+                        }\
                     }\
                 }\
                 else\
@@ -591,16 +594,19 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
                     ptrProperty.clear();\
                     ptrProperty.resize(1);\
                     size_t uDepGuid = ptrProperty[0]->REFLECT_GUID;\
-                    (void)uDepGuid;\
                     ptrProperty.clear();\
                     for (size_t i = 0; i < uLineCount; ++i)\
                     {\
                         size_t uInstanceId, uGuid;\
                         serializer >> uInstanceId >> uGuid;\
-                        BEATS_ASSERT(CComponentProxyManager::GetInstance()->IsParent(uDepGuid, uGuid),\
+                        bool bIsParent = CComponentProxyManager::GetInstance()->IsParent(uDepGuid, uGuid);\
+                        BEATS_ASSERT(bIsParent,\
                             _T("GUID mismatched. GUID of dependency:0x%x, GUID in datafile:0x%x"),\
                             uDepGuid, uGuid);\
-                        CComponentInstanceManager::GetInstance()->AddDependencyResolver(NULL, i , uGuid, uInstanceId, &ptrProperty, true);\
+                        if (bIsParent)\
+                        {\
+                            CComponentInstanceManager::GetInstance()->AddDependencyResolver(NULL, i , uGuid, uInstanceId, &ptrProperty, true);\
+                        }\
                     }\
                 }\
                 if (pDependencyList != NULL && bReflectCheckFlag)\

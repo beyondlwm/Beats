@@ -9,6 +9,7 @@
 #include "Utility/Serializer/Serializer.h"
 #include "Component/ComponentInstance.h"
 #include "Component/ComponentReference.h"
+#include "Component/ComponentProject.h"
 
 CDependencyDescription::CDependencyDescription(EDependencyType type, size_t dependencyGuid, CComponentProxy* pOwner, size_t uIndex, bool bIsList)
 : m_type(type)
@@ -186,13 +187,17 @@ void CDependencyDescription::LoadFromXML( TiXmlElement* pNode )
                 char* pEnd = NULL;
                 size_t uGuid = strtoul(szGuid, &pEnd, 16);
                 const char* szId = pDependencyNodeElement->Attribute("Id");
-                size_t uId = (size_t)atoi(szId); 
-
-                CComponentProxy* pComponent = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(uId, uGuid));
-                AddDependency(pComponent);
-                if (pComponent == NULL)
+                size_t uId = (size_t)atoi(szId);
+                bool bIsParent = CComponentProxyManager::GetInstance()->IsParent(m_uDependencyGuid, uGuid);
+                BEATS_ASSERT(bIsParent, _T("Dependency Not match in component %d"), m_pOwner->GetId());
+                if (bIsParent)
                 {
-                    CComponentProxyManager::GetInstance()->AddDependencyResolver(this, m_dependencyLine.size() - 1, uGuid, uId, NULL, m_bIsListType);
+                    CComponentProxy* pComponent = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(uId, uGuid));
+                    AddDependency(pComponent);
+                    if (pComponent == NULL)
+                    {
+                        CComponentProxyManager::GetInstance()->AddDependencyResolver(this, m_dependencyLine.size() - 1, uGuid, uId, NULL, m_bIsListType);
+                    }
                 }
                 pDependencyNodeElement = pDependencyNodeElement->NextSiblingElement("DependencyNode");
             }
