@@ -50,7 +50,7 @@ public:
     size_t GetBufferSize() const;
     void Reset();
     const unsigned char* GetBuffer() const;
-    void SetBuffer(const unsigned char* buffer, size_t uBufferLength);
+    void SetBuffer(const unsigned char* buffer, size_t uBufferLength, bool bReleaseOldBuffer = true);
 
     void Serialize(const void* pData, size_t size);
     bool Serialize(const TCHAR* pFilePath, const TCHAR* pszMode = _T("rb"), size_t uStartPos = 0, size_t uDataLength = 0);

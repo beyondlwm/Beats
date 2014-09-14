@@ -553,9 +553,12 @@ void CSerializer::IncreaseBufferSize()
     ValidateBuffer(m_size * 2);
 }
 
-void CSerializer::SetBuffer( const unsigned char* buffer, size_t uBufferLength )
+void CSerializer::SetBuffer( const unsigned char* buffer, size_t uBufferLength, bool bReleaseOldBuffer/* = true*/ )
 {
-    BEATS_SAFE_DELETE(m_pBuffer);
+    if (bReleaseOldBuffer)
+    {
+        BEATS_SAFE_DELETE(m_pBuffer);
+    }
     m_pBuffer = (void*)buffer; 
     m_size = uBufferLength;
     Reset();
