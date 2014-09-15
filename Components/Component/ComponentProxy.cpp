@@ -392,7 +392,8 @@ void CComponentProxy::LoadFromXML( TiXmlElement* pNode )
         CStringHelper::GetInstance()->ConvertToTCHAR(szVariableName, szTCHARVariableName, MAX_PATH);
         bool bNeedMaintain = true;
         std::map<TString, CPropertyDescriptionBase*>::iterator iter = unInitializedproperties.find(szTCHARVariableName);
-        if (iter == unInitializedproperties.end())
+        // If variable name or type has changed, we will check if we have handled before.
+        if (iter == unInitializedproperties.end() || iter->second->GetType() != propertyType)
         {
             TString strReplacePropertyName;
             bNeedMaintain = !pProject->GetReplacePropertyName(this->GetGuid(), szTCHARVariableName, strReplacePropertyName);
