@@ -13,6 +13,7 @@
 #include "ComponentGraphic.h"
 #include <string>
 #include "ComponentInstance.h"
+#include "ComponentReference.h"
 
 CComponentProxy::CComponentProxy()
     : m_bIsTemplate(false)
@@ -624,8 +625,21 @@ void CComponentProxy::Initialize()
 
 void CComponentProxy::Uninitialize()
 {
-    super::Uninitialize();
     size_t uComponentId = GetId();
+    const std::map<size_t, std::vector<CComponentReference*>>& referenceMap = CComponentProxyManager::GetInstance()->GetReferenceIdMap();
+    auto referenceIter = referenceMap.find(uComponentId);
+    if (referenceIter != referenceMap.end())
+    {
+        std::vector<CComponentReference*> backup = referenceIter->second;
+        for (size_t i = 0; i < backup.size(); ++i)
+        {
+            CComponentReference* pRef = backup.at(i);
+            pRef->Uninitialize();
+            BEATS_SAFE_DELETE(pRef);
+        }
+    }
+
+    super::Uninitialize();
     if (uComponentId != 0xFFFFFFFF)
     {
         CComponentProxyManager::GetInstance()->UnregisterInstance(this);
