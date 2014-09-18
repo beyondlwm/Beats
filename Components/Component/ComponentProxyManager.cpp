@@ -118,8 +118,8 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /
                         }
                     }
                     // Load sub-directory to target, but don't load the last sub-directory, because we only need one file in it, the target file.
-                    CComponentProjectDirectory* pCurLoopDirectory = pDirectory;
-                    for (int i = 1; i < (int)logicPaths.size() - 1; ++i)
+                    CComponentProjectDirectory* pCurLoopDirectory = pCurDirectory;
+                    for (int i = 0; i < (int)logicPaths.size() - 1; ++i)
                     {
                         BEATS_ASSERT(pCurLoopDirectory != NULL);
                         pCurLoopDirectory = pCurLoopDirectory->FindChild(logicPaths[i].c_str());
