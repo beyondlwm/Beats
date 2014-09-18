@@ -121,7 +121,9 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /
                     CComponentProjectDirectory* pCurLoopDirectory = pDirectory;
                     for (int i = 1; i < (int)logicPaths.size() - 1; ++i)
                     {
+                        BEATS_ASSERT(pCurLoopDirectory != NULL);
                         pCurLoopDirectory = pCurLoopDirectory->FindChild(logicPaths[i].c_str());
+                        BEATS_ASSERT(pCurLoopDirectory != NULL);
                         LoadFileFromDirectory(pCurLoopDirectory, &loadedComponents);
                     }
                 }
