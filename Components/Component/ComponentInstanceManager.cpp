@@ -69,6 +69,7 @@ CSerializer* CComponentInstanceManager::Import(const TCHAR* pszFilePath)
                 size_t uComponentStartPos = m_pSerializer->GetReadPos();
                 serializer >> uComponentDataSize >> uGuid >> uId;
                 m_pProject->RegisterComponent(i, uGuid, uId);
+                m_pProject->RegisterComponentFilePosInfo(uId, serializer.GetReadPos());
                 serializer.SetReadPos(uComponentStartPos + uComponentDataSize);
             }
 

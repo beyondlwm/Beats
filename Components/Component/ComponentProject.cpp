@@ -20,6 +20,7 @@ CComponentProject::CComponentProject()
     , m_pPropertyMaintainMap(new std::map<size_t, std::map<TString, TString> >)
     , m_pFileDataLayout(new std::map<size_t, SFileDataLayout>)
     , m_pReferenceIdMap(new std::map<size_t, std::vector<size_t> >)
+    , m_pComponentFilePosMap(new std::map<size_t, size_t>)
 {
 
 }
@@ -36,6 +37,7 @@ CComponentProject::~CComponentProject()
     BEATS_SAFE_DELETE(m_pPropertyMaintainMap);
     BEATS_SAFE_DELETE(m_pFileDataLayout);
     BEATS_SAFE_DELETE(m_pReferenceIdMap);
+    BEATS_SAFE_DELETE(m_pComponentFilePosMap);
 }
 
 CComponentProjectDirectory* CComponentProject::LoadProject(const TCHAR* pszProjectFile, std::map<size_t, std::vector<size_t> >& conflictIdMap)
@@ -271,7 +273,7 @@ void CComponentProject::RegisterFileLayoutInfo(size_t uFileId, size_t uStartPos,
     (*m_pFileDataLayout)[uFileId] = SFileDataLayout(uStartPos, uDataLength);
 }
 
-bool CComponentProject::QueryFileLayoutInfo(size_t uFileId, size_t& uStartPos, size_t& uDataLength)
+bool CComponentProject::QueryFileLayoutInfo(size_t uFileId, size_t& uStartPos, size_t& uDataLength) const
 {
     bool bRet = false;
     auto iter = m_pFileDataLayout->find(uFileId);
@@ -279,6 +281,24 @@ bool CComponentProject::QueryFileLayoutInfo(size_t uFileId, size_t& uStartPos, s
     {
         uStartPos = iter->second.m_uStartPos;
         uDataLength = iter->second.m_uDataSize;
+        bRet = true;
+    }
+    return bRet;
+}
+
+void CComponentProject::RegisterComponentFilePosInfo(size_t uId, size_t uFilePos)
+{
+    BEATS_ASSERT(m_pComponentFilePosMap->find(uId) == m_pComponentFilePosMap->end());
+    (*m_pComponentFilePosMap)[uId] = uFilePos;
+}
+
+bool CComponentProject::QueryComponentFilePos(size_t uId, size_t& uFilePos) const
+{
+    bool bRet = false;
+    auto iter = m_pComponentFilePosMap->find(uId);
+    if (iter != m_pComponentFilePosMap->end())
+    {
+        uFilePos = iter.second;
         bRet = true;
     }
     return bRet;
