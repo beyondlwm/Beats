@@ -298,7 +298,7 @@ bool CComponentProject::QueryComponentFilePos(size_t uId, size_t& uFilePos) cons
     auto iter = m_pComponentFilePosMap->find(uId);
     if (iter != m_pComponentFilePosMap->end())
     {
-        uFilePos = iter.second;
+        uFilePos = iter->second;
         bRet = true;
     }
     return bRet;
