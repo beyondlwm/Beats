@@ -15,6 +15,8 @@ public:
 public:
     void SetProxyComponent(class CComponentProxy* pProxy);
     class CComponentProxy* GetProxyComponent() const;
+    void Serialize(CSerializer& serializer);
+
 private:
     class CComponentProxy* m_pProxyComponent;
 };

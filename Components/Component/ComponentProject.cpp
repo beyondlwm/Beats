@@ -20,7 +20,7 @@ CComponentProject::CComponentProject()
     , m_pPropertyMaintainMap(new std::map<size_t, std::map<TString, TString> >)
     , m_pFileDataLayout(new std::map<size_t, SFileDataLayout>)
     , m_pReferenceIdMap(new std::map<size_t, std::vector<size_t> >)
-    , m_pComponentFilePosMap(new std::map<size_t, size_t>)
+    , m_pComponentFileLayoutMap(new std::map<size_t, SFileDataLayout>)
 {
 
 }
@@ -37,7 +37,7 @@ CComponentProject::~CComponentProject()
     BEATS_SAFE_DELETE(m_pPropertyMaintainMap);
     BEATS_SAFE_DELETE(m_pFileDataLayout);
     BEATS_SAFE_DELETE(m_pReferenceIdMap);
-    BEATS_SAFE_DELETE(m_pComponentFilePosMap);
+    BEATS_SAFE_DELETE(m_pComponentFileLayoutMap);
 }
 
 CComponentProjectDirectory* CComponentProject::LoadProject(const TCHAR* pszProjectFile, std::map<size_t, std::vector<size_t> >& conflictIdMap)
@@ -286,19 +286,20 @@ bool CComponentProject::QueryFileLayoutInfo(size_t uFileId, size_t& uStartPos, s
     return bRet;
 }
 
-void CComponentProject::RegisterComponentFilePosInfo(size_t uId, size_t uFilePos)
+void CComponentProject::RegisterComponentFileLayout(size_t uId, size_t uFilePos, size_t uDataSize)
 {
-    BEATS_ASSERT(m_pComponentFilePosMap->find(uId) == m_pComponentFilePosMap->end());
-    (*m_pComponentFilePosMap)[uId] = uFilePos;
+    BEATS_ASSERT(m_pComponentFileLayoutMap->find(uId) == m_pComponentFileLayoutMap->end());
+    (*m_pComponentFileLayoutMap)[uId] = SFileDataLayout(uFilePos, uDataSize);
 }
 
-bool CComponentProject::QueryComponentFilePos(size_t uId, size_t& uFilePos) const
+bool CComponentProject::QueryComponentFileLayout(size_t uId, size_t& uFilePos, size_t& uDataSize) const
 {
     bool bRet = false;
-    auto iter = m_pComponentFilePosMap->find(uId);
-    if (iter != m_pComponentFilePosMap->end())
+    auto iter = m_pComponentFileLayoutMap->find(uId);
+    if (iter != m_pComponentFileLayoutMap->end())
     {
-        uFilePos = iter->second;
+        uFilePos = iter->second.m_uStartPos;
+        uDataSize = iter->second.m_uDataSize;
         bRet = true;
     }
     return bRet;

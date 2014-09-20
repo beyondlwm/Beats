@@ -66,8 +66,8 @@ public:
     void RegisterFileLayoutInfo(size_t uFileId, size_t uStartPos, size_t uDataLength);
     bool QueryFileLayoutInfo(size_t uFileId, size_t& uStartPos, size_t& uDataLength) const;
 
-    void RegisterComponentFilePosInfo(size_t uId, size_t uFilePos);
-    bool QueryComponentFilePos(size_t uId, size_t& uFilePos) const;
+    void RegisterComponentFileLayout(size_t uId, size_t uFilePos, size_t uDataSize);
+    bool QueryComponentFileLayout(size_t uId, size_t& uFilePos, size_t& uDataSize) const;
 
     void SetStartFile(size_t uFileId);
     size_t GetStartFile() const;
@@ -100,8 +100,8 @@ private:
     std::map<size_t, SFileDataLayout>* m_pFileDataLayout;
     // Key is the proxy id of the real component, and the value is the reference ids
     std::map<size_t, std::vector<size_t>>* m_pReferenceIdMap;
-    // Key is the component id, value is the start pos of serializer for this component in file.
-    std::map<size_t, size_t>* m_pComponentFilePosMap;
+    // Key is the component id, value is the start pos and data size of serializer for this component in file.
+    std::map<size_t, SFileDataLayout>* m_pComponentFileLayoutMap;
 
     TString m_strProjectFilePath;
     TString m_strProjectFileName;

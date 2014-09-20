@@ -3,6 +3,7 @@
 #include "ComponentInstanceManager.h"
 #include "IdManager/IdManager.h"
 #include "ComponentProxy.h"
+#include "ComponentProject.h"
 
 CComponentInstance::CComponentInstance()
     : m_pProxyComponent(NULL)
@@ -45,4 +46,23 @@ void CComponentInstance::SetProxyComponent(CComponentProxy* pProxy)
 CComponentProxy* CComponentInstance::GetProxyComponent() const
 {
     return m_pProxyComponent;
+}
+
+void CComponentInstance::Serialize(CSerializer& serializer)
+{
+    if (m_pProxyComponent != NULL)
+    {
+        m_pProxyComponent->Serialize(serializer, eVT_CurrentValue);
+    }
+    else
+    {
+        size_t uFilePos = 0;
+        size_t uDataSize = 0;
+        CSerializer* pSerializer = CComponentInstanceManager::GetInstance()->GetFileSerializer();
+        if (CComponentInstanceManager::GetInstance()->GetProject()->QueryComponentFileLayout(GetId(), uFilePos, uDataSize))
+        {
+            pSerializer->SetReadPos(uFilePos);
+            serializer.Serialize(*pSerializer, uDataSize);
+        }
+    }
 }
