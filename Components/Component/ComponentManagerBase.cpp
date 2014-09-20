@@ -9,6 +9,7 @@ void DefaultAddDependencyFunc(void* pContainer, void* pDependency)
 }
 
 CComponentManagerBase::CComponentManagerBase()
+    : m_bForbidDependencyResolve(false)
 {
     m_pIdManager = new CIdManager;
     m_pProject = new CComponentProject;
@@ -286,15 +287,28 @@ CComponentProject* CComponentManagerBase::GetProject() const
     return m_pProject;
 }
 
+void CComponentManagerBase::SetForbidDependencyResolve(bool bEnable)
+{
+    m_bForbidDependencyResolve = bEnable;
+}
+
+bool CComponentManagerBase::GetForbidDependencyResolve() const
+{
+    return m_bForbidDependencyResolve;
+}
+
 void CComponentManagerBase::AddDependencyResolver( CDependencyDescription* pDescription, size_t uIndex, size_t uGuid, size_t uInstanceId , void* pVariableAddress, bool bIsList, TAddDependencyFunc pFunc /*= NULL*/)
 {
-    SDependencyResolver* pDependencyResovler = new SDependencyResolver;
-    pDependencyResovler->pDescription = pDescription;
-    pDependencyResovler->uIndex = uIndex;
-    pDependencyResovler->uGuid = uGuid;
-    pDependencyResovler->uInstanceId = uInstanceId;
-    pDependencyResovler->pVariableAddress = pVariableAddress;
-    pDependencyResovler->bIsList = bIsList;
-    pDependencyResovler->pAddFunc = pFunc == NULL ? DefaultAddDependencyFunc : pFunc;
-    m_pDependencyResolver->push_back(pDependencyResovler);
+    if (!m_bForbidDependencyResolve)
+    {
+        SDependencyResolver* pDependencyResovler = new SDependencyResolver;
+        pDependencyResovler->pDescription = pDescription;
+        pDependencyResovler->uIndex = uIndex;
+        pDependencyResovler->uGuid = uGuid;
+        pDependencyResovler->uInstanceId = uInstanceId;
+        pDependencyResovler->pVariableAddress = pVariableAddress;
+        pDependencyResovler->bIsList = bIsList;
+        pDependencyResovler->pAddFunc = pFunc == NULL ? DefaultAddDependencyFunc : pFunc;
+        m_pDependencyResolver->push_back(pDependencyResovler);
+    }
 }

@@ -74,10 +74,13 @@ public:
     CIdManager* GetIdManager() const;
     CComponentProject* GetProject() const;
 
+    void SetForbidDependencyResolve(bool bEnable);
+    bool GetForbidDependencyResolve() const;
     void AddDependencyResolver( CDependencyDescription* pDescription, size_t uIndex, size_t uGuid, size_t uInstanceId, void* pVariableAddress, bool bIsList, TAddDependencyFunc pFunc = NULL);
     virtual void ResolveDependency() = 0;
 
 protected:
+    bool m_bForbidDependencyResolve;
     CIdManager* m_pIdManager;
     CComponentProject* m_pProject;
     std::map<size_t, CComponentBase*>* m_pComponentTemplateMap;

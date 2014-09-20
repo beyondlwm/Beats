@@ -66,3 +66,28 @@ void CComponentInstance::Serialize(CSerializer& serializer)
         }
     }
 }
+
+CComponentBase* CComponentInstance::CloneInstance()
+{
+    CComponentBase* pNewInstance = Clone(false, NULL, 0xFFFFFFFF, false);
+    CSerializer serializer;
+    Serialize(serializer);
+#ifdef _DEBUG
+    size_t uDataSize, uGuid, uId;
+    serializer >> uDataSize >> uGuid >> uId;
+    BEATS_ASSERT(uGuid == GetGuid() && uId == GetId());
+#else
+    serializer.SetReadPos(12);
+#endif
+    CComponentInstanceManager::GetInstance()->SetForbidDependencyResolve(true);
+    CDependencyDescription* pCurReflectDependency = CComponentProxyManager::GetInstance()->GetCurrReflectDependency();
+    CComponentProxyManager::GetInstance()->SetCurrReflectDependency(NULL);
+    bool bIgnoreReflect = CComponentProxyManager::GetInstance()->GetReflectCheckFlag();
+    CComponentProxyManager::GetInstance()->SetReflectCheckFlag(false);
+    pNewInstance->ReflectData(serializer);
+    CComponentProxyManager::GetInstance()->SetReflectCheckFlag(bIgnoreReflect);
+    CComponentProxyManager::GetInstance()->SetCurrReflectDependency(pCurReflectDependency);
+    CComponentInstanceManager::GetInstance()->SetForbidDependencyResolve(false);
+    BEATS_ASSERT(serializer.GetWritePos() == serializer.GetReadPos());
+    return pNewInstance;
+}
