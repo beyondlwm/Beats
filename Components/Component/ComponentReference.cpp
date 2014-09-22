@@ -121,7 +121,6 @@ void CComponentReference::Initialize()
         m_pProperties = (std::vector<CPropertyDescriptionBase*>*)m_pHostProxy->GetPropertyPool();
         m_pHostComponent = m_pHostProxy->GetHostComponent();
         SetDisplayName(m_pHostProxy->GetDisplayName().c_str());
-        SetUserDefineDisplayName(m_pHostProxy->GetUserDefineDisplayName().c_str());
         SetCatalogName(m_pHostProxy->GetCatalogName().c_str());
     }
 }
