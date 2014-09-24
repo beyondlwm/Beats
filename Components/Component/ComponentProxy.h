@@ -74,11 +74,16 @@ public:
     virtual void Initialize() override;
     virtual void Uninitialize() override;
 
+    void AddSyncComponent(CComponentInstance* pInstance);
+    void RemoveSyncComponent(CComponentInstance* pInstance);
+    const std::vector<CComponentInstance*>& GetSyncComponents() const;
+
 protected:
     std::vector<CPropertyDescriptionBase*>* m_pProperties;
     std::vector<CDependencyDescription*>* m_pDependenciesDescription;
     std::vector<CDependencyDescriptionLine*>* m_pBeConnectedDependencyLines;
     CComponentInstance* m_pHostComponent;
+    std::vector<CComponentInstance*> m_syncComponents; // these instance will be synced as m_pHostComponent, usually for prototype stuff.
 
 private:
     bool m_bIsTemplate;

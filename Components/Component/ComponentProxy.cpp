@@ -653,3 +653,26 @@ void CComponentProxy::Uninitialize()
         }
     }
 }
+
+void CComponentProxy::AddSyncComponent(CComponentInstance* pInstance)
+{
+#ifdef _DEBUG
+    auto iter = std::find(m_syncComponents.begin(), m_syncComponents.end(), pInstance);
+    BEATS_ASSERT(iter == m_syncComponents.end(), _T("Can't add an instance twice!"));
+#endif
+    pInstance->SetSyncProxyComponent(this);
+    m_syncComponents.push_back(pInstance);
+}
+
+void CComponentProxy::RemoveSyncComponent(CComponentInstance* pInstance)
+{
+    auto iter = std::find(m_syncComponents.begin(), m_syncComponents.end(), pInstance);
+    BEATS_ASSERT(iter != m_syncComponents.end(), _T("Can't find instance to remove!"));
+    m_syncComponents.erase(iter);
+}
+
+const std::vector<CComponentInstance*>& CComponentProxy::GetSyncComponents() const
+{
+    return m_syncComponents;
+}
+

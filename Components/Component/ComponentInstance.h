@@ -4,6 +4,8 @@
 #include "../expdef.h"
 #include "ComponentBase.h"
 
+class CComponentProxy;
+
 class COMPONENTS_DLL_DECL CComponentInstance : public CComponentBase
 {
     DECLARE_REFLECT_GUID(CComponentInstance, 0x4314AEF, CComponentBase)
@@ -13,13 +15,18 @@ public:
     virtual void Uninitialize() override;
 
 public:
-    void SetProxyComponent(class CComponentProxy* pProxy);
+    void SetProxyComponent(CComponentProxy* pProxy);
     class CComponentProxy* GetProxyComponent() const;
+
+    void SetSyncProxyComponent(CComponentProxy* pProxy);
+    CComponentProxy* GetSyncProxyComponent() const;
+
     void Serialize(CSerializer& serializer);
     CComponentBase* CloneInstance();
 
 private:
-    class CComponentProxy* m_pProxyComponent;
+    CComponentProxy* m_pProxyComponent;
+    CComponentProxy* m_pSyncProxyComponent;
 };
 
 #endif

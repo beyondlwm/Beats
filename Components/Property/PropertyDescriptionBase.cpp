@@ -248,6 +248,12 @@ void CPropertyDescriptionBase::SetValueWithType(void* pValue, EValueType type, b
                 CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pRealProperty);
                 CComponentProxyManager::GetInstance()->SetReflectCheckFlag(true);
                 pHostComponent->ReflectData(serializer);
+                const std::vector<CComponentInstance*>& syncComponents = pRealProperty->GetOwner()->GetSyncComponents();
+                for (size_t i = 0; i < syncComponents.size(); ++i)
+                {
+                    serializer.SetReadPos(0);
+                    syncComponents[i]->ReflectData(serializer);
+                }
                 CComponentProxyManager::GetInstance()->SetCurrReflectDescription(NULL);
                 CComponentProxyManager::GetInstance()->SetReflectCheckFlag(false);
             }
