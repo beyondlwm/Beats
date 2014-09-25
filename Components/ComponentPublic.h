@@ -104,6 +104,7 @@ inline void DeserializeVariable(T*& value, CSerializer* pSerializer)
                 // it means there is no need to read more info from the pSerializer, because it is a construct operation.
                 //This line is useless and unnecessary. But if you call this, the pSerializer will be read finished.
                 //value->ReflectData(*pSerializer);
+                pSerializer->SetReadPos(uStartPos + uDataSize);
             }
             else
             {
