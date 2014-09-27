@@ -15,6 +15,7 @@ CIdManager::~CIdManager()
 
 size_t CIdManager::GenerateId()
 {
+    BEATS_ASSERT(!m_bLock, _T("can't Generate id when it is locked!"));
     size_t uRet = 0;
     if (m_freeIdPool.size() > 0)
     {
@@ -105,4 +106,9 @@ void CIdManager::UnLock()
 {
     BEATS_ASSERT(m_bLock, _T("Can't unlock id manager twice!"));
     m_bLock = false;
+}
+
+bool CIdManager::IsLocked() const
+{
+    return m_bLock;
 }

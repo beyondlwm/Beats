@@ -16,7 +16,7 @@ public:
     bool IsIdFree(size_t id);
     void Lock();
     void UnLock();
-
+    bool IsLocked() const;
 private:
     bool m_bLock;
     size_t m_lastId;

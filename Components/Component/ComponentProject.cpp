@@ -43,6 +43,13 @@ CComponentProject::~CComponentProject()
 CComponentProjectDirectory* CComponentProject::LoadProject(const TCHAR* pszProjectFile, std::map<size_t, std::vector<size_t> >& conflictIdMap)
 {
     CloseProject();
+    // NOTICE: because in editor mode we focus on CComponentProxyManager's id manager while
+    // we focus on CComponentInstanceManager's id manager in game mode.
+    // So we don't care and never exam CComponentInstanceManager's id manager in editor's mode. We lock it avoid chaos.
+    if (!CComponentInstanceManager::GetInstance()->GetIdManager()->IsLocked())
+    {
+        CComponentInstanceManager::GetInstance()->GetIdManager()->Lock();
+    }
     BEATS_ASSERT(CFilePathTool::GetInstance()->IsAbsolute(pszProjectFile), _T("Only accept absolute path!"));
     if (pszProjectFile != NULL && pszProjectFile[0] != 0)
     {
