@@ -202,8 +202,12 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /
         {
             BEATS_ASSERT(m_proxyInCurScene.find(componentList[i]) == m_proxyInCurScene.end());
             CComponentProxy* pProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(componentList[i]));
-            BEATS_ASSERT(pProxy != NULL);
-            m_proxyInCurScene[componentList[i]] = pProxy;
+            // If the component is deleted in code, it is possible that proxy is null.
+            BEATS_ASSERT(pProxy != NULL || GetComponentTemplate(m_pProject->QueryComponentGuid(componentList[i])) == NULL);
+            if (pProxy != NULL)
+            {
+                m_proxyInCurScene[componentList[i]] = pProxy;
+            }
         }
     }
     //TODO: bOpenAsCopy seems useless.
@@ -238,29 +242,37 @@ void CComponentProxyManager::LoadFile(const TCHAR* pszFilePath, std::vector<CCom
                 const char* pGuidStr = pComponentElement->Attribute("GUID");
                 char* pStopPos = NULL;
                 int guid = strtoul(pGuidStr, &pStopPos, 16);
-                TiXmlElement* pInstanceElement = pComponentElement->FirstChildElement();
-                while (pInstanceElement != NULL && loadSuccess)
+                BEATS_ASSERT(*pStopPos == 0, _T("Guid value %s is not a 0x value at file %s."), pGuidStr, pszFilePath);
+                if (GetComponentTemplate(guid) == NULL)
                 {
-                    int id = -1;
-                    pInstanceElement->Attribute("Id", &id);
-                    BEATS_ASSERT(id != -1);
-                    CComponentProxy* pComponent = NULL;
-                    if (strcmp(pInstanceElement->Value(), "Instance") == 0)
+                    BEATS_ASSERT(false, _T("Can't create component with GUID 0x%x Name %s, Have you removed this component class."), guid, pComponentElement->Attribute("Name"));
+                }
+                else
+                {
+                    TiXmlElement* pInstanceElement = pComponentElement->FirstChildElement();
+                    while (pInstanceElement != NULL && loadSuccess)
                     {
-                        pComponent = (CComponentProxy*)(CreateComponent(guid, false, false, id, false, NULL, false));
+                        int id = -1;
+                        pInstanceElement->Attribute("Id", &id);
+                        BEATS_ASSERT(id != -1);
+                        CComponentProxy* pComponent = NULL;
+                        if (strcmp(pInstanceElement->Value(), "Instance") == 0)
+                        {
+                            pComponent = (CComponentProxy*)(CreateComponent(guid, false, false, id, false, NULL, false));
+                        }
+                        else if (strcmp(pInstanceElement->Value(), "Reference") == 0)
+                        {
+                            int nReferenceId = -1;
+                            pInstanceElement->Attribute("ReferenceId", &nReferenceId);
+                            pComponent = CreateReference(nReferenceId, guid, id);
+                        }
+                        pComponent->LoadFromXML(pInstanceElement);
+                        if (pComponentContainer != NULL)
+                        {
+                            pComponentContainer->push_back(pComponent);
+                        }
+                        pInstanceElement = pInstanceElement->NextSiblingElement();
                     }
-                    else if (strcmp(pInstanceElement->Value(), "Reference") == 0)
-                    {
-                        int nReferenceId = -1;
-                        pInstanceElement->Attribute("ReferenceId", &nReferenceId);
-                        pComponent = CreateReference(nReferenceId, guid, id);
-                    }
-                    pComponent->LoadFromXML(pInstanceElement);
-                    if (pComponentContainer != NULL)
-                    {
-                        pComponentContainer->push_back(pComponent);
-                    }
-                    pInstanceElement = pInstanceElement->NextSiblingElement();
                 }
                 pComponentElement = pComponentElement->NextSiblingElement("Component");
             }
