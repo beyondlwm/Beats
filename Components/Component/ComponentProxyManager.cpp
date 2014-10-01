@@ -46,6 +46,7 @@ CComponentProxyManager::~CComponentProxyManager()
 
 void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /*= false */)
 {
+    bool bRestoreLoadingPhase = m_bLoadingFilePhase;
     m_bLoadingFilePhase = true;
     CComponentProject* pProject = CComponentProxyManager::GetInstance()->GetProject();
     size_t uFileId = pProject->GetComponentFileId(pFilePath);
@@ -207,12 +208,13 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /
     }
     //TODO: bOpenAsCopy seems useless.
     bOpenAsCopy;
-    m_bLoadingFilePhase = false;
+    m_bLoadingFilePhase = bRestoreLoadingPhase;
     m_currentViewFilePath = pFilePath;
 }
 
 void CComponentProxyManager::LoadFile(const TCHAR* pszFilePath, std::vector<CComponentProxy*>* pComponentContainer)
 {
+    bool bRestoreLoadingPhase = m_bLoadingFilePhase;
     m_bLoadingFilePhase = true;
     char tmp[MAX_PATH] = {0};
     CStringHelper::GetInstance()->ConvertToCHAR(pszFilePath, tmp, MAX_PATH);
@@ -272,7 +274,7 @@ void CComponentProxyManager::LoadFile(const TCHAR* pszFilePath, std::vector<CCom
         _stprintf(info, _T("Load file :%s Failed!Reason:%s"), pszFilePath, reason);
         MessageBox(NULL, info, _T("Load File Failed"), MB_OK | MB_ICONERROR);
     }
-    m_bLoadingFilePhase = false;
+    m_bLoadingFilePhase = bRestoreLoadingPhase;
 }
 
 void CComponentProxyManager::LoadFileFromDirectory(CComponentProjectDirectory* pDirectory, std::vector<CComponentProxy*>* pComponentContainer)
