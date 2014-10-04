@@ -99,7 +99,10 @@ CComponentBase* CComponentInstance::CloneInstance()
     CComponentProxyManager::GetInstance()->SetCurrReflectDependency(NULL);
     bool bIgnoreReflect = CComponentProxyManager::GetInstance()->GetReflectCheckFlag();
     CComponentProxyManager::GetInstance()->SetReflectCheckFlag(false);
+    CPropertyDescriptionBase* pCurRelfectProperty = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();
+    CComponentProxyManager::GetInstance()->SetCurrReflectDescription(NULL);
     pNewInstance->ReflectData(serializer);
+    CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pCurRelfectProperty);
     CComponentProxyManager::GetInstance()->SetReflectCheckFlag(bIgnoreReflect);
     CComponentProxyManager::GetInstance()->SetCurrReflectDependency(pCurReflectDependency);
     CComponentInstanceManager::GetInstance()->SetForbidDependencyResolve(false);
