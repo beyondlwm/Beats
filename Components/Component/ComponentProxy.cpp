@@ -12,6 +12,7 @@
 #include "DependencyDescription.h"
 #include "ComponentGraphic.h"
 #include <string>
+#include <algorithm>
 #include "ComponentInstance.h"
 #include "ComponentReference.h"
 
