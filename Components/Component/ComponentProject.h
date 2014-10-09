@@ -82,7 +82,7 @@ public:
     std::map<size_t, size_t>* GetComponentToFileMap() const;
 
 private:
-    void LoadXMLProject(TiXmlElement* pNode, CComponentProjectDirectory* pProjectDirectory, size_t& uStartFileId, std::map<size_t, std::vector<size_t> >& conflictIdMap);
+    void LoadXMLProject(TiXmlElement* pNode, CComponentProjectDirectory* pProjectDirectory, TString& strStartFilePath, std::map<size_t, std::vector<size_t> >& conflictIdMap);
     void SaveProjectFile( TiXmlElement* pParentNode, const CComponentProjectDirectory* p);
 
 private:
