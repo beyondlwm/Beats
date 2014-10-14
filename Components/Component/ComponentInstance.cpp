@@ -6,7 +6,9 @@
 #include "ComponentProject.h"
 
 CComponentInstance::CComponentInstance()
-    : m_pProxyComponent(NULL)
+    : m_uDataPos(0xFFFFFFFF)
+    , m_uDataSize(0xFFFFFFFF)
+    , m_pProxyComponent(NULL)
     , m_pSyncProxyComponent(NULL)
 {
 
@@ -42,6 +44,26 @@ void CComponentInstance::Uninitialize()
     }
 }
 
+void CComponentInstance::SetDataPos(size_t uDataPos)
+{
+    m_uDataPos = uDataPos;
+}
+
+size_t CComponentInstance::GetDataPos() const
+{
+    return m_uDataPos;
+}
+
+void CComponentInstance::SetDataSize(size_t uDataSize)
+{
+    m_uDataSize = uDataSize;
+}
+
+size_t CComponentInstance::GetDataSize() const
+{
+    return m_uDataSize;
+}
+
 void CComponentInstance::SetProxyComponent(CComponentProxy* pProxy)
 {
     BEATS_ASSERT(m_pProxyComponent == NULL || pProxy == NULL, _T("Proxy component can only set once!"));
@@ -68,16 +90,16 @@ void CComponentInstance::Serialize(CSerializer& serializer)
     if (m_pProxyComponent != NULL)
     {
         m_pProxyComponent->Serialize(serializer, eVT_CurrentValue);
+        BEATS_ASSERT(m_uDataSize == 0xFFFFFFFF && m_uDataPos == 0xFFFFFFFF);
     }
     else
     {
-        size_t uFilePos = 0;
-        size_t uDataSize = 0;
+        BEATS_ASSERT( m_uDataPos != 0xFFFFFFFF && m_uDataSize != 0xFFFFFFFF, _T("Can't clone a component which is not created by data"));
         CSerializer* pSerializer = CComponentInstanceManager::GetInstance()->GetFileSerializer();
-        if (CComponentInstanceManager::GetInstance()->GetProject()->QueryComponentFileLayout(GetId(), uFilePos, uDataSize))
+        if (m_uDataPos != 0xFFFFFFFF && m_uDataSize != 0xFFFFFFFF)
         {
-            pSerializer->SetReadPos(uFilePos);
-            serializer.Serialize(*pSerializer, uDataSize);
+            pSerializer->SetReadPos(m_uDataPos);
+            serializer.Serialize(*pSerializer, m_uDataSize);
         }
     }
 }

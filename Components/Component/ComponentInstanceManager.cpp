@@ -69,7 +69,6 @@ CSerializer* CComponentInstanceManager::Import(const TCHAR* pszFilePath)
                 size_t uComponentStartPos = m_pSerializer->GetReadPos();
                 serializer >> uComponentDataSize >> uGuid >> uId;
                 m_pProject->RegisterComponent(i, uGuid, uId);
-                m_pProject->RegisterComponentFileLayout(uId, uComponentStartPos, uComponentDataSize);
                 serializer.SetReadPos(uComponentStartPos + uComponentDataSize);
             }
 
@@ -251,7 +250,9 @@ void CComponentInstanceManager::LoadFile(size_t uFileId, std::vector<CComponentB
             size_t uComponentDataSize, uGuid, uId;
             size_t uComponentStartPos = m_pSerializer->GetReadPos();
             *m_pSerializer >> uComponentDataSize >> uGuid >> uId;
-            CComponentBase* pComponent = CComponentInstanceManager::GetInstance()->CreateComponent(uGuid, false, false, uId, true, m_pSerializer, false);
+            CComponentInstance* pComponent = (CComponentInstance*)(CComponentInstanceManager::GetInstance()->CreateComponent(uGuid, false, false, uId, true, m_pSerializer, false));
+            pComponent->SetDataPos(uComponentStartPos);
+            pComponent->SetDataSize(uComponentDataSize);
             BEATS_ASSERT(pComponent != NULL);
             loadComponents.push_back(pComponent);
             BEATS_ASSERT(uComponentStartPos + uComponentDataSize == m_pSerializer->GetReadPos(), _T("Component Data Not Match!\nGot an error when import data for component %x %s instance id %d\nRequired size: %d, Actual size: %d"), uGuid, pComponent->GetClassStr(), uId, uComponentDataSize, m_pSerializer->GetReadPos() - uComponentStartPos);

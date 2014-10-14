@@ -110,6 +110,11 @@ inline void DeserializeVariable(T*& value, CSerializer* pSerializer)
             {
 #endif
                 value = dynamic_cast<T*>(CComponentInstanceManager::GetInstance()->CreateComponent(uGuid, false, true, 0xFFFFFFFF, false, pSerializer));
+                if (CComponentInstanceManager::GetInstance()->GetFileSerializer() == pSerializer)
+                {
+                    value->SetDataPos(uStartPos);
+                    value->SetDataSize(uDataSize);
+                }
                 BEATS_ASSERT(uStartPos + uDataSize == pSerializer->GetReadPos(),
                     _T("Component Data Not Match!\nGot an error when Deserialize a pointer of component 0x%x %s instance id %d\nRequired size: %d, Actual size: %d"), uGuid, value->GetClassStr(), uId, uDataSize, pSerializer->GetReadPos() - uStartPos);
 #ifdef EDITOR_MODE

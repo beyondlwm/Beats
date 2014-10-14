@@ -14,6 +14,12 @@ public:
     virtual ~CComponentInstance();
     virtual void Uninitialize() override;
 
+    void SetDataPos(size_t uDataPos);
+    size_t GetDataPos() const;
+
+    void SetDataSize(size_t uDataSize);
+    size_t GetDataSize() const;
+
 public:
     void SetProxyComponent(CComponentProxy* pProxy);
     class CComponentProxy* GetProxyComponent() const;
@@ -25,6 +31,8 @@ public:
     CComponentBase* CloneInstance();
 
 private:
+    size_t m_uDataPos;
+    size_t m_uDataSize;
     CComponentProxy* m_pProxyComponent;
     CComponentProxy* m_pSyncProxyComponent;
 };
