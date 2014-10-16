@@ -399,79 +399,82 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
     serializer << uFileCount;
     for (size_t i = 0; i < uFileCount; ++i)
     {
-        std::map<size_t, std::vector<size_t> >* pFileToComponent = m_pProject->GetFileToComponentMap();
-        std::map<size_t, std::vector<size_t> >::iterator iter = pFileToComponent->find(i);
-        BEATS_ASSERT(iter != pFileToComponent->end());
-        const std::vector<size_t>& componentsInFile = iter->second;
         size_t uComponentCount = 0;
         size_t uWritePos = serializer.GetWritePos();
         serializer << uWritePos;// File Start pos.
-        serializer << uWritePos;// File size placeholder.
+        serializer << 12;// File size placeholder.
         serializer.GetWritePos();
         serializer << uComponentCount;
-        if (m_loadedFiles.find(i) != m_loadedFiles.end())
+        std::map<size_t, std::vector<size_t> >* pFileToComponent = m_pProject->GetFileToComponentMap();
+        std::map<size_t, std::vector<size_t> >::iterator iter = pFileToComponent->find(i);
+        BEATS_ASSERT(iter != pFileToComponent->end(), _T("File: %s\ndoes not have a component!"), m_pProject->GetComponentFileName(i).c_str());
+        if (iter != pFileToComponent->end())
         {
-            for (size_t j = 0; j < componentsInFile.size(); ++j)
+            if (m_loadedFiles.find(i) != m_loadedFiles.end())
             {
-                CComponentProxy* pProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(componentsInFile[j]));
-                // Don't export component reference
-                if (pProxy->GetProxyId() == pProxy->GetId())
+                const std::vector<size_t>& componentsInFile = iter->second;
+                for (size_t j = 0; j < componentsInFile.size(); ++j)
                 {
-                    pProxy->Serialize(serializer, eVT_SavedValue);
-                    ++uComponentCount;
+                    CComponentProxy* pProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(componentsInFile[j]));
+                    // Don't export component reference
+                    if (pProxy->GetProxyId() == pProxy->GetId())
+                    {
+                        pProxy->Serialize(serializer, eVT_SavedValue);
+                        ++uComponentCount;
+                    }
                 }
             }
-        }
-        else
-        {
-            const TString& strFileName = m_pProject->GetFileList()->at(i);
-            BEATS_ASSERT(m_pProject->GetComponentFileId(strFileName) == i);
-            std::vector<CComponentProxy*> vecComponents;
-            CIdManager* pInstanceIdManager = CComponentInstanceManager::GetInstance()->GetIdManager();
-            // Don't create instance in LoadFile when exporting.
-            BEATS_ASSERT(m_bCreateInstanceWithProxy);
-            m_bCreateInstanceWithProxy = false;
-            m_pIdManager->Lock();
-            LoadFile(strFileName.c_str(), &vecComponents);
-            BEATS_ASSERT(m_loadedFiles.find(i) != m_loadedFiles.end());
-            ResolveDependency();
-            // Do serialize and delete operation in separate steps.
-            // Because everything can be ready to serialize after initialize.
-            for (size_t j = 0; j < vecComponents.size(); ++j)
+            else
             {
-                CComponentProxy* pProxy = vecComponents[j];
-                pProxy->Initialize();
-            }
-            for (size_t j = 0; j < vecComponents.size(); ++j)
-            {
-                CComponentProxy* pProxy = vecComponents[j];
-                if (pProxy->GetProxyId() == pProxy->GetId())
+                const TString& strFileName = m_pProject->GetFileList()->at(i);
+                BEATS_ASSERT(m_pProject->GetComponentFileId(strFileName) == i);
+                std::vector<CComponentProxy*> vecComponents;
+                CIdManager* pInstanceIdManager = CComponentInstanceManager::GetInstance()->GetIdManager();
+                // Don't create instance in LoadFile when exporting.
+                BEATS_ASSERT(m_bCreateInstanceWithProxy);
+                m_bCreateInstanceWithProxy = false;
+                m_pIdManager->Lock();
+                LoadFile(strFileName.c_str(), &vecComponents);
+                BEATS_ASSERT(m_loadedFiles.find(i) != m_loadedFiles.end());
+                ResolveDependency();
+                // Do serialize and delete operation in separate steps.
+                // Because everything can be ready to serialize after initialize.
+                for (size_t j = 0; j < vecComponents.size(); ++j)
                 {
-                    pProxy->Serialize(serializer, eVT_SavedValue);
-                    ++uComponentCount;
+                    CComponentProxy* pProxy = vecComponents[j];
+                    pProxy->Initialize();
                 }
+                for (size_t j = 0; j < vecComponents.size(); ++j)
+                {
+                    CComponentProxy* pProxy = vecComponents[j];
+                    if (pProxy->GetProxyId() == pProxy->GetId())
+                    {
+                        pProxy->Serialize(serializer, eVT_SavedValue);
+                        ++uComponentCount;
+                    }
+                }
+                // Don't call CloseFile, because we have nothing to do with proxy's host component.
+                for (size_t j = 0; j < vecComponents.size(); ++j)
+                {
+                    CComponentProxy* pProxy = vecComponents[j];
+                    pProxy->Uninitialize();
+                }
+                for (size_t j = 0; j < vecComponents.size(); ++j)
+                {
+                    CComponentProxy* pProxy = vecComponents[j];
+                    BEATS_SAFE_DELETE(pProxy);
+                }
+                m_loadedFiles.erase(i);
+                m_pIdManager->UnLock();
+                m_bCreateInstanceWithProxy = true;// Restore.
             }
-            // Don't call CloseFile, because we have nothing to do with proxy's host component.
-            for (size_t j = 0; j < vecComponents.size(); ++j)
-            {
-                CComponentProxy* pProxy = vecComponents[j];
-                pProxy->Uninitialize();
-            }
-            for (size_t j = 0; j < vecComponents.size(); ++j)
-            {
-                CComponentProxy* pProxy = vecComponents[j];
-                BEATS_SAFE_DELETE(pProxy);
-            }
-            m_loadedFiles.erase(i);
-            m_pIdManager->UnLock();
-            m_bCreateInstanceWithProxy = true;// Restore.
+            size_t uCurWritePos = serializer.GetWritePos();
+            size_t uFileDataSize = uCurWritePos - uWritePos;
+            serializer.SetWritePos(uWritePos + sizeof(size_t));// Skip file start pos.
+            serializer << uFileDataSize;
+            serializer << uComponentCount;
+            serializer.SetWritePos(uCurWritePos);
         }
-        size_t uCurWritePos = serializer.GetWritePos();
-        size_t uFileDataSize = uCurWritePos - uWritePos;
-        serializer.SetWritePos(uWritePos + sizeof(size_t));// Skip file start pos.
-        serializer << uFileDataSize; // Exclude file size.
-        serializer << uComponentCount;
-        serializer.SetWritePos(uCurWritePos);
     }
     serializer.Deserialize(pSavePath);
     m_bExportingPhase = false;

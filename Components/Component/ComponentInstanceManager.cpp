@@ -259,7 +259,7 @@ void CComponentInstanceManager::LoadFile(size_t uFileId, std::vector<CComponentB
             m_pSerializer->SetReadPos(uComponentStartPos + uComponentDataSize);
         }
         m_loadedFiles.insert(uFileId);
-        BEATS_ASSERT(m_pSerializer->GetReadPos() - uFileStartPos == uFileDataLength, _T("File Data NOt Match!\nGot an error when import data for file %d Required size:%d Actual size %d"), uFileId, uFileDataLength, m_pSerializer->GetReadPos() - uFileStartPos);
+        BEATS_ASSERT(m_pSerializer->GetReadPos() - uFileStartPos == uFileDataLength, _T("File Data NOT Match!\nGot an error when import data for file %d Required size:%d Actual size %d"), uFileId, uFileDataLength, m_pSerializer->GetReadPos() - uFileStartPos);
     }
 }
 
