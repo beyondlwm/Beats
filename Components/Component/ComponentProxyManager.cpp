@@ -51,169 +51,173 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /
     CComponentProject* pProject = CComponentProxyManager::GetInstance()->GetProject();
     size_t uFileId = pProject->GetComponentFileId(pFilePath);
     BEATS_ASSERT(uFileId != 0xFFFFFFFF);
-    std::vector<CComponentProxy*> loadedComponents;
-    bool bLoadThisFile = true;
-    bool bNewAddThisFile = false;
-    // Save cur file.
-    if (m_currentViewFilePath.compare(pFilePath) != 0)
+    if (uFileId != 0xFFFFFFFF)
     {
-        SaveCurFile();
-        m_currentViewFilePath.assign(pFilePath);
-    }
 
-    // 1. File is in the parent directory (loaded before): just change the content of m_proxyInCurScene
-    if (m_loadedFiles.find(uFileId) != m_loadedFiles.end())
-    {
-        // Change content will be done at last. So do nothing here.
-        bLoadThisFile = false;
-    }
-    else
-    {
-        CComponentProjectDirectory* pDirectory = m_pProject->FindProjectDirectory(pFilePath, true);
-        BEATS_ASSERT(pDirectory != NULL);
-        TString strLogicPath;
-        // new open a file.
-        if (m_currentWorkingFilePath.empty())
+        std::vector<CComponentProxy*> loadedComponents;
+        bool bLoadThisFile = true;
+        bool bNewAddThisFile = false;
+        // Save cur file.
+        if (m_currentViewFilePath.compare(pFilePath) != 0)
         {
-            std::vector<CComponentProjectDirectory*> directories;
-            CComponentProjectDirectory* pCurDirectory = pDirectory->GetParent();
-            while (pCurDirectory != NULL)
-            {
-                directories.push_back(pCurDirectory);
-                pCurDirectory = pCurDirectory->GetParent();
-            }
-            while (directories.size() > 0)
-            {
-                LoadFileFromDirectory(directories.back(), &loadedComponents);
-                directories.pop_back();
-            }
+            SaveCurFile();
+            m_currentViewFilePath.assign(pFilePath);
+        }
+
+        // 1. File is in the parent directory (loaded before): just change the content of m_proxyInCurScene
+        if (m_loadedFiles.find(uFileId) != m_loadedFiles.end())
+        {
+            // Change content will be done at last. So do nothing here.
+            bLoadThisFile = false;
         }
         else
         {
-            CComponentProjectDirectory* pCurDirectory = m_pProject->FindProjectDirectory(m_currentWorkingFilePath, true);
-            BEATS_ASSERT(pCurDirectory != NULL);
-            strLogicPath = pDirectory->MakeRelativeLogicPath(pCurDirectory);
-
-            // 2. File is at the same directory: close current file and open it.
-            if (strLogicPath.empty())
+            CComponentProjectDirectory* pDirectory = m_pProject->FindProjectDirectory(pFilePath, true);
+            BEATS_ASSERT(pDirectory != NULL);
+            TString strLogicPath;
+            // new open a file.
+            if (m_currentWorkingFilePath.empty())
             {
-                CloseFile(m_currentWorkingFilePath.c_str());
+                std::vector<CComponentProjectDirectory*> directories;
+                CComponentProjectDirectory* pCurDirectory = pDirectory->GetParent();
+                while (pCurDirectory != NULL)
+                {
+                    directories.push_back(pCurDirectory);
+                    pCurDirectory = pCurDirectory->GetParent();
+                }
+                while (directories.size() > 0)
+                {
+                    LoadFileFromDirectory(directories.back(), &loadedComponents);
+                    directories.pop_back();
+                }
             }
             else
             {
-                std::vector<TString> logicPaths;
-                CStringHelper::GetInstance()->SplitString(strLogicPath.c_str(), _T("/"), logicPaths);
-                BEATS_ASSERT(logicPaths.size() > 0);
-                // 3. File is in the son directory: don't close current, load rest files of directory and go on.
-                if (logicPaths[0].compare(_T("..")) != 0)
+                CComponentProjectDirectory* pCurDirectory = m_pProject->FindProjectDirectory(m_currentWorkingFilePath, true);
+                BEATS_ASSERT(pCurDirectory != NULL);
+                strLogicPath = pDirectory->MakeRelativeLogicPath(pCurDirectory);
+
+                // 2. File is at the same directory: close current file and open it.
+                if (strLogicPath.empty())
                 {
-                    // Load rest files of the same directory.
-                    const std::vector<size_t>& fileList = pCurDirectory->GetFileList();
-                    size_t uCurFileId = CComponentProxyManager::GetInstance()->GetProject()->GetComponentFileId(m_currentWorkingFilePath);
-                    for (size_t i = 0;i < fileList.size(); ++i)
+                    CloseFile(m_currentWorkingFilePath.c_str());
+                }
+                else
+                {
+                    std::vector<TString> logicPaths;
+                    CStringHelper::GetInstance()->SplitString(strLogicPath.c_str(), _T("/"), logicPaths);
+                    BEATS_ASSERT(logicPaths.size() > 0);
+                    // 3. File is in the son directory: don't close current, load rest files of directory and go on.
+                    if (logicPaths[0].compare(_T("..")) != 0)
                     {
-                        if (fileList[i] != uCurFileId)
+                        // Load rest files of the same directory.
+                        const std::vector<size_t>& fileList = pCurDirectory->GetFileList();
+                        size_t uCurFileId = CComponentProxyManager::GetInstance()->GetProject()->GetComponentFileId(m_currentWorkingFilePath);
+                        for (size_t i = 0;i < fileList.size(); ++i)
                         {
-                            const TString& strFileName = CComponentProxyManager::GetInstance()->GetProject()->GetComponentFileName(fileList[i]);
-                            LoadFile(strFileName.c_str(), &loadedComponents);
+                            if (fileList[i] != uCurFileId)
+                            {
+                                const TString& strFileName = CComponentProxyManager::GetInstance()->GetProject()->GetComponentFileName(fileList[i]);
+                                LoadFile(strFileName.c_str(), &loadedComponents);
+                            }
+                        }
+                        // Load sub-directory to target, but don't load the last sub-directory, because we only need one file in it, the target file.
+                        CComponentProjectDirectory* pCurLoopDirectory = pCurDirectory;
+                        for (int i = 0; i < (int)logicPaths.size() - 1; ++i)
+                        {
+                            BEATS_ASSERT(pCurLoopDirectory != NULL);
+                            pCurLoopDirectory = pCurLoopDirectory->FindChild(logicPaths[i].c_str());
+                            BEATS_ASSERT(pCurLoopDirectory != NULL);
+                            LoadFileFromDirectory(pCurLoopDirectory, &loadedComponents);
                         }
                     }
-                    // Load sub-directory to target, but don't load the last sub-directory, because we only need one file in it, the target file.
-                    CComponentProjectDirectory* pCurLoopDirectory = pCurDirectory;
-                    for (int i = 0; i < (int)logicPaths.size() - 1; ++i)
+                    else// 4. File is in other different directory: close current and change directory.
                     {
-                        BEATS_ASSERT(pCurLoopDirectory != NULL);
-                        pCurLoopDirectory = pCurLoopDirectory->FindChild(logicPaths[i].c_str());
-                        BEATS_ASSERT(pCurLoopDirectory != NULL);
-                        LoadFileFromDirectory(pCurLoopDirectory, &loadedComponents);
-                    }
-                }
-                else// 4. File is in other different directory: close current and change directory.
-                {
-                    // This means the file should be already loaded (since it's in the parent directory)
-                    // But it is not in the m_loadedFiles, so this file must be a new added one
-                    // So we do some nothing as if it is already loaded.
-                    if (logicPaths.back().compare(_T("..")) == 0)
-                    {
-                        bNewAddThisFile = true;
-                    }
-                    else
-                    {
-                        CloseFile(m_currentWorkingFilePath.c_str());
-                        CComponentProjectDirectory* pCurLoopDirectory = pCurDirectory->GetParent();
-                        for (int i = 1; i < (int)logicPaths.size() - 1; ++i)
+                        // This means the file should be already loaded (since it's in the parent directory)
+                        // But it is not in the m_loadedFiles, so this file must be a new added one
+                        // So we do some nothing as if it is already loaded.
+                        if (logicPaths.back().compare(_T("..")) == 0)
                         {
-                            if (logicPaths[i].compare(_T("..")) == 0)
+                            bNewAddThisFile = true;
+                        }
+                        else
+                        {
+                            CloseFile(m_currentWorkingFilePath.c_str());
+                            CComponentProjectDirectory* pCurLoopDirectory = pCurDirectory->GetParent();
+                            for (int i = 1; i < (int)logicPaths.size() - 1; ++i)
                             {
-                                const std::vector<size_t>& fileList = pCurLoopDirectory->GetFileList();
-                                for (size_t i = 0; i < fileList.size(); ++i)
+                                if (logicPaths[i].compare(_T("..")) == 0)
                                 {
-                                    const TString& strFileName = m_pProject->GetComponentFileName(fileList[i]);
-                                    CloseFile(strFileName.c_str());
+                                    const std::vector<size_t>& fileList = pCurLoopDirectory->GetFileList();
+                                    for (size_t i = 0; i < fileList.size(); ++i)
+                                    {
+                                        const TString& strFileName = m_pProject->GetComponentFileName(fileList[i]);
+                                        CloseFile(strFileName.c_str());
+                                    }
+                                    pCurLoopDirectory = pCurLoopDirectory->GetParent();
                                 }
-                                pCurLoopDirectory = pCurLoopDirectory->GetParent();
-                            }
-                            else
-                            {
-                                pCurLoopDirectory = pCurLoopDirectory->FindChild(logicPaths[i].c_str());
-                                BEATS_ASSERT(pCurLoopDirectory != NULL);
-                                LoadFileFromDirectory(pCurLoopDirectory, &loadedComponents);
+                                else
+                                {
+                                    pCurLoopDirectory = pCurLoopDirectory->FindChild(logicPaths[i].c_str());
+                                    BEATS_ASSERT(pCurLoopDirectory != NULL);
+                                    LoadFileFromDirectory(pCurLoopDirectory, &loadedComponents);
+                                }
                             }
                         }
                     }
                 }
             }
         }
-    }
 
-    if (bLoadThisFile)
-    {
-        LoadFile(pFilePath, &loadedComponents);
-        if (!bNewAddThisFile)
+        if (bLoadThisFile)
         {
-            m_currentWorkingFilePath.assign(pFilePath);
-        }
-    }
-
-    ResolveDependency();
-    for (size_t i = 0; i < loadedComponents.size(); ++i)
-    {
-        loadedComponents[i]->Initialize();
-    }
-    for (size_t i = 0; i < loadedComponents.size(); ++i)
-    {
-        size_t uComponentId = loadedComponents[i]->GetId();
-        bool bIsReference = m_referenceMap.find(uComponentId) != m_referenceMap.end();
-        if (!bIsReference)
-        {
-            loadedComponents[i]->GetHostComponent()->Initialize();
-        }
-    }
-
-    // Rebuild the m_proxyInCurScene
-    m_proxyInCurScene.clear();
-    size_t uCurViewFileId = m_pProject->GetComponentFileId(m_currentViewFilePath);
-    std::map<size_t, std::vector<size_t> >* pFileToComponentMap = m_pProject->GetFileToComponentMap();
-    auto fileToComponentIter = pFileToComponentMap->find(uCurViewFileId);
-    if (fileToComponentIter != pFileToComponentMap->end())
-    {
-        std::vector<size_t>& componentList = fileToComponentIter->second;
-        for (size_t i = 0; i < componentList.size(); ++i)
-        {
-            BEATS_ASSERT(m_proxyInCurScene.find(componentList[i]) == m_proxyInCurScene.end());
-            CComponentProxy* pProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(componentList[i]));
-            // If the component is deleted in code, it is possible that proxy is null.
-            BEATS_ASSERT(pProxy != NULL || GetComponentTemplate(m_pProject->QueryComponentGuid(componentList[i])) == NULL);
-            if (pProxy != NULL)
+            LoadFile(pFilePath, &loadedComponents);
+            if (!bNewAddThisFile)
             {
-                m_proxyInCurScene[componentList[i]] = pProxy;
+                m_currentWorkingFilePath.assign(pFilePath);
             }
         }
+
+        ResolveDependency();
+        for (size_t i = 0; i < loadedComponents.size(); ++i)
+        {
+            loadedComponents[i]->Initialize();
+        }
+        for (size_t i = 0; i < loadedComponents.size(); ++i)
+        {
+            size_t uComponentId = loadedComponents[i]->GetId();
+            bool bIsReference = m_referenceMap.find(uComponentId) != m_referenceMap.end();
+            if (!bIsReference)
+            {
+                loadedComponents[i]->GetHostComponent()->Initialize();
+            }
+        }
+
+        // Rebuild the m_proxyInCurScene
+        m_proxyInCurScene.clear();
+        size_t uCurViewFileId = m_pProject->GetComponentFileId(m_currentViewFilePath);
+        std::map<size_t, std::vector<size_t> >* pFileToComponentMap = m_pProject->GetFileToComponentMap();
+        auto fileToComponentIter = pFileToComponentMap->find(uCurViewFileId);
+        if (fileToComponentIter != pFileToComponentMap->end())
+        {
+            std::vector<size_t>& componentList = fileToComponentIter->second;
+            for (size_t i = 0; i < componentList.size(); ++i)
+            {
+                BEATS_ASSERT(m_proxyInCurScene.find(componentList[i]) == m_proxyInCurScene.end());
+                CComponentProxy* pProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(componentList[i]));
+                // If the component is deleted in code, it is possible that proxy is null.
+                BEATS_ASSERT(pProxy != NULL || GetComponentTemplate(m_pProject->QueryComponentGuid(componentList[i])) == NULL);
+                if (pProxy != NULL)
+                {
+                    m_proxyInCurScene[componentList[i]] = pProxy;
+                }
+            }
+        }
+        //TODO: bOpenAsCopy seems useless.
+        bOpenAsCopy;
+        m_bLoadingFilePhase = bRestoreLoadingPhase;
+        m_currentViewFilePath = pFilePath;
     }
-    //TODO: bOpenAsCopy seems useless.
-    bOpenAsCopy;
-    m_bLoadingFilePhase = bRestoreLoadingPhase;
-    m_currentViewFilePath = pFilePath;
 }
 
 void CComponentProxyManager::LoadFile(const TCHAR* pszFilePath, std::vector<CComponentProxy*>* pComponentContainer)
