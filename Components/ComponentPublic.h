@@ -644,13 +644,18 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
 #ifdef EDITOR_MODE
 #define HIDE_PROPERTY(property)\
     {\
-        CComponentProxy* pProxy = GetProxyComponent();\
-        if(pProxy)\
+        CPropertyDescriptionBase* pDescriptionBase = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();\
+        CDependencyDescription* pDependencyList = CComponentProxyManager::GetInstance()->GetCurrReflectDependency();\
+        if (pDescriptionBase == NULL && pDependencyList == NULL)\
         {\
-        CPropertyDescriptionBase* pProperty = pProxy->GetPropertyDescription(_T(#property));\
-        BEATS_ASSERT(pProperty != NULL, _T("Can not find property %s in component %s GUID:0x%x"), _T(#property), this->GetClassStr(), this->GetGuid());\
-        BEATS_ASSERT(pProperty->IsHide() == false, _T("Can't hide the same property twice"));\
-        pProperty->SetHide(true);\
+            CComponentProxy* pProxy = GetProxyComponent();\
+            if(pProxy)\
+            {\
+                CPropertyDescriptionBase* pProperty = pProxy->GetPropertyDescription(_T(#property));\
+                BEATS_ASSERT(pProperty != NULL, _T("Can not find property %s in component %s GUID:0x%x"), _T(#property), this->GetClassStr(), this->GetGuid());\
+                BEATS_ASSERT(pProperty->IsHide() == false, _T("Can't hide the same property twice"));\
+                pProperty->SetHide(true);\
+            }\
         }\
     }
 #else
