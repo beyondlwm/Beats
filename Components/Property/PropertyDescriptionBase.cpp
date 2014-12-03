@@ -22,6 +22,7 @@ CPropertyDescriptionBase::CPropertyDescriptionBase(EReflectPropertyType type)
 
 CPropertyDescriptionBase::CPropertyDescriptionBase(const CPropertyDescriptionBase& rRef)
 : m_bInitialized(false)
+, m_bHide(rRef.IsHide())
 , m_type(rRef.GetType())
 , m_pOwner(NULL)
 , m_pBasicInfo(new SharePtr<SBasicPropertyInfo>(*rRef.m_pBasicInfo))
