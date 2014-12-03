@@ -7,6 +7,7 @@
 
 CPropertyDescriptionBase::CPropertyDescriptionBase(EReflectPropertyType type)
 : m_bInitialized(false)
+, m_bHide(false)
 , m_type(type)
 , m_pOwner(NULL)
 , m_pBasicInfo(new SharePtr<SBasicPropertyInfo>(new SBasicPropertyInfo(true, 0xFFFFFFFF)))
@@ -72,6 +73,16 @@ void CPropertyDescriptionBase::SetParent(CPropertyDescriptionBase* pParent)
 {
     BEATS_ASSERT(m_pParent == NULL);
     m_pParent = pParent;
+}
+
+void CPropertyDescriptionBase::SetHide(bool bHide)
+{
+    m_bHide = bHide;
+}
+
+bool CPropertyDescriptionBase::IsHide() const
+{
+    return m_bHide;
 }
 
 void CPropertyDescriptionBase::ResetBasicInfo(const SharePtr<SBasicPropertyInfo>& pInfo)

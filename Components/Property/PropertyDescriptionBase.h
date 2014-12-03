@@ -28,6 +28,9 @@ public:
     CPropertyDescriptionBase* GetParent() const;
     void SetParent(CPropertyDescriptionBase* pParent);
 
+    void SetHide(bool bHide);
+    bool IsHide() const;
+
     // m_pBasicInfo is a shareptr, be care that all the basic info will be changed when call
     // SetBasicInfo, to avoid impact the other basic info ,call ResetBasicInfo.
     void ResetBasicInfo(const SharePtr<SBasicPropertyInfo>& pInfo);
@@ -101,6 +104,7 @@ public:
 
 protected:
     bool m_bInitialized;
+    bool m_bHide;
     EReflectPropertyType m_type;
     CComponentProxy* m_pOwner;
     SharePtr<SBasicPropertyInfo>* m_pBasicInfo;

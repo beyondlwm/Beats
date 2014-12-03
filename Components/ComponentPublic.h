@@ -334,8 +334,6 @@ inline EReflectPropertyType GetEnumType(classType& value, CSerializer* pSerializ
     return enumType;\
 }
 
-
-
 #define REGISTER_PROPERTY_DESC(enumType, propertyDescriptionType)\
     CPropertyDescriptionBase* CreateProperty_##propertyDescriptionType(CSerializer* serilaizer)\
     {\
@@ -630,17 +628,32 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
 #define UPDATE_PROPERTY_PROXY(property)\
     {\
         CComponentProxy* pProxy = GetProxyComponent();\
-        if(pProxy) \
-        { \
+        if(pProxy)\
+        {\
             CPropertyDescriptionBase* pProperty = pProxy->GetPropertyDescription(_T(#property));\
             BEATS_ASSERT(pProperty != NULL, _T("Can not find property %s in component %s GUID:0x%x"), _T(#property), this->GetClassStr(), this->GetGuid());\
             CSerializer serializer;\
             serializer << property;\
             pProperty->Deserialize(serializer);\
-        } \
+        }\
     }
 #else
 #define UPDATE_PROPERTY_PROXY(property)
 #endif
 
+#ifdef EDITOR_MODE
+#define HIDE_PROPERTY(property)\
+    {\
+        CComponentProxy* pProxy = GetProxyComponent();\
+        if(pProxy)\
+        {\
+        CPropertyDescriptionBase* pProperty = pProxy->GetPropertyDescription(_T(#property));\
+        BEATS_ASSERT(pProperty != NULL, _T("Can not find property %s in component %s GUID:0x%x"), _T(#property), this->GetClassStr(), this->GetGuid());\
+        BEATS_ASSERT(pProperty->IsHide() == false, _T("Can't hide the same property twice"));\
+        pProperty->SetHide(true);\
+        }\
+    }
+#else
+#define HIDE_PROPERTY(property)
+#endif
 #endif

@@ -345,9 +345,13 @@ void CComponentProxy::SaveToXML( TiXmlElement* pNode, bool bSaveOnlyNoneNativePa
     }
     for (size_t i = 0; i < m_pProperties->size(); ++i)
     {
-        if (!bSaveOnlyNoneNativePart || !(*m_pProperties)[i]->IsDataSame(true))
+        CPropertyDescriptionBase* pProperty = (*m_pProperties)[i];
+        if (!bSaveOnlyNoneNativePart || !pProperty->IsDataSame(true))
         {
-            (*m_pProperties)[i]->SaveToXML(pInstanceElement);
+            if (!pProperty->IsHide())
+            {
+                pProperty->SaveToXML(pInstanceElement);
+            }
         }
     }
 
