@@ -97,7 +97,8 @@ private:
     // This map save the inherit relationship for all components. so when we instance a component pointer, we can decide which instance to generate.
     std::map<size_t, std::vector<size_t> >* m_pComponentInheritMap;
 
-    // This map store all reference info, key value is the real component id.
+    // This map store all reference info, key value is the real component id. 
+    // This data is dynamic register and unregistered. while static data is CComponentProject::m_pReferenceIdMap
     std::map<size_t, std::vector<CComponentReference*>> m_referenceIdMap;
     std::map<size_t, CComponentReference*> m_referenceMap;
 

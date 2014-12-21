@@ -19,7 +19,8 @@ CComponentProject::CComponentProject()
     , m_pTypeToComponentMap(new std::map<size_t, std::vector<size_t> >)
     , m_pPropertyMaintainMap(new std::map<size_t, std::map<TString, TString> >)
     , m_pFileDataLayout(new std::map<size_t, SFileDataLayout>)
-    , m_pReferenceIdMap(new std::map<size_t, std::vector<size_t> >)
+    , m_pIdToReferenceMap(new std::map<size_t, std::set<size_t> >)
+    , m_pReferenceToIdMap(new std::map<size_t, size_t>)
 {
 
 }
@@ -35,7 +36,8 @@ CComponentProject::~CComponentProject()
     BEATS_SAFE_DELETE(m_pTypeToComponentMap);
     BEATS_SAFE_DELETE(m_pPropertyMaintainMap);
     BEATS_SAFE_DELETE(m_pFileDataLayout);
-    BEATS_SAFE_DELETE(m_pReferenceIdMap);
+    BEATS_SAFE_DELETE(m_pIdToReferenceMap);
+    BEATS_SAFE_DELETE(m_pReferenceToIdMap);
 }
 
 CComponentProjectDirectory* CComponentProject::LoadProject(const TCHAR* pszProjectFile, std::map<size_t, std::vector<size_t> >& conflictIdMap)
@@ -355,9 +357,9 @@ std::map<size_t, std::vector<size_t> >* CComponentProject::GetFileToComponentMap
     return m_pFileToComponentMap;
 }
 
-std::map<size_t, std::vector<size_t>>* CComponentProject::GetIdToReferenceMap() const
+std::map<size_t, std::set<size_t>>* CComponentProject::GetIdToReferenceMap() const
 {
-    return m_pReferenceIdMap;
+    return m_pIdToReferenceMap;
 }
 
 std::map<size_t, CComponentProjectDirectory*>* CComponentProject::GetFileToDirectoryMap() const
@@ -475,11 +477,14 @@ bool CComponentProject::AnalyseFile(const TString& strFileName, std::map<size_t,
                             int proxyId = -1;
                             pInstanceElement->Attribute("ReferenceId", &proxyId);
                             BEATS_ASSERT(proxyId != -1);
-                            if (m_pReferenceIdMap->find(proxyId) == m_pReferenceIdMap->end())
+                            if (m_pIdToReferenceMap->find(proxyId) == m_pIdToReferenceMap->end())
                             {
-                                (*m_pReferenceIdMap)[proxyId] = std::vector<size_t>();
+                                (*m_pIdToReferenceMap)[proxyId] = std::set<size_t>();
                             }
-                            (*m_pReferenceIdMap)[proxyId].push_back(id);
+                            BEATS_ASSERT((*m_pIdToReferenceMap)[proxyId].find(id) == (*m_pIdToReferenceMap)[proxyId].end(), _T("Get repeat reference id %d"), id);
+                            (*m_pIdToReferenceMap)[proxyId].insert(id);
+                            BEATS_ASSERT(m_pReferenceToIdMap->find(id) == m_pReferenceToIdMap->end(), _T("Get repeat reference id %d"), id);
+                            (*m_pReferenceToIdMap)[id] = proxyId;
                         }
                     }
                     pInstanceElement = pInstanceElement->NextSiblingElement();
@@ -522,6 +527,20 @@ bool CComponentProject::UnregisterFile(size_t uFileId)
                 componentIdsOfType.pop_back();
                 break;
             }
+        }
+        auto refIter = m_pReferenceToIdMap->find(uComponentId);
+        bool bIsReferenceComponent = refIter != m_pReferenceToIdMap->end();
+        if (bIsReferenceComponent)
+        {
+            size_t uProxyId = refIter->second;
+            auto refListIter = m_pIdToReferenceMap->find(uProxyId);
+            BEATS_ASSERT(refListIter != m_pIdToReferenceMap->end() && refListIter->second.find(uComponentId) != refListIter->second.end());
+            refListIter->second.erase(uComponentId);
+            if (refListIter->second.size() == 0)
+            {
+                m_pIdToReferenceMap->erase(uProxyId);
+            }
+            m_pReferenceToIdMap->erase(uComponentId);
         }
     }
     m_pFileToComponentMap->erase(uFileId);

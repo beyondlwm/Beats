@@ -53,7 +53,6 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /
     BEATS_ASSERT(uFileId != 0xFFFFFFFF);
     if (uFileId != 0xFFFFFFFF)
     {
-
         std::vector<CComponentProxy*> loadedComponents;
         bool bLoadThisFile = true;
         bool bNewAddThisFile = false;
@@ -311,62 +310,34 @@ void CComponentProxyManager::CloseFile(const TCHAR* pszFilePath)
     BEATS_ASSERT(_tcslen(pszFilePath) > 0, _T("Can't close empty file!"));
     std::vector<CComponentBase*> componentToDelete;
     size_t uFileId = m_pProject->GetComponentFileId(pszFilePath);
-    if (m_currentWorkingFilePath.compare(pszFilePath) == 0)
+    // query id from the static data: m_pProject.
+    std::map<size_t, std::vector<size_t> >* pFileToComponentMap = m_pProject->GetFileToComponentMap();
+    auto iter = pFileToComponentMap->find(uFileId);
+    if (iter != pFileToComponentMap->end())
     {
 #ifdef _DEBUG
-        for (auto iter = m_proxyInCurScene.begin(); iter != m_proxyInCurScene.end(); ++iter)
+        // All components must exists before they call uninitialize.
+        for (size_t i = 0;i < iter->second.size(); ++i)
         {
-            BEATS_ASSERT(iter->second->IsInitialized());
+            size_t uComponentId = iter->second.at(i);
+            CComponentProxy* pComponentProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(uComponentId));
+            BEATS_ASSERT(pComponentProxy != NULL && pComponentProxy->IsInitialized());
         }
 #endif
-        //Closing current file, just get the m_proxyInCurScene
-        for (auto iter = m_proxyInCurScene.begin(); iter != m_proxyInCurScene.end(); ++iter)
+        for (size_t i = 0;i < iter->second.size(); ++i)
         {
-            // It is possible that some components are uninitialized by other's uninitialize.
-            if (iter->second->IsInitialized())
+            size_t uComponentId = iter->second.at(i);
+            CComponentProxy* pComponentProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(uComponentId));
+            // This may be null, because some components can be uninitialized by other component's uninitialize.
+            if (pComponentProxy != NULL && pComponentProxy->IsInitialized())
             {
-                CComponentBase* pComponent = iter->second;
-                if (iter->second->GetProxyId() == iter->second->GetId())
+                CComponentBase* pComponent = pComponentProxy;
+                if (pComponentProxy->GetProxyId() == pComponentProxy->GetId())
                 {
-                    pComponent = iter->second->GetHostComponent();
+                    pComponent = pComponentProxy->GetHostComponent();
                 }
                 pComponent->Uninitialize();
                 componentToDelete.push_back(pComponent);
-            }
-        }
-        m_proxyInCurScene.clear();
-    }
-    else
-    {
-        // Closing file is not current scene, query id from the static data: m_pProject.
-        std::map<size_t, std::vector<size_t> >* pFileToComponentMap = m_pProject->GetFileToComponentMap();
-        auto iter = pFileToComponentMap->find(uFileId);
-        if (iter != pFileToComponentMap->end())
-        {
-#ifdef _DEBUG
-            // All components must exists before they call uninitialize.
-            for (size_t i = 0;i < iter->second.size(); ++i)
-            {
-                size_t uComponentId = iter->second.at(i);
-                CComponentProxy* pComponentProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(uComponentId));
-                BEATS_ASSERT(pComponentProxy != NULL && pComponentProxy->IsInitialized());
-            }
-#endif
-            for (size_t i = 0;i < iter->second.size(); ++i)
-            {
-                size_t uComponentId = iter->second.at(i);
-                CComponentProxy* pComponentProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(uComponentId));
-                // This may be null, because some components can be uninitialized by other component's uninitialize.
-                if (pComponentProxy != NULL && pComponentProxy->IsInitialized())
-                {
-                    CComponentBase* pComponent = pComponentProxy;
-                    if (pComponentProxy->GetProxyId() == pComponentProxy->GetId())
-                    {
-                        pComponent = pComponentProxy->GetHostComponent();
-                    }
-                    pComponent->Uninitialize();
-                    componentToDelete.push_back(pComponent);
-                }
             }
         }
     }
@@ -844,33 +815,37 @@ void CComponentProxyManager::OnDeleteComponentInScene(CComponentProxy* pProxy)
     else
     {
         size_t uProxyId = pProxy->GetId();
-        std::vector<size_t> allReferenceId;
-        std::map<size_t, std::vector<size_t>>* pIdToReferenceMap = m_pProject->GetIdToReferenceMap();
-        std::map<size_t, std::vector<size_t>>::iterator idToRefIter = pIdToReferenceMap->find(uProxyId);
+        // Get the static info of reference.
+        std::map<size_t, std::set<size_t>>* pIdToReferenceMap = m_pProject->GetIdToReferenceMap();
+        std::map<size_t, std::set<size_t>>::iterator idToRefIter = pIdToReferenceMap->find(uProxyId);
+        std::set<size_t> allReferenceIdSet;
         if (idToRefIter != pIdToReferenceMap->end())
         {
-            allReferenceId = idToRefIter->second;
+            allReferenceIdSet = idToRefIter->second;
         }
+        // Add the dynamic info of reference.
         std::map<size_t, std::vector<CComponentReference*>>::iterator iter = m_referenceIdMap.find(uProxyId);
         if (iter != m_referenceIdMap.end())
         {
             for (size_t i = 0; i < iter->second.size(); ++i)
             {
-                allReferenceId.push_back(iter->second.at(i)->GetId());
+                BEATS_ASSERT(allReferenceIdSet.find(iter->second.at(i)->GetId()) == allReferenceIdSet.end());
+                allReferenceIdSet.insert(iter->second.at(i)->GetId());
             }
         }
-        if (allReferenceId.size() > 0)
+        if (allReferenceIdSet.size() > 0)
         {
             TCHAR szBuffer[10240];
-            _stprintf(szBuffer, _T("无法删除该组件，请先删除位于以下位置的%d个引用：\n"), allReferenceId.size());
+            _stprintf(szBuffer, _T("无法删除该组件，请先删除位于以下位置的%d个引用：\n"), allReferenceIdSet.size());
             TString strInfo;
             strInfo.append(szBuffer);
-            for (size_t i = 0; i < allReferenceId.size(); ++i)
+            int nCounter = 0;
+            for (auto iter = allReferenceIdSet.begin(); iter != allReferenceIdSet.end(); ++iter)
             {
-                size_t uRefId = allReferenceId[i];
+                size_t uRefId = *iter;
                 size_t uFileId = m_pProject->QueryFileId(uRefId, false);
                 const TString& strFilePath = m_pProject->GetComponentFileName(uFileId);
-                _stprintf(szBuffer, _T("%d. %s\n"), i, strFilePath.c_str());
+                _stprintf(szBuffer, _T("%d. %s\n"), nCounter++, strFilePath.c_str());
                 strInfo.append(szBuffer);
             }
             MessageBox(NULL, strInfo.c_str(), _T("无法删除"), MB_OK);
