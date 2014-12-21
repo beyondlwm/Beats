@@ -106,6 +106,9 @@ void CComponentInstance::Serialize(CSerializer& serializer)
 
 CComponentBase* CComponentInstance::CloneInstance()
 {
+    // Use bOriginState to avoid logic mistake when nested call.
+    bool bOriginState = CComponentInstanceManager::GetInstance()->IsInClonePhase();
+    CComponentInstanceManager::GetInstance()->SetClonePhaseFlag(true);
     CComponentBase* pNewInstance = Clone(false, NULL, 0xFFFFFFFF, false);
     CSerializer serializer;
     Serialize(serializer);
@@ -129,5 +132,6 @@ CComponentBase* CComponentInstance::CloneInstance()
     CComponentProxyManager::GetInstance()->SetCurrReflectDependency(pCurReflectDependency);
     CComponentInstanceManager::GetInstance()->SetForbidDependencyResolve(false);
     BEATS_ASSERT(serializer.GetWritePos() == serializer.GetReadPos());
+    CComponentInstanceManager::GetInstance()->SetClonePhaseFlag(bOriginState);
     return pNewInstance;
 }

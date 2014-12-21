@@ -12,7 +12,8 @@
 CComponentInstanceManager* CComponentInstanceManager::m_pInstance = NULL;
 
 CComponentInstanceManager::CComponentInstanceManager()
-    : m_uCurLoadFileId(0xFFFFFFFF)
+    : m_bInClonePhase(false)
+    , m_uCurLoadFileId(0xFFFFFFFF)
     , m_uCurWorkingFileId(0xFFFFFFFF)
 {
     m_pSerializer = new CSerializer;
@@ -317,6 +318,16 @@ void CComponentInstanceManager::SetCurLoadFileId(size_t uFileId)
 size_t CComponentInstanceManager::GetCurLoadFileId() const
 {
     return m_uCurLoadFileId;
+}
+
+bool CComponentInstanceManager::IsInClonePhase() const
+{
+    return m_bInClonePhase;
+}
+
+void CComponentInstanceManager::SetClonePhaseFlag(bool bInClonePhase)
+{
+    m_bInClonePhase = bInClonePhase;
 }
 
 void CComponentInstanceManager::ResolveDependency()

@@ -21,12 +21,15 @@ public:
     const std::set<size_t>& GetLoadedFiles() const;
     void SetCurLoadFileId(size_t uFileId);
     size_t GetCurLoadFileId() const;
+    bool IsInClonePhase() const;
+    void SetClonePhaseFlag(bool bInClonePhase);
 
     virtual void ResolveDependency() override;
 
 private:
     void LoadDirectoryFiles(CComponentProjectDirectory* pDirectory, std::vector<CComponentBase*>& loadComponents);
 private:
+    bool m_bInClonePhase;
     size_t m_uCurLoadFileId;
     size_t m_uCurWorkingFileId;
     CSerializer* m_pSerializer;
