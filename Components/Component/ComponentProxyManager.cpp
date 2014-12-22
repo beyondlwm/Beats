@@ -60,7 +60,6 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /
         if (m_currentViewFilePath.compare(pFilePath) != 0)
         {
             SaveCurFile();
-            m_currentViewFilePath.assign(pFilePath);
         }
 
         // 1. File is in the parent directory (loaded before): just change the content of m_proxyInCurScene
@@ -194,7 +193,7 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /
 
         // Rebuild the m_proxyInCurScene
         m_proxyInCurScene.clear();
-        size_t uCurViewFileId = m_pProject->GetComponentFileId(m_currentViewFilePath);
+        size_t uCurViewFileId = m_pProject->GetComponentFileId(pFilePath);
         std::map<size_t, std::vector<size_t> >* pFileToComponentMap = m_pProject->GetFileToComponentMap();
         auto fileToComponentIter = pFileToComponentMap->find(uCurViewFileId);
         if (fileToComponentIter != pFileToComponentMap->end())
