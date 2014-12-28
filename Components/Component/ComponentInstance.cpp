@@ -77,12 +77,8 @@ CComponentProxy* CComponentInstance::GetProxyComponent() const
 
 void CComponentInstance::SetSyncProxyComponent(CComponentProxy* pProxy)
 {
+    BEATS_ASSERT(m_pSyncProxyComponent == NULL);
     m_pSyncProxyComponent = pProxy;
-}
-
-CComponentProxy* CComponentInstance::GetSyncProxyComponent() const
-{
-    return m_pSyncProxyComponent;
 }
 
 void CComponentInstance::Serialize(CSerializer& serializer)

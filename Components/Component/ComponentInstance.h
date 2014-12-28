@@ -24,8 +24,7 @@ public:
     void SetProxyComponent(CComponentProxy* pProxy);
     class CComponentProxy* GetProxyComponent() const;
 
-    void SetSyncProxyComponent(CComponentProxy* pProxy);
-    CComponentProxy* GetSyncProxyComponent() const;
+    virtual void SetSyncProxyComponent(CComponentProxy* pProxy);
 
     void Serialize(CSerializer& serializer);
     CComponentBase* CloneInstance();
@@ -34,6 +33,7 @@ private:
     size_t m_uDataPos;
     size_t m_uDataSize;
     CComponentProxy* m_pProxyComponent;
+    // This member only for: when this instance is deleted, it must tell the sync proxy to unregister itself.
     CComponentProxy* m_pSyncProxyComponent;
 };
 
