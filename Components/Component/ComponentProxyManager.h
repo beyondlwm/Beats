@@ -35,6 +35,7 @@ public:
 
     void SaveTemplate(const TCHAR* pszFilePath);
     void SaveCurFile();
+    void SaveToFile(const TCHAR* pszFileName, std::map<size_t, std::vector<CComponentProxy*>>& components);
 
     void RegisterPropertyCreator(size_t enumType, TCreatePropertyFunc func);
     CPropertyDescriptionBase* CreateProperty(size_t propertyType, CSerializer* serializer);
@@ -79,6 +80,8 @@ public:
     bool IsEnableCreateInstanceWithProxy() const;
     void SetEnableCreateInstanceWithProxy(bool bFlag);
 
+    std::vector<size_t>& GetRefreshFileList();
+
 private:
     void LoadTemplateDataFromXML(const TCHAR* pWorkingPath);
     void LoadTemplateDataFromSerializer(CSerializer& serializer, TCreateComponentEditorProxyFunc func, TCreateGraphicFunc pGraphicFunc);
@@ -88,6 +91,7 @@ private:
     bool m_bLoadingFilePhase;
     bool m_bExportingPhase;
     bool m_bReflectCheckFlag;
+
     TString m_currentWorkingFilePath;
     TString m_currentViewFilePath;
     CPropertyDescriptionBase* m_pCurrReflectPropertyDescription;
@@ -104,6 +108,9 @@ private:
 
     std::map<size_t, CComponentProxy*> m_proxyInCurScene;
     std::set<size_t> m_loadedFiles;
+
+    // This list saves the file need to be re-save after loaded, because of property maintain logic.
+    std::vector<size_t> m_refreshFileList;
 };
 
 

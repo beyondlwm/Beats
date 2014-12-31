@@ -422,7 +422,16 @@ void CComponentProxy::LoadFromXML( TiXmlElement* pNode )
         }
         pVarElement = pVarElement->NextSiblingElement("VariableNode");
     }
-
+    if (unUsedXMLVariableNode.size() > 0)
+    {
+        // Save the XML file to overwrite the old property data.
+        const char* pFilePath = pNode->GetDocument()->Value();
+        TCHAR szFilePath[MAX_PATH];
+        CStringHelper::GetInstance()->ConvertToTCHAR(pFilePath, szFilePath, MAX_PATH);
+        size_t uFileId = CComponentProxyManager::GetInstance()->GetProject()->GetComponentFileId(szFilePath);
+        BEATS_ASSERT(uFileId != 0xFFFFFFFF);
+        CComponentProxyManager::GetInstance()->GetRefreshFileList().push_back(uFileId);
+    }
     // Run maintain logic.
     for (size_t i = 0; i < unUsedXMLVariableNode.size(); ++i)
     {

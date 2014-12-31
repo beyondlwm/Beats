@@ -211,6 +211,31 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /
                 }
             }
         }
+
+        for (size_t i = 0; i < m_refreshFileList.size(); ++i)
+        {
+            std::map<size_t, std::vector<size_t> >* pFileToComponentMap = m_pProject->GetFileToComponentMap();
+            auto iter = pFileToComponentMap->find(m_refreshFileList[i]);
+            if (iter != pFileToComponentMap->end())
+            {
+                std::map<size_t, std::vector<CComponentProxy*>> guidGroup;
+                for (size_t j = 0; j < iter->second.size(); ++j)
+                {
+                    CComponentProxy* pProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(iter->second.at(j)));
+                    BEATS_ASSERT(pProxy != NULL);
+                    std::map<size_t, std::vector<CComponentProxy*>>::iterator iter = guidGroup.find(pProxy->GetGuid());
+                    if (iter == guidGroup.end())
+                    {
+                        guidGroup[pProxy->GetGuid()] = std::vector<CComponentProxy*>();
+                        iter = guidGroup.find(pProxy->GetGuid());
+                    }
+                    iter->second.push_back(pProxy);
+                }
+                const TString& strFileName = m_pProject->GetComponentFileName(m_refreshFileList[i]);
+                SaveToFile(strFileName.c_str(), guidGroup);
+            }
+        }
+        m_refreshFileList.clear();
         //TODO: bOpenAsCopy seems useless.
         bOpenAsCopy;
         m_bLoadingFilePhase = bRestoreLoadingPhase;
@@ -220,6 +245,11 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /
 
 void CComponentProxyManager::LoadFile(const TCHAR* pszFilePath, std::vector<CComponentProxy*>* pComponentContainer)
 {
+    std::vector<CComponentProxy*> loadedComponents;
+    if (pComponentContainer == NULL)
+    {
+        pComponentContainer = &loadedComponents;
+    }
     bool bRestoreLoadingPhase = m_bLoadingFilePhase;
     m_bLoadingFilePhase = true;
     char tmp[MAX_PATH] = {0};
@@ -269,10 +299,7 @@ void CComponentProxyManager::LoadFile(const TCHAR* pszFilePath, std::vector<CCom
                             pComponent = CreateReference(nReferenceId, guid, id);
                         }
                         pComponent->LoadFromXML(pInstanceElement);
-                        if (pComponentContainer != NULL)
-                        {
-                            pComponentContainer->push_back(pComponent);
-                        }
+                        pComponentContainer->push_back(pComponent);
                         pInstanceElement = pInstanceElement->NextSiblingElement();
                     }
                 }
@@ -288,6 +315,7 @@ void CComponentProxyManager::LoadFile(const TCHAR* pszFilePath, std::vector<CCom
         _stprintf(info, _T("Load file :%s Failed!Reason:%s"), pszFilePath, reason);
         MessageBox(NULL, info, _T("Load File Failed"), MB_OK | MB_ICONERROR);
     }
+
     m_bLoadingFilePhase = bRestoreLoadingPhase;
 }
 
@@ -550,13 +578,6 @@ void CComponentProxyManager::SaveCurFile()
 {
     if (!m_currentViewFilePath.empty())
     {
-        TiXmlDocument document;
-        TiXmlDeclaration* pDeclaration = new TiXmlDeclaration("1.0","","");
-        document.LinkEndChild(pDeclaration);
-        TiXmlElement* pRootElement = new TiXmlElement("Root");
-        document.LinkEndChild(pRootElement);
-
-        TiXmlElement* pComponentListElement = new TiXmlElement("Components");
         const std::map<size_t, CComponentProxy*>& componentsInScene = GetComponentsInCurScene();
         std::map<size_t, std::vector<CComponentProxy*>> guidGroup;
         for (std::map<size_t, CComponentProxy*>::const_iterator iter = componentsInScene.begin(); iter != componentsInScene.end(); ++iter)
@@ -569,27 +590,7 @@ void CComponentProxyManager::SaveCurFile()
             guidGroup[uGuid].push_back(iter->second);
         }
 
-        for (std::map<size_t, std::vector<CComponentProxy*>>::iterator iter = guidGroup.begin(); iter != guidGroup.end(); ++iter)
-        {
-            TiXmlElement* pComponentElement = new TiXmlElement("Component");
-            char szGUIDHexStr[32] = {0};
-            sprintf(szGUIDHexStr, "0x%lx", iter->first);
-            pComponentElement->SetAttribute("GUID", szGUIDHexStr);
-            char tmp[MAX_PATH] = {0};
-            CStringHelper::GetInstance()->ConvertToCHAR(GetComponentTemplate(iter->first)->GetClassStr(), tmp, MAX_PATH);
-            pComponentElement->SetAttribute("Name", tmp);
-            pComponentListElement->LinkEndChild(pComponentElement);
-            for (size_t i = 0; i < iter->second.size(); ++i)
-            {
-                CComponentProxy* pProxy = static_cast<CComponentProxy*>(iter->second.at(i));
-                pProxy->Save();
-                pProxy->SaveToXML(pComponentElement, false);
-            }
-        }
-        pRootElement->LinkEndChild(pComponentListElement);
-        char pathInChar[MAX_PATH] = {0};
-        CStringHelper::GetInstance()->ConvertToCHAR(m_currentViewFilePath.c_str(), pathInChar, MAX_PATH);
-        document.SaveFile(pathInChar);
+        SaveToFile(m_currentViewFilePath.c_str(), guidGroup);
 
         // Recycle all id, because we will reload it in CComponentProject::ReloadFile
         for (auto iter = componentsInScene.begin(); iter != componentsInScene.end(); ++iter)
@@ -601,6 +602,38 @@ void CComponentProxyManager::SaveCurFile()
         // We just reload the whole file to keep the id manager is working in the right way.
         m_pProject->ReloadFile(uFileId);
     }
+}
+
+void CComponentProxyManager::SaveToFile(const TCHAR* pszFileName, std::map<size_t, std::vector<CComponentProxy*>>& components)
+{
+    TiXmlDocument document;
+    TiXmlDeclaration* pDeclaration = new TiXmlDeclaration("1.0","","");
+    document.LinkEndChild(pDeclaration);
+    TiXmlElement* pRootElement = new TiXmlElement("Root");
+    document.LinkEndChild(pRootElement);
+
+    TiXmlElement* pComponentListElement = new TiXmlElement("Components");
+    for (std::map<size_t, std::vector<CComponentProxy*>>::iterator iter = components.begin(); iter != components.end(); ++iter)
+    {
+        TiXmlElement* pComponentElement = new TiXmlElement("Component");
+        char szGUIDHexStr[32] = {0};
+        sprintf(szGUIDHexStr, "0x%lx", iter->first);
+        pComponentElement->SetAttribute("GUID", szGUIDHexStr);
+        char tmp[MAX_PATH] = {0};
+        CStringHelper::GetInstance()->ConvertToCHAR(GetComponentTemplate(iter->first)->GetClassStr(), tmp, MAX_PATH);
+        pComponentElement->SetAttribute("Name", tmp);
+        pComponentListElement->LinkEndChild(pComponentElement);
+        for (size_t i = 0; i < iter->second.size(); ++i)
+        {
+            CComponentProxy* pProxy = static_cast<CComponentProxy*>(iter->second.at(i));
+            pProxy->Save();
+            pProxy->SaveToXML(pComponentElement, false);
+        }
+    }
+    pRootElement->LinkEndChild(pComponentListElement);
+    char pathInChar[MAX_PATH] = {0};
+    CStringHelper::GetInstance()->ConvertToCHAR(pszFileName, pathInChar, MAX_PATH);
+    document.SaveFile(pathInChar);
 }
 
 void CComponentProxyManager::RegisterPropertyCreator( size_t enumType, TCreatePropertyFunc func )
@@ -881,6 +914,11 @@ bool CComponentProxyManager::IsEnableCreateInstanceWithProxy() const
 void CComponentProxyManager::SetEnableCreateInstanceWithProxy(bool bFlag)
 {
     m_bCreateInstanceWithProxy = bFlag;
+}
+
+std::vector<size_t>& CComponentProxyManager::GetRefreshFileList()
+{
+    return m_refreshFileList;
 }
 
 void CComponentProxyManager::LoadTemplateDataFromXML(const TCHAR* pszPath)
