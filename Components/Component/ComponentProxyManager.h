@@ -19,7 +19,7 @@ class CComponentProxyManager : public CComponentManagerBase
     typedef CPropertyDescriptionBase* (*TCreatePropertyFunc)(CSerializer* serializer);
 public:
     // param bOpenAsCopy means we will create a new file from template file.
-    void OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy = false);
+    void OpenFile(const TCHAR* pFilePath);
     void LoadFile(const TCHAR* pszFilePath, std::vector<CComponentProxy*>* pComponentContainer);
     void LoadFileFromDirectory(CComponentProjectDirectory* pDirectory, std::vector<CComponentProxy*>* pComponentContainer);
 

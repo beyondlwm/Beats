@@ -70,7 +70,6 @@ private:
     CDependencyDescriptionLine* m_pSelectedDependencyLine;
     wxMenu*    m_pComponentMenu;
     CBDTWxFrame* m_pMainFrame;
-    TString m_draggingFilePath;
     D3DXMATRIX m_projectionMatrix;
 };
 

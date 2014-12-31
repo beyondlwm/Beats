@@ -44,7 +44,7 @@ CComponentProxyManager::~CComponentProxyManager()
     BEATS_SAFE_DELETE(m_pComponentInheritMap);
 }
 
-void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /*= false */)
+void CComponentProxyManager::OpenFile(const TCHAR* pFilePath)
 {
     bool bRestoreLoadingPhase = m_bLoadingFilePhase;
     m_bLoadingFilePhase = true;
@@ -236,8 +236,6 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bOpenAsCopy /
             }
         }
         m_refreshFileList.clear();
-        //TODO: bOpenAsCopy seems useless.
-        bOpenAsCopy;
         m_bLoadingFilePhase = bRestoreLoadingPhase;
         m_currentViewFilePath = pFilePath;
     }

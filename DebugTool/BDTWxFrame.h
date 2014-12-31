@@ -202,8 +202,6 @@ private:
 
     void OnComponentStartDrag( wxTreeEvent& event );
     void OnComponentEndDrag( wxTreeEvent& event );
-    void OnComponentFileStartDrag( wxTreeEvent& event );
-    void OnComponentFileEndDrag( wxTreeEvent& event );
     void OnTemplateComponentItemChanged(wxTreeEvent& event);
     void OnRightClickComponentFileList(wxTreeEvent& event);
     void OnActivateComponentFile(wxTreeEvent& event);

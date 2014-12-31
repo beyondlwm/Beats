@@ -228,8 +228,6 @@ void CBDTWxFrame::CreateComponentPage()
     m_pComponentTreeControl->Connect( wxEVT_COMMAND_TREE_BEGIN_DRAG, wxTreeEventHandler( CBDTWxFrame::OnComponentStartDrag ), NULL, this );
     m_pComponentTreeControl->Connect( wxEVT_COMMAND_TREE_END_DRAG, wxTreeEventHandler( CBDTWxFrame::OnComponentEndDrag ), NULL, this );
     m_pComponentTreeControl->Connect( wxEVT_COMMAND_TREE_SEL_CHANGED, wxTreeEventHandler( CBDTWxFrame::OnTemplateComponentItemChanged ), NULL, this );
-    m_pComponentFileTreeControl->Connect( wxEVT_COMMAND_TREE_BEGIN_DRAG, wxTreeEventHandler( CBDTWxFrame::OnComponentFileStartDrag ), NULL, this );
-    m_pComponentFileTreeControl->Connect( wxEVT_COMMAND_TREE_END_DRAG, wxTreeEventHandler( CBDTWxFrame::OnComponentFileEndDrag ), NULL, this );
     m_pComponentFileTreeControl->Connect(wxEVT_COMMAND_TREE_ITEM_RIGHT_CLICK, wxTreeEventHandler(CBDTWxFrame::OnRightClickComponentFileList), NULL, this);
     m_pComponentFileTreeControl->Connect(wxEVT_COMMAND_TREE_ITEM_ACTIVATED, wxTreeEventHandler(CBDTWxFrame::OnActivateComponentFile), NULL, this);
     m_pComponentFileTreeControl->Connect(wxEVT_COMMAND_TREE_ITEM_EXPANDED, wxTreeEventHandler(CBDTWxFrame::OnExpandComponentFile), NULL, this);
@@ -255,8 +253,6 @@ void CBDTWxFrame::DestroyComponentPage()
     m_pComponentTreeControl->Disconnect( wxEVT_COMMAND_TREE_BEGIN_DRAG, wxTreeEventHandler( CBDTWxFrame::OnComponentStartDrag ), NULL, this );
     m_pComponentTreeControl->Disconnect( wxEVT_COMMAND_TREE_END_DRAG, wxTreeEventHandler( CBDTWxFrame::OnComponentEndDrag ), NULL, this );
     m_pComponentTreeControl->Disconnect( wxEVT_COMMAND_TREE_SEL_CHANGED, wxTreeEventHandler( CBDTWxFrame::OnTemplateComponentItemChanged ), NULL, this );
-    m_pComponentFileTreeControl->Disconnect( wxEVT_COMMAND_TREE_BEGIN_DRAG, wxTreeEventHandler( CBDTWxFrame::OnComponentFileStartDrag ), NULL, this );
-    m_pComponentFileTreeControl->Disconnect( wxEVT_COMMAND_TREE_END_DRAG, wxTreeEventHandler( CBDTWxFrame::OnComponentFileEndDrag ), NULL, this );
     m_pComponentFileTreeControl->Disconnect(wxEVT_COMMAND_TREE_ITEM_RIGHT_CLICK, wxTreeEventHandler(CBDTWxFrame::OnRightClickComponentFileList), NULL, this);
     m_pComponentFileTreeControl->Disconnect(wxEVT_COMMAND_TREE_ITEM_ACTIVATED, wxTreeEventHandler(CBDTWxFrame::OnActivateComponentFile), NULL, this);
     m_pComponentFileTreeControl->Disconnect(wxEVT_COMMAND_TREE_ITEM_EXPANDED, wxTreeEventHandler(CBDTWxFrame::OnExpandComponentFile), NULL, this);
@@ -395,79 +391,6 @@ void CBDTWxFrame::OnComponentEndDrag( wxTreeEvent& event )
     }
     m_pComponentRenderWindow->SetDraggingComponent(NULL);
     BEATS_PRINT(_T("EndDrag at Pos: %d %d\n"), event.GetPoint().x, event.GetPoint().y);
-}
-
-void CBDTWxFrame::OnComponentFileStartDrag( wxTreeEvent& event )
-{
-    CComponentFileTreeItemData* pData = static_cast<CComponentFileTreeItemData*>(m_pComponentFileTreeControl->GetItemData(event.GetItem()));
-    if (pData != NULL && !pData->IsDirectory())
-    {
-        m_pComponentFileTreeControl->SelectItem(event.GetItem());
-        m_pComponentRenderWindow->SetDraggingFileName(pData->GetFileName().c_str());
-        event.Allow();
-    }
-}
-
-void CBDTWxFrame::OnComponentFileEndDrag( wxTreeEvent& event )
-{
-    wxTreeItemId currentItemId = event.GetItem();
-    if (currentItemId.IsOk())
-    {
-        CComponentFileTreeItemData* pCurrentItemData = static_cast<CComponentFileTreeItemData*>(m_pComponentFileTreeControl->GetItemData(currentItemId));
-        wxTreeItemId lastItemId = m_pComponentFileTreeControl->GetSelection();
-        CComponentFileTreeItemData* pLastItemData = static_cast<CComponentFileTreeItemData*>(m_pComponentFileTreeControl->GetItemData(lastItemId));
-        BEATS_ASSERT(pCurrentItemData != NULL && pLastItemData != NULL && !pLastItemData->IsDirectory());
-        if (lastItemId != currentItemId)
-        {
-            CComponentFileTreeItemData* pNewData = new CComponentFileTreeItemData(pLastItemData->GetProjectDirectory(), pLastItemData->GetFileName());
-            wxString lastItemText = m_pComponentFileTreeControl->GetItemText(lastItemId);
-            if (pCurrentItemData->IsDirectory())
-            {
-                m_pComponentFileTreeControl->AppendItem(currentItemId, lastItemText, eTCIT_File, -1, pNewData);
-            }
-            else
-            {
-                wxTreeItemId parentId = m_pComponentFileTreeControl->GetItemParent(currentItemId);
-                m_pComponentFileTreeControl->InsertItem(parentId, currentItemId, lastItemText, eTCIT_File, -1, pNewData);
-            }
-            m_pComponentFileTreeControl->Expand(currentItemId);
-            wxTreeItemId lastItemDirectory = m_pComponentFileTreeControl->GetItemParent(lastItemId);
-            m_pComponentFileTreeControl->Delete(lastItemId);
-            if (lastItemDirectory.IsOk())
-            {
-                if (m_pComponentFileTreeControl->HasChildren(lastItemDirectory) == false)
-                {
-                    m_pComponentFileTreeControl->SetItemImage(lastItemDirectory, eTCIT_Folder);
-                }
-            }
-        }
-    }
-    if (m_pComponentRenderWindow->IsMouseInWindow())
-    {
-        const TCHAR* pDraggingFileName = m_pComponentRenderWindow->GetDraggingFileName();
-        if (pDraggingFileName != NULL && CFilePathTool::GetInstance()->Exists(pDraggingFileName))
-        {
-            const TString& strCurWorkingFile = CComponentProxyManager::GetInstance()->GetCurrentWorkingFilePath();
-            if (!strCurWorkingFile.empty())
-            {
-                int iRet = wxMessageBox(wxString::Format(_T("是否要将组件从\n%s\n拷贝到\n%s？"), pDraggingFileName, strCurWorkingFile.c_str()), _T("自动添加组件"), wxYES_NO);
-                if (iRet == wxYES)
-                {
-                    CComponentProxyManager::GetInstance()->OpenFile(pDraggingFileName, true);
-                    m_pComponentRenderWindow->UpdateAllDependencyLine();
-                }
-            }
-            else
-            {
-                wxMessageBox(_T("请先打开一个文件!"));
-            }
-        }
-        else
-        {
-            wxMessageBox(wxString::Format(_T("添加文件%s失败，可能文件不存在。"), pDraggingFileName));
-        }
-    }
-    m_pComponentRenderWindow->SetDraggingFileName(NULL);
 }
 
 void CBDTWxFrame::OnTemplateComponentItemChanged(wxTreeEvent& event)

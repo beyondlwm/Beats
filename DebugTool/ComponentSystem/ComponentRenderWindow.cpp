@@ -878,17 +878,3 @@ void CComponentRenderWindow::UpdateAllDependencyLine()
         }
     }
 }
-
-void CComponentRenderWindow::SetDraggingFileName(const TCHAR* pFileName)
-{
-    m_draggingFilePath.clear();
-    if (pFileName != NULL)
-    {
-        m_draggingFilePath.assign(pFileName);
-    }    
-}
-
-const TCHAR* CComponentRenderWindow::GetDraggingFileName()
-{
-    return m_draggingFilePath.c_str();
-}
