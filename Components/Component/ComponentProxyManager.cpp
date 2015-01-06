@@ -44,7 +44,7 @@ CComponentProxyManager::~CComponentProxyManager()
     BEATS_SAFE_DELETE(m_pComponentInheritMap);
 }
 
-void CComponentProxyManager::OpenFile(const TCHAR* pFilePath)
+void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bCloseLoadedFile/*= false*/)
 {
     bool bRestoreLoadingPhase = m_bLoadingFilePhase;
     m_bLoadingFilePhase = true;
@@ -67,12 +67,55 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath)
         {
             // Change content will be done at last. So do nothing here.
             bLoadThisFile = false;
+            if (bCloseLoadedFile)
+            {
+                // Close any other loaded + unnecessary file.
+                CComponentProjectDirectory* pDirectory = m_pProject->FindProjectDirectory(pFilePath, true);
+                CComponentProjectDirectory* pCurDirectory = m_pProject->FindProjectDirectory(m_currentWorkingFilePath, true);
+                BEATS_ASSERT(pDirectory != NULL && pCurDirectory != NULL);
+                TString strLogicPath = pDirectory->MakeRelativeLogicPath(pCurDirectory);
+                std::vector<TString> logicPaths;
+                CStringHelper::GetInstance()->SplitString(strLogicPath.c_str(), _T("/"), logicPaths);
+                BEATS_ASSERT(logicPaths.size() > 0);
+                if (logicPaths.back().compare(_T("..")) == 0)
+                {
+                    CloseFile(m_currentWorkingFilePath.c_str());
+                    CComponentProjectDirectory* pCurLoopDirectory = pCurDirectory->GetParent();
+                    logicPaths.pop_back();
+                    while (logicPaths.size() > 0)
+                    {
+                        if (logicPaths.back().compare(_T("..")) == 0)
+                        {
+                            const std::vector<size_t>& fileList = pCurLoopDirectory->GetFileList();
+                            for (size_t i = 0; i < fileList.size(); ++i)
+                            {
+                                BEATS_ASSERT(m_loadedFiles.find(fileList[i]) != m_loadedFiles.end());
+                                const TString& strFileName = m_pProject->GetComponentFileName(fileList[i]);
+                                CloseFile(strFileName.c_str());
+                            }
+                            pCurLoopDirectory = pCurLoopDirectory->GetParent();
+                            logicPaths.pop_back();
+                        }
+                    }
+                    BEATS_ASSERT(pDirectory == pCurLoopDirectory);
+                }
+                const std::vector<size_t>& fileList = pDirectory->GetFileList();
+                for (size_t i = 0; i < fileList.size(); ++i)
+                {
+                    BEATS_ASSERT(m_loadedFiles.find(fileList[i]) != m_loadedFiles.end());
+                    const TString& strFileName = m_pProject->GetComponentFileName(fileList[i]);
+                    if (strFileName != pFilePath)
+                    {
+                        CloseFile(strFileName.c_str());
+                    }
+                }
+                m_currentWorkingFilePath.assign(pFilePath);
+            }
         }
         else
         {
             CComponentProjectDirectory* pDirectory = m_pProject->FindProjectDirectory(pFilePath, true);
             BEATS_ASSERT(pDirectory != NULL);
-            TString strLogicPath;
             // new open a file.
             if (m_currentWorkingFilePath.empty())
             {
@@ -93,7 +136,7 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath)
             {
                 CComponentProjectDirectory* pCurDirectory = m_pProject->FindProjectDirectory(m_currentWorkingFilePath, true);
                 BEATS_ASSERT(pCurDirectory != NULL);
-                strLogicPath = pDirectory->MakeRelativeLogicPath(pCurDirectory);
+                TString strLogicPath = pDirectory->MakeRelativeLogicPath(pCurDirectory);
 
                 // 2. File is at the same directory: close current file and open it.
                 if (strLogicPath.empty())
