@@ -160,7 +160,7 @@ void CMD5::Update(const std::wstring &str)
 /* Updating the context with a file. */
 void CMD5::Update(std::ifstream &in) 
 {
-    if (in != NULL)
+	if (!in.eof())
     {
         std::streamsize length;
         char* buffer = new char[BUFFER_SIZE];

@@ -21,7 +21,6 @@
 #include "../../Control/Keyboard.h"
 #include "../../ui/UIManager.h"
 
-
 CCEGUISystemImpl::CCEGUISystemImpl()
 : m_pRenderer(NULL)
 {

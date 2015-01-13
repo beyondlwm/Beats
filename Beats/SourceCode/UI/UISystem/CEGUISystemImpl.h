@@ -3,6 +3,7 @@
 
 #include "UISystemBase.h"
 #include "CEGUIEventArgs.h"
+#include <utility>
 
 namespace CEGUI
 {

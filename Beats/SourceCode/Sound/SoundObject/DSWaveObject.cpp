@@ -77,7 +77,7 @@ bool CDSWaveObject::LoadDSData(unsigned int start, unsigned int count)
             bool meetsEnd = false; // don't use eof because the wave file may contains some useless data;
             if ((unsigned int)(_ifStream.tellg()) + count > _headerWave.data_size)
             {
-                count = _headerWave.data_size - _ifStream.tellg();
+                count = _headerWave.data_size - (unsigned long)_ifStream.tellg();
                 meetsEnd = true;
             }
             _ifStream.read((char*)aptr1, count);

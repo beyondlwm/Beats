@@ -162,7 +162,7 @@ bool CSpyHookGetMessage::RecordTextMessage( const MSG* pMsg, CSerializer& serial
             if (bRecordCharMsg)
             {
                 bRet = true;
-                if (cLastChar == pMsg->wParam && cLastChar != 0)
+				if (cLastChar == (TCHAR)pMsg->wParam && cLastChar != 0)
                 {
                     ++uSameCharCount;
                 }

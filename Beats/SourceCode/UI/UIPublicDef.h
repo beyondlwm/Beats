@@ -1,6 +1,7 @@
 #ifndef BEATS_GAME_UI_UIPUBLICDEF_H__INCLUDE
 #define BEATS_GAME_UI_UIPUBLICDEF_H__INCLUDE
 
+#include <utility>
 #include "../../../Utility/StringHelper/StringHelper.h"
 
 enum EUIPageName
