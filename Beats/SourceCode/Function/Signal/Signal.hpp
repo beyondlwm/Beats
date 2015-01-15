@@ -42,7 +42,7 @@ public:
         return isFind;
     }
 
-    size_t GetConnectedCount() const
+    uint32_t GetConnectedCount() const
     {
         return m_functionSet.size();
     }

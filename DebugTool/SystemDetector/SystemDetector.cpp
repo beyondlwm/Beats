@@ -37,7 +37,7 @@ bool CSystemDetector::GetMonitorInfo( TString& result )
     bool ret = false;
     result.clear();
     BYTE edidData[512];
-    size_t dataLength = 512;
+    uint32_t dataLength = 512;
     bool edidValid = GetEDIDFromReg(edidData, dataLength);
     BEATS_ASSERT(edidValid, _T("Failed get edid from registry!"));
     if (edidValid)
@@ -77,7 +77,7 @@ bool CSystemDetector::GetMonitorInfo( TString& result )
     return ret;
 }
 
-bool CSystemDetector::GetEDIDFromReg( void* pData, size_t& dataLength )
+bool CSystemDetector::GetEDIDFromReg( void* pData, uint32_t& dataLength )
 {
     HDEVINFO hDevInfo = NULL;
     bool result = false;
@@ -142,7 +142,7 @@ bool CSystemDetector::GetGraphicsCardInfo( TString& result )
     result.append(_T(" Çý¶¯°æ±¾: ")).append(tempData);
     ret = ret && CWmiDetector::GetInstance()->GetItemInfo(_T("Win32_VideoController"), _T("AdapterRAM"), tempData);
     long ramInBytes = _tstoi(tempData.c_str());
-    size_t ramInMB = ramInBytes / (1024 * 1024);
+    uint32_t ramInMB = ramInBytes / (1024 * 1024);
     TCHAR cache[128];
     _stprintf_s(cache, _T("%d MB"), ramInMB);
     result.append(_T(" ÏÔ´æ: ")).append(cache);
@@ -203,19 +203,19 @@ bool CSystemDetector::GetMemoryInfo( TString& result )
 {
     result.clear();
     BYTE temp[10240] = {0};
-    size_t length;
+    uint32_t length;
     CWmiDetector::GetInstance()->GetSMBiosData((LPBYTE)temp, length);
     std::vector<SFirmwareTables> tables;
     CWmiDetector::GetInstance()->GetFirmwareTables(temp, length, eFTT_MemDev, tables);
 
     //there will be lots of magic numbers below, to know more about the structure of FirmwareTable.
     char table[0x10000] = {0};//64k
-    for (size_t i = 0; i < tables.size(); ++i)
+    for (uint32_t i = 0; i < tables.size(); ++i)
     {
         //must copy it out so we can detect the end of the table in GetStrFromFirmwareTables.
         memcpy(table, &temp[tables[i].startPos], tables[i].length);
-        const size_t sizeOffset = 0x0C;
-        size_t memorySize = 0;
+        const uint32_t sizeOffset = 0x0C;
+        uint32_t memorySize = 0;
         memcpy(&memorySize, & table[sizeOffset], 2);
         if (memorySize > 0)
         {
@@ -225,23 +225,23 @@ bool CSystemDetector::GetMemoryInfo( TString& result )
                 result.append(_T("\n"));
             }
             TString tempString;
-            const size_t manufactuerOffset = 0x17;
+            const uint32_t manufactuerOffset = 0x17;
             CWmiDetector::GetInstance()->GetStrFromFirmwareTables(table[manufactuerOffset], (unsigned char*)table, tempString);
             //delete space suffix
             tempString = tempString.substr(0, tempString.find_last_not_of(' ') + 1);
             ConvertMemoryManufactuer(tempString, tempString);
 
             result.append(tempString);
-            const size_t typeOffset = 0x12;
-            size_t memoryType = table[typeOffset];
+            const uint32_t typeOffset = 0x12;
+            uint32_t memoryType = table[typeOffset];
             ConvertMemoryType(memoryType, tempString);
             result.append(_T(" ")).append(tempString);
             TCHAR tempCache[128];
             _stprintf_s(tempCache, _T(" %d MB"), memorySize);
             result.append(tempCache);
 
-            const size_t frequencyOffset = 0x15;
-            size_t frequency = 0;
+            const uint32_t frequencyOffset = 0x15;
+            uint32_t frequency = 0;
             memcpy(&frequency, & table[frequencyOffset], 2);
             _stprintf_s(tempCache, _T("%d MHz"), frequency);
             result.append(_T(" ")).append(tempCache);
@@ -294,7 +294,7 @@ void CSystemDetector::ConvertMemoryManufactuer( const TString& inCode, TString& 
     }    
 }
 
-void CSystemDetector::ConvertMemoryType( const size_t type, TString& outResult )
+void CSystemDetector::ConvertMemoryType( const uint32_t type, TString& outResult )
 {
     switch (type)
     {
@@ -378,7 +378,7 @@ bool CSystemDetector::GetHardDiskInfo( TString& result )
     _stprintf_s(tempCache, _T(" ÈÝÁ¿: %s GB"), tempData.substr(0, tempData.length() - 9).c_str());//hard code to convert to GB
     result.append(tempCache);
     BYTE buffer[1024];
-    size_t length = 0;
+    uint32_t length = 0;
     CWmiDetector::GetInstance()->GetHDDSMARTData(buffer, length);
     if (length > 0)
     {
@@ -386,11 +386,11 @@ bool CSystemDetector::GetHardDiskInfo( TString& result )
         WORD smartVersion = 0;
         serializer >> smartVersion;
         SSMARTAttribute attribute;
-        static const size_t MAX_ATTR_COUNT = 30;
-        size_t useCount = 0;
-        size_t useHours = 0;
-        size_t temperature = 0;
-        for (size_t i = 0; i < MAX_ATTR_COUNT; ++i)
+        static const uint32_t MAX_ATTR_COUNT = 30;
+        uint32_t useCount = 0;
+        uint32_t useHours = 0;
+        uint32_t temperature = 0;
+        for (uint32_t i = 0; i < MAX_ATTR_COUNT; ++i)
         {
             serializer >> attribute;
             if (attribute.m_attrType == eSMART_AT_DEVICE_POWER_CYCLE_COUNT)

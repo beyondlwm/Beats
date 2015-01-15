@@ -7,7 +7,7 @@
 #include "Utility/Math/Matrix4.h"
 #include "Utility/Math/MathPublic.h"
 
-CDependencyDescriptionLine::CDependencyDescriptionLine( CDependencyDescription* pOwner, size_t uIndex, CComponentProxy* pTo )
+CDependencyDescriptionLine::CDependencyDescriptionLine( CDependencyDescription* pOwner, uint32_t uIndex, CComponentProxy* pTo )
 : m_bIsSelected(false)
 , m_uIndex(uIndex)
 , m_pOwner(pOwner)
@@ -15,7 +15,7 @@ CDependencyDescriptionLine::CDependencyDescriptionLine( CDependencyDescription* 
 {
     m_pRect = new SVertex[4];
     m_pArrowRect = new SVertex[4];
-    for (size_t i = 0; i < 4; ++i)
+    for (uint32_t i = 0; i < 4; ++i)
     {
         m_pRect[i].m_color = 0xffffffff;
         m_pRect[i].m_uv.x = i < 2 ? 0.f : 1.f;
@@ -41,7 +41,7 @@ void CDependencyDescriptionLine::UpdateRect(float cellSize, bool bInverseY /*= f
     {
         int iDependencyPosX = 0; 
         int iDependencyPosY = 0;
-        size_t uIndex = m_pOwner->GetIndex();
+        uint32_t uIndex = m_pOwner->GetIndex();
         
         CComponentGraphic* pGraphics = static_cast<CComponentProxy*>(m_pOwner->GetOwner())->GetGraphics();
         BEATS_ASSERT(pGraphics != NULL);
@@ -204,12 +204,12 @@ void CDependencyDescriptionLine::SetSelected(bool bFlag)
     m_bIsSelected = bFlag;
 }
 
-size_t CDependencyDescriptionLine::GetIndex()
+uint32_t CDependencyDescriptionLine::GetIndex()
 {
     return m_uIndex;
 }
 
-void CDependencyDescriptionLine::SetIndex( size_t uIndex )
+void CDependencyDescriptionLine::SetIndex( uint32_t uIndex )
 {
     m_uIndex = uIndex;
 }

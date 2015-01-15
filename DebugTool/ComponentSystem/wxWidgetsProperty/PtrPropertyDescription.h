@@ -12,9 +12,9 @@ public:
     CPtrPropertyDescription(const CPtrPropertyDescription& rRef);
     virtual ~CPtrPropertyDescription();
 
-    size_t GetPtrGuid();
-    void SetDerivedGuid(size_t uDerivedGuid);
-    size_t GetDerivedGuid() const;
+    uint32_t GetPtrGuid();
+    void SetDerivedGuid(uint32_t uDerivedGuid);
+    uint32_t GetDerivedGuid() const;
     bool CreateInstance(bool bCallInitFunc = true);
 
     //When destroy instance in editor, we need to delete the component, otherwise, user will manage the host component.
@@ -41,11 +41,11 @@ public:
     virtual void Uninitialize() override;
 
 private:
-    void UpdateDisplayString(size_t uComponentGuid);
+    void UpdateDisplayString(uint32_t uComponentGuid);
 
 private:
-    size_t m_uDerivedGuid;
-    size_t m_uComponentGuid;
+    uint32_t m_uDerivedGuid;
+    uint32_t m_uComponentGuid;
     CComponentProxy* m_pInstance;
     // This flag indicate if this property should have instance according to XML data. 
     bool m_bHasInstance;

@@ -136,7 +136,7 @@ void CPlayTrack::RenderSpawnAndTargetPos()
 
     //draw the virtual line.
     Function<void(void)> function = Bind(*this, &CPlayTrack::PreRenderForPos);
-    for (size_t i = eST_Ok; i < eST_Count; ++i)
+    for (uint32_t i = eST_Ok; i < eST_Count; ++i)
     {
         unsigned long color = (0xffffffff<<(i*5));
         CRenderManager::GetInstance()->SendQuadToCache(m_targetPos, m_radius[i] * 2, m_radius[i] * 2, color, &function);
@@ -189,7 +189,7 @@ void CPlayTrack::HandleInput()
                 if (inWaiting)
                 {
                     unsigned long deltaTime = GetTickCount() - beatWaitingTime;
-                    for (size_t i = eST_Count - 1; i > 0; --i)
+                    for (uint32_t i = eST_Count - 1; i > 0; --i)
                     {
                         if (deltaTime < m_waitingTime[i])
                         {
@@ -210,7 +210,7 @@ void CPlayTrack::HandleInput()
                 }
                 else
                 {
-                    for (size_t i = eST_Count - 1; i > 0; --i)
+                    for (uint32_t i = eST_Count - 1; i > 0; --i)
                     {
                         if (distance <= m_radius[i])
                         {
@@ -244,7 +244,7 @@ void CPlayTrack::ResetComboCounter()
 
 void CPlayTrack::InitScore()
 {
-    for (size_t i = 0; i < eST_Count; ++i)
+    for (uint32_t i = 0; i < eST_Count; ++i)
     {
         m_scores.push_back(0);
         m_waitingTime.push_back(0);

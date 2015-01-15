@@ -36,7 +36,7 @@ bool CStringPropertyDescription::AnalyseUIParameterImpl(const std::vector<TStrin
         m_spaceFilter.push_back(_T(" "));
     }
     std::vector<TString> cache;
-    for (size_t i = 0; i < result.size(); ++i)
+    for (uint32_t i = 0; i < result.size(); ++i)
     {
         cache.clear();
         CStringHelper::GetInstance()->SplitString(result[i].c_str(), PROPERTY_KEYWORD_SPLIT_STR, cache, false);

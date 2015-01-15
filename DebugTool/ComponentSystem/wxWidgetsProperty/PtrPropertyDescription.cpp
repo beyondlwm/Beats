@@ -44,7 +44,7 @@ CPtrPropertyDescription::~CPtrPropertyDescription()
 
 bool CPtrPropertyDescription::AnalyseUIParameterImpl( const std::vector<TString>& paramUnit)
 {
-    for (size_t i = 0; i < paramUnit.size(); ++i)
+    for (uint32_t i = 0; i < paramUnit.size(); ++i)
     {
         TString parameter = paramUnit[i];
         std::vector<TString> result;
@@ -92,17 +92,17 @@ bool CPtrPropertyDescription::CopyValue(void* pSourceValue, void* pTargetValue)
     return bRet;
 }
 
-size_t CPtrPropertyDescription::GetPtrGuid()
+uint32_t CPtrPropertyDescription::GetPtrGuid()
 {
     return m_uComponentGuid;
 }
 
-void CPtrPropertyDescription::SetDerivedGuid(size_t uDerivedGuid)
+void CPtrPropertyDescription::SetDerivedGuid(uint32_t uDerivedGuid)
 {
     m_uDerivedGuid = uDerivedGuid;
 }
 
-size_t CPtrPropertyDescription::GetDerivedGuid() const
+uint32_t CPtrPropertyDescription::GetDerivedGuid() const
 {
     return m_uDerivedGuid;
 }
@@ -117,11 +117,11 @@ bool CPtrPropertyDescription::CreateInstance(bool bCallInitFunc/* = true*/)
     bool bRet = false;
     if ( m_pInstance == NULL)
     {
-        size_t uInstanceGuid = m_uDerivedGuid == 0 ? m_uComponentGuid : m_uDerivedGuid;
+        uint32_t uInstanceGuid = m_uDerivedGuid == 0 ? m_uComponentGuid : m_uDerivedGuid;
         m_pInstance = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->CreateComponent(uInstanceGuid, false, true, 0xFFFFFFFF, true, NULL, bCallInitFunc));
         const std::vector<CPropertyDescriptionBase*>* propertyPool = m_pInstance->GetPropertyPool();
         m_bHasInstance = m_pInstance != NULL;
-        for (size_t i = 0; i < propertyPool->size(); ++i)
+        for (uint32_t i = 0; i < propertyPool->size(); ++i)
         {
             AddChild((*propertyPool)[i]);
         }
@@ -185,7 +185,7 @@ void CPtrPropertyDescription::LoadFromXML( TiXmlElement* pNode )
         TCHAR* pEndChar = NULL;
         int nRadix = 16;
         _set_errno(0);
-        size_t uDerivedValue = _tcstoul(pszValueString, &pEndChar, nRadix);
+        uint32_t uDerivedValue = _tcstoul(pszValueString, &pEndChar, nRadix);
         BEATS_ASSERT(_tcslen(pEndChar) == 0, _T("Read uint from string %s error, stop at %s"), pszValueString, pEndChar);
         BEATS_ASSERT(errno == 0, _T("Call _tcstoul failed! string %s radix: %d"), pszValueString, nRadix);
         if (uDerivedValue != m_uComponentGuid)
@@ -221,7 +221,7 @@ CPropertyDescriptionBase* CPtrPropertyDescription::Clone(bool bCloneValue)
     if (m_pInstance != NULL && bCloneValue)
     {
         pNewProperty->m_pInstance = static_cast<CComponentProxy*>(m_pInstance->Clone(true, NULL, 0xFFFFFFFF));
-        for (size_t i = 0; i < m_pInstance->GetPropertyPool()->size(); ++i)
+        for (uint32_t i = 0; i < m_pInstance->GetPropertyPool()->size(); ++i)
         {
             CPropertyDescriptionBase* pProperty = (*m_pInstance->GetPropertyPool())[i];
             pNewProperty->AddChild(pProperty->Clone(true));
@@ -296,13 +296,13 @@ void CPtrPropertyDescription::Uninitialize()
     }
 }
 
-void CPtrPropertyDescription::UpdateDisplayString(size_t uComponentGuid)
+void CPtrPropertyDescription::UpdateDisplayString(uint32_t uComponentGuid)
 {
     TString strComponentName = CComponentProxyManager::GetInstance()->QueryComponentName(uComponentGuid);
     BEATS_ASSERT(strComponentName.length() > 0, _T("Can't Find the component name of GUID: 0x%x"), uComponentGuid);
     wxString value = wxString::Format(_T("%s%s%s0x%x"), m_bHasInstance ? _T("+") : _T(""), strComponentName.c_str(), POINTER_SPLIT_SYMBOL, uComponentGuid);
     TString valueStr(value);
-    for (size_t i = eVT_DefaultValue; i < eVT_Count; ++i)
+    for (uint32_t i = eVT_DefaultValue; i < eVT_Count; ++i)
     {
         SetValueWithType(&valueStr, (EValueType)i);
     }

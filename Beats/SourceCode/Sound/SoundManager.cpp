@@ -104,7 +104,7 @@ void CSoundManager::StopSound(const unsigned long id, bool recycle)
 CDSoundObject* CSoundManager::CreateSoundObject(const TString& file)
 {
     CDSoundObject* result = NULL;
-    size_t pos = file.rfind('.');
+    uint32_t pos = file.rfind('.');
     if (pos != TString::npos)
     {
         TString suffix = file.substr(pos+1);    

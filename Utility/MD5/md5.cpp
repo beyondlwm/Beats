@@ -73,7 +73,7 @@ CMD5::CMD5()
 }
 
 /* Construct a MD5 object with a input buffer. */
-CMD5::CMD5(const void *input, size_t length) 
+CMD5::CMD5(const void *input, uint32_t length) 
 {
     Reset();
     Update(input, length);
@@ -141,7 +141,7 @@ bool CMD5::operator < (const CMD5& rRef)
 }
 
 /* Updating the context with a input buffer. */
-void CMD5::Update(const void *input, size_t length) 
+void CMD5::Update(const void *input, uint32_t length) 
 {
     Update((const BYTE*)input, length);
 }
@@ -169,7 +169,7 @@ void CMD5::Update(std::ifstream &in)
             in.read(buffer, BUFFER_SIZE);
             length = in.gcount();
             if (length > 0)
-                Update(buffer, (size_t)length);
+                Update(buffer, (uint32_t)length);
         }
         BEATS_SAFE_DELETE_ARRAY(buffer);
     }
@@ -188,7 +188,7 @@ void CMD5::Update(FILE* in)
         char* buffer = new char[BUFFER_SIZE];
         while (counter < uFileSize)
         {
-            size_t readCount = fread(buffer, 1, BUFFER_SIZE, in);
+            uint32_t readCount = fread(buffer, 1, BUFFER_SIZE, in);
             BEATS_ASSERT(readCount > 0);
             Update(buffer, readCount);
             counter += readCount;
@@ -201,18 +201,18 @@ void CMD5::Update(FILE* in)
 operation, processing another message block, and updating the
 context.
 */
-void CMD5::Update(const BYTE *input, size_t length) 
+void CMD5::Update(const BYTE *input, uint32_t length) 
 {
     m_bDigested = false;
-    size_t i, index, partLen;
+    uint32_t i, index, partLen;
 
     /* Compute number of bytes mod 64 */
-    index = (size_t)((m_bitsCount[0] >> 3) & 0x3f);
+    index = (uint32_t)((m_bitsCount[0] >> 3) & 0x3f);
 
     /* update number of bits */
-    if((m_bitsCount[0] += ((size_t)length << 3)) < ((size_t)length << 3))
+    if((m_bitsCount[0] += ((uint32_t)length << 3)) < ((uint32_t)length << 3))
         m_bitsCount[1]++;
-    m_bitsCount[1] += ((size_t)length >> 29);
+    m_bitsCount[1] += ((uint32_t)length >> 29);
 
     partLen = 64 - index;
 
@@ -242,9 +242,9 @@ the message _digest and zeroizing the context.
 void CMD5::Digest() 
 {
     BYTE bits[8];
-    size_t oldState[4];
-    size_t oldCount[2];
-    size_t index, padLen;
+    uint32_t oldState[4];
+    uint32_t oldCount[2];
+    uint32_t index, padLen;
 
     /* Save current state and count. */
     memcpy(oldState, m_magicNumber, 16);
@@ -254,7 +254,7 @@ void CMD5::Digest()
     Encode(m_bitsCount, bits, 8);
 
     /* Pad out to 56 mod 64. */
-    index = (size_t)((m_bitsCount[0] >> 3) & 0x3f);
+    index = (uint32_t)((m_bitsCount[0] >> 3) & 0x3f);
     padLen = (index < 56) ? (56 - index) : (120 - index);
     Update(PADDING, padLen);
 
@@ -273,7 +273,7 @@ void CMD5::Digest()
 /* MD5 basic transformation. Transforms _state based on block. */
 void CMD5::Transform(const BYTE block[64]) 
 {
-    size_t a = m_magicNumber[0], b = m_magicNumber[1], c = m_magicNumber[2], d = m_magicNumber[3], x[16];
+    uint32_t a = m_magicNumber[0], b = m_magicNumber[1], c = m_magicNumber[2], d = m_magicNumber[3], x[16];
 
     Decode(block, x, 64);
 
@@ -355,12 +355,12 @@ void CMD5::Transform(const BYTE block[64])
     m_magicNumber[3] += d;
 }
 
-/* Encodes input (size_t) into output (BYTE). Assumes length is
+/* Encodes input (uint32_t) into output (BYTE). Assumes length is
 a multiple of 4.
 */
-void CMD5::Encode(const size_t *input, BYTE *output, size_t length) 
+void CMD5::Encode(const uint32_t *input, BYTE *output, uint32_t length) 
 {
-    for(size_t i=0, j=0; j<length; i++, j+=4) 
+    for(uint32_t i=0, j=0; j<length; i++, j+=4) 
     {
         output[j]= (BYTE)(input[i] & 0xff);
         output[j+1] = (BYTE)((input[i] >> 8) & 0xff);
@@ -369,24 +369,24 @@ void CMD5::Encode(const size_t *input, BYTE *output, size_t length)
     }
 }
 
-/* Decodes input (BYTE) into output (size_t). Assumes length is
+/* Decodes input (BYTE) into output (uint32_t). Assumes length is
 a multiple of 4.
 */
-void CMD5::Decode(const BYTE *input, size_t *output, size_t length) 
+void CMD5::Decode(const BYTE *input, uint32_t *output, uint32_t length) 
 {
-    for(size_t i=0, j=0; j<length; i++, j+=4)
+    for(uint32_t i=0, j=0; j<length; i++, j+=4)
     {    
-        output[i] = ((size_t)input[j]) | (((size_t)input[j+1]) << 8) |
-            (((size_t)input[j+2]) << 16) | (((size_t)input[j+3]) << 24);
+        output[i] = ((uint32_t)input[j]) | (((uint32_t)input[j+1]) << 8) |
+            (((uint32_t)input[j+2]) << 16) | (((uint32_t)input[j+3]) << 24);
     }
 }
 
 /* Convert BYTE array to hex string. */
-std::string CMD5::BytesToHexString(const BYTE *input, size_t length)
+std::string CMD5::BytesToHexString(const BYTE *input, uint32_t length)
 {
     std::string str;
     str.reserve(length << 1);
-    for(size_t i = 0; i < length; i++) 
+    for(uint32_t i = 0; i < length; i++) 
     {
         int t = input[i];
         int a = t / 16;

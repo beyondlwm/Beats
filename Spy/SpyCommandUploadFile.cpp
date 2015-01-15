@@ -55,7 +55,7 @@ void CSpyCommandUploadFile::Deserialize( CSerializer& serializer )
     super::Deserialize(serializer);
 
     serializer << m_uploadFileNames.size();
-    for (size_t i = 0; i < m_uploadFileNames.size(); ++i)
+    for (uint32_t i = 0; i < m_uploadFileNames.size(); ++i)
     {
         bool bParamValid = m_uploadFileNames[i].length() > 0 && m_storePath.length() > 0 && CFilePathTool::GetInstance()->Exists(m_uploadFileNames[i].c_str());
         BEATS_ASSERT(bParamValid, _T("Upload file %s failed!"));
@@ -76,10 +76,10 @@ void CSpyCommandUploadFile::Deserialize( CSerializer& serializer )
 void CSpyCommandUploadFile::Serialize( CSerializer& serializer )
 {
     super::Serialize(serializer);
-    size_t uFileCount = 0;
+    uint32_t uFileCount = 0;
     serializer >> uFileCount;
     m_uploadFileNames.resize(uFileCount);
-    for (size_t i = 0; i < uFileCount; ++i)
+    for (uint32_t i = 0; i < uFileCount; ++i)
     {
         bool bParamValid = false;
         serializer >> bParamValid;

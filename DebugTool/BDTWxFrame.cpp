@@ -55,7 +55,7 @@ void CBDTWxFrame::OnClickExit( wxCommandEvent& /*event*/ )
 
 void CBDTWxFrame::OnNoteBookChanged( wxBookCtrlEvent& event )
 {
-    size_t pageType = event.GetSelection();
+    uint32_t pageType = event.GetSelection();
     if (pageType == eBDTFT_MemoryDetect)
     {
         m_bMemoryUINeedUpdate = true;
@@ -76,14 +76,14 @@ void CBDTWxFrame::Exit(bool bRemind)
     }
 }
 
-size_t CBDTWxFrame::GetMemoryViewType()
+uint32_t CBDTWxFrame::GetMemoryViewType()
 {
     // Don't try to call m_pMemoryViewChoice->GetSelection(), because it is an async method.
     // if we do so, we may get dead lock for critical section.
     return m_memoryViewType;
 }
 
-void CBDTWxFrame::SetGridRowsCount( wxGrid* gird, size_t count )
+void CBDTWxFrame::SetGridRowsCount( wxGrid* gird, uint32_t count )
 {
     int rowDelta = gird->GetRows() - count;
     if (rowDelta > 0)
@@ -101,7 +101,7 @@ bool CBDTWxFrame::IsAutoUpdateMemory()
     return m_pAutoUpdateMemoryCheckBox->IsChecked();
 }
 
-void CBDTWxFrame::Init(size_t funcSwitcher)
+void CBDTWxFrame::Init(uint32_t funcSwitcher)
 {
     SetSizeHints( wxDefaultSize, wxDefaultSize );
 
@@ -219,7 +219,7 @@ bool CBDTWxFrame::IsMemoryUIChanged()
     return m_bMemoryUINeedUpdate || IsMemoryGridNeedUpdateByScroll();
 }
 
-bool CBDTWxFrame::IsMemoryRecordChanged( size_t recordCount, size_t latestRecordTime )
+bool CBDTWxFrame::IsMemoryRecordChanged( uint32_t recordCount, uint32_t latestRecordTime )
 {
     bool bNewRecordAddIn = latestRecordTime > m_latestRecordTimeForUI;
     bool bOldRecordDeleted = (recordCount != m_memoryRecordCountForUI) && !bNewRecordAddIn;

@@ -24,7 +24,7 @@ CSpyManager::CSpyManager()
 
 CSpyManager::~CSpyManager()
 {
-    for (size_t i = 0; i < m_spyHookList.size(); ++i)
+    for (uint32_t i = 0; i < m_spyHookList.size(); ++i)
     {
         BEATS_SAFE_DELETE(m_spyHookList[i]);
     }
@@ -85,7 +85,7 @@ SharePtr<SSocketContext> CSpyManager::ConnectToSpy( SOCKET sock, sockaddr_in* pA
 void CSpyManager::RegisterHook(CSpyHookBase* pHook)
 {
     bool bFound = false;
-    for (size_t i = 0; i < m_spyHookList.size(); ++i)
+    for (uint32_t i = 0; i < m_spyHookList.size(); ++i)
     {
         if (m_spyHookList[i] == pHook)
         {
@@ -103,7 +103,7 @@ void CSpyManager::RegisterHook(CSpyHookBase* pHook)
 void CSpyManager::UnRegisterHook(CSpyHookBase* pHook)
 {
     bool bFound = false;
-    for (size_t i = 0; i < m_spyHookList.size(); ++i)
+    for (uint32_t i = 0; i < m_spyHookList.size(); ++i)
     {
         if (m_spyHookList[i] == pHook)
         {
@@ -119,7 +119,7 @@ void CSpyManager::UnRegisterHook(CSpyHookBase* pHook)
 SharePtr<SSocketContext> CSpyManager::GetSocket(SOCKET sock)
 {
     SharePtr<SSocketContext> ret;
-    for (size_t i = 0; i < m_socketContainer.size(); ++i)
+    for (uint32_t i = 0; i < m_socketContainer.size(); ++i)
     {
         if (m_socketContainer[i]->m_socket == sock)
         {
@@ -164,7 +164,7 @@ bool CSpyManager::InitializeNetwork()
                     InitializeCriticalSection(&m_socketContextSection);
                     FD_SET(m_listenSocket, &m_readSet);
                     m_iMaxFD = m_listenSocket;
-                    size_t uLoopThreadId, uRecvThreadId, uSendThreadId;
+                    uint32_t uLoopThreadId, uRecvThreadId, uSendThreadId;
                     m_hLoopThread = (HANDLE)(_beginthreadex(NULL, 0, (unsigned (__stdcall*)(void*))LoopThreadFunc, (void*)this, 0, &uLoopThreadId));
                     m_hRecvThread = (HANDLE)(_beginthreadex(NULL, 0, (unsigned (__stdcall*)(void*))NetworkReceiveThreadFunc, (void*)this, 0, &uRecvThreadId));
                     m_hSendThread = (HANDLE)(_beginthreadex(NULL, 0, (unsigned (__stdcall*)(void*))NetworkSendThreadFunc, (void*)this, 0, &uSendThreadId));
@@ -190,7 +190,7 @@ void CSpyManager::RegisterSocket(SharePtr<SSocketContext>& pNewSocket)
     EnterCriticalSection(&m_socketContextSection);
     m_socketContainer.push_back(pNewSocket);
     FD_SET(pNewSocket->m_socket, &m_readSet);
-    if (pNewSocket->m_socket > (size_t)m_iMaxFD)
+    if (pNewSocket->m_socket > (uint32_t)m_iMaxFD)
     {
         m_iMaxFD = (int)pNewSocket->m_socket;
     }
@@ -200,7 +200,7 @@ void CSpyManager::RegisterSocket(SharePtr<SSocketContext>& pNewSocket)
 void CSpyManager::UnregisterSocket(SharePtr<SSocketContext>& pSocketContext)
 {
     EnterCriticalSection(&m_socketContextSection);
-    for(size_t i = 0; i < m_socketContainer.size(); ++i)
+    for(uint32_t i = 0; i < m_socketContainer.size(); ++i)
     {
         if(m_socketContainer[i] == pSocketContext)
         {
@@ -208,7 +208,7 @@ void CSpyManager::UnregisterSocket(SharePtr<SSocketContext>& pSocketContext)
             if ((int)pSocketContext->m_socket == m_iMaxFD)
             {
                 m_iMaxFD = -1;
-                for (size_t i = 0; i < m_readSet.fd_count; ++i)
+                for (uint32_t i = 0; i < m_readSet.fd_count; ++i)
                 {
                     if ((int)m_readSet.fd_array[i] > m_iMaxFD)
                     {
@@ -226,7 +226,7 @@ void CSpyManager::UnregisterSocket(SharePtr<SSocketContext>& pSocketContext)
     LeaveCriticalSection(&m_socketContextSection);
 }
 
-bool CSpyManager::GetSocket(SharePtr<SSocketContext>& pOutSocket, size_t uIndex)
+bool CSpyManager::GetSocket(SharePtr<SSocketContext>& pOutSocket, uint32_t uIndex)
 {
     bool bRet = false;
     EnterCriticalSection(&m_socketContextSection);
@@ -246,16 +246,16 @@ DWORD CSpyManager::LoopThreadFunc(LPVOID param)
     {
         CSpyManager* pSpyManager = static_cast<CSpyManager*>(param);
         SharePtr<SSocketContext> pContext;
-        size_t uIndex = 0;
+        uint32_t uIndex = 0;
         while (pSpyManager->GetSocket(pContext, uIndex++))
         {
             if (pContext->GetBitFlag(eSCFB_CanRead))
             {
                 EnterCriticalSection(&pContext->m_receiveSection);
-                size_t uRestSize = 0;
+                uint32_t uRestSize = 0;
                 while (pContext->GetBitFlag(eSCFB_CanRead))
                 {
-                    size_t uReadPos = pContext->m_pReceiveBuffer->GetReadPos();
+                    uint32_t uReadPos = pContext->m_pReceiveBuffer->GetReadPos();
                     SSpyTCPMessageHeader header;
                     *pContext->m_pReceiveBuffer >> header;
                     switch (header.m_type)
@@ -271,8 +271,8 @@ DWORD CSpyManager::LoopThreadFunc(LPVOID param)
                         }
                         break;
                     }
-                    size_t uCurReadPos = pContext->m_pReceiveBuffer->GetReadPos();
-                    size_t uReadDataSize = uCurReadPos - uReadPos;
+                    uint32_t uCurReadPos = pContext->m_pReceiveBuffer->GetReadPos();
+                    uint32_t uReadDataSize = uCurReadPos - uReadPos;
                     bool bReadMessageValid = header.m_size == uReadDataSize;
                     BEATS_ASSERT(bReadMessageValid, _T("Analysis message failed! type: %d, size: %d read size: %d"), header.m_type, header.m_size, uReadDataSize);
                     if (!bReadMessageValid)
@@ -321,7 +321,7 @@ DWORD CSpyManager::NetworkReceiveThreadFunc(LPVOID param)
             {
                 EnterCriticalSection(&pSpyManager->m_socketContextSection);
                 SharePtr<SSocketContext> pSocketContext;
-                size_t uIndex = 0;
+                uint32_t uIndex = 0;
                 while (iReadyCount > 0 && pSpyManager->GetSocket(pSocketContext, uIndex++))
                 {
                     SOCKET curSocket = pSocketContext->m_socket;
@@ -329,8 +329,8 @@ DWORD CSpyManager::NetworkReceiveThreadFunc(LPVOID param)
                     {
                         EnterCriticalSection(&pSocketContext->m_receiveSection);
                         CSerializer* pReceiveBuffer = pSocketContext->m_pReceiveBuffer;
-                        size_t uCurrentWritePos = pReceiveBuffer->GetWritePos();
-                        size_t uRestSize = pReceiveBuffer->GetBufferSize() - uCurrentWritePos;
+                        uint32_t uCurrentWritePos = pReceiveBuffer->GetWritePos();
+                        uint32_t uRestSize = pReceiveBuffer->GetBufferSize() - uCurrentWritePos;
                         if (uRestSize == 0)
                         {
                             pReceiveBuffer->IncreaseBufferSize();
@@ -341,8 +341,8 @@ DWORD CSpyManager::NetworkReceiveThreadFunc(LPVOID param)
                         {
                             uCurrentWritePos += uRestSize;
                             pReceiveBuffer->SetWritePos(uCurrentWritePos);
-                            size_t uCurrentReadPos = pReceiveBuffer->GetReadPos();
-                            size_t unReadDataSize = uCurrentWritePos - uCurrentReadPos;
+                            uint32_t uCurrentReadPos = pReceiveBuffer->GetReadPos();
+                            uint32_t unReadDataSize = uCurrentWritePos - uCurrentReadPos;
                             if (!pSocketContext->GetBitFlag(eSCFB_CanRead) && unReadDataSize >= sizeof(SSpyTCPMessageHeader))
                             {
                                 SSpyTCPMessageHeader* pHeader = (SSpyTCPMessageHeader*)(pReceiveBuffer->GetReadPtr());
@@ -382,7 +382,7 @@ DWORD CSpyManager::NetworkSendThreadFunc(LPVOID param)
     while (!pSpyManager->m_bExitSendThreadSignal)
     {
         SharePtr<SSocketContext> pSocketContext;
-        size_t uIndex = 0;
+        uint32_t uIndex = 0;
         while (pSpyManager->GetSocket(pSocketContext, uIndex++))
         {
             if(pSocketContext->GetBitFlag(eSCFB_CanSend))
@@ -390,15 +390,15 @@ DWORD CSpyManager::NetworkSendThreadFunc(LPVOID param)
                 EnterCriticalSection(&pSocketContext->m_sendSection);
                 CSerializer* pSendBuffer = pSocketContext->m_pSendBuffer;
                 void* pData = pSendBuffer->GetReadPtr();
-                size_t uReadPos = pSendBuffer->GetReadPos();
-                size_t uWritePos = pSendBuffer->GetWritePos();
-                size_t uDataSize = uWritePos - uReadPos;
+                uint32_t uReadPos = pSendBuffer->GetReadPos();
+                uint32_t uWritePos = pSendBuffer->GetWritePos();
+                uint32_t uDataSize = uWritePos - uReadPos;
                 BEATS_ASSERT(uDataSize > 0);
                 if (Beats_Send(pSocketContext->m_socket, pData, uDataSize) && uDataSize > 0)
                 {
-                    size_t uNewReadPos = uReadPos + uDataSize;
+                    uint32_t uNewReadPos = uReadPos + uDataSize;
                     pSendBuffer->SetReadPos(uNewReadPos);
-                    size_t uRestDataSize = uWritePos - uNewReadPos;
+                    uint32_t uRestDataSize = uWritePos - uNewReadPos;
                     pSocketContext->SetBitFlag(eSCFB_CanSend, uRestDataSize > 0);
                     // Arrange memory when the send buffer is going to be used out.
                     if (pSendBuffer->GetBufferSize() - uWritePos < 256)

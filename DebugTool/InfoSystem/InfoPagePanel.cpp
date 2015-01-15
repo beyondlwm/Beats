@@ -165,7 +165,7 @@ CInfoPagePanel::CInfoPagePanel( wxWindow *parent,
     m_pApplyToLogCheckBox->Disconnect(wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler(CInfoPagePanel::OnApplyFilterChanged), NULL, this);
 }
 
-void CInfoPagePanel::AppendLogText( const TCHAR* pLog, size_t logPos, const wxTextAttr* pTextAttr )
+void CInfoPagePanel::AppendLogText( const TCHAR* pLog, uint32_t logPos, const wxTextAttr* pTextAttr )
 {
     BEATS_ASSERT(pLog != NULL);
     m_pLogListboxCtrl->AddLog(pLog, logPos, pTextAttr);
@@ -178,7 +178,7 @@ void CInfoPagePanel::AppendLogText( const TCHAR* pLog, size_t logPos, const wxTe
 // TODO: Here is really a big trouble, Should try to refactor here for a better solution. the problem is:
 // When we want to communicate with the main program, we don't know how to send data to it or receive data from it in a automatical way.
 // so I use the simplest way: mark the type, convert data by the type, then operate.
-void CInfoPagePanel::UpdateProperty( const TCHAR* propertyIdStr, size_t propertyId, void* value, EReflectPropertyType type )
+void CInfoPagePanel::UpdateProperty( const TCHAR* propertyIdStr, uint32_t propertyId, void* value, EReflectPropertyType type )
 {
     EnterCriticalSection(&m_propertyRequestSection);
     SPropertyRequest request;
@@ -284,7 +284,7 @@ bool CInfoPagePanel::ShouldHideProperty( wxPGProperty* property, const wxArraySt
     }
     if (!bShouldHide)
     {
-        for (size_t i = 0; i < filters.size(); ++i)
+        for (uint32_t i = 0; i < filters.size(); ++i)
         {
             hideByFilterOrSearch = property->GetLabel().Find(filters[i]) != -1;
             if (hideByFilterOrSearch)
@@ -319,7 +319,7 @@ void CInfoPagePanel::OnPropertyChanged( wxPropertyGridEvent& event )
     {
         wxString pStr = pProperty->GetValueAsString();
         wxNotebookBase* pNoteBookBase = (wxNotebookBase*)GetParent();
-        size_t* pClientData = (size_t*)pProperty->GetClientData();
+        uint32_t* pClientData = (uint32_t*)pProperty->GetClientData();
         pFuncHandler((EReflectPropertyType)pClientData[0], pClientData[1], pNoteBookBase->GetPageText(pNoteBookBase->GetSelection()), (void*)pStr.ToStdWstring().c_str());
     }
 }
@@ -327,7 +327,7 @@ void CInfoPagePanel::OnPropertyChanged( wxPropertyGridEvent& event )
 void CInfoPagePanel::OnPropertyGridIdle(wxCommandEvent& /*event*/)
 {
     EnterCriticalSection(&m_propertyRequestSection);
-    for (size_t i = 0; i < m_request.size(); ++i)
+    for (uint32_t i = 0; i < m_request.size(); ++i)
     {
         wxPGProperty* pExistingProperty = m_pPropertyGridManager->GetGrid()->GetProperty(m_request[i].m_idStr);
         if (pExistingProperty != NULL)
@@ -368,7 +368,7 @@ void CInfoPagePanel::OnPropertyGridIdle(wxCommandEvent& /*event*/)
             m_pPropertyGridManager->GetGrid()->Append(pProperty);
             wxArrayString filters;
             m_pFilterList->GetStrings(filters);
-            size_t* pClientData = new size_t[2];
+            uint32_t* pClientData = new uint32_t[2];
             pClientData[0] = m_request[i].m_type;
             pClientData[1] = m_request[i].m_id;
             pProperty->SetClientData(pClientData);
@@ -383,7 +383,7 @@ void CInfoPagePanel::OnPropertyGridIdle(wxCommandEvent& /*event*/)
     }
     m_request.clear();
 
-    for (size_t i = 0; i < m_deleteRequest.size(); ++i)
+    for (uint32_t i = 0; i < m_deleteRequest.size(); ++i)
     {
         wxPropertyGrid* pGrid = m_pPropertyGridManager->GetGrid();
         wxPGProperty* pProperty = pGrid->GetProperty(m_deleteRequest[i]);
@@ -443,7 +443,7 @@ void CInfoPagePanel::UpdateLogVisibility(const wxArrayString& filters)
         if (m_pReverseFilterCheckBox->IsChecked())
         {
             std::vector<SFilterCondition*> filterVec;
-            for (size_t i = 0; i < filters.size(); ++i)
+            for (uint32_t i = 0; i < filters.size(); ++i)
             {
                 SFilterCondition* condition = new SFilterCondition;
                 condition->SetType(eLFT_Str);
@@ -455,7 +455,7 @@ void CInfoPagePanel::UpdateLogVisibility(const wxArrayString& filters)
         }
         else
         {
-            for (size_t i = 0; i < filters.size(); ++i)
+            for (uint32_t i = 0; i < filters.size(); ++i)
             {
                 SFilterCondition* condition = new SFilterCondition;
                 condition->SetType(eLFT_Str);
@@ -505,7 +505,7 @@ void CInfoPagePanel::OnReverseFilterClicked( wxCommandEvent& event )
 void CInfoPagePanel::AddSearchCondition()
 {
     SFilterCondition* pLogSearchCondition = new SFilterCondition;
-    for (size_t i = 0; i < eLFT_Count; ++i)
+    for (uint32_t i = 0; i < eLFT_Count; ++i)
     {
         if (m_pLogSearchCtrl->GetMenu()->GetMenuItems()[i]->IsChecked())
         {

@@ -18,7 +18,7 @@ CFilePathTool::~CFilePathTool()
 
 }
 
-bool CFilePathTool::LoadFile(CSerializer* pSerializer, const TCHAR* pszFilePath, const TCHAR* pszMode, size_t uStartPos/* = 0*/, size_t uDataLength/* = 0*/)
+bool CFilePathTool::LoadFile(CSerializer* pSerializer, const TCHAR* pszFilePath, const TCHAR* pszMode, uint32_t uStartPos/* = 0*/, uint32_t uDataLength/* = 0*/)
 {
     BEATS_ASSERT(pSerializer != NULL, _T("Serializer can't be null!"));
     BEATS_ASSERT(pszFilePath != NULL, _T("File path is NULL!"));

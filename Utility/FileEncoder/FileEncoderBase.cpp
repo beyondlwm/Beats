@@ -5,7 +5,7 @@
 #include "MD5/md5.h"
 #include <sys/stat.h>
 
-static const size_t Read_Buffer_Size = 1024 * 1024 * 10; // 10M
+static const uint32_t Read_Buffer_Size = 1024 * 1024 * 10; // 10M
 
 CFileEncoderBase::CFileEncoderBase()
 {
@@ -129,7 +129,7 @@ bool CFileEncoderBase::Decode(const TCHAR* pszSourceFilePath, long long uStartPo
     return bRet;
 }
 
-bool CFileEncoderBase::Decode(CSerializer* pSourceSerializer, size_t uStartPos, CSerializer* pDecodeSerializer)
+bool CFileEncoderBase::Decode(CSerializer* pSourceSerializer, uint32_t uStartPos, CSerializer* pDecodeSerializer)
 {
     bool bRet = false;
     bool bSeralizerValid = pSourceSerializer != NULL && pDecodeSerializer != NULL && pSourceSerializer != pDecodeSerializer;
@@ -148,14 +148,14 @@ bool CFileEncoderBase::Decode(CSerializer* pSourceSerializer, size_t uStartPos, 
     return bRet;
 }
 
-bool CFileEncoderBase::ReadEncodeHeader(CSerializer* pEncodeSerializer, size_t uStartPos)
+bool CFileEncoderBase::ReadEncodeHeader(CSerializer* pEncodeSerializer, uint32_t uStartPos)
 {
     bool bRet = false;
     BEATS_ASSERT(pEncodeSerializer != NULL);
     // 1. Read basic info of header
     pEncodeSerializer->SetReadPos(uStartPos);
     SEncodeHeader* pHeader = GetEncodeHeader();
-    size_t uReadCount = pEncodeSerializer->Deserialize(pHeader, sizeof(SEncodeHeader));
+    uint32_t uReadCount = pEncodeSerializer->Deserialize(pHeader, sizeof(SEncodeHeader));
     bool bReadHeaderSuccess = uReadCount == sizeof(SEncodeHeader);
     BEATS_ASSERT(bReadHeaderSuccess, _T("Read encode file header failed!"));
     if (bReadHeaderSuccess)
@@ -164,14 +164,14 @@ bool CFileEncoderBase::ReadEncodeHeader(CSerializer* pEncodeSerializer, size_t u
         BEATS_ASSERT(bExamType, _T("Analyse failed, this file is encoded by type %d, current is %d"), pHeader->m_type, GetType());
         if (bExamType)
         {
-            size_t uEncodeFileSize = pEncodeSerializer->GetWritePos();
+            uint32_t uEncodeFileSize = pEncodeSerializer->GetWritePos();
             bool bExamEncodeDataSize = (uEncodeFileSize - uStartPos) >= pHeader->m_uEncodeDataSize;
             BEATS_ASSERT(bExamEncodeDataSize, _T("Analyse failed, this file's size is too short!"));
             if (bExamEncodeDataSize)
             {
                 // 2. Reload the header according to the basic info.
                 pEncodeSerializer->SetReadPos(uStartPos);
-                size_t uRealHeaderSize = pHeader->m_uHeaderSize;
+                uint32_t uRealHeaderSize = pHeader->m_uHeaderSize;
                 bRet = pEncodeSerializer->Deserialize(pHeader, uRealHeaderSize) == uRealHeaderSize;
             }
         }
@@ -235,13 +235,13 @@ bool CFileEncoderBase::UnitTest()
     if (pSourceFile != NULL)
     {
         srand(GetTickCount());
-        size_t* pBuffer = new size_t[Read_Buffer_Size];
-        for (size_t i = 0; i < Read_Buffer_Size; i ++)
+        uint32_t* pBuffer = new uint32_t[Read_Buffer_Size];
+        for (uint32_t i = 0; i < Read_Buffer_Size; i ++)
         {
             pBuffer[i] = rand();
         }
-        sourceMd5.Update(pBuffer, sizeof(size_t) * Read_Buffer_Size);
-        bRet = CUtilityManager::GetInstance()->WriteDataToFile(pSourceFile, pBuffer, Read_Buffer_Size * sizeof(size_t));
+        sourceMd5.Update(pBuffer, sizeof(uint32_t) * Read_Buffer_Size);
+        bRet = CUtilityManager::GetInstance()->WriteDataToFile(pSourceFile, pBuffer, Read_Buffer_Size * sizeof(uint32_t));
         BEATS_ASSERT(bRet, _T("Write data to file %s failed! Create source file failed in CBytesOrderEncoder::UnitTest"), pszSourceFileName);
         BEATS_SAFE_DELETE_ARRAY(pBuffer);
         fclose(pSourceFile);

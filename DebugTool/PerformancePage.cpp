@@ -31,10 +31,10 @@ struct SPerformGraphicRecord
         memDC.SelectObject(*m_pPerformBitmap);
         memDC.SetPen(wxPen("black",1));
         memDC.SetBrush( *wxBLACK_BRUSH );
-        static const size_t EraseRectFactor = 3;
+        static const uint32_t EraseRectFactor = 3;
         memDC.DrawRectangle(wxRect(0, 0, PERFORM_BITMAP_WIDTH, PERFORM_BITMAP_HIGHT));
     }
-    size_t m_lastUpdateSamplingCount;
+    uint32_t m_lastUpdateSamplingCount;
     wxBitmap* m_pPerformBitmap;
     wxPoint m_lastResultPoint;
     wxPoint m_lastAveragePoint;
@@ -43,7 +43,7 @@ struct SPerformGraphicRecord
 class CPerformResultTreeItemData : public wxTreeItemData
 {
 public:
-    CPerformResultTreeItemData(const size_t id, wxSize bitmapSize)
+    CPerformResultTreeItemData(const uint32_t id, wxSize bitmapSize)
         : m_recordId(id)
     {
         m_pGraphicRecord = new SPerformGraphicRecord(bitmapSize);
@@ -52,12 +52,12 @@ public:
     {
         BEATS_SAFE_DELETE(m_pGraphicRecord);
     }
-    size_t GetRecordId(){return m_recordId;}
-    void SetRecordId(const size_t& id){m_recordId = id;}
+    uint32_t GetRecordId(){return m_recordId;}
+    void SetRecordId(const uint32_t& id){m_recordId = id;}
     SPerformGraphicRecord* GetGraphicRecord() {return m_pGraphicRecord;}
 
 private:
-    size_t m_recordId;
+    uint32_t m_recordId;
     SPerformGraphicRecord* m_pGraphicRecord;
 };
 
@@ -319,17 +319,17 @@ void CBDTWxFrame::UpdatePerformData()
     bool dataExists = static_cast<CBDTWxApp*>(wxApp::GetInstance())->GetFirstResult(output);
     if (dataExists)
     {
-        const size_t AppUpdateIndex = static_cast<CBDTWxApp*>(wxApp::GetInstance())->GetPerformUpdateCount();
+        const uint32_t AppUpdateIndex = static_cast<CBDTWxApp*>(wxApp::GetInstance())->GetPerformUpdateCount();
         bool shouldUpdate = AppUpdateIndex % m_samplingFrequency == 0;
         if (shouldUpdate)
         {
             ++m_curSamplingCount;
         }
 
-        for (size_t i = 0; i < output.size(); ++i)
+        for (uint32_t i = 0; i < output.size(); ++i)
         {
             SPerformanceResult* pCurResult = output[i];
-            std::map<size_t, wxTreeItemId>::iterator iter =m_performTreeItemMap.find(pCurResult->id);
+            std::map<uint32_t, wxTreeItemId>::iterator iter =m_performTreeItemMap.find(pCurResult->id);
             if (iter == m_performTreeItemMap.end())//that's a new node!
             {
                 AddPerformNode(CPerformDetector::GetInstance()->GetRecord(pCurResult->id));
@@ -353,14 +353,14 @@ void CBDTWxFrame::AddPerformNode( const SPerformanceRecord* pRecordToAdd )
 {
     BEATS_ASSERT(m_performTreeItemMap.find(pRecordToAdd->id) == m_performTreeItemMap.end(), _T("Can't add perform record twice for id : %d"), pRecordToAdd->id);
     SPerformanceRecord* validParentInTree = pRecordToAdd->pParent;
-    size_t validParentId = validParentInTree == NULL ? 0 : validParentInTree->id;
-    std::map<size_t, wxTreeItemId>::iterator iter = m_performTreeItemMap.find(validParentId);
+    uint32_t validParentId = validParentInTree == NULL ? 0 : validParentInTree->id;
+    std::map<uint32_t, wxTreeItemId>::iterator iter = m_performTreeItemMap.find(validParentId);
     std::vector<SPerformanceRecord*> parentsNeedToAddAlso;
     while (iter == m_performTreeItemMap.end() && validParentInTree != NULL)
     {
         parentsNeedToAddAlso.push_back(validParentInTree);
         validParentInTree = validParentInTree->pParent;
-        size_t validParentId = validParentInTree == NULL ? 0 : validParentInTree->id;
+        uint32_t validParentId = validParentInTree == NULL ? 0 : validParentInTree->id;
         iter = m_performTreeItemMap.find(validParentId);
     }
     wxTreeItemId parentId = validParentInTree == NULL ? m_performTreeItemMap[0] : iter->second;
@@ -396,7 +396,7 @@ void CBDTWxFrame::RefreshPerformBoard( const SPerformanceRecord* pRecord )
 
 void CBDTWxFrame::RefreshInfo(const SPerformanceRecord* pRecord )
 {
-    std::map<size_t, float>::iterator iter = m_updateValueMap.find(pRecord->id);
+    std::map<uint32_t, float>::iterator iter = m_updateValueMap.find(pRecord->id);
     float curValue = iter == m_updateValueMap.end() ? 0.f : iter->second;
     m_pCurResultTxtLabel->SetLabelText(wxString::Format("%.2f", curValue));
     m_pTotalRunTimeTxtLab->SetLabelText(wxString::Format("%.2f", pRecord->totalValue));
@@ -407,12 +407,12 @@ void CBDTWxFrame::RefreshInfo(const SPerformanceRecord* pRecord )
 
 void CBDTWxFrame::RefreshItemGridRowLab(const SPerformanceRecord* pRecord)
 {
-    size_t childCount = pRecord->children.size();
-    if (childCount > (size_t)m_pSubItemInfoGrid->GetRows() )
+    uint32_t childCount = pRecord->children.size();
+    if (childCount > (uint32_t)m_pSubItemInfoGrid->GetRows() )
     {
         m_pSubItemInfoGrid->AppendRows(childCount - m_pSubItemInfoGrid->GetRows());
     }
-    size_t i = 0;
+    uint32_t i = 0;
     for (; i < childCount; ++i)
     {
         SPerformanceRecord* curRecord = pRecord->children[i];
@@ -429,7 +429,7 @@ SPerformanceRecord* CBDTWxFrame::GetRecord( const wxTreeItemId& treeItemId )
         CPerformResultTreeItemData* pItemData = static_cast<CPerformResultTreeItemData*>(m_pPerformanceTreeCtrl->GetItemData(treeItemId));
         if (pItemData != NULL)
         {
-            size_t recordId = pItemData->GetRecordId();
+            uint32_t recordId = pItemData->GetRecordId();
             result = CPerformDetector::GetInstance()->GetRecord(recordId);
         }
     }
@@ -438,10 +438,10 @@ SPerformanceRecord* CBDTWxFrame::GetRecord( const wxTreeItemId& treeItemId )
 
 void CBDTWxFrame::RefreshItemGridCell( const SPerformanceRecord* pRecord)
 {
-    for (size_t i = 0; i < pRecord->children.size(); ++i)
+    for (uint32_t i = 0; i < pRecord->children.size(); ++i)
     {
         SPerformanceRecord* curRecord = pRecord->children[i];
-        std::map<size_t, float>::iterator iter = m_updateValueMap.find(curRecord->id);
+        std::map<uint32_t, float>::iterator iter = m_updateValueMap.find(curRecord->id);
         m_pSubItemInfoGrid->SetCellValue(wxString::Format("%.2f", iter == m_updateValueMap.end() ? 0 : iter->second), i, 0);
         m_pSubItemInfoGrid->SetCellValue(wxString::Format("%.2f", curRecord->totalValue / curRecord->updateCount), i, 1);
         m_pSubItemInfoGrid->SetCellValue(wxString::Format("%.2f", curRecord->maxValue), i, 2);
@@ -453,20 +453,20 @@ void CBDTWxFrame::RefreshItemGridCell( const SPerformanceRecord* pRecord)
 void CBDTWxFrame::ClearGrid()
 {
     m_pSubItemInfoGrid->ClearGrid();
-    size_t rowCount = m_pSubItemInfoGrid->GetRows();
-    for (size_t i = 0; i < rowCount; ++i)
+    uint32_t rowCount = m_pSubItemInfoGrid->GetRows();
+    for (uint32_t i = 0; i < rowCount; ++i)
     {
         m_pSubItemInfoGrid->SetRowLabelValue(i, "");
     }
 }
 
-void CBDTWxFrame::ClearGridRow( size_t startRowIndex, size_t count )
+void CBDTWxFrame::ClearGridRow( uint32_t startRowIndex, uint32_t count )
 {
-    size_t colNum = m_pSubItemInfoGrid->GetCols();
-    for (size_t i = 0; i < count; ++i)
+    uint32_t colNum = m_pSubItemInfoGrid->GetCols();
+    for (uint32_t i = 0; i < count; ++i)
     {
         m_pSubItemInfoGrid->SetRowLabelValue(startRowIndex + i, "");
-        for (size_t j = 0; j < colNum; ++j)
+        for (uint32_t j = 0; j < colNum; ++j)
         {
             m_pSubItemInfoGrid->SetCellValue("", startRowIndex + i, j);
         }
@@ -495,7 +495,7 @@ void CBDTWxFrame::OnClickPerformanceClearBtn(wxCommandEvent& /*event*/)
     CBDTWxApp::GetBDTWxApp()->ClearResultCache();
     CPerformDetector::GetInstance()->ClearAllResult();
     m_curSamplingCount = 0;
-    for (std::map<size_t, wxTreeItemId>::iterator iter = m_performTreeItemMap.begin(); iter != m_performTreeItemMap.end(); ++iter)
+    for (std::map<uint32_t, wxTreeItemId>::iterator iter = m_performTreeItemMap.begin(); iter != m_performTreeItemMap.end(); ++iter)
     {
         CPerformResultTreeItemData* pItemData = static_cast<CPerformResultTreeItemData*>(m_pPerformanceTreeCtrl->GetItemData(iter->second));
         if (pItemData != NULL)
@@ -511,7 +511,7 @@ void CBDTWxFrame::ClearPeakValue( SPerformanceRecord* pRecord )
     if (pRecord != NULL)
     {
         pRecord->maxValue = 0;
-        for (size_t i = 0; i < pRecord->children.size(); ++i)
+        for (uint32_t i = 0; i < pRecord->children.size(); ++i)
         {
             ClearPeakValue(pRecord->children[i]);
         }
@@ -523,19 +523,19 @@ void CBDTWxFrame::UpdatePerformGraphicData( const SPerformanceResult* pResult )
     CPerformResultTreeItemData* pItemData = static_cast<CPerformResultTreeItemData*>(m_pPerformanceTreeCtrl->GetItemData(m_performTreeItemMap[pResult->id]));
     BEATS_ASSERT(pItemData != NULL, _T("Can't Get the Item Data!"));
     SPerformGraphicRecord* pGraphicRecord = pItemData->GetGraphicRecord();
-    size_t samplingDelta = m_curSamplingCount - pGraphicRecord->m_lastUpdateSamplingCount;
+    uint32_t samplingDelta = m_curSamplingCount - pGraphicRecord->m_lastUpdateSamplingCount;
     pGraphicRecord->m_lastUpdateSamplingCount = m_curSamplingCount;
     wxMemoryDC memDC;
     memDC.SelectObject(*pGraphicRecord->m_pPerformBitmap);
     //draw result line.
     memDC.SetPen(wxPen("green",1));
-    const size_t bitmapWidth = pGraphicRecord->m_pPerformBitmap->GetWidth();
-    const size_t bitmapHeight = pGraphicRecord->m_pPerformBitmap->GetHeight();
+    const uint32_t bitmapWidth = pGraphicRecord->m_pPerformBitmap->GetWidth();
+    const uint32_t bitmapHeight = pGraphicRecord->m_pPerformBitmap->GetHeight();
 
-    if ( samplingDelta > (size_t)1 )//it means we haven't sampling this for some count.
+    if ( samplingDelta > (uint32_t)1 )//it means we haven't sampling this for some count.
     {
-        BEATS_ASSERT((size_t)pGraphicRecord->m_lastResultPoint.x <= bitmapWidth, _T("Invalid X pos!"));
-        if ((size_t)pGraphicRecord->m_lastResultPoint.x < bitmapWidth)
+        BEATS_ASSERT((uint32_t)pGraphicRecord->m_lastResultPoint.x <= bitmapWidth, _T("Invalid X pos!"));
+        if ((uint32_t)pGraphicRecord->m_lastResultPoint.x < bitmapWidth)
         {
             wxPoint nextDownPoint(pGraphicRecord->m_lastResultPoint.x + 1, bitmapHeight);
             memDC.DrawLine(pGraphicRecord->m_lastResultPoint, nextDownPoint);
@@ -544,14 +544,14 @@ void CBDTWxFrame::UpdatePerformGraphicData( const SPerformanceResult* pResult )
         pGraphicRecord->m_lastResultPoint.y = 0;
     }
 
-    size_t thisPointX = pGraphicRecord->m_lastResultPoint.x + m_lineStep;
+    uint32_t thisPointX = pGraphicRecord->m_lastResultPoint.x + m_lineStep;
     if (thisPointX > bitmapWidth)//overflow of the bitmap width
     {
         thisPointX = 0;
     }
     const float CONST_RENDER_FACTOR = (float)bitmapHeight / m_lineMaxValue;
 
-    size_t thisPointY = CONST_RENDER_FACTOR * pResult->result;
+    uint32_t thisPointY = CONST_RENDER_FACTOR * pResult->result;
     if (thisPointY > bitmapHeight)//overflow of the bitmap height
     {
         thisPointY = bitmapHeight;
@@ -566,7 +566,7 @@ void CBDTWxFrame::UpdatePerformGraphicData( const SPerformanceResult* pResult )
     //cover black to the existing data.
     memDC.SetPen(wxPen("black",1));
     memDC.SetBrush( *wxBLACK_BRUSH );
-    static const size_t EraseRectFactor = 3;
+    static const uint32_t EraseRectFactor = 3;
     memDC.DrawRectangle(wxRect(curResultPoint.x + 1, 0, m_lineStep * EraseRectFactor, bitmapHeight));
     memDC.SelectObject(wxNullBitmap);
 

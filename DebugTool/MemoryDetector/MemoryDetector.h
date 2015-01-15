@@ -7,8 +7,8 @@ class CMemoryDetector
 {
     BEATS_DECLARE_SINGLETON(CMemoryDetector);
 
-    typedef void* (__cdecl *new_t) (SIZE_T);
-    typedef void* (__cdecl *debug_new_t) (SIZE_T, int usage, const char* filePath, int line);
+    typedef void* (__cdecl *new_t) (uint32_t);
+    typedef void* (__cdecl *debug_new_t) (uint32_t, int usage, const char* filePath, int line);
     typedef void (__cdecl *delete_t) (void*);
 public:
     void Init(std::vector<std::string>* pMemHookModuleList);
@@ -16,19 +16,19 @@ public:
     bool IsInit();
 
     void AddHookModule(const char* moduleName);
-    void AddRecord(void* pAddress, size_t size, size_t allocId, size_t usage = 0);
+    void AddRecord(void* pAddress, uint32_t size, uint32_t allocId, uint32_t usage = 0);
     void DeleteRecord(void* pAddress);
-    void GetCallStack(size_t address, std::vector<size_t>& out );
+    void GetCallStack(uint32_t address, std::vector<uint32_t>& out );
 
-    SMemoryRecord* GetValidRecord(void* pAddress, size_t size, size_t allocTime, size_t allocId, size_t usage);
-    void GetRecordCache(const SMemoryFrameRecord* pOriginData, SMemoryFrameRecord& out, EMemoryFrameRecordType type = eMFRT_All, size_t startPos = 0, size_t itemCount = 0);
-    size_t GetAllocMemorySize();
-    size_t GetAllocMemoryCount();
-    size_t GetMemoryBlockMaxSize();
-    size_t GetLatestMemoryBlockTime();
+    SMemoryRecord* GetValidRecord(void* pAddress, uint32_t size, uint32_t allocTime, uint32_t allocId, uint32_t usage);
+    void GetRecordCache(const SMemoryFrameRecord* pOriginData, SMemoryFrameRecord& out, EMemoryFrameRecordType type = eMFRT_All, uint32_t startPos = 0, uint32_t itemCount = 0);
+    uint32_t GetAllocMemorySize();
+    uint32_t GetAllocMemoryCount();
+    uint32_t GetMemoryBlockMaxSize();
+    uint32_t GetLatestMemoryBlockTime();
     void AddFilterStr(std::string filter);
     void DelFilterStr(std::string filter);
-    bool FilterRecordWithEIP(size_t eip);
+    bool FilterRecordWithEIP(uint32_t eip);
     const std::vector<std::string>& GetFilterStr();
 
     void SetProcessDebugFlag(bool inDebug);
@@ -43,8 +43,8 @@ private:
     bool ReplaceFunc(HMODULE hookModule, const char* exprotModuleName, LPCVOID targetFunc, LPCVOID replaceFunc);
     IMAGE_IMPORT_DESCRIPTOR* GetIDTE(HMODULE module, const char* exportmoduleName);
     bool CheckMemoryLeak();
-    static LPVOID OnHeapAlloc (SIZE_T size);
-    static LPVOID OnHeapAllocDbg (SIZE_T size, int usage, const char* filePath, int line);
+    static LPVOID OnHeapAlloc (uint32_t size);
+    static LPVOID OnHeapAllocDbg (uint32_t size, int usage, const char* filePath, int line);
 
     static void OnHeapFree (void* pAddress);
     static void OnHeapArrayFree(void* pAddress);
@@ -70,11 +70,11 @@ private:
                     const new_t newFunc, 
                     const delete_t delFunc);
 
-    void AddCallStackInfo(size_t address);
-    bool AddCallStackInfoByEBP(std::vector<size_t>& callStack);
+    void AddCallStackInfo(uint32_t address);
+    bool AddCallStackInfoByEBP(std::vector<uint32_t>& callStack);
 
-    void DeleteCallStackInfo(size_t address);
-    HMODULE GetModuleFromAddress(size_t address);
+    void DeleteCallStackInfo(uint32_t address);
+    HMODULE GetModuleFromAddress(uint32_t address);
 
 private:
     static new_t m_allocFunc;
@@ -82,7 +82,7 @@ private:
     static delete_t m_freeFunc;
     static delete_t m_arrayFreeFunc;
 
-    size_t m_allocMemorySize;
+    uint32_t m_allocMemorySize;
     bool m_processInDebugMode;
     bool m_processInUnicodeMode;
     bool m_initFlag;
@@ -91,8 +91,8 @@ private:
     std::vector<SMemoryRecord*> m_recordPool;
     std::vector<std::string> m_filterList;
     std::vector<std::string> m_hookModuleList;
-    std::map<size_t, std::vector<size_t>> m_callStackPool;
-    std::map<size_t, bool> m_eipExamMap;
+    std::map<uint32_t, std::vector<uint32_t>> m_callStackPool;
+    std::map<uint32_t, bool> m_eipExamMap;
     SMemoryFrameRecord      m_record;
     CRITICAL_SECTION m_CSLock;
 

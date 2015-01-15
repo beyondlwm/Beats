@@ -16,7 +16,7 @@ public:
 private:
     bool m_bActive;
     std::vector<CPhysicsElement*> m_elements;
-    std::vector<size_t> m_freePos;
+    std::vector<uint32_t> m_freePos;
 
 };
 

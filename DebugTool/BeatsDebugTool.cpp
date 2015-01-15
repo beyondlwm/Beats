@@ -188,14 +188,14 @@ extern "C"
         }
         return result;
     }
-    void BEATS_PERFORMDETECT_START_IMPL_FUNC(int type, bool /*isStaticRecord*/, size_t id)
+    void BEATS_PERFORMDETECT_START_IMPL_FUNC(int type, bool /*isStaticRecord*/, uint32_t id)
     {
         if (CBDTWxApp::m_bInit && CBDTWxApp::GetBDTWxApp()->IsFrameValid() && CBDTWxApp::GetBDTWxApp()->IsEnable(eBDTFT_Performance))
         {
             CPerformDetector::GetInstance()->StartDetectNode(type, id);
         }
     }
-    void BEATS_PERFORMDETECT_INIT_FUNC( const TCHAR* typeName[], size_t size )
+    void BEATS_PERFORMDETECT_INIT_FUNC( const TCHAR* typeName[], uint32_t size )
     {
         if (CBDTWxApp::m_bInit && CBDTWxApp::GetBDTWxApp()->IsFrameValid() && CBDTWxApp::GetBDTWxApp()->IsEnable(eBDTFT_Performance))
         {
@@ -203,7 +203,7 @@ extern "C"
         }
     }
 
-    MY_DLL_DECL void BEATS_INFOBOARD_ADDLOG_IMPL_FUNC( const TCHAR* pCatalog, const TCHAR* log, size_t logPos /*= 0*/, size_t fontColor /*= 0*/ )
+    MY_DLL_DECL void BEATS_INFOBOARD_ADDLOG_IMPL_FUNC( const TCHAR* pCatalog, const TCHAR* log, uint32_t logPos /*= 0*/, uint32_t fontColor /*= 0*/ )
     {
         if (CBDTWxApp::m_bInit && CBDTWxApp::GetBDTWxApp()->IsFrameValid() && CBDTWxApp::GetBDTWxApp()->IsEnable(eBDTFT_InfoBoard))
         {
@@ -211,7 +211,7 @@ extern "C"
         }
     }
 
-    MY_DLL_DECL void BEATS_INFOBOARD_UPDATEPROPERTY_UI_IMPL_FUNC( size_t propertyId, const TCHAR* displayName, const TCHAR* pCatalog, void* value, EReflectPropertyType type )
+    MY_DLL_DECL void BEATS_INFOBOARD_UPDATEPROPERTY_UI_IMPL_FUNC( uint32_t propertyId, const TCHAR* displayName, const TCHAR* pCatalog, void* value, EReflectPropertyType type )
     {
         if (CBDTWxApp::m_bInit && CBDTWxApp::GetBDTWxApp()->IsFrameValid() && CBDTWxApp::GetBDTWxApp()->IsEnable(eBDTFT_InfoBoard))
         {

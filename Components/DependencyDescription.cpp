@@ -11,7 +11,7 @@
 #include "Component/ComponentReference.h"
 #include "Component/ComponentProject.h"
 
-CDependencyDescription::CDependencyDescription(EDependencyType type, size_t dependencyGuid, CComponentProxy* pOwner, size_t uIndex, bool bIsList)
+CDependencyDescription::CDependencyDescription(EDependencyType type, uint32_t dependencyGuid, CComponentProxy* pOwner, uint32_t uIndex, bool bIsList)
 : m_type(type)
 , m_changeAction(eDCA_Count)
 , m_pChangeActionProxy(NULL)
@@ -34,14 +34,14 @@ CDependencyDescription::~CDependencyDescription()
     }
 }
 
-CDependencyDescriptionLine* CDependencyDescription::GetDependencyLine( size_t uIndex /*= 0*/ ) const
+CDependencyDescriptionLine* CDependencyDescription::GetDependencyLine( uint32_t uIndex /*= 0*/ ) const
 {
     BEATS_ASSERT(uIndex < m_dependencyLine.size());
     BEATS_ASSERT(uIndex == 0  || (uIndex > 0 && m_bIsListType), _T("Get denpendency by index %d is only available for list type!"), uIndex);
     return m_dependencyLine[uIndex];
 }
 
-CDependencyDescriptionLine* CDependencyDescription::SetDependency( size_t uIndex, CComponentProxy* pComponent )
+CDependencyDescriptionLine* CDependencyDescription::SetDependency( uint32_t uIndex, CComponentProxy* pComponent )
 {
     CDependencyDescriptionLine* pRet = NULL;
     BEATS_ASSERT(uIndex < m_dependencyLine.size());
@@ -61,7 +61,7 @@ CDependencyDescriptionLine* CDependencyDescription::SetDependency( size_t uIndex
     return pRet;
 }
 
-size_t CDependencyDescription::GetDependencyLineCount() const
+uint32_t CDependencyDescription::GetDependencyLineCount() const
 {
     BEATS_ASSERT(m_dependencyLine.size() <= 1 || m_bIsListType);
     return m_dependencyLine.size();
@@ -72,7 +72,7 @@ CDependencyDescriptionLine* CDependencyDescription::AddDependency( CComponentPro
     CDependencyDescriptionLine* pRet = NULL;
 
 #ifdef _DEBUG
-    for (size_t i = 0; i < m_dependencyLine.size(); ++i)
+    for (uint32_t i = 0; i < m_dependencyLine.size(); ++i)
     {
         BEATS_ASSERT(pComponentInstance == NULL || pComponentInstance != m_dependencyLine[i]->GetConnectedComponent(), _T("The dependency is already in its list!"));
     }
@@ -93,11 +93,11 @@ CDependencyDescriptionLine* CDependencyDescription::AddDependency( CComponentPro
 void CDependencyDescription::RemoveDependencyLine(CDependencyDescriptionLine* pLine)
 {
     BEATS_ASSERT(pLine->GetOwnerDependency() == this);
-    size_t uPos = pLine->GetIndex();
+    uint32_t uPos = pLine->GetIndex();
     RemoveDependencyByIndex(uPos);
 }
 
-void CDependencyDescription::RemoveDependencyByIndex( size_t uIndex )
+void CDependencyDescription::RemoveDependencyByIndex( uint32_t uIndex )
 {
     std::vector<CDependencyDescriptionLine*>::iterator iter = m_dependencyLine.begin();
     advance(iter, uIndex);
@@ -105,7 +105,7 @@ void CDependencyDescription::RemoveDependencyByIndex( size_t uIndex )
     m_pChangeActionProxy = (*iter)->GetConnectedComponent();
     m_dependencyLine.erase(iter);
 
-    for (size_t i = uIndex; i < m_dependencyLine.size(); ++i)
+    for (uint32_t i = uIndex; i < m_dependencyLine.size(); ++i)
     {
         m_dependencyLine[i]->SetIndex(i);
     }
@@ -113,7 +113,7 @@ void CDependencyDescription::RemoveDependencyByIndex( size_t uIndex )
     OnDependencyChanged();
 }
 
-void CDependencyDescription::SwapLineOrder(size_t uSourceIndex, size_t uTargetIndex)
+void CDependencyDescription::SwapLineOrder(uint32_t uSourceIndex, uint32_t uTargetIndex)
 {
     BEATS_ASSERT(uSourceIndex != uTargetIndex);
     BEATS_ASSERT(uSourceIndex < m_dependencyLine.size());
@@ -148,7 +148,7 @@ void CDependencyDescription::SaveToXML( TiXmlElement* pParentNode )
         CStringHelper::GetInstance()->ConvertToCHAR(m_variableName.c_str(), szVariableName, MAX_PATH);
         pDependencyElement->SetAttribute("VariableName", szVariableName);
 
-        for (size_t i = 0; i < m_dependencyLine.size(); ++i)
+        for (uint32_t i = 0; i < m_dependencyLine.size(); ++i)
         {
             // Most of the time, we need to get the real connected component of the reference, as if the reference doesn't exists.
             // However, we need the reference info when we save the component info.
@@ -185,9 +185,9 @@ void CDependencyDescription::LoadFromXML( TiXmlElement* pNode )
             {
                 const char* szGuid = pDependencyNodeElement->Attribute("Guid");
                 char* pEnd = NULL;
-                size_t uGuid = strtoul(szGuid, &pEnd, 16);
+                uint32_t uGuid = strtoul(szGuid, &pEnd, 16);
                 const char* szId = pDependencyNodeElement->Attribute("Id");
-                size_t uId = (size_t)atoi(szId);
+                uint32_t uId = (uint32_t)atoi(szId);
                 bool bIsParent = CComponentProxyManager::GetInstance()->IsParent(m_uDependencyGuid, uGuid);
                 BEATS_ASSERT(bIsParent, _T("Dependency Not match in component %d"), m_pOwner->GetId());
                 if (bIsParent)
@@ -264,7 +264,7 @@ bool CDependencyDescription::IsListType() const
 bool CDependencyDescription::IsInDependency( CComponentProxy* pComponentInstance )
 {
     bool bRet = false;
-    for (size_t i = 0; i < m_dependencyLine.size(); ++i)
+    for (uint32_t i = 0; i < m_dependencyLine.size(); ++i)
     {
         if (m_dependencyLine[i]->GetConnectedComponent() == pComponentInstance)
         {
@@ -277,13 +277,13 @@ bool CDependencyDescription::IsInDependency( CComponentProxy* pComponentInstance
 
 bool CDependencyDescription::IsMatch( CComponentProxy* pDependencyComponent )
 {
-    size_t uCurGuid = pDependencyComponent->GetGuid();
+    uint32_t uCurGuid = pDependencyComponent->GetGuid();
     bool bMatch = uCurGuid == m_uDependencyGuid;
     if (!bMatch)
     {
-        std::vector<size_t> result;
+        std::vector<uint32_t> result;
         CComponentProxyManager::GetInstance()->QueryDerivedClass(m_uDependencyGuid, result, true);
-        for (size_t i = 0; i < result.size(); ++i)
+        for (uint32_t i = 0; i < result.size(); ++i)
         {
             if (result[i] == uCurGuid)
             {
@@ -297,9 +297,9 @@ bool CDependencyDescription::IsMatch( CComponentProxy* pDependencyComponent )
 
 void CDependencyDescription::Serialize(CSerializer& serializer)
 {
-    size_t uLineCount = this->GetDependencyLineCount();
+    uint32_t uLineCount = this->GetDependencyLineCount();
     serializer << uLineCount;
-    for (size_t j = 0; j < uLineCount; ++j)
+    for (uint32_t j = 0; j < uLineCount; ++j)
     {
         // No matter if we get proxy or reference, it doesn't matter, so we get the proxy exactly.
         CComponentProxy* pConnectedComponent = this->GetDependencyLine(j)->GetConnectedComponent(false);
@@ -320,7 +320,7 @@ void CDependencyDescription::OnDependencyChanged()
     if (this->GetOwner()->IsInitialized())
     {
         bool bIsReady = true;
-        for (size_t i = 0; i < m_dependencyLine.size(); ++i)
+        for (uint32_t i = 0; i < m_dependencyLine.size(); ++i)
         {
             if (m_dependencyLine[i]->GetConnectedComponent() == NULL)
             {
@@ -347,12 +347,12 @@ void CDependencyDescription::OnDependencyChanged()
     }
 }
 
-size_t CDependencyDescription::GetDependencyGuid() const
+uint32_t CDependencyDescription::GetDependencyGuid() const
 {
     return m_uDependencyGuid;
 }
 
-size_t CDependencyDescription::GetIndex() const
+uint32_t CDependencyDescription::GetIndex() const
 {
     return m_uIndex;
 }

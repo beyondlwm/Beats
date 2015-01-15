@@ -68,10 +68,10 @@ bool STriggerContent::IsOk(CComponentProxy* pComponent)
         case eRPT_UInt:
             {
                 TCHAR* pEndPtr;
-                size_t uData = _tcstoul(m_strRefValue.c_str(), &pEndPtr, 10);
+                uint32_t uData = _tcstoul(m_strRefValue.c_str(), &pEndPtr, 10);
                 bool bConvertSuccess = pEndPtr[0] == 0;
                 BEATS_ASSERT(bConvertSuccess, _T("Convert string to Uint failed! %s"), m_strRefValue.c_str());
-                bRet = ExamByOperator(*(size_t*)pProperty->GetValue(eVT_CurrentValue), uData);
+                bRet = ExamByOperator(*(uint32_t*)pProperty->GetValue(eVT_CurrentValue), uData);
             }
             break;
         default:
@@ -91,9 +91,9 @@ CPropertyTrigger::CPropertyTrigger(const TString& strRawString)
 
 CPropertyTrigger::~CPropertyTrigger()
 {
-    for (size_t i = 0; i < m_content.size(); ++i)
+    for (uint32_t i = 0; i < m_content.size(); ++i)
     {
-        if (m_content[i] != NULL && (size_t)m_content[i] != 1)
+        if (m_content[i] != NULL && (uint32_t)m_content[i] != 1)
         {
             BEATS_SAFE_DELETE(m_content[i]);
         }
@@ -107,7 +107,7 @@ void CPropertyTrigger::Initialize()
         std::vector<TString> revPolishnatation;
         ConvertExpression(m_rawString, revPolishnatation);
         m_content.clear();
-        for (size_t i = 0; i < revPolishnatation.size(); ++i)
+        for (uint32_t i = 0; i < revPolishnatation.size(); ++i)
         {
             const TString& str = revPolishnatation[i];
             if (str.compare(_T("||")) == 0)
@@ -152,7 +152,7 @@ STriggerContent* CPropertyTrigger::GenerateContent(const TString& rawString)
     TString refValue;
     TString strPropertyName;
     ECompareOperator op = eCO_Count;
-    for (size_t i = 0; i < str.length(); ++i)
+    for (uint32_t i = 0; i < str.length(); ++i)
     {
         // 1. Get the variable name
         if (strPropertyName.length() == 0)
@@ -173,10 +173,10 @@ STriggerContent* CPropertyTrigger::GenerateContent(const TString& rawString)
         else if (op == eCO_Count) 
         {
             const TCHAR* pszReader = &str.at(i);
-            for (size_t j = 0; j < eCO_Count; ++j)
+            for (uint32_t j = 0; j < eCO_Count; ++j)
             {
                 const TCHAR* pszOperatorString = CompareOperatorString[j];
-                size_t uOperatorLength = _tcslen(pszOperatorString);
+                uint32_t uOperatorLength = _tcslen(pszOperatorString);
                 if (memcmp(pszOperatorString, pszReader, sizeof(TCHAR) * uOperatorLength) == 0)
                 {
                     i += uOperatorLength - 1; // Skip the next operator character for those length is more than 1.
@@ -208,14 +208,14 @@ void CPropertyTrigger::ConvertExpression(const TString& rawString, std::vector<T
     strFilter.push_back(_T(" "));
     TString str = pStringHelper->FilterString(rawString.c_str(), strFilter);
 
-    const size_t uStringLength = str.length();
+    const uint32_t uStringLength = str.length();
     bool bValidString = uStringLength > 0;
     BEATS_ASSERT(bValidString, _T("String can't be null for initializing a CPropertyTrigger"));
     if (bValidString)
     {
         std::vector<TString> operatorStack;
         TString symbolString;
-        for (size_t i = 0; i < uStringLength; ++i)
+        for (uint32_t i = 0; i < uStringLength; ++i)
         {
             bool bReadOperator = false;
             if (str[i] == _T('('))
@@ -307,13 +307,13 @@ bool CPropertyTrigger::IsOk(CComponentProxy* pComponent)
     bool bRet = false;
     BEATS_ASSERT(m_content.size() > 0);
     std::vector<EAbstractRelation> abstractRelationShip;
-    for (size_t i = 0; i < m_content.size(); ++i)
+    for (uint32_t i = 0; i < m_content.size(); ++i)
     {
         if (m_content[i] == NULL) // means "||"
         {
             abstractRelationShip.push_back(eAR_Or);
         }
-        else if ((size_t)m_content[i] == 1) // means "&&"
+        else if ((uint32_t)m_content[i] == 1) // means "&&"
         {
             abstractRelationShip.push_back(eAR_And);
         }
@@ -323,7 +323,7 @@ bool CPropertyTrigger::IsOk(CComponentProxy* pComponent)
         }
     }
     std::vector<bool> bFinalResultStack;
-    for (size_t i = 0; i < abstractRelationShip.size(); ++i)
+    for (uint32_t i = 0; i < abstractRelationShip.size(); ++i)
     {
         if (abstractRelationShip[i] == eAR_Or)
         {

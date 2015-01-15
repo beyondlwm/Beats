@@ -3,7 +3,7 @@
 #include "Serializer.h"
 #include "FilePath/FilePathTool.h"
 
-CSerializer::CSerializer(size_t size, void* data)
+CSerializer::CSerializer(uint32_t size, void* data)
 : m_size(size)
 , m_pBuffer(NULL)
 , m_pReadPtr(NULL)
@@ -34,7 +34,7 @@ CSerializer::CSerializer( const CSerializer& rhs )
     SetWritePos(rhs.GetWritePos());
 }
 
-CSerializer::CSerializer(const TCHAR* pFilePath, const TCHAR* pszMode /*= _T("rb")*/, size_t uStartPos/* = 0*/, size_t uDataLength/* = 0*/)
+CSerializer::CSerializer(const TCHAR* pFilePath, const TCHAR* pszMode /*= _T("rb")*/, uint32_t uStartPos/* = 0*/, uint32_t uDataLength/* = 0*/)
 : m_size(0)
 , m_pBuffer(NULL)
 , m_pReadPtr(NULL)
@@ -44,7 +44,7 @@ CSerializer::CSerializer(const TCHAR* pFilePath, const TCHAR* pszMode /*= _T("rb
     Serialize(pFilePath, pszMode, uStartPos, uDataLength);
 }
 
-CSerializer::CSerializer(FILE* pFile, size_t startPos, size_t dataLength)
+CSerializer::CSerializer(FILE* pFile, uint32_t startPos, uint32_t dataLength)
 : m_size(0)
 , m_pBuffer(NULL)
 , m_pReadPtr(NULL)
@@ -68,24 +68,24 @@ CSerializer& CSerializer::operator = (const CSerializer& rhs)
     return *this;
 }
 
-void CSerializer::SetReadPos(size_t offset)
+void CSerializer::SetReadPos(uint32_t offset)
 {
     m_pReadPtr = static_cast<unsigned char*>(m_pBuffer) + offset;
     BEATS_ASSERT(m_pReadPtr <= m_pWritePtr);
 }
 
-void CSerializer::SetWritePos(size_t offset)
+void CSerializer::SetWritePos(uint32_t offset)
 {
     m_pWritePtr = static_cast<unsigned char*>(m_pBuffer) + offset;
     BEATS_ASSERT(m_pWritePtr <= static_cast<unsigned char*>(m_pBuffer) + m_size);
 }
 
-size_t CSerializer::GetReadPos() const
+uint32_t CSerializer::GetReadPos() const
 {
     return static_cast<unsigned char*>(m_pReadPtr) - static_cast<unsigned char*>(m_pBuffer);
 }
 
-size_t CSerializer::GetWritePos() const
+uint32_t CSerializer::GetWritePos() const
 {
     return static_cast<unsigned char*>(m_pWritePtr) - static_cast<unsigned char*>(m_pBuffer);
 }
@@ -100,7 +100,7 @@ void* CSerializer::GetWritePtr() const
     return m_pWritePtr;
 }
 
-size_t CSerializer::GetBufferSize() const
+uint32_t CSerializer::GetBufferSize() const
 {
     return m_size;
 }
@@ -116,7 +116,7 @@ const unsigned char* CSerializer::GetBuffer() const
     return static_cast<unsigned char*>(m_pBuffer);
 }
 
-void CSerializer::Serialize( const void* pData, size_t size )
+void CSerializer::Serialize( const void* pData, uint32_t size )
 {
     ValidateBuffer(size);
     memcpy(m_pWritePtr, pData, size);
@@ -124,18 +124,18 @@ void CSerializer::Serialize( const void* pData, size_t size )
 
 }
 
-bool CSerializer::Serialize( const TCHAR* pFilePath, const TCHAR* pszMode /* = _T("rb")*/, size_t uStartPos/* = 0*/, size_t uDataLength/* = 0*/)
+bool CSerializer::Serialize( const TCHAR* pFilePath, const TCHAR* pszMode /* = _T("rb")*/, uint32_t uStartPos/* = 0*/, uint32_t uDataLength/* = 0*/)
 {
     return CFilePathTool::GetInstance()->LoadFile(this, pFilePath, pszMode, uStartPos, uDataLength);
 }
 
-bool CSerializer::Serialize( FILE* pFile, size_t startPos /*= 0*/, size_t dataLength /*= 0*/ )
+bool CSerializer::Serialize( FILE* pFile, uint32_t startPos /*= 0*/, uint32_t dataLength /*= 0*/ )
 {
     bool bRet = false;
     BEATS_ASSERT(pFile != NULL);
-    size_t curPos = ftell(pFile);
+    uint32_t curPos = ftell(pFile);
     fseek(pFile, 0, SEEK_END);
-    size_t uFileSize = ftell(pFile);
+    uint32_t uFileSize = ftell(pFile);
     BEATS_WARNING(uFileSize > 0, _T("Trying to serialize an empty file!"));
     if (uFileSize > 0)
     {
@@ -154,11 +154,11 @@ bool CSerializer::Serialize( FILE* pFile, size_t startPos /*= 0*/, size_t dataLe
     return bRet;
 }
 
-void CSerializer::Serialize(CSerializer& serializer, size_t uDataSize/* = 0xFFFFFFFF*/)
+void CSerializer::Serialize(CSerializer& serializer, uint32_t uDataSize/* = 0xFFFFFFFF*/)
 {
     if(uDataSize > 0)
     {
-        size_t uReadPos = serializer.GetReadPos();
+        uint32_t uReadPos = serializer.GetReadPos();
         if (uDataSize == 0xFFFFFFFF)
         {
             uDataSize = serializer.GetWritePos() - uReadPos;
@@ -168,9 +168,9 @@ void CSerializer::Serialize(CSerializer& serializer, size_t uDataSize/* = 0xFFFF
     }        
 }
 
-void CSerializer::RewriteData(size_t uPos, void* pData, size_t uDataSize)
+void CSerializer::RewriteData(uint32_t uPos, void* pData, uint32_t uDataSize)
 {
-    size_t uCurWritePos = GetWritePos();
+    uint32_t uCurWritePos = GetWritePos();
     bool bIsPosValid = uPos < uCurWritePos;
     BEATS_ASSERT(bIsPosValid, _T("Rewrite means we can only write on the data which we have wrote."));
     if (bIsPosValid)
@@ -183,10 +183,10 @@ void CSerializer::RewriteData(size_t uPos, void* pData, size_t uDataSize)
     }
 }
 
-size_t CSerializer::Deserialize( void* pData, size_t size )
+uint32_t CSerializer::Deserialize( void* pData, uint32_t size )
 {
-    size_t uCurReadPos = GetReadPos();
-    size_t uDataSize = GetWritePos();
+    uint32_t uCurReadPos = GetReadPos();
+    uint32_t uDataSize = GetWritePos();
     if(uCurReadPos + size > uDataSize)
     {
         size = uDataSize - uCurReadPos;
@@ -212,16 +212,16 @@ bool CSerializer::Deserialize( const TCHAR* pFilePath, const TCHAR* pszMode/* = 
 
 }
 
-void CSerializer::Deserialize(CSerializer& serializer, size_t uDataSize/* = 0xFFFFFFFF*/)
+void CSerializer::Deserialize(CSerializer& serializer, uint32_t uDataSize/* = 0xFFFFFFFF*/)
 {
     serializer.Serialize(*this, uDataSize);
 }
 
-void CSerializer::ValidateBuffer(size_t size)
+void CSerializer::ValidateBuffer(uint32_t size)
 {
     BEATS_ASSERT(size > 0, _T("size can't be less than zero£¡ current size: %d"), size);
     bool overFlow = false;
-    size_t wrottenCount = GetWritePos();
+    uint32_t wrottenCount = GetWritePos();
     while (wrottenCount + size > m_size)
     {
         if (m_size == 0)
@@ -233,7 +233,7 @@ void CSerializer::ValidateBuffer(size_t size)
     }
     if (overFlow)
     {
-        size_t readCount = static_cast<unsigned char*>(m_pReadPtr) - static_cast<unsigned char*>(m_pBuffer);
+        uint32_t readCount = static_cast<unsigned char*>(m_pReadPtr) - static_cast<unsigned char*>(m_pBuffer);
         unsigned char* pNewBuffer = new unsigned char[m_size];
         memcpy(pNewBuffer, m_pBuffer, wrottenCount);
         BEATS_SAFE_DELETE_ARRAY(m_pBuffer);
@@ -244,7 +244,7 @@ void CSerializer::ValidateBuffer(size_t size)
     BEATS_ASSERT(m_pBuffer != NULL && m_pWritePtr != NULL && m_pReadPtr != NULL, _T("Invalid serliazer buffer!"));
 }
 
-void CSerializer::Create( size_t size /*= DefaultSerializerBufferSize*/, void* data /*= NULL*/ )
+void CSerializer::Create( uint32_t size /*= DefaultSerializerBufferSize*/, void* data /*= NULL*/ )
 {
     BEATS_ASSERT(m_pBuffer == NULL, _T("Can't create a serliazer twice, Try to release it before!"));
     m_pBuffer = new unsigned char[size];
@@ -268,7 +268,7 @@ void CSerializer::Release()
 void CSerializer::SerializeCharPtr(const char* data)
 {
     BEATS_ASSERT(data != NULL, _T("Data is null to serialize"));
-    size_t size = (strlen(data) + 1) * sizeof(char);
+    uint32_t size = (strlen(data) + 1) * sizeof(char);
     ValidateBuffer(size);
     memcpy(m_pWritePtr, data, size);
     m_pWritePtr = static_cast<unsigned char*>(m_pWritePtr) + size;
@@ -277,7 +277,7 @@ void CSerializer::SerializeCharPtr(const char* data)
 void CSerializer::SerializeWcharPtr(const wchar_t* data)
 {
     BEATS_ASSERT(data != NULL, _T("Data is null to serialize"));
-    size_t size = (wcslen(data) + 1) * sizeof(wchar_t);
+    uint32_t size = (wcslen(data) + 1) * sizeof(wchar_t);
     ValidateBuffer(size);
     memcpy(m_pWritePtr, data, size);
     m_pWritePtr = static_cast<unsigned char*>(m_pWritePtr) + size;
@@ -393,7 +393,7 @@ void CSerializer::UnitTest()
     serializer << true;
     serializer << false;
     serializer << 'k';
-    size_t nUint = 0xfffffffe;
+    uint32_t nUint = 0xfffffffe;
     serializer << nUint;
     float fFloat = 0.7890F;
     serializer << fFloat;
@@ -411,7 +411,7 @@ void CSerializer::UnitTest()
 
     deserializer >> nUint;
     BEATS_ASSERT(nUint == 10, _T("Failed to pass the unit test!"));
-    size_t* pUint;
+    uint32_t* pUint;
     readDeserializer.Read(pUint);
     BEATS_ASSERT(*pUint == 10, _T("Failed to pass the unit test!"));
 
@@ -483,7 +483,7 @@ void CSerializer::UnitTest()
     BEATS_ASSERT(deserializer.GetReadPos() == serializer.GetWritePos(), _T("Test String serializer failed!"));
 }
 
-size_t CSerializer::ReadToDataInList( const std::vector<SBufferData>& dataList, bool bReverse/* = false*/, int* pMatchDataId /* =NULL */)
+uint32_t CSerializer::ReadToDataInList( const std::vector<SBufferData>& dataList, bool bReverse/* = false*/, int* pMatchDataId /* =NULL */)
 {
     if (pMatchDataId != NULL)
     {
@@ -492,9 +492,9 @@ size_t CSerializer::ReadToDataInList( const std::vector<SBufferData>& dataList, 
     bool bMatched = false;
     while (!bMatched && m_pReadPtr <= m_pWritePtr && m_pReadPtr >= m_pBuffer)
     {
-        for (size_t i = 0; i < dataList.size(); ++i)
+        for (uint32_t i = 0; i < dataList.size(); ++i)
         {
-            if (((size_t)m_pWritePtr - (size_t)m_pReadPtr >= dataList[i].dataLength) && memcmp(dataList[i].pData, m_pReadPtr, dataList[i].dataLength) == 0)
+            if (((uint32_t)m_pWritePtr - (uint32_t)m_pReadPtr >= dataList[i].dataLength) && memcmp(dataList[i].pData, m_pReadPtr, dataList[i].dataLength) == 0)
             {
                 if (pMatchDataId != NULL)
                 {
@@ -518,12 +518,12 @@ size_t CSerializer::ReadToDataInList( const std::vector<SBufferData>& dataList, 
     return GetReadPos();
 }
 
-size_t CSerializer::ReadToData(const SBufferData& data, bool bReverse/* = false*/)
+uint32_t CSerializer::ReadToData(const SBufferData& data, bool bReverse/* = false*/)
 {
     bool bFindData = false;
     while (m_pReadPtr <= m_pWritePtr && m_pReadPtr >= m_pBuffer)
     {
-        if (((size_t)m_pWritePtr - (size_t)m_pReadPtr >= data.dataLength) && memcmp(data.pData, m_pReadPtr, data.dataLength) == 0)
+        if (((uint32_t)m_pWritePtr - (uint32_t)m_pReadPtr >= data.dataLength) && memcmp(data.pData, m_pReadPtr, data.dataLength) == 0)
         {
             bFindData = true;
             break;
@@ -553,7 +553,7 @@ void CSerializer::IncreaseBufferSize()
     ValidateBuffer(m_size * 2);
 }
 
-void CSerializer::SetBuffer( const unsigned char* buffer, size_t uBufferLength, bool bReleaseOldBuffer/* = true*/ )
+void CSerializer::SetBuffer( const unsigned char* buffer, uint32_t uBufferLength, bool bReleaseOldBuffer/* = true*/ )
 {
     if (bReleaseOldBuffer)
     {

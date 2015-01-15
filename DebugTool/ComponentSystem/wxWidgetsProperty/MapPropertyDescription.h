@@ -39,7 +39,7 @@ private:
 private:
     CPropertyDescriptionBase* m_pKeyPropertyTemplate;
     CPropertyDescriptionBase* m_pValuePropertyTemplate;
-    size_t m_uValuePtrGuid;
+    uint32_t m_uValuePtrGuid;
 };
 
 

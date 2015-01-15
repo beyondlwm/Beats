@@ -23,18 +23,18 @@ extern "C" {
     // run this to shutdown running threads etc.
     MY_DLL_DECL void BEATS_UNINIT_DEBUG_TOOL_FUNC();
 
-    MY_DLL_DECL void BEATS_PERFORMDETECT_INIT_FUNC(const TCHAR* typeName[], size_t size);
+    MY_DLL_DECL void BEATS_PERFORMDETECT_INIT_FUNC(const TCHAR* typeName[], uint32_t size);
 
-    MY_DLL_DECL void BEATS_PERFORMDETECT_START_IMPL_FUNC(int type, bool isStaticRecord = false, size_t id = 0);
+    MY_DLL_DECL void BEATS_PERFORMDETECT_START_IMPL_FUNC(int type, bool isStaticRecord = false, uint32_t id = 0);
     MY_DLL_DECL float BEATS_PERFORMDETECT_STOP_IMPL_FUNC(int type);
     MY_DLL_DECL void BEATS_PERFORMDETECT_RESET_FUNC();
 
-    MY_DLL_DECL void BEATS_INFOBOARD_UPDATEPROPERTY_UI_IMPL_FUNC(size_t propertyId, const TCHAR* displayName, const TCHAR* pCatalog, void* value, enum EReflectPropertyType type);
+    MY_DLL_DECL void BEATS_INFOBOARD_UPDATEPROPERTY_UI_IMPL_FUNC(uint32_t propertyId, const TCHAR* displayName, const TCHAR* pCatalog, void* value, enum EReflectPropertyType type);
     MY_DLL_DECL void BEATS_INFOBOARD_DELETEPROPERTY_UI_IMPL_FUNC( const TCHAR* displayName, const TCHAR* pCatalog);
 
-    typedef void(*TPropertyChangedHandler)(EReflectPropertyType, size_t prpertyId, const TCHAR* pCatalog, void* value);
+    typedef void(*TPropertyChangedHandler)(EReflectPropertyType, uint32_t prpertyId, const TCHAR* pCatalog, void* value);
     MY_DLL_DECL void BEATS_INFOBOARD_REGISTER_PROPERTYCHANGE_HANDLER(TPropertyChangedHandler handlerFunc);
-    MY_DLL_DECL void BEATS_INFOBOARD_ADDLOG_IMPL_FUNC(const TCHAR* pCatalog, const TCHAR* log, size_t logPos = 0, size_t fontColor = 0);
+    MY_DLL_DECL void BEATS_INFOBOARD_ADDLOG_IMPL_FUNC(const TCHAR* pCatalog, const TCHAR* log, uint32_t logPos = 0, uint32_t fontColor = 0);
 
 #ifdef __cplusplus
 }
@@ -84,9 +84,9 @@ public:
         return m_pInstance;
     }
 
-    static size_t GetMode()
+    static uint32_t GetMode()
     {
-        size_t mode = 0;
+        uint32_t mode = 0;
 #ifdef _DEBUG
         mode |= eCPM_Debug;
 #endif
@@ -101,14 +101,14 @@ public:
         if (!m_initialized)
         {
 #ifndef BEATS_DEBUG_TOOL_DISABLE
-            size_t eipForHandleFetch = 0;
+            uint32_t eipForHandleFetch = 0;
             BEATS_ASSI_GET_EIP(eipForHandleFetch);
             HMODULE curModule;
             bool getModuleSuccess = GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT | GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPCTSTR) eipForHandleFetch, &curModule) == TRUE;
             BEATS_ASSERT(getModuleSuccess, _T("Get Module Failed!"));
             TCHAR moduleName[MAX_PATH] = {0};
             GetModuleFileName(curModule, moduleName, MAX_PATH);
-            size_t strLength = _tcslen(moduleName);
+            uint32_t strLength = _tcslen(moduleName);
             TCHAR* pSuffix = moduleName + (strLength - 3);
             bool bIsRunningUnderExe = _tcsicmp(pSuffix, _T("Exe")) == 0;
             if (!bGlobalAuto || bIsRunningUnderExe)
@@ -172,15 +172,15 @@ public:
     TFuncType1 pBEATS_INIT_DEBUG_TOOL;
     TFuncType1 pBEATS_PERFORMDETECT_RESET;
     TFuncType1 pBEATS_UNINIT_DEBUG_TOOL;
-    typedef void(*TFuncType2)(const TCHAR* typeName[], size_t size);
+    typedef void(*TFuncType2)(const TCHAR* typeName[], uint32_t size);
     TFuncType2 pBEATS_PERFORMDETECT_INIT;
-    typedef void(*TFuncType3)(int type, bool, size_t);
+    typedef void(*TFuncType3)(int type, bool, uint32_t);
     TFuncType3 pBEATS_PERFORMDETECT_START_IMPL;
     typedef float(*TFuncType4)(int);
     TFuncType4 pBEATS_PERFORMDETECT_STOP_IMPL;
-    typedef void(*TFuncType5)(size_t, const TCHAR*, const TCHAR*, void*, EReflectPropertyType);
+    typedef void(*TFuncType5)(uint32_t, const TCHAR*, const TCHAR*, void*, EReflectPropertyType);
     TFuncType5 pBEATS_INFOBOARD_UPDATEPROPERTY_UI;
-    typedef void(*TFuncType6)(const TCHAR*, const TCHAR*, size_t, size_t);
+    typedef void(*TFuncType6)(const TCHAR*, const TCHAR*, uint32_t, uint32_t);
     TFuncType6 pBEATS_INFOBOARD_ADDLOG;
     typedef void(*TFuncType7)(TPropertyChangedHandler);
     TFuncType7    pBEATS_INFOBOARD_REGISTER_UPDATEPROPERTY_HANDLER;

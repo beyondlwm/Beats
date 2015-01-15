@@ -4,15 +4,15 @@
 struct SMemoryRecord
 {
     void* m_pAddress;
-    size_t m_size;
-    size_t m_allocId;
-    size_t m_freeId;
-    size_t m_allocTime;
-    size_t m_freeTime;
-    size_t m_usage;
+    uint32_t m_size;
+    uint32_t m_allocId;
+    uint32_t m_freeId;
+    uint32_t m_allocTime;
+    uint32_t m_freeTime;
+    uint32_t m_usage;
     bool m_isFree;
 
-    SMemoryRecord(void* address, size_t size, size_t allocTime, size_t allocId, size_t usage = 0)
+    SMemoryRecord(void* address, uint32_t size, uint32_t allocTime, uint32_t allocId, uint32_t usage = 0)
         : m_pAddress(address)
         , m_size(size)
         , m_allocId(allocId)
@@ -38,7 +38,7 @@ struct SMemoryRecord
 
     }
 
-    void Init(void* address, size_t size, size_t allocTime, size_t allocId, size_t usage = 0)
+    void Init(void* address, uint32_t size, uint32_t allocTime, uint32_t allocId, uint32_t usage = 0)
     {
         m_pAddress = address;
         m_size = size;
@@ -60,12 +60,12 @@ struct SModuleInfo {
         return addrhigh < other.addrlow ? TRUE : FALSE;
     }
 
-    SIZE_T addrhigh;                 // Highest address within the module's virtual address space (i.e. base + size).
-    SIZE_T addrlow;                  // Lowest address within the module's virtual address space (i.e. base address).
+    uint32_t addrhigh;                 // Highest address within the module's virtual address space (i.e. base + size).
+    uint32_t addrlow;                  // Lowest address within the module's virtual address space (i.e. base address).
 };
 
 typedef std::map<void*, SMemoryRecord*> TRecordMap;
-typedef std::map<size_t, std::set<SMemoryRecord*>> TRecordU32Map;
+typedef std::map<uint32_t, std::set<SMemoryRecord*>> TRecordU32Map;
 
 enum EMemoryFrameRecordType
 {
@@ -89,8 +89,8 @@ struct SMemoryFrameRecord
     TRecordU32Map recordMapForTime;
     
     EMemoryFrameRecordType type;
-    size_t                 totalItemCount;
-    size_t                 startPos; //Available when this frame record is just a part of real one.
+    uint32_t                 totalItemCount;
+    uint32_t                 startPos; //Available when this frame record is just a part of real one.
     SMemoryFrameRecord()
         : type(eMFRT_Address)
         , totalItemCount(0)

@@ -51,8 +51,8 @@ struct SSerilaizerExtraInfo
     {
 
     }
-    size_t m_uPropertyCount;
-    size_t m_uDependencyCount;
+    uint32_t m_uPropertyCount;
+    uint32_t m_uDependencyCount;
 };
 
 template<typename T>
@@ -66,7 +66,7 @@ inline EReflectPropertyType GetEnumType(T& value, CSerializer* pSerializer)
         eRet = eRPT_Enum;
         TCHAR szNameBuffer[128];
         CStringHelper::GetInstance()->ConvertToTCHAR(&pszTypeName[strlen("enum ")], szNameBuffer, 128);
-        (*pSerializer) << (size_t)eRPT_Enum;
+        (*pSerializer) << (uint32_t)eRPT_Enum;
         (*pSerializer) << (int)(value) << szNameBuffer;
     }
     BEATS_ASSERT(bIsEnum, _T("Unknown type!"));
@@ -86,7 +86,7 @@ inline void DeserializeVariable(T*& value, CSerializer* pSerializer)
     *pSerializer >> bHasInstance;
     if(bHasInstance)
     {
-        size_t uDataSize, uGuid, uId, uStartPos;
+        uint32_t uDataSize, uGuid, uId, uStartPos;
         uStartPos = pSerializer->GetReadPos();
         *pSerializer >> uDataSize;
         *pSerializer >> uGuid;
@@ -143,17 +143,17 @@ inline void DeserializeVariable(T*& value, CSerializer* pSerializer)
 
 #ifdef EDITOR_MODE
 template<typename T>
-inline void ResizeVector(std::vector<T>& value, size_t uCount)
+inline void ResizeVector(std::vector<T>& value, uint32_t uCount)
 {
     value.resize(uCount);
 }
 
 template<typename T>
-inline void ResizeVector(std::vector<T*>& value, size_t uCount)
+inline void ResizeVector(std::vector<T*>& value, uint32_t uCount)
 {
     if (value.size() > uCount)
     {
-        for (size_t i = 0; i < value.size() - uCount; ++i)
+        for (uint32_t i = 0; i < value.size() - uCount; ++i)
         {
             BEATS_ASSERT(value.back() == NULL || dynamic_cast<CComponentBase*>(value.back()) != NULL);
             value.pop_back();
@@ -186,14 +186,14 @@ inline void ClearMap(std::map<T1, T2*>& value)
 template<typename T>
 inline void DeserializeVariable(std::vector<T>& value, CSerializer* pSerializer)
 {
-    size_t childCount = 0;
+    uint32_t childCount = 0;
     *pSerializer >> childCount;
 #ifdef EDITOR_MODE
     ResizeVector(value, childCount);
 #else
     value.resize(childCount);
 #endif
-    for (size_t i = 0; i < childCount; ++i)
+    for (uint32_t i = 0; i < childCount; ++i)
     {
 #ifdef EDITOR_MODE
         CPropertyDescriptionBase* pCurrReflectProperty = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();
@@ -218,7 +218,7 @@ inline void DeserializeVariable(std::map<T1, T2>& value, CSerializer* pSerialize
 {
     EReflectPropertyType keyType;
     EReflectPropertyType valueType;
-    size_t childCount = 0;
+    uint32_t childCount = 0;
     *pSerializer >> keyType;
     *pSerializer >> valueType;
     *pSerializer >> childCount;
@@ -227,7 +227,7 @@ inline void DeserializeVariable(std::map<T1, T2>& value, CSerializer* pSerialize
 #else
     BEATS_ASSERT(value.size() == 0, _T("map should be empty when deserialize!"));
 #endif
-    for (size_t i = 0; i < childCount; ++i)
+    for (uint32_t i = 0; i < childCount; ++i)
     {
         T1 key;
         InitValue(key);
@@ -265,7 +265,7 @@ inline void DeserializeVariable(std::map<T1, T2>& value, CSerializer* pSerialize
 template<typename T>
 inline EReflectPropertyType GetEnumType(T*& /*value*/, CSerializer* pSerializer)
 {
-    size_t guid = T::REFLECT_GUID;
+    uint32_t guid = T::REFLECT_GUID;
     T* pTestParam = (T*)(guid);
     EReflectPropertyType eReturnType = eRPT_Invalid;
     CComponentBase* pReflect = dynamic_cast<CComponentBase*>(pTestParam);
@@ -285,7 +285,7 @@ inline EReflectPropertyType GetEnumType(classType& value, CSerializer* pSerializ
 {\
     if (pSerializer != NULL)\
     {\
-        *pSerializer << ((size_t)enumType);\
+        *pSerializer << ((uint32_t)enumType);\
         *pSerializer << value;\
     }\
     return enumType;\
@@ -309,7 +309,7 @@ inline EReflectPropertyType GetEnumType(classType& value, CSerializer* pSerializ
 {\
     if (pSerializer != NULL)\
     {\
-        *pSerializer << (size_t)enumType;\
+        *pSerializer << (uint32_t)enumType;\
         T tmp;\
         InitValue(tmp);\
         GetEnumType(tmp, pSerializer);\
@@ -323,7 +323,7 @@ inline EReflectPropertyType GetEnumType(classType& value, CSerializer* pSerializ
 {\
     if (pSerializer != NULL)\
 {\
-    *pSerializer << (size_t)enumType;\
+    *pSerializer << (uint32_t)enumType;\
     T1 tmp1;\
     InitValue(tmp1);\
     GetEnumType(tmp1, pSerializer);\
@@ -354,9 +354,9 @@ inline const TCHAR* GenEnumParamStr(const std::vector<TString>& enumStringArray,
     static TString strEnumParam;
     strEnumParam.clear();
     strEnumParam.append(UIParameterAttrStr[eUIPAT_EnumStringArray]).append(PROPERTY_KEYWORD_SPLIT_STR);
-    size_t uCount = enumStringArray.size();
+    uint32_t uCount = enumStringArray.size();
     BEATS_ASSERT(uCount > 0, _T("Enum string array is empty!"));
-    for (size_t i = 0; i < uCount; ++i)
+    for (uint32_t i = 0; i < uCount; ++i)
     {
         strEnumParam.append(enumStringArray[i]);
         if (i < uCount - 1)
@@ -376,9 +376,9 @@ inline const TCHAR* GenEnumParamStr(const TCHAR* enumStringArray[], const TCHAR*
     static TString strEnumParam;
     strEnumParam.clear();
     strEnumParam.append(UIParameterAttrStr[eUIPAT_EnumStringArray]).append(PROPERTY_KEYWORD_SPLIT_STR);
-    size_t uCount = sizeof(enumStringArray);
+    uint32_t uCount = sizeof(enumStringArray);
     BEATS_ASSERT(uCount > 0, _T("Enum string array is empty!"));
-    for (size_t i = 0; i < uCount; ++i)
+    for (uint32_t i = 0; i < uCount; ++i)
     {
         strEnumParam.append(enumStringArray[i]);
         if (i < uCount - 1)
@@ -412,12 +412,12 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
     BEATS_ASSERT(serializer.GetUserData() != NULL, _T("Serializer doesn't contain an user data!\nPlease make sure you enalbe EDITOR_MODE and Disable EXPORT_TO_EDITOR when launch editor!"));\
     serializer << (bool) true;\
     EReflectPropertyType propertyType = GetEnumType(property, &serializer);\
-    size_t nPropertyDataSizeHolder = serializer.GetWritePos();\
+    uint32_t nPropertyDataSizeHolder = serializer.GetWritePos();\
     serializer << nPropertyDataSizeHolder;\
     const TCHAR* pszParam = parameter;\
     if (propertyType == eRPT_Enum && pszParam != NULL)\
     {\
-        size_t uEnumStringArrayNameLen = _tcslen(UIParameterAttrStr[eUIPAT_EnumStringArray]);\
+        uint32_t uEnumStringArrayNameLen = _tcslen(UIParameterAttrStr[eUIPAT_EnumStringArray]);\
         if (_tcslen(pszParam) > uEnumStringArrayNameLen && memcmp(pszParam, UIParameterAttrStr[eUIPAT_EnumStringArray], uEnumStringArrayNameLen) == 0)\
         {\
             const char* pszTypeName = typeid(property).name();\
@@ -431,7 +431,7 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
         }\
     }\
     serializer << (bool)editable << color << (displayName ? displayName : _T(#property)) << (catalog ? catalog : _T("")) << (tip ? tip : _T("")) << (_T(#property)) << (pszParam ? pszParam : _T(""));\
-    size_t propertyDataSize = serializer.GetWritePos() - nPropertyDataSizeHolder;\
+    uint32_t propertyDataSize = serializer.GetWritePos() - nPropertyDataSizeHolder;\
     serializer.SetWritePos(nPropertyDataSizeHolder);\
     serializer << propertyDataSize;\
     serializer.SetWritePos(nPropertyDataSizeHolder + propertyDataSize);\
@@ -458,13 +458,13 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
 
     #define DECLARE_DEPENDENCY(serializer, ptrProperty, displayName, dependencyType)\
     {\
-        size_t uLineCount = 0;\
+        uint32_t uLineCount = 0;\
         serializer >> uLineCount;\
         BEATS_ASSERT(uLineCount <= 1, _T("Data error:\nWe want a dependency data, but got %d line count!"), uLineCount);\
         ptrProperty = NULL;\
         if (uLineCount == 1)\
         {\
-            size_t uInstanceId, uGuid;\
+            uint32_t uInstanceId, uGuid;\
             serializer >> uInstanceId >> uGuid;\
             CComponentInstanceManager::GetInstance()->AddDependencyResolver(NULL, 0 , uGuid, uInstanceId, &ptrProperty, false);\
         }\
@@ -472,12 +472,12 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
 
     #define DECLARE_DEPENDENCY_LIST(serializer, ptrProperty, displayName, dependencyType)\
     {\
-        size_t uLineCount = 0;\
+        uint32_t uLineCount = 0;\
         serializer >> uLineCount;\
         ptrProperty.clear();\
-        for (size_t i = 0; i < uLineCount; ++i)\
+        for (uint32_t i = 0; i < uLineCount; ++i)\
         {\
-            size_t uInstanceId, uGuid;\
+            uint32_t uInstanceId, uGuid;\
             serializer >> uInstanceId >> uGuid;\
             CComponentInstanceManager::GetInstance()->AddDependencyResolver(NULL, i , uGuid, uInstanceId, &ptrProperty, true);\
         }\
@@ -522,12 +522,12 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
         {\
             if (!bReflectCheckFlag || pDependency == NULL || _tcscmp(pDependency->GetVariableName(), _T(#ptrProperty)) == 0)\
             {\
-                size_t uLineCount = 0;\
+                uint32_t uLineCount = 0;\
                 serializer >> uLineCount;\
                 BEATS_ASSERT(uLineCount <= 1, _T("Data error:\nWe want a dependency data, but got %d line count!"), uLineCount);\
                 if (uLineCount == 1)\
                 {\
-                    size_t uInstanceId, uGuid;\
+                    uint32_t uInstanceId, uGuid;\
                     serializer >> uInstanceId >> uGuid;\
                     bool bNeedSnyc = true;\
                     if (pDependency != NULL && !CComponentProxyManager::GetInstance()->IsLoadingFile())\
@@ -544,7 +544,7 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
                     if (bNeedSnyc)\
                     {\
                         ptrProperty = NULL;\
-                        size_t uDepGuid = ptrProperty->REFLECT_GUID;\
+                        uint32_t uDepGuid = ptrProperty->REFLECT_GUID;\
                         bool bIsParent = CComponentProxyManager::GetInstance()->IsParent(uDepGuid, uGuid);\
                         BEATS_ASSERT(bIsParent,\
                         _T("GUID mismatched. GUID of dependency:0x%x, GUID in datafile:0x%x"),\
@@ -580,7 +580,7 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
         {\
             if (!bReflectCheckFlag || pDependencyList == NULL || _tcscmp(pDependencyList->GetVariableName(), _T(#ptrProperty)) == 0)\
             {\
-                size_t uLineCount = 0;\
+                uint32_t uLineCount = 0;\
                 serializer >> uLineCount;\
                 bool bNeedSnyc = true;\
                 if (pDependencyList != NULL && !CComponentProxyManager::GetInstance()->IsLoadingFile())\
@@ -597,11 +597,11 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
                 {\
                     ptrProperty.clear();\
                     ptrProperty.resize(1);\
-                    size_t uDepGuid = ptrProperty[0]->REFLECT_GUID;\
+                    uint32_t uDepGuid = ptrProperty[0]->REFLECT_GUID;\
                     ptrProperty.clear();\
-                    for (size_t i = 0; i < uLineCount; ++i)\
+                    for (uint32_t i = 0; i < uLineCount; ++i)\
                     {\
-                        size_t uInstanceId, uGuid;\
+                        uint32_t uInstanceId, uGuid;\
                         serializer >> uInstanceId >> uGuid;\
                         bool bIsParent = CComponentProxyManager::GetInstance()->IsParent(uDepGuid, uGuid);\
                         BEATS_ASSERT(bIsParent,\

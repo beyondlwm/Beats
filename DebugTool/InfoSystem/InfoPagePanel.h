@@ -15,7 +15,7 @@ enum EReflectPropertyType;
 
 struct SPropertyRequest
 {
-    size_t m_id;
+    uint32_t m_id;
     wxVariant m_var;
     TString m_idStr;
     EReflectPropertyType m_type;
@@ -34,8 +34,8 @@ public:
 
 
     virtual ~CInfoPagePanel();
-    void AppendLogText(const TCHAR* pLog, size_t logPos, const wxTextAttr* textAttr = NULL);
-    void UpdateProperty(const TCHAR* propertyIdStr, size_t propertyId, void* value, EReflectPropertyType type);
+    void AppendLogText(const TCHAR* pLog, uint32_t logPos, const wxTextAttr* textAttr = NULL);
+    void UpdateProperty(const TCHAR* propertyIdStr, uint32_t propertyId, void* value, EReflectPropertyType type);
     void DeleteProperty(const TCHAR* pPropertyName);
 private:
     bool ShouldHideProperty(wxPGProperty* property, const wxArrayString& filters, const wxString& searchStr, bool& hideByFilterOrSearch);
@@ -72,8 +72,8 @@ private:
     wxCheckBox* m_pApplyToLogCheckBox;
     wxCheckBox* m_pReverseFilterCheckBox;
     wxSearchCtrl* m_pLogSearchCtrl;
-    size_t m_lastPropertySearchTextUpdateTime;
-    size_t m_lastLogSearchTextUpdateTime;
+    uint32_t m_lastPropertySearchTextUpdateTime;
+    uint32_t m_lastLogSearchTextUpdateTime;
     std::set<wxPGProperty*> m_propertyHiddenByFilter;
     std::vector<SPropertyRequest> m_request;
     std::vector<TString> m_deleteRequest;

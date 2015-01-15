@@ -24,7 +24,7 @@ CVector4::~CVector4()
 
 }
 
-float& CVector4::operator [] ( const size_t i )
+float& CVector4::operator [] ( const uint32_t i )
 {
     BEATS_ASSERT( i < 4 , _T("Index out of bound!"));
 

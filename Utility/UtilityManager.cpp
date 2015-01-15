@@ -89,7 +89,7 @@ UINT_PTR CALLBACK FolderHookProc(HWND hdlg, UINT uiMsg, WPARAM /*wParam*/, LPARA
             hListCtrl = GetDlgItem(hListCtrl, 1);
             if (hListCtrl != NULL)
             {
-                size_t uSelectCount = (int) ::SendMessage(hListCtrl, LVM_GETSELECTEDCOUNT, 0, 0L);
+                uint32_t uSelectCount = (int) ::SendMessage(hListCtrl, LVM_GETSELECTEDCOUNT, 0, 0L);
                 int iLastPos = -1;
                 TCHAR szFileName[MAX_PATH];
                 LVITEM lvi;
@@ -100,7 +100,7 @@ UINT_PTR CALLBACK FolderHookProc(HWND hdlg, UINT uiMsg, WPARAM /*wParam*/, LPARA
                 TCHAR szPath[MAX_PATH];
                 ::SendMessage( hParent, CDM_GETFOLDERPATH, MAX_PATH, (LPARAM)szPath);
                 strSelectFiles.append(szPath).append(_T("|"));
-                for (size_t i = 0; i < uSelectCount; ++i)
+                for (uint32_t i = 0; i < uSelectCount; ++i)
                 {
                     int iSelectItemPos = ::SendMessage(hListCtrl, LVM_GETNEXTITEM, iLastPos, MAKELPARAM(LVIS_SELECTED, 0));
                     ::SendMessage(hListCtrl, LVM_GETITEMTEXT, (WPARAM)iSelectItemPos, (LPARAM)&lvi);
@@ -121,7 +121,7 @@ UINT_PTR CALLBACK FolderHookProc(HWND hdlg, UINT uiMsg, WPARAM /*wParam*/, LPARA
 bool CUtilityManager::AcquireMuiltyFilePath(bool bAllowDirectory, HWND hwnd, std::vector<TString>& result, const TCHAR* Tiltle, const TCHAR* filter, const TCHAR* pszInitialPath)
 {
     DWORD returnFlag = 0;
-    size_t uCounter = 0;
+    uint32_t uCounter = 0;
     bool bSuccess = false;
     TCHAR* pszFileName = NULL;
     do 
@@ -160,7 +160,7 @@ bool CUtilityManager::AcquireMuiltyFilePath(bool bAllowDirectory, HWND hwnd, std
             {
                 result.clear();
                 result.resize(files.size() - 1);
-                for (size_t i = 1; i < files.size(); ++i)
+                for (uint32_t i = 1; i < files.size(); ++i)
                 {
                     TString& strFileFullPath = result[i - 1];
                     strFileFullPath.append(files[0]);
@@ -201,7 +201,7 @@ bool CUtilityManager::AcquireDirectory(HWND hwnd, TString& strDirectoryPath, con
 bool CUtilityManager::CalcMD5( CMD5& md5, SDirectory& fileList )
 {
     bool bRet = false;
-    for (size_t i = 0; i < fileList.m_pFileList->size(); ++i)
+    for (uint32_t i = 0; i < fileList.m_pFileList->size(); ++i)
     {
         TFileData* pFileData = fileList.m_pFileList->at(i);
         TString strFilePath = fileList.m_szPath;
@@ -213,7 +213,7 @@ bool CUtilityManager::CalcMD5( CMD5& md5, SDirectory& fileList )
             fclose(pFile);
         }
     }
-    for (size_t i = 0; i < fileList.m_pDirectories->size(); ++i)
+    for (uint32_t i = 0; i < fileList.m_pDirectories->size(); ++i)
     {
         CalcMD5(md5, *fileList.m_pDirectories->at(i));
     }
@@ -286,7 +286,7 @@ bool CUtilityManager::FillDirectory(SDirectory& fileList, bool bFillSubDirectory
 unsigned long long CUtilityManager::BuildDirectoryToList( SDirectory* pDirectory, std::vector<TFileData*>& listToAppend )
 {
     unsigned long long totalFileSize = 0;
-    for (size_t i = 0; i < pDirectory->m_pFileList->size(); ++i)
+    for (uint32_t i = 0; i < pDirectory->m_pFileList->size(); ++i)
     {
         listToAppend.push_back((*pDirectory->m_pFileList)[i]);
         long long uFileSize = (*pDirectory->m_pFileList)[i]->nFileSizeHigh;
@@ -294,19 +294,19 @@ unsigned long long CUtilityManager::BuildDirectoryToList( SDirectory* pDirectory
         uFileSize += (*pDirectory->m_pFileList)[i]->nFileSizeLow;
         totalFileSize += uFileSize;
     }
-    for (size_t i = 0; i < pDirectory->m_pDirectories->size(); ++i)
+    for (uint32_t i = 0; i < pDirectory->m_pDirectories->size(); ++i)
     {
         totalFileSize += BuildDirectoryToList((*pDirectory->m_pDirectories)[i], listToAppend);
     }
     return totalFileSize;
 }
 
-void CUtilityManager::DeserializeDirectory(SDirectory* pDirectory, CSerializer& serializer, long long* pTotalDataSize /*= NULL*/, size_t* pFileCount /*= NULL*/)
+void CUtilityManager::DeserializeDirectory(SDirectory* pDirectory, CSerializer& serializer, long long* pTotalDataSize /*= NULL*/, uint32_t* pFileCount /*= NULL*/)
 {
     serializer >> pDirectory->m_szPath;
-    size_t uFileListCount = 0;
+    uint32_t uFileListCount = 0;
     serializer >> uFileListCount;
-    for (size_t i = 0; i < uFileListCount; ++i)
+    for (uint32_t i = 0; i < uFileListCount; ++i)
     {
         TFileData* pFileData = new TFileData;
         serializer >> pFileData->cAlternateFileName;
@@ -332,9 +332,9 @@ void CUtilityManager::DeserializeDirectory(SDirectory* pDirectory, CSerializer& 
         *pFileCount += uFileListCount;
     }
     serializer.Deserialize(&pDirectory->m_data, sizeof(TFileData));
-    size_t uDirectoriesCount = 0;
+    uint32_t uDirectoriesCount = 0;
     serializer >> uDirectoriesCount;
-    for (size_t i = 0; i < uDirectoriesCount; ++i)
+    for (uint32_t i = 0; i < uDirectoriesCount; ++i)
     {
         SDirectory* pSubDirectory = new SDirectory(pDirectory, NULL);
         DeserializeDirectory(pSubDirectory, serializer, pTotalDataSize, pFileCount);
@@ -346,7 +346,7 @@ void CUtilityManager::SerializeDirectory( SDirectory* pDirectory, CSerializer& s
 {
     serializer << pDirectory->m_szPath;
     serializer << pDirectory->m_pFileList->size();
-    for (size_t i = 0; i < pDirectory->m_pFileList->size(); ++i)
+    for (uint32_t i = 0; i < pDirectory->m_pFileList->size(); ++i)
     {
         TFileData* pFileData = (*pDirectory->m_pFileList)[i];
         serializer << pFileData->cAlternateFileName;
@@ -360,7 +360,7 @@ void CUtilityManager::SerializeDirectory( SDirectory* pDirectory, CSerializer& s
     }
     serializer.Serialize(&pDirectory->m_data, sizeof(TFileData));
     serializer << pDirectory->m_pDirectories->size();
-    for (size_t i = 0; i < pDirectory->m_pDirectories->size(); ++i)
+    for (uint32_t i = 0; i < pDirectory->m_pDirectories->size(); ++i)
     {
         SerializeDirectory((*pDirectory->m_pDirectories)[i], serializer);
     }
@@ -373,12 +373,12 @@ void CUtilityManager::Init()
     return;    
 }
 
-bool CUtilityManager::WriteDataToFile(FILE* pFile, void* pData, size_t uDataLength, size_t uRetryCount/* = 20*/)
+bool CUtilityManager::WriteDataToFile(FILE* pFile, void* pData, uint32_t uDataLength, uint32_t uRetryCount/* = 20*/)
 {
     BEATS_ASSERT(pFile != NULL, _T("File handle is invalid in CUtilityManager::WriteDataToFile"));
     BEATS_ASSERT(pData != NULL, _T("Data is NULL in CUtilityManager::WriteDataToFile"));
     BEATS_ASSERT(uDataLength > 0, _T("uDataLength is 0 in CUtilityManager::WriteDataToFile"));
-    size_t uCounter = 0;
+    uint32_t uCounter = 0;
     while (uCounter < uDataLength && uRetryCount > 0)
     {
         DWORD uWriteCounter = 0;
@@ -390,12 +390,12 @@ bool CUtilityManager::WriteDataToFile(FILE* pFile, void* pData, size_t uDataLeng
     return uCounter == uDataLength;
 }
 
-bool CUtilityManager::ReadDataFromFile(FILE* pFile, void* pData, size_t uDataLength, size_t uRetryCount/* = 20*/)
+bool CUtilityManager::ReadDataFromFile(FILE* pFile, void* pData, uint32_t uDataLength, uint32_t uRetryCount/* = 20*/)
 {
     BEATS_ASSERT(pFile != NULL, _T("File handle is invalid in CUtilityManager::WriteDataToFile"));
     BEATS_ASSERT(pData != NULL, _T("Data is NULL in CUtilityManager::WriteDataToFile"));
     BEATS_ASSERT(uDataLength > 0, _T("uDataLength is 0 in CUtilityManager::WriteDataToFile"));
-    size_t uCounter = 0;
+    uint32_t uCounter = 0;
     while (uCounter < uDataLength && uRetryCount > 0)
     {
         DWORD uReadCounter = 0;
@@ -407,7 +407,7 @@ bool CUtilityManager::ReadDataFromFile(FILE* pFile, void* pData, size_t uDataLen
     return uCounter == uDataLength;
 }
 
-bool CUtilityManager::GetProcessModule( size_t uProcessId, std::vector<TString>& modulePath )
+bool CUtilityManager::GetProcessModule( uint32_t uProcessId, std::vector<TString>& modulePath )
 {
     bool bRet = false;
 #if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)

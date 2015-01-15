@@ -68,7 +68,7 @@ bool wxPtrButtonEditor::OnEvent( wxPropertyGrid* propGrid,
         CWxwidgetsPropertyBase* pPropertyDescription = static_cast<CWxwidgetsPropertyBase*>(property->GetClientData());
         CBDTWxFrame* pMainFrame = static_cast<CBDTWxApp*>(wxApp::GetInstance())->GetMainFrame();
         const wxWindow* pButton = NULL;
-        for (size_t i = 0; i < buttons->GetCount(); ++i)
+        for (uint32_t i = 0; i < buttons->GetCount(); ++i)
         {
             if (event.GetId() == buttons->GetButtonId(i))
             {
@@ -85,8 +85,8 @@ bool wxPtrButtonEditor::OnEvent( wxPropertyGrid* propGrid,
                 bool bValueChanged = false;
                 if (pButton->GetLabel().CmpNoCase(_T("+")) == 0)
                 {
-                    size_t ptrGuid = pPtrPropertyDescription->GetPtrGuid();
-                    std::vector<size_t> instanceClassGuid;
+                    uint32_t ptrGuid = pPtrPropertyDescription->GetPtrGuid();
+                    std::vector<uint32_t> instanceClassGuid;
                     CComponentProxyManager::GetInstance()->QueryDerivedClass(ptrGuid, instanceClassGuid, true);
                     bValueChanged = instanceClassGuid.size() == 0;
                     if (!bValueChanged)
@@ -109,7 +109,7 @@ bool wxPtrButtonEditor::OnEvent( wxPropertyGrid* propGrid,
                         if ( !strSelectItem.empty() )
                         {
                             int nSelectIndex = choice.Index(strSelectItem);
-                            size_t uDerivedGuid = choice.GetValue(nSelectIndex);
+                            uint32_t uDerivedGuid = choice.GetValue(nSelectIndex);
                             pPtrPropertyDescription->SetDerivedGuid(uDerivedGuid);
                             bValueChanged = true;
                         }

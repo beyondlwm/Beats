@@ -384,7 +384,7 @@ bool CDXVerDetector::GetFileVersion( TCHAR* szPath, ULARGE_INTEGER* pllFileVersi
     return false;
 }
 
-size_t CDXVerDetector::GetVersionID( DWORD dwDirectXVersionMajor, DWORD dwDirectXVersionMinor, TCHAR cDirectXVersionLetter )
+uint32_t CDXVerDetector::GetVersionID( DWORD dwDirectXVersionMajor, DWORD dwDirectXVersionMinor, TCHAR cDirectXVersionLetter )
 {
     DWORD dwDirectXVersion = dwDirectXVersionMajor;
     dwDirectXVersion <<= 8;

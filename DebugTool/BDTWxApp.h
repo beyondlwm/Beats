@@ -34,15 +34,15 @@ public:
     void SetFramePtr(CBDTWxFrame* pFrame);
     bool IsFrameValid();
     bool GetFirstResult(std::vector<SPerformanceResult*>& outParam);
-    size_t GetPerformUpdateCount();
+    uint32_t GetPerformUpdateCount();
     SMemoryFrameRecord& GetMemoryUICache();
-    void SetClientMode(size_t mode);
-    size_t GetClientMode();
+    void SetClientMode(uint32_t mode);
+    uint32_t GetClientMode();
     HANDLE GetLaunchEvent();
-    bool Launch(size_t uFuncSwitcher, std::vector<std::string>* pMemHookModuleList);
+    bool Launch(uint32_t uFuncSwitcher, std::vector<std::string>* pMemHookModuleList);
     bool IsEnable(EBDTFuncType funcType);
-    void AddInfoLog(const TCHAR* pLog, const TCHAR* pCatalog = 0, size_t logPos = 0, size_t color = 0);
-    void UpdatePropertyInfo(const TCHAR* pCatalog, const TCHAR* pPropertyName, size_t propertyId, void* value, EReflectPropertyType type);
+    void AddInfoLog(const TCHAR* pLog, const TCHAR* pCatalog = 0, uint32_t logPos = 0, uint32_t color = 0);
+    void UpdatePropertyInfo(const TCHAR* pCatalog, const TCHAR* pPropertyName, uint32_t propertyId, void* value, EReflectPropertyType type);
     void DeleteProperty(const TCHAR* pCatalog, const TCHAR* pPropertyName);
     void RegisterPropertyChangeHandler(TPropertyChangedHandler pFunc);
     CBDTWxFrame* GetMainFrame();
@@ -65,9 +65,9 @@ private:
     CStartUpFrame* m_pStartUpFrame;
     CBDTWxFrame* m_pBDTWxFrame;
 
-    size_t m_performUpdateCount;
-    size_t m_clientMode;
-    size_t m_functionSwitchBit;
+    uint32_t m_performUpdateCount;
+    uint32_t m_clientMode;
+    uint32_t m_functionSwitchBit;
     HANDLE m_launchEvent;
 
     std::deque<std::vector<SPerformanceResult*>> m_resultCache;

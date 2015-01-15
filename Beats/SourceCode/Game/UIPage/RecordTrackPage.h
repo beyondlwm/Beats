@@ -64,7 +64,7 @@ private:
     bool OnPressKeyBoard(const CEGUI::EventArgs& e);
     bool OnListClicked(const CEGUI::EventArgs& e);
     
-    size_t CalculateItemIndex(unsigned long pos);
+    uint32_t CalculateItemIndex(unsigned long pos);
 
     DECLARE_FSM(CRecordTrackPage);
     DECLARE_FSM_STATE(CRecordTrackPage, Recording);

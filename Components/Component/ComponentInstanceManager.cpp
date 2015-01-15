@@ -32,7 +32,7 @@ CSerializer* CComponentInstanceManager::Import(const TCHAR* pszFilePath)
 {
     m_pSerializer->Serialize(pszFilePath);
     CSerializer& serializer = *m_pSerializer;
-    size_t uVersion = 0;
+    uint32_t uVersion = 0;
     serializer >> uVersion;
     if (uVersion != COMPONENT_SYSTEM_VERSION)
     {
@@ -42,32 +42,32 @@ CSerializer* CComponentInstanceManager::Import(const TCHAR* pszFilePath)
     }
     else
     {
-        size_t uComponentTemplateCount = 0;
+        uint32_t uComponentTemplateCount = 0;
         serializer >> uComponentTemplateCount;
         CComponentProjectDirectory* pRootDirectory = new CComponentProjectDirectory(NULL, _T("Root"));
         m_pProject->SetRootDirectory(pRootDirectory);
         pRootDirectory->Deserialize(serializer);
-        size_t uStartFile;
+        uint32_t uStartFile;
         serializer >> uStartFile;
         m_pProject->SetStartFile(uStartFile);
         // 1. Load binarize data and file sturcture.
-        size_t uFileCount = 0;
+        uint32_t uFileCount = 0;
         serializer >> uFileCount;
-        for (size_t i = 0; i < uFileCount; ++i)
+        for (uint32_t i = 0; i < uFileCount; ++i)
         {
-            size_t uStartPos = 0;
+            uint32_t uStartPos = 0;
             serializer >> uStartPos;
             BEATS_ASSERT(uStartPos == (serializer.GetReadPos() - sizeof(uStartPos)), _T("File start pos not match!"));
-            size_t uFileSize = 0;
+            uint32_t uFileSize = 0;
             serializer >> uFileSize;
             m_pProject->RegisterFileLayoutInfo(i, uStartPos, uFileSize);
 
-            size_t uComponentCount = 0;
+            uint32_t uComponentCount = 0;
             serializer >> uComponentCount;
-            for (size_t j = 0; j < uComponentCount; ++j)
+            for (uint32_t j = 0; j < uComponentCount; ++j)
             {
-                size_t uComponentDataSize, uGuid, uId;
-                size_t uComponentStartPos = m_pSerializer->GetReadPos();
+                uint32_t uComponentDataSize, uGuid, uId;
+                uint32_t uComponentStartPos = m_pSerializer->GetReadPos();
                 serializer >> uComponentDataSize >> uGuid >> uId;
                 m_pProject->RegisterComponent(i, uGuid, uId);
                 serializer.SetReadPos(uComponentStartPos + uComponentDataSize);
@@ -84,34 +84,34 @@ CSerializer* CComponentInstanceManager::Import(const TCHAR* pszFilePath)
     return m_pSerializer;
 }
 
-void CComponentInstanceManager::SwitchFile(size_t uFileId)
+void CComponentInstanceManager::SwitchFile(uint32_t uFileId)
 {
     BEATS_ASSERT(uFileId != 0xFFFFFFFF);
-    std::vector<size_t> loadFiles, unloadFiles;
+    std::vector<uint32_t> loadFiles, unloadFiles;
     bool bLoadThisFile= CalcSwitchFile(uFileId, loadFiles, unloadFiles);
     if (bLoadThisFile)
     {
         m_uCurLoadFileId = uFileId;
     }
     std::vector<CComponentBase*> loadedComponents;
-    for (size_t i = 0; i < loadFiles.size(); ++i)
+    for (uint32_t i = 0; i < loadFiles.size(); ++i)
     {
         LoadFile(loadFiles[i], loadedComponents);
     }
-    for (size_t i = 0; i < unloadFiles.size(); ++i)
+    for (uint32_t i = 0; i < unloadFiles.size(); ++i)
     {
         CloseFile(unloadFiles[i]);
     }
     ResolveDependency();
 
-    for (size_t i = 0; i < loadedComponents.size(); ++i)
+    for (uint32_t i = 0; i < loadedComponents.size(); ++i)
     {
         loadedComponents[i]->Initialize();
     }
     m_uCurWorkingFileId = uFileId;
 }
 
-bool CComponentInstanceManager::CalcSwitchFile(size_t uFileId, std::vector<size_t>& loadFiles, std::vector<size_t>& unloadFiles)
+bool CComponentInstanceManager::CalcSwitchFile(uint32_t uFileId, std::vector<uint32_t>& loadFiles, std::vector<uint32_t>& unloadFiles)
 {
     BEATS_ASSERT(uFileId != 0xFFFFFFFF);
     std::vector<CComponentBase*> loadedComponents;
@@ -139,10 +139,10 @@ bool CComponentInstanceManager::CalcSwitchFile(size_t uFileId, std::vector<size_
             }
             while (directories.size() > 0)
             {
-                size_t uFileCount = directories.back()->GetFileList().size();
-                for (size_t i = 0; i < uFileCount; ++i)
+                uint32_t uFileCount = directories.back()->GetFileList().size();
+                for (uint32_t i = 0; i < uFileCount; ++i)
                 {
-                    size_t uFileId = directories.back()->GetFileList().at(i);
+                    uint32_t uFileId = directories.back()->GetFileList().at(i);
                     loadFiles.push_back(uFileId);
                 }
                 directories.pop_back();
@@ -168,8 +168,8 @@ bool CComponentInstanceManager::CalcSwitchFile(size_t uFileId, std::vector<size_
                 if (logicPaths[0].compare(_T("..")) != 0)
                 {
                     // Load rest files of the same directory.
-                    const std::vector<size_t>& fileList = pCurDirectory->GetFileList();
-                    for (size_t i = 0;i < fileList.size(); ++i)
+                    const std::vector<uint32_t>& fileList = pCurDirectory->GetFileList();
+                    for (uint32_t i = 0;i < fileList.size(); ++i)
                     {
                         if (fileList[i] != m_uCurLoadFileId)
                         {
@@ -181,10 +181,10 @@ bool CComponentInstanceManager::CalcSwitchFile(size_t uFileId, std::vector<size_
                     for (int i = 1; i < (int)logicPaths.size() - 1; ++i)
                     {
                         pCurLoopDirectory = pCurLoopDirectory->FindChild(logicPaths[i].c_str());
-                        size_t uFileCount = pCurLoopDirectory->GetFileList().size();
-                        for (size_t i = 0; i < uFileCount; ++i)
+                        uint32_t uFileCount = pCurLoopDirectory->GetFileList().size();
+                        for (uint32_t i = 0; i < uFileCount; ++i)
                         {
-                            size_t uFileId = pCurLoopDirectory->GetFileList().at(i);
+                            uint32_t uFileId = pCurLoopDirectory->GetFileList().at(i);
                             loadFiles.push_back(uFileId);
                         }
                     }
@@ -201,8 +201,8 @@ bool CComponentInstanceManager::CalcSwitchFile(size_t uFileId, std::vector<size_
                     {
                         if (logicPaths[i].compare(_T("..")) == 0)
                         {
-                            const std::vector<size_t>& fileList = pCurLoopDirectory->GetFileList();
-                            for (size_t i = 0; i < fileList.size(); ++i)
+                            const std::vector<uint32_t>& fileList = pCurLoopDirectory->GetFileList();
+                            for (uint32_t i = 0; i < fileList.size(); ++i)
                             {
                                 unloadFiles.push_back(fileList[i]);
                             }
@@ -212,10 +212,10 @@ bool CComponentInstanceManager::CalcSwitchFile(size_t uFileId, std::vector<size_
                         {
                             pCurLoopDirectory = pCurLoopDirectory->FindChild(logicPaths[i].c_str());
                             BEATS_ASSERT(pCurLoopDirectory != NULL);
-                            size_t uFileCount = pCurLoopDirectory->GetFileList().size();
-                            for (size_t i = 0; i < uFileCount; ++i)
+                            uint32_t uFileCount = pCurLoopDirectory->GetFileList().size();
+                            for (uint32_t i = 0; i < uFileCount; ++i)
                             {
-                                size_t uFileId = pCurLoopDirectory->GetFileList().at(i);
+                                uint32_t uFileId = pCurLoopDirectory->GetFileList().at(i);
                                 loadFiles.push_back(uFileId);
                             }
                         }
@@ -232,24 +232,24 @@ bool CComponentInstanceManager::CalcSwitchFile(size_t uFileId, std::vector<size_
     return bLoadThisFile;
 }
 
-void CComponentInstanceManager::LoadFile(size_t uFileId, std::vector<CComponentBase*>& loadComponents)
+void CComponentInstanceManager::LoadFile(uint32_t uFileId, std::vector<CComponentBase*>& loadComponents)
 {
-    size_t uFileStartPos = 0;
-    size_t uFileDataLength = 0;
+    uint32_t uFileStartPos = 0;
+    uint32_t uFileDataLength = 0;
     bool bRet = m_pProject->QueryFileLayoutInfo(uFileId, uFileStartPos, uFileDataLength);
     BEATS_ASSERT(bRet, _T("Query file layout info failed! file id %d"), uFileId);
     if (bRet)
     {
         m_pSerializer->SetReadPos(uFileStartPos);
-        size_t uFileStartPosRead, uFileDataLengthRead;
+        uint32_t uFileStartPosRead, uFileDataLengthRead;
         *m_pSerializer >> uFileStartPosRead >> uFileDataLengthRead;
         BEATS_ASSERT(uFileStartPosRead == uFileStartPos && uFileDataLengthRead == uFileDataLength);
-        size_t uComponentCount = 0;
+        uint32_t uComponentCount = 0;
         *m_pSerializer >> uComponentCount;
-        for (size_t j = 0; j < uComponentCount; ++j)
+        for (uint32_t j = 0; j < uComponentCount; ++j)
         {
-            size_t uComponentDataSize, uGuid, uId;
-            size_t uComponentStartPos = m_pSerializer->GetReadPos();
+            uint32_t uComponentDataSize, uGuid, uId;
+            uint32_t uComponentStartPos = m_pSerializer->GetReadPos();
             *m_pSerializer >> uComponentDataSize >> uGuid >> uId;
             CComponentInstance* pComponent = (CComponentInstance*)(CComponentInstanceManager::GetInstance()->CreateComponent(uGuid, false, false, uId, true, m_pSerializer, false));
             pComponent->SetDataPos(uComponentStartPos);
@@ -264,26 +264,26 @@ void CComponentInstanceManager::LoadFile(size_t uFileId, std::vector<CComponentB
     }
 }
 
-void CComponentInstanceManager::CloseFile(size_t uFileId)
+void CComponentInstanceManager::CloseFile(uint32_t uFileId)
 {
     BEATS_ASSERT(m_loadedFiles.find(uFileId) != m_loadedFiles.end(), _T("Can't close file which is not opened!"));
     std::vector<CComponentBase*> componentToDelete;
-    std::map<size_t, std::vector<size_t> >* pFileToComponentMap = m_pProject->GetFileToComponentMap();
+    std::map<uint32_t, std::vector<uint32_t> >* pFileToComponentMap = m_pProject->GetFileToComponentMap();
     auto iter = pFileToComponentMap->find(uFileId);
     if (iter != pFileToComponentMap->end())
     {
 #ifdef _DEBUG
         // All components must exists before they call uninitialize.
-        for (size_t i = 0;i < iter->second.size(); ++i)
+        for (uint32_t i = 0;i < iter->second.size(); ++i)
         {
-            size_t uComponentId = iter->second.at(i);
+            uint32_t uComponentId = iter->second.at(i);
             CComponentBase* pComponent = CComponentInstanceManager::GetInstance()->GetComponentInstance(uComponentId);
             BEATS_ASSERT(pComponent != NULL && pComponent->IsInitialized());
         }
 #endif
-        for (size_t i = 0;i < iter->second.size(); ++i)
+        for (uint32_t i = 0;i < iter->second.size(); ++i)
         {
-            size_t uComponentId = iter->second.at(i);
+            uint32_t uComponentId = iter->second.at(i);
             CComponentBase* pComponentBase = CComponentInstanceManager::GetInstance()->GetComponentInstance(uComponentId);
             // This may be null, because some components can be uninitialized by other component's uninitialize.
             if (pComponentBase != NULL && pComponentBase->IsInitialized())
@@ -293,7 +293,7 @@ void CComponentInstanceManager::CloseFile(size_t uFileId)
             }
         }
     }
-    for (size_t i = 0; i < componentToDelete.size(); ++i)
+    for (uint32_t i = 0; i < componentToDelete.size(); ++i)
     {
         BEATS_SAFE_DELETE(componentToDelete[i]);
     }
@@ -305,17 +305,17 @@ CSerializer* CComponentInstanceManager::GetFileSerializer() const
     return m_pSerializer;
 }
 
-const std::set<size_t>& CComponentInstanceManager::GetLoadedFiles() const
+const std::set<uint32_t>& CComponentInstanceManager::GetLoadedFiles() const
 {
     return m_loadedFiles;
 }
 
-void CComponentInstanceManager::SetCurLoadFileId(size_t uFileId)
+void CComponentInstanceManager::SetCurLoadFileId(uint32_t uFileId)
 {
     m_uCurLoadFileId = uFileId;
 }
 
-size_t CComponentInstanceManager::GetCurLoadFileId() const
+uint32_t CComponentInstanceManager::GetCurLoadFileId() const
 {
     return m_uCurLoadFileId;
 }
@@ -332,7 +332,7 @@ void CComponentInstanceManager::SetClonePhaseFlag(bool bInClonePhase)
 
 void CComponentInstanceManager::ResolveDependency()
 {
-    for (size_t i = 0; i < m_pDependencyResolver->size(); ++i)
+    for (uint32_t i = 0; i < m_pDependencyResolver->size(); ++i)
     {
         SDependencyResolver* pDependencyResolver = (*m_pDependencyResolver)[i];
         CComponentBase* pComponentToBeLink = GetComponentInstance(pDependencyResolver->uInstanceId, pDependencyResolver->uGuid);
@@ -346,24 +346,24 @@ void CComponentInstanceManager::ResolveDependency()
             }
             else
             {
-                *(size_t*)pDependencyResolver->pVariableAddress = (size_t)pComponentToBeLink;
+                *(uint32_t*)pDependencyResolver->pVariableAddress = (uint32_t)pComponentToBeLink;
             }
         }
     }
     BEATS_SAFE_DELETE_VECTOR(*m_pDependencyResolver);
 }
 
-size_t CComponentInstanceManager::GetVersion()
+uint32_t CComponentInstanceManager::GetVersion()
 {
     return COMPONENT_SYSTEM_VERSION;
 }
 
 void CComponentInstanceManager::LoadDirectoryFiles(CComponentProjectDirectory* pDirectory, std::vector<CComponentBase*>& loadComponents)
 {
-    size_t uFileCount = pDirectory->GetFileList().size();
-    for (size_t i = 0; i < uFileCount; ++i)
+    uint32_t uFileCount = pDirectory->GetFileList().size();
+    for (uint32_t i = 0; i < uFileCount; ++i)
     {
-        size_t uFileId = pDirectory->GetFileList().at(i);
+        uint32_t uFileId = pDirectory->GetFileList().at(i);
         LoadFile(uFileId, loadComponents);
     }
 }

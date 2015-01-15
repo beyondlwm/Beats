@@ -11,16 +11,16 @@ class COMPONENTS_DLL_DECL CComponentInstanceManager : public CComponentManagerBa
     typedef CComponentManagerBase super;
     BEATS_DECLARE_SINGLETON(CComponentInstanceManager);
 public:
-    size_t GetVersion();
+    uint32_t GetVersion();
     CSerializer* Import(const TCHAR* pszFilePath);
-    void SwitchFile(size_t uFileId);
-    bool CalcSwitchFile(size_t uFileId, std::vector<size_t>& loadFiles, std::vector<size_t>& unloadFiles);
-    void LoadFile(size_t uFileId, std::vector<CComponentBase*>& loadComponents);
-    void CloseFile(size_t uFileId);
+    void SwitchFile(uint32_t uFileId);
+    bool CalcSwitchFile(uint32_t uFileId, std::vector<uint32_t>& loadFiles, std::vector<uint32_t>& unloadFiles);
+    void LoadFile(uint32_t uFileId, std::vector<CComponentBase*>& loadComponents);
+    void CloseFile(uint32_t uFileId);
     CSerializer* GetFileSerializer() const;
-    const std::set<size_t>& GetLoadedFiles() const;
-    void SetCurLoadFileId(size_t uFileId);
-    size_t GetCurLoadFileId() const;
+    const std::set<uint32_t>& GetLoadedFiles() const;
+    void SetCurLoadFileId(uint32_t uFileId);
+    uint32_t GetCurLoadFileId() const;
     bool IsInClonePhase() const;
     void SetClonePhaseFlag(bool bInClonePhase);
 
@@ -30,10 +30,10 @@ private:
     void LoadDirectoryFiles(CComponentProjectDirectory* pDirectory, std::vector<CComponentBase*>& loadComponents);
 private:
     bool m_bInClonePhase;
-    size_t m_uCurLoadFileId;
-    size_t m_uCurWorkingFileId;
+    uint32_t m_uCurLoadFileId;
+    uint32_t m_uCurWorkingFileId;
     CSerializer* m_pSerializer;
-    std::set<size_t> m_loadedFiles;
+    std::set<uint32_t> m_loadedFiles;
 };
 
 #endif

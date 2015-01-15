@@ -28,7 +28,7 @@ void CObjectManager::RecycleObject( CBaseObject* pObject )
 {
     pObject->OnRecycle();
     pObject->SetActive(false);
-    size_t uId = pObject->GetID();
+    uint32_t uId = pObject->GetID();
     BEATS_ASSERT(uId < m_objects.size(), _T("Invalid Id %d"), uId);
     m_recycleObjects.push_back(m_objects[uId]);
     m_objects[uId] = NULL;
@@ -75,7 +75,7 @@ void CObjectManager::RemoveAllObjects( bool recycle )
 {
     if (recycle)
     {
-        for (size_t i = 0; i < m_objects.size(); ++i)
+        for (uint32_t i = 0; i < m_objects.size(); ++i)
         {
             if (m_objects[i] != NULL)
             {
@@ -87,7 +87,7 @@ void CObjectManager::RemoveAllObjects( bool recycle )
     }
     else
     {
-        for (size_t i = 0; i < m_objects.size(); ++i)
+        for (uint32_t i = 0; i < m_objects.size(); ++i)
         {
             if (m_objects[i] != NULL)
             {
@@ -96,7 +96,7 @@ void CObjectManager::RemoveAllObjects( bool recycle )
             }
         }
         m_objects.clear();
-        for (size_t i = 0; i < m_recycleObjects.size(); ++i)
+        for (uint32_t i = 0; i < m_recycleObjects.size(); ++i)
         {
             BEATS_SAFE_DELETE(m_recycleObjects[i]);
         }
@@ -107,7 +107,7 @@ void CObjectManager::RemoveAllObjects( bool recycle )
 
 void CObjectManager::Update( float deltaTimeMs )
 {
-    for (size_t i = 0; i < m_objects.size();++i)
+    for (uint32_t i = 0; i < m_objects.size();++i)
     {
         CBaseObject* pObject = m_objects[i];
         if (pObject != NULL && pObject->IsActive())
@@ -132,7 +132,7 @@ void CObjectManager::Register( CBaseObject* pElem )
 
 void CObjectManager::Unregister( CBaseObject* pElem )
 {
-    size_t uID = pElem->GetID();
+    uint32_t uID = pElem->GetID();
     BEATS_ASSERT(uID < m_objects.size(), _T("Invalid ID of object %d"), uID);
     m_objects[uID] = NULL;
 }

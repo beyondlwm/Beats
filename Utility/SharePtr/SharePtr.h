@@ -55,12 +55,12 @@ public:
         if (pObject != NULL)
         {
 #ifdef SHARE_PTR_TRACE
-            m_pRefrencePosSet = new std::multiset<size_t>;
-            size_t eBPValue = 0;
+            m_pRefrencePosSet = new std::multiset<uint32_t>;
+            uint32_t eBPValue = 0;
             BEATS_ASSI_GET_EBP(eBPValue);
-            m_uRefrencePos = (*(size_t*)((size_t*)(eBPValue) + 1));//current eip,ignore it.
-            size_t lastEBPValue = *(size_t*)(eBPValue);
-            size_t ignoreFrameCount = 1;
+            m_uRefrencePos = (*(uint32_t*)((uint32_t*)(eBPValue) + 1));//current eip,ignore it.
+            uint32_t lastEBPValue = *(uint32_t*)(eBPValue);
+            uint32_t ignoreFrameCount = 1;
             bool bMeaningfulFile = false;
             while (ignoreFrameCount != 0 || !bMeaningfulFile)
             {
@@ -87,10 +87,10 @@ public:
                 }
                 if (!bMeaningfulFile)
                 {
-                    lastEBPValue = *(size_t*)(eBPValue);
+                    lastEBPValue = *(uint32_t*)(eBPValue);
                     // If the module enable FPO optimize, the address may be invalid.
                     eBPValue = lastEBPValue;
-                    size_t* pPtr = (size_t*)((size_t*)(eBPValue) + 1);
+                    uint32_t* pPtr = (uint32_t*)((uint32_t*)(eBPValue) + 1);
                     if (lastEBPValue == 0 || IsBadCodePtr((FARPROC)pPtr))
                     {
                         break;
@@ -181,7 +181,7 @@ public:
             m_pObject = pObject;
             m_pRefCount = new long(1);
 #ifdef SHARE_PTR_TRACE
-            m_pRefrencePosSet = new std::multiset<size_t>;
+            m_pRefrencePosSet = new std::multiset<uint32_t>;
 #endif
         }
     }
@@ -210,7 +210,7 @@ public:
             Beats_AtomicDecrement(m_pRefCount);
 #ifdef SHARE_PTR_TRACE
             m_lockmutex.lock();
-            std::multiset<size_t>::iterator iter = m_pRefrencePosSet->find(m_uRefrencePos);
+            std::multiset<uint32_t>::iterator iter = m_pRefrencePosSet->find(m_uRefrencePos);
             BEATS_ASSERT(iter != m_pRefrencePosSet->end());
             m_pRefrencePosSet->erase(iter);
             m_lockmutex.unlock();
@@ -271,20 +271,20 @@ private:
 
 #ifdef  SHARE_PTR_TRACE
 public:
-    size_t m_uRefrencePos;
-    std::multiset<size_t>* m_pRefrencePosSet;
+    uint32_t m_uRefrencePos;
+    std::multiset<uint32_t>* m_pRefrencePosSet;
     static std::mutex m_lockmutex;
 
-    void SetRefPos(std::multiset<size_t> *refPosSet)
+    void SetRefPos(std::multiset<uint32_t> *refPosSet)
     {
         m_lockmutex.lock();
         m_pRefrencePosSet = refPosSet;
 
-        size_t eBPValue = 0;
+        uint32_t eBPValue = 0;
         BEATS_ASSI_GET_EBP(eBPValue);
-        m_uRefrencePos = (*(size_t*)((size_t*)(eBPValue) + 1));//current eip,ignore it.
-        size_t lastEBPValue = *(size_t*)(eBPValue);
-        size_t ignoreFrameCount = 2;
+        m_uRefrencePos = (*(uint32_t*)((uint32_t*)(eBPValue) + 1));//current eip,ignore it.
+        uint32_t lastEBPValue = *(uint32_t*)(eBPValue);
+        uint32_t ignoreFrameCount = 2;
         bool bMeaningfulFile = false;
         while (ignoreFrameCount != 0 || !bMeaningfulFile)
         {
@@ -313,10 +313,10 @@ public:
             }
             if (!bMeaningfulFile)
             {
-                lastEBPValue = *(size_t*)(eBPValue);
+                lastEBPValue = *(uint32_t*)(eBPValue);
                 // If the module enable FPO optimize, the address may be invalid.
                 eBPValue = lastEBPValue;
-                size_t* pPtr = (size_t*)((size_t*)(eBPValue) + 1);
+                uint32_t* pPtr = (uint32_t*)((uint32_t*)(eBPValue) + 1);
                 if (lastEBPValue == 0 || IsBadCodePtr((FARPROC)pPtr))
                 {
                     break;
@@ -332,8 +332,8 @@ public:
     {
         m_lockmutex.lock();
         char szBuffer[MAX_PATH];
-        size_t uIndex = 0;
-        for (std::multiset<size_t>::iterator iter = m_pRefrencePosSet->begin(); iter != m_pRefrencePosSet->end(); ++iter)
+        uint32_t uIndex = 0;
+        for (std::multiset<uint32_t>::iterator iter = m_pRefrencePosSet->begin(); iter != m_pRefrencePosSet->end(); ++iter)
         {
             DWORD displacement = 0;
             IMAGEHLP_LINE info;

@@ -95,15 +95,15 @@ public:
     void OnRender(float gridSize, bool bSelected);
     void SetPosition(int x, int y);
     void GetPosition(int* pOutX, int* pOutY);
-    size_t GetDependencyWidth();
-    size_t GetDependencyHeight();
-    size_t GetHeaderHeight();
-    size_t GetConnectWidth();
+    uint32_t GetDependencyWidth();
+    uint32_t GetDependencyHeight();
+    uint32_t GetHeaderHeight();
+    uint32_t GetConnectWidth();
     float GetDependencyLineWidth();
     float GetDependencyLineArrowSize();
 
-    size_t GetWidth();
-    size_t GetHeight();
+    uint32_t GetWidth();
+    uint32_t GetHeight();
     void SetOwner(CComponentProxy* pOwner);
     CComponentProxy* GetOwner() const;
     void CaculateSize();
@@ -111,7 +111,7 @@ public:
     bool IsReference() const;
     void SetReferenceFlag(bool bReferenceFlag);
 
-    virtual void GetDependencyPosition(size_t uDependencyIndex, int* pOutX, int* pOutY);
+    virtual void GetDependencyPosition(uint32_t uDependencyIndex, int* pOutX, int* pOutY);
     virtual EComponentAeraRectType HitTestForAreaType(int x, int y, void** pReturnData);
     virtual CComponentGraphic* Clone() = 0;
 
@@ -124,8 +124,8 @@ protected:
 protected:
     bool m_bIsReference;
     CComponentProxy* m_pOwner;
-    size_t m_width;
-    size_t m_height;
+    uint32_t m_width;
+    uint32_t m_height;
     int m_gridPosX;
     int m_gridPosY;
     int m_gridPosZ;

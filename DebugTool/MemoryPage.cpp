@@ -6,7 +6,7 @@
 #include <Psapi.h>
 #include <shellapi.h>
 
-static const size_t MemoryGridStartPosOffset = 100;
+static const uint32_t MemoryGridStartPosOffset = 100;
 
 void CBDTWxFrame::CreateMemoryPage()
 {
@@ -155,7 +155,7 @@ void CBDTWxFrame::OnMemoryChoiceChanged( wxCommandEvent& event )
     }
 }
 
-void CBDTWxFrame::AdjustMemoryGridColumnCount( size_t count )
+void CBDTWxFrame::AdjustMemoryGridColumnCount( uint32_t count )
 {
     int delta = m_pMemoryDataGrid->GetCols() - count;
     if (delta > 0)
@@ -231,11 +231,11 @@ void CBDTWxFrame::UpdateMemoryData()
     {
         RefreshMemoryGrid(m_memoryViewType);
         m_pTotalAllocSizeLabel->SetLabel(wxString::Format("总共申请内存: %dbyte", CMemoryDetector::GetInstance()->GetAllocMemorySize()));
-        size_t count = CMemoryDetector::GetInstance()->GetAllocMemoryCount();
+        uint32_t count = CMemoryDetector::GetInstance()->GetAllocMemoryCount();
         m_pAllocCountLabel->SetLabel(wxString::Format("内存块数量: %d", count));
         if (count > 0)
         {
-            size_t maxSize = CMemoryDetector::GetInstance()->GetMemoryBlockMaxSize();
+            uint32_t maxSize = CMemoryDetector::GetInstance()->GetMemoryBlockMaxSize();
             m_pMaxAllocSizeLabel->SetLabel(wxString::Format("最大内存块: %dbyte", maxSize));
         }
         else
@@ -247,14 +247,14 @@ void CBDTWxFrame::UpdateMemoryData()
 
 void CBDTWxFrame::ClearAllColumnLabel()
 {
-    size_t colSize = m_pMemoryDataGrid->GetCols();
-    for (size_t i = 0; i < colSize; ++i)
+    uint32_t colSize = m_pMemoryDataGrid->GetCols();
+    for (uint32_t i = 0; i < colSize; ++i)
     {
         m_pMemoryDataGrid->SetColLabelValue(i, "");
     }
 }
 
-void CBDTWxFrame::RefreshMemoryGrid(size_t type)
+void CBDTWxFrame::RefreshMemoryGrid(uint32_t type)
 {
     m_bMemoryUINeedUpdate = false;
     m_pMemoryDataGrid->ClearGrid();
@@ -289,12 +289,12 @@ void CBDTWxFrame::RefreshViewMemoryByAddr()
         m_memoryRecordCacheStartPos = recordCache.startPos;
         for (; iter != endIter; ++iter)
         {
-            size_t allocId = iter->second->m_allocId;
-            size_t stackOffset = m_pStackOffsetSpinBtn->GetValue();
+            uint32_t allocId = iter->second->m_allocId;
+            uint32_t stackOffset = m_pStackOffsetSpinBtn->GetValue();
             if (stackOffset > 0)
             {
-                std::vector<size_t> callStack;
-                CMemoryDetector::GetInstance()->GetCallStack((size_t)iter->first, callStack);
+                std::vector<uint32_t> callStack;
+                CMemoryDetector::GetInstance()->GetCallStack((uint32_t)iter->first, callStack);
                 if (callStack.size() > stackOffset)
                 {
                     allocId = callStack[stackOffset];
@@ -334,8 +334,8 @@ void CBDTWxFrame::RefreshViewMemoryByLocation()
     const SMemoryFrameRecord& recordCache = static_cast<CBDTWxApp*>(wxApp::GetInstance())->GetMemoryUICache();
     if(recordCache.type == eMFRT_Location || recordCache.type == eMFRT_All)
     {
-        std::map<size_t, std::set<SMemoryRecord*>>::const_iterator iter = recordCache.recordMapForLocation.begin();
-        std::map<size_t, std::set<SMemoryRecord*>>::const_iterator endIter = recordCache.recordMapForLocation.end();
+        std::map<uint32_t, std::set<SMemoryRecord*>>::const_iterator iter = recordCache.recordMapForLocation.begin();
+        std::map<uint32_t, std::set<SMemoryRecord*>>::const_iterator endIter = recordCache.recordMapForLocation.end();
 
         SetGridRowsCount(m_pMemoryDataGrid, recordCache.recordMapForLocation.size());
         int rowIndex = recordCache.startPos;
@@ -348,12 +348,12 @@ void CBDTWxFrame::RefreshViewMemoryByLocation()
             if (!shouldFilter)
             {
                 std::set<SMemoryRecord*>::const_iterator iterSet = iter->second.begin();
-                size_t totalSize = 0;
+                uint32_t totalSize = 0;
                 for (;  iterSet != iter->second.end(); ++iterSet)
                 {
                     totalSize += (*iterSet)->m_size;
                 }
-                m_pMemoryDataGrid->SetCellValue(wxString::Format("%p", (size_t*)iter->first),rowIndex, 0);
+                m_pMemoryDataGrid->SetCellValue(wxString::Format("%p", (uint32_t*)iter->first),rowIndex, 0);
                 m_pMemoryDataGrid->SetCellValue(wxString::Format("%d", totalSize),rowIndex, 1);
                 m_pMemoryDataGrid->SetCellValue(wxString::Format("%d", iter->second.size()),rowIndex, 2);
                 wxString infoStr = getAddrSuccess ? wxString::Format(_T("%s %d行"), wxString(info.FileName), info.LineNumber) : wxString::Format(_T("未知位置"));
@@ -377,9 +377,9 @@ void CBDTWxFrame::RefreshViewMemoryBySize()
     const SMemoryFrameRecord& recordCache = static_cast<CBDTWxApp*>(wxApp::GetInstance())->GetMemoryUICache();
     if(recordCache.type == eMFRT_Size || recordCache.type == eMFRT_All)
     {
-        std::map<size_t, std::set<SMemoryRecord*>>::const_iterator iter = recordCache.recordMapForSize.begin();
-        std::map<size_t, std::set<SMemoryRecord*>>::const_iterator endIter = recordCache.recordMapForSize.end();
-        std::map<size_t, std::set<SMemoryRecord*>>::const_iterator iterForCount = recordCache.recordMapForSize.begin();
+        std::map<uint32_t, std::set<SMemoryRecord*>>::const_iterator iter = recordCache.recordMapForSize.begin();
+        std::map<uint32_t, std::set<SMemoryRecord*>>::const_iterator endIter = recordCache.recordMapForSize.end();
+        std::map<uint32_t, std::set<SMemoryRecord*>>::const_iterator iterForCount = recordCache.recordMapForSize.begin();
         SetGridRowsCount(m_pMemoryDataGrid, recordCache.totalItemCount);
         int rowIndex = recordCache.startPos;
         m_memoryRecordCacheStartPos = recordCache.startPos;
@@ -388,15 +388,15 @@ void CBDTWxFrame::RefreshViewMemoryBySize()
             bool firstRow = true;
             m_pMemoryDataGrid->SetCellValue(wxString::Format("%d", iter->first),rowIndex, 0);
             std::set<SMemoryRecord*>::const_iterator iterSet = iter->second.begin();
-            size_t rowCountOnShow = 0;
+            uint32_t rowCountOnShow = 0;
             for (;  iterSet != iter->second.end(); ++iterSet)
             {
-                size_t allocId = (*iterSet)->m_allocId;
-                size_t stackOffset = m_pStackOffsetSpinBtn->GetValue();
+                uint32_t allocId = (*iterSet)->m_allocId;
+                uint32_t stackOffset = m_pStackOffsetSpinBtn->GetValue();
                 if (stackOffset > 0)
                 {
-                    std::vector<size_t> callStack;
-                    CMemoryDetector::GetInstance()->GetCallStack((size_t)(*iterSet)->m_pAddress, callStack);
+                    std::vector<uint32_t> callStack;
+                    CMemoryDetector::GetInstance()->GetCallStack((uint32_t)(*iterSet)->m_pAddress, callStack);
                     if (callStack.size() > stackOffset)
                     {
                         allocId = callStack[stackOffset];
@@ -417,8 +417,8 @@ void CBDTWxFrame::RefreshViewMemoryBySize()
                         m_pMemoryDataGrid->SetCellValue("", rowIndex, 0);
                     }
                     firstRow = false;
-                    m_pMemoryDataGrid->SetCellValue(wxString::Format("%p", (size_t*)((*iterSet)->m_pAddress)),rowIndex, 1);
-                    m_pMemoryDataGrid->SetCellValue(wxString::Format("%p", (size_t*)(allocId)),rowIndex, 2);
+                    m_pMemoryDataGrid->SetCellValue(wxString::Format("%p", (uint32_t*)((*iterSet)->m_pAddress)),rowIndex, 1);
+                    m_pMemoryDataGrid->SetCellValue(wxString::Format("%p", (uint32_t*)(allocId)),rowIndex, 2);
                     wxString infoStr = getAddrSuccess ? wxString::Format(_T("%s %d行"), wxString(info.FileName), info.LineNumber) : wxString::Format(_T("未知位置"));
                     bool bValueUpdated = m_pMemoryDataGrid->GetCellValue(rowIndex, 3).CompareTo(infoStr) != 0;
                     if (bValueUpdated)
@@ -448,9 +448,9 @@ void CBDTWxFrame::RefreshViewMemoryByTime()
     if(recordCache.type == eMFRT_Time || recordCache.type == eMFRT_All)
     {
 
-        std::map<size_t, std::set<SMemoryRecord*>>::const_iterator iter = recordCache.recordMapForTime.begin();
-        std::map<size_t, std::set<SMemoryRecord*>>::const_iterator endIter = recordCache.recordMapForTime.end();
-        std::map<size_t, std::set<SMemoryRecord*>>::const_iterator iterForCount = recordCache.recordMapForTime.begin();
+        std::map<uint32_t, std::set<SMemoryRecord*>>::const_iterator iter = recordCache.recordMapForTime.begin();
+        std::map<uint32_t, std::set<SMemoryRecord*>>::const_iterator endIter = recordCache.recordMapForTime.end();
+        std::map<uint32_t, std::set<SMemoryRecord*>>::const_iterator iterForCount = recordCache.recordMapForTime.begin();
         SetGridRowsCount(m_pMemoryDataGrid, recordCache.totalItemCount);
         int rowIndex = recordCache.startPos;
         m_memoryRecordCacheStartPos = recordCache.startPos;
@@ -459,15 +459,15 @@ void CBDTWxFrame::RefreshViewMemoryByTime()
             bool firstRow = true;
             m_pMemoryDataGrid->SetCellValue(wxString::Format("%d", iter->first),rowIndex, 0);
             std::set<SMemoryRecord*>::const_iterator iterSet = iter->second.begin();
-            size_t rowCountOnShow = 0;
+            uint32_t rowCountOnShow = 0;
             for (;  iterSet != iter->second.end(); ++iterSet)
             {
-                size_t allocId = (*iterSet)->m_allocId;
-                size_t stackOffset = m_pStackOffsetSpinBtn->GetValue();
+                uint32_t allocId = (*iterSet)->m_allocId;
+                uint32_t stackOffset = m_pStackOffsetSpinBtn->GetValue();
                 if (stackOffset > 0)
                 {
-                    std::vector<size_t> callStack;
-                    CMemoryDetector::GetInstance()->GetCallStack((size_t)(*iterSet)->m_pAddress, callStack);
+                    std::vector<uint32_t> callStack;
+                    CMemoryDetector::GetInstance()->GetCallStack((uint32_t)(*iterSet)->m_pAddress, callStack);
                     if (callStack.size() > stackOffset)
                     {
                         allocId = callStack[stackOffset];
@@ -488,12 +488,12 @@ void CBDTWxFrame::RefreshViewMemoryByTime()
                         m_pMemoryDataGrid->SetCellValue("", rowIndex, 0);
                     }
                     firstRow = false;
-                    m_pMemoryDataGrid->SetCellValue(wxString::Format("%p", (size_t*)((*iterSet)->m_pAddress)),rowIndex, 1);
+                    m_pMemoryDataGrid->SetCellValue(wxString::Format("%p", (uint32_t*)((*iterSet)->m_pAddress)),rowIndex, 1);
                     m_pMemoryDataGrid->SetCellValue(wxString::Format("%d", ((*iterSet)->m_size)),rowIndex, 2);
-                    m_pMemoryDataGrid->SetCellValue(wxString::Format("%p", (size_t*)(allocId)),rowIndex, 3);
+                    m_pMemoryDataGrid->SetCellValue(wxString::Format("%p", (uint32_t*)(allocId)),rowIndex, 3);
                     //TODO: Try to catch a mystery crash.
                     bool bLineNumberMayOverFlow = getAddrSuccess && info.LineNumber > 100000;
-                    bool bFileNameMayBroken = getAddrSuccess && (size_t)info.FileName < 10;
+                    bool bFileNameMayBroken = getAddrSuccess && (uint32_t)info.FileName < 10;
                     if (bLineNumberMayOverFlow || bFileNameMayBroken)
                     {
                         BEATS_ASSERT(false);
@@ -502,7 +502,7 @@ void CBDTWxFrame::RefreshViewMemoryByTime()
                     wxString infoStr = getAddrSuccess ? wxString::Format(_T("%s %d行"), wxString(info.FileName), info.LineNumber) : wxString::Format(_T("未知位置"));
                     //TODO: Try to catch a mystery crash.
                     bLineNumberMayOverFlow = getAddrSuccess && info.LineNumber > 100000;
-                    bFileNameMayBroken = getAddrSuccess && (size_t)info.FileName < 10;
+                    bFileNameMayBroken = getAddrSuccess && (uint32_t)info.FileName < 10;
                     if (bLineNumberMayOverFlow || bFileNameMayBroken)
                     {
                         BEATS_ASSERT(false);
@@ -577,13 +577,13 @@ void CBDTWxFrame::OnFilterTextSelected( wxCommandEvent& event )
     m_lastSelectedFilterPos = event.GetSelection(); 
 }
 
-bool CBDTWxFrame::FilterTest(size_t eip, IMAGEHLP_LINE& info, bool& getAddrSuccess)
+bool CBDTWxFrame::FilterTest(uint32_t eip, IMAGEHLP_LINE& info, bool& getAddrSuccess)
 {
     DWORD displacement = 0;
     getAddrSuccess = SymGetLineFromAddr(GetCurrentProcess(), eip, &displacement, &info) == TRUE;
     //TODO: Try to catch a mystery crash.
     bool bLineNumberMayOverFlow = getAddrSuccess && info.LineNumber > 100000;
-    bool bFileNameMayBroken = getAddrSuccess && (size_t)info.FileName < 10;
+    bool bFileNameMayBroken = getAddrSuccess && (uint32_t)info.FileName < 10;
     if (bLineNumberMayOverFlow || bFileNameMayBroken)
     {
         BEATS_ASSERT(false);
@@ -591,7 +591,7 @@ bool CBDTWxFrame::FilterTest(size_t eip, IMAGEHLP_LINE& info, bool& getAddrSucce
     bool filter = false;
     if (getAddrSuccess)
     {
-        for (size_t i = 0; i < m_pFilterTextComboBox->GetCount(); ++i)
+        for (uint32_t i = 0; i < m_pFilterTextComboBox->GetCount(); ++i)
         {
             if (strstr(info.FileName, m_pFilterTextComboBox->GetString(i).c_str().AsChar()) != 0)
             {
@@ -609,17 +609,17 @@ void CBDTWxFrame::OnGridCellSelected( wxGridEvent& event )
     {
         m_pCallStackListBox->Clear();
         long value = 0;
-        size_t addressValueColIndex = m_memoryViewType == eMVT_Addr ? 0 : 1;//it's hard code here.
+        uint32_t addressValueColIndex = m_memoryViewType == eMVT_Addr ? 0 : 1;//it's hard code here.
         wxString cellStr = m_pMemoryDataGrid->GetCellValue(event.GetRow(), addressValueColIndex);
         if (cellStr.IsEmpty() == false)
         {
             cellStr.ToLong(&value, 16);
-            std::vector<size_t> callStack;
+            std::vector<uint32_t> callStack;
             CMemoryDetector::GetInstance()->GetCallStack(value, callStack);
             DWORD displacement = 0;
             IMAGEHLP_LINE info;
             char temp[256];
-            for (size_t i = 0; i < callStack.size(); ++i)
+            for (uint32_t i = 0; i < callStack.size(); ++i)
             {
                 bool getAddrSuccess = SymGetLineFromAddr(GetCurrentProcess(), callStack[i], &displacement, &info) == TRUE;
                 if (getAddrSuccess)
@@ -651,7 +651,7 @@ void CBDTWxFrame::OnCallStackListDoubleClicked(wxCommandEvent& event)
     wxString selection = event.GetString();
     TCHAR selectionChar[MAX_PATH];
     const wxChar* myStringChars = selection.c_str();  
-    for (size_t i = 0; i < selection.Len(); i++) 
+    for (uint32_t i = 0; i < selection.Len(); i++) 
     {
         selectionChar[i] = myStringChars [i];
     }

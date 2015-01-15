@@ -27,9 +27,9 @@ struct SDependencyResolver
     {
 
     }
-    size_t uIndex;
-    size_t uGuid;
-    size_t uInstanceId;
+    uint32_t uIndex;
+    uint32_t uGuid;
+    uint32_t uInstanceId;
     bool bIsList;
     void* pVariableAddress;
     CDependencyDescription* pDescription;
@@ -63,28 +63,28 @@ public:
     the memory, and it can't be found by the manager as if component manager never knows your component.
     3. param specifiedInstanceId means, you can specify id by yourself instead of manager, if you request an id which is taken by manager, there will be an assert.
     */
-    CComponentBase* GetComponentTemplate(size_t guid) const;
-    CComponentBase* CreateComponent(size_t guid, bool bCloneFromTemplate, bool bManualManage = false, size_t specifiedInstanceId = 0xFFFFFFFF, bool bCheckIsAlreadyRequest = true, CSerializer* pSerializer = NULL, bool bCallInitFunc = true);
-    CComponentBase* CreateComponentByRef(CComponentBase* pComponentRef, bool bCloneValue, bool bManualManage = false, size_t specifiedInstanceId = 0xFFFFFFFF, bool bCheckIsAlreadyRequest = true, CSerializer* pSerializer = NULL, bool bCallInitFunc = true);
+    CComponentBase* GetComponentTemplate(uint32_t guid) const;
+    CComponentBase* CreateComponent(uint32_t guid, bool bCloneFromTemplate, bool bManualManage = false, uint32_t specifiedInstanceId = 0xFFFFFFFF, bool bCheckIsAlreadyRequest = true, CSerializer* pSerializer = NULL, bool bCallInitFunc = true);
+    CComponentBase* CreateComponentByRef(CComponentBase* pComponentRef, bool bCloneValue, bool bManualManage = false, uint32_t specifiedInstanceId = 0xFFFFFFFF, bool bCheckIsAlreadyRequest = true, CSerializer* pSerializer = NULL, bool bCallInitFunc = true);
 
-    const std::map<size_t, CComponentBase*>* GetComponentTemplateMap();
-    const std::map<size_t, std::map<size_t, CComponentBase*>*>* GetComponentInstanceMap();
-    CComponentBase* GetComponentInstance(size_t uId, size_t uGuid = 0xFFFFFFFF);
+    const std::map<uint32_t, CComponentBase*>* GetComponentTemplateMap();
+    const std::map<uint32_t, std::map<uint32_t, CComponentBase*>*>* GetComponentInstanceMap();
+    CComponentBase* GetComponentInstance(uint32_t uId, uint32_t uGuid = 0xFFFFFFFF);
 
     CIdManager* GetIdManager() const;
     CComponentProject* GetProject() const;
 
     void SetForbidDependencyResolve(bool bEnable);
     bool GetForbidDependencyResolve() const;
-    void AddDependencyResolver( CDependencyDescription* pDescription, size_t uIndex, size_t uGuid, size_t uInstanceId, void* pVariableAddress, bool bIsList, TAddDependencyFunc pFunc = NULL);
+    void AddDependencyResolver( CDependencyDescription* pDescription, uint32_t uIndex, uint32_t uGuid, uint32_t uInstanceId, void* pVariableAddress, bool bIsList, TAddDependencyFunc pFunc = NULL);
     virtual void ResolveDependency() = 0;
 
 protected:
     bool m_bForbidDependencyResolve;
     CIdManager* m_pIdManager;
     CComponentProject* m_pProject;
-    std::map<size_t, CComponentBase*>* m_pComponentTemplateMap;
-    std::map<size_t, std::map<size_t, CComponentBase*>*>* m_pComponentInstanceMap;
+    std::map<uint32_t, CComponentBase*>* m_pComponentTemplateMap;
+    std::map<uint32_t, std::map<uint32_t, CComponentBase*>*>* m_pComponentInstanceMap;
     std::vector<SDependencyResolver*>* m_pDependencyResolver;
     std::vector<CComponentBase*>* m_pUninitializedComponents;
 };

@@ -41,7 +41,7 @@ CListPropertyDescription::~CListPropertyDescription()
 bool CListPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>& result)
 {
     std::vector<TString> cache;
-    for (size_t i = 0; i < result.size(); ++i)
+    for (uint32_t i = 0; i < result.size(); ++i)
     {
         cache.clear();
         CStringHelper::GetInstance()->SplitString(result[i].c_str(), PROPERTY_KEYWORD_SPLIT_STR, cache, false);
@@ -140,12 +140,12 @@ void CListPropertyDescription::SetFixed(bool bFixedFlag)
     m_bFixCount = bFixedFlag;
 }
 
-size_t CListPropertyDescription::GetMaxCount() const
+uint32_t CListPropertyDescription::GetMaxCount() const
 {
     return m_uMaxCount;
 }
 
-void CListPropertyDescription::SetMaxCount(size_t uMaxCount)
+void CListPropertyDescription::SetMaxCount(uint32_t uMaxCount)
 {
     m_uMaxCount = uMaxCount;
 }
@@ -219,7 +219,7 @@ void CListPropertyDescription::DeleteAllChild()
 
 void CListPropertyDescription::ResetChildName()
 {
-    for (size_t i = 0; i < m_pChildren->size(); ++i)
+    for (uint32_t i = 0; i < m_pChildren->size(); ++i)
     {
         TCHAR szChildName[32];
         _stprintf(szChildName, _T("Child_%d"), i);
@@ -278,7 +278,7 @@ CPropertyDescriptionBase* CListPropertyDescription::Clone(bool bCloneValue)
     CListPropertyDescription* pNewProperty = static_cast<CListPropertyDescription*>(super::Clone(bCloneValue));
     if (bCloneValue)
     {
-        for (size_t i = 0; i < m_pChildren->size(); ++i)
+        for (uint32_t i = 0; i < m_pChildren->size(); ++i)
         {
             CPropertyDescriptionBase* pPropertyBase = (*m_pChildren)[i];
             CPropertyDescriptionBase* pNewChildPropertyBase = pPropertyBase->Clone(true);
@@ -308,7 +308,7 @@ bool CListPropertyDescription::GetValueByTChar(const TCHAR* /*pIn*/, void* /*pOu
 void CListPropertyDescription::Serialize( CSerializer& serializer , EValueType eValueType/* = eVT_SavedValue*/)
 {
     serializer << m_pChildren->size();
-    for (size_t i = 0; i < m_pChildren->size(); ++i)
+    for (uint32_t i = 0; i < m_pChildren->size(); ++i)
     {
         (*m_pChildren)[i]->Serialize(serializer, eValueType);
     }
@@ -317,9 +317,9 @@ void CListPropertyDescription::Serialize( CSerializer& serializer , EValueType e
 void CListPropertyDescription::Deserialize(CSerializer& serializer, EValueType eValueType /*= eVT_CurrentValue*/)
 {
     DeleteAllChild();
-    size_t uChildCount = 0;
+    uint32_t uChildCount = 0;
     serializer >> uChildCount;
-    for (size_t i = 0; i < uChildCount; ++i)
+    for (uint32_t i = 0; i < uChildCount; ++i)
     {
         CPropertyDescriptionBase* pChild = AddChild(NULL);
         pChild->Deserialize(serializer, eValueType);

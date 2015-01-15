@@ -16,12 +16,12 @@ CShaderManager::CShaderManager()
 
 CShaderManager::~CShaderManager()
 {
-    for (size_t i = 0; i < m_vertexShaderPool.size(); ++i)
+    for (uint32_t i = 0; i < m_vertexShaderPool.size(); ++i)
     {
         BEATS_SAFE_DELETE(m_vertexShaderPool[i]);
     }
     m_vertexShaderPool.clear();
-    for (size_t i = 0; i < m_pixelShaderPool.size(); ++i)
+    for (uint32_t i = 0; i < m_pixelShaderPool.size(); ++i)
     {
         BEATS_SAFE_DELETE(m_pixelShaderPool[i]);
     }
@@ -32,7 +32,7 @@ void CShaderManager::Initialize( IDirect3DDevice9* pDevice )
 {
     m_pRenderDevice = pDevice;
     //CPixelShader* pPixelShader = NULL;
-    //size_t uId = 0;
+    //uint32_t uId = 0;
     //bool bTemp = CreatePixelShaderFromFile("E:\\Work\\Project\\EraFable\\XSHADERs\\xblast.cc", "ps_main_blast_blur", "ps_3_0", NULL, &pPixelShader, &uId);
     //BEATS_ASSERT(bTemp == true);
 }
@@ -41,7 +41,7 @@ bool CShaderManager::CreateVertexShaderFromFile(const char* pszFilePath,
                                                 const char* pszProfile,
                                                 const D3DXMACRO* pDefine,
                                                 CVertexShader** ppVertexShader,
-                                                size_t* pRegisterId/* = NULL*/)
+                                                uint32_t* pRegisterId/* = NULL*/)
 {
     bool bRet = false;
     LPD3DXBUFFER pErrorMsgs = NULL;
@@ -80,7 +80,7 @@ bool CShaderManager::CreatePixelShaderFromFile(const char* pszFilePath,
                                                const char* pszProfile,
                                                const D3DXMACRO* pDefine,
                                                CPixelShader** ppPixelShader,
-                                               size_t* pRegisterId/* = NULL*/)
+                                               uint32_t* pRegisterId/* = NULL*/)
 {
     bool bRet = false;
     LPD3DXBUFFER pErrorMsgs = NULL;
@@ -129,7 +129,7 @@ bool CShaderManager::CompileShaderFromFile(const char* pszFilePath,
     if (pFile != NULL)
     {
         fseek(pFile, 0, SEEK_END);
-        size_t uFileSize = ftell(pFile);
+        uint32_t uFileSize = ftell(pFile);
         fseek(pFile, 0, SEEK_SET);
         char* pFileDataString = new char[uFileSize];
         fread(pFileDataString, 1, uFileSize, pFile);

@@ -34,7 +34,7 @@ private:
     //  0x00080102 = DirectX 8.1b installed
     //  0x00080200 = DirectX 8.2 installed
     //  0x00090000 = DirectX 9.0 installed
-    size_t GetVersionID(DWORD dwDirectXVersionMajor, DWORD dwDirectXVersionMinor, TCHAR cDirectXVersionLetter);
+    uint32_t GetVersionID(DWORD dwDirectXVersionMajor, DWORD dwDirectXVersionMinor, TCHAR cDirectXVersionLetter);
 };
 
 #endif 

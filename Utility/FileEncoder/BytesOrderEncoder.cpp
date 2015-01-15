@@ -6,7 +6,7 @@
 #include "UtilityManager.h"
 #include "MD5/md5.h"
 
-static const size_t Read_Buffer_Size = 1024 * 1024 * 10; // 10M
+static const uint32_t Read_Buffer_Size = 1024 * 1024 * 10; // 10M
 
 CBytesOrderEncoder::CBytesOrderEncoder()
 {
@@ -23,19 +23,19 @@ bool CBytesOrderEncoder::EncodeImpl(CSerializer* pSourceSerializer, CSerializer*
     BEATS_ASSERT(m_header.m_uSectionCount > 0, _T("Section count can't be zero for CBytesOrderEncoder"));
     if (pSourceSerializer && pEncodeSerializer)
     {
-        std::vector<size_t> orders;
+        std::vector<uint32_t> orders;
         GetShuffleOrder(orders);
-        size_t BytesCountForEachSection = (size_t)m_header.m_uOriDataSize / m_header.m_uSectionCount;
-        size_t uTotalReadCounter = 0;
-        for (size_t i = 0; i < orders.size(); ++i)
+        uint32_t BytesCountForEachSection = (uint32_t)m_header.m_uOriDataSize / m_header.m_uSectionCount;
+        uint32_t uTotalReadCounter = 0;
+        for (uint32_t i = 0; i < orders.size(); ++i)
         {
-            size_t offset = orders[i] * BytesCountForEachSection;
+            uint32_t offset = orders[i] * BytesCountForEachSection;
             pSourceSerializer->SetReadPos(offset);
-            size_t uSectionSize = min((size_t)m_header.m_uOriDataSize - offset, BytesCountForEachSection);
-            size_t uCounter = 0;
+            uint32_t uSectionSize = min((uint32_t)m_header.m_uOriDataSize - offset, BytesCountForEachSection);
+            uint32_t uCounter = 0;
             while (uCounter < uSectionSize)
             {
-                size_t uCopySizeEachTime = min(Read_Buffer_Size, uSectionSize - uCounter);
+                uint32_t uCopySizeEachTime = min(Read_Buffer_Size, uSectionSize - uCounter);
                 pEncodeSerializer->Serialize(*pSourceSerializer, sizeof(unsigned char) * uCopySizeEachTime);
                 uCounter += uCopySizeEachTime;
             }
@@ -49,13 +49,13 @@ bool CBytesOrderEncoder::EncodeImpl(CSerializer* pSourceSerializer, CSerializer*
 bool CBytesOrderEncoder::EncodeImpl(FILE* pSourceFile, FILE* pEncodeFile)
 {
     bool bRet = false;
-    std::vector<size_t> orders;
+    std::vector<uint32_t> orders;
     GetShuffleOrder(orders);
 
     long long BytesCountForEachSection = m_header.m_uOriDataSize / m_header.m_uSectionCount;
     long long uSourceFileStartPos;
     unsigned char* pBuffer = new unsigned char[Read_Buffer_Size];
-    for (size_t i = 0; i < orders.size(); ++i)
+    for (uint32_t i = 0; i < orders.size(); ++i)
     {
         uSourceFileStartPos = orders[i] * BytesCountForEachSection;
         _fseeki64(pSourceFile, uSourceFileStartPos, FILE_BEGIN);
@@ -63,7 +63,7 @@ bool CBytesOrderEncoder::EncodeImpl(FILE* pSourceFile, FILE* pEncodeFile)
         long long uCounter = 0;
         while (uCounter < uSectionSize)
         {
-            size_t uCopySizeEachTime = min(Read_Buffer_Size, (size_t)(uSectionSize - uCounter));
+            uint32_t uCopySizeEachTime = min(Read_Buffer_Size, (uint32_t)(uSectionSize - uCounter));
             bRet = CUtilityManager::GetInstance()->ReadDataFromFile(pSourceFile, pBuffer, uCopySizeEachTime);
             bRet = bRet && CUtilityManager::GetInstance()->WriteDataToFile(pEncodeFile, pBuffer, uCopySizeEachTime);
             BEATS_ASSERT(bRet, _T("Copy Data Failed!"));
@@ -74,35 +74,35 @@ bool CBytesOrderEncoder::EncodeImpl(FILE* pSourceFile, FILE* pEncodeFile)
     return bRet;
 }
 
-void CBytesOrderEncoder::SetSectionCount(size_t sectionCount)
+void CBytesOrderEncoder::SetSectionCount(uint32_t sectionCount)
 {
     m_header.m_uSectionCount = sectionCount;
 }
 
-void CBytesOrderEncoder::SetRandomSeed(size_t randomSeed)
+void CBytesOrderEncoder::SetRandomSeed(uint32_t randomSeed)
 {
     m_header.m_uRandomSeed = randomSeed;
 }
 
-bool CBytesOrderEncoder::DecodeImpl(CSerializer* pEncodeSerializer, size_t uStartPos, CSerializer* pDecodeSerializer)
+bool CBytesOrderEncoder::DecodeImpl(CSerializer* pEncodeSerializer, uint32_t uStartPos, CSerializer* pDecodeSerializer)
 {
     bool bRet = false;
     pEncodeSerializer->SetReadPos(uStartPos + m_header.m_uHeaderSize);
-    pDecodeSerializer->ValidateBuffer((size_t)m_header.m_uOriDataSize);
-    std::vector<size_t> orders;
+    pDecodeSerializer->ValidateBuffer((uint32_t)m_header.m_uOriDataSize);
+    std::vector<uint32_t> orders;
     GetShuffleOrder(orders);
-    size_t BytesCountForEachSection = (size_t)m_header.m_uOriDataSize / m_header.m_uSectionCount;
-    size_t uTotalWriteCount = 0;
-    for (size_t i = 0; i < orders.size(); ++i)
+    uint32_t BytesCountForEachSection = (uint32_t)m_header.m_uOriDataSize / m_header.m_uSectionCount;
+    uint32_t uTotalWriteCount = 0;
+    for (uint32_t i = 0; i < orders.size(); ++i)
     {
-        size_t offset = orders[i] * BytesCountForEachSection;
+        uint32_t offset = orders[i] * BytesCountForEachSection;
         pDecodeSerializer->SetWritePos(offset);
 
-        size_t uCounter = 0;
-        size_t uSectionSize = min((size_t)m_header.m_uOriDataSize - offset, BytesCountForEachSection);
+        uint32_t uCounter = 0;
+        uint32_t uSectionSize = min((uint32_t)m_header.m_uOriDataSize - offset, BytesCountForEachSection);
         while (uCounter < uSectionSize)
         {
-            size_t uReadCountForEach = min(uSectionSize - uCounter, Read_Buffer_Size);
+            uint32_t uReadCountForEach = min(uSectionSize - uCounter, Read_Buffer_Size);
             pEncodeSerializer->Deserialize(*pDecodeSerializer, uReadCountForEach);
             uCounter += uReadCountForEach;
         }
@@ -123,22 +123,22 @@ bool CBytesOrderEncoder::DecodeImpl(FILE* pEncodeFile, long long uStartPos, FILE
     uEncodeOffset = uStartPos + m_header.m_uHeaderSize;
     _fseeki64(pEncodeFile, uEncodeOffset, FILE_BEGIN);
 
-    std::vector<size_t> orders;
+    std::vector<uint32_t> orders;
     GetShuffleOrder(orders);
     long long BytesCountForEachSection = m_header.m_uOriDataSize / m_header.m_uSectionCount;
     unsigned char* pBuffer = new unsigned char[Read_Buffer_Size];
     long long uTotalWriteCount = 0;
-    for (size_t i = 0; i < orders.size() && bRet; ++i)
+    for (uint32_t i = 0; i < orders.size() && bRet; ++i)
     {
         long long uDecodeOffset;
         uDecodeOffset = orders[i] * BytesCountForEachSection;
         _fseeki64(pDecodeFile, uDecodeOffset, FILE_BEGIN);
         long long uSectionSize = min(m_header.m_uOriDataSize - uDecodeOffset, BytesCountForEachSection);
         BEATS_ASSERT(uSectionSize > 0, _T("Section size can't be less than 1"));
-        size_t uCounter = 0;
+        uint32_t uCounter = 0;
         while (uCounter < uSectionSize && bRet)
         {
-            size_t uCopySizeEachTime = min(Read_Buffer_Size, (size_t)(uSectionSize - uCounter));
+            uint32_t uCopySizeEachTime = min(Read_Buffer_Size, (uint32_t)(uSectionSize - uCounter));
             bRet = CUtilityManager::GetInstance()->ReadDataFromFile(pEncodeFile, pBuffer, uCopySizeEachTime);
             bRet = bRet && CUtilityManager::GetInstance()->WriteDataToFile(pDecodeFile, pBuffer, uCopySizeEachTime);
             BEATS_ASSERT(bRet, _T("Copy Data Failed!"));
@@ -157,12 +157,12 @@ SEncodeHeader* CBytesOrderEncoder::GetEncodeHeader()
     return &m_header;
 }
 
-void CBytesOrderEncoder::GetShuffleOrder( std::vector<size_t>& shuffleOrder )
+void CBytesOrderEncoder::GetShuffleOrder( std::vector<uint32_t>& shuffleOrder )
 {
     shuffleOrder.clear();
     BEATS_ASSERT(m_header.m_uOriDataSize >= m_header.m_uSectionCount, _T("File size %d can't be less than section count:%d!"), m_header.m_uOriDataSize, m_header.m_uSectionCount);
-    size_t realSectionCount = m_header.m_uSectionCount + ((m_header.m_uOriDataSize % m_header.m_uSectionCount) > 0 ? 1 : 0);
-    for (size_t i = 0; i < realSectionCount; ++i)
+    uint32_t realSectionCount = m_header.m_uSectionCount + ((m_header.m_uOriDataSize % m_header.m_uSectionCount) > 0 ? 1 : 0);
+    for (uint32_t i = 0; i < realSectionCount; ++i)
     {
         shuffleOrder.push_back(i);
     }

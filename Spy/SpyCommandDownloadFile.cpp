@@ -10,8 +10,8 @@
 #include "../Utility/FileFilter/FileFilter.h"
 #include "../Utility/FilePath/FilePathTool.h"
 
-static const size_t WORK_THREAD_COUNT = 5;
-static const size_t WORK_SEND_PIECE_SIZE = 1024 * 1024; // 1M, each send call will send 1M data for most.
+static const uint32_t WORK_THREAD_COUNT = 5;
+static const uint32_t WORK_SEND_PIECE_SIZE = 1024 * 1024; // 1M, each send call will send 1M data for most.
 
 CSpyCommandDownloadFile::CSpyCommandDownloadFile()
 : super(eSCT_Download)
@@ -38,7 +38,7 @@ bool CSpyCommandDownloadFile::ExecuteImpl( SharePtr<SSocketContext>& pSocketCont
         {
             std::map<TString, SDirectory*> lookUpMap;
             unsigned long long uAllFilesSize = 0;
-            for (size_t i = 0; i < m_downloadFiles.size(); ++i)
+            for (uint32_t i = 0; i < m_downloadFiles.size(); ++i)
             {
                 WIN32_FILE_ATTRIBUTE_DATA fileData;
                 bool bFileExists = GetFileAttributesEx(m_downloadFiles[i].c_str(), GetFileExInfoStandard, &fileData) == TRUE;
@@ -130,7 +130,7 @@ bool CSpyCommandDownloadFile::ExecuteImpl( SharePtr<SSocketContext>& pSocketCont
             }
             CServerDownloadMissionContext* pDownloadMissionContext = new CServerDownloadMissionContext(pSocketContext, pDownloadFiles, this->m_bUploadMode, eDR_PieceFirst, m_storePath);
             pDownloadMissionContext->SetTotalSize(uAllFilesSize);
-            size_t uDownloadMissionThreadId;
+            uint32_t uDownloadMissionThreadId;
             _beginthreadex(NULL, 0, (unsigned(_stdcall*)(void*))SvrDownloadMissionThreadFunc, pDownloadMissionContext, 0, &uDownloadMissionThreadId);
         }
         break;
@@ -138,7 +138,7 @@ bool CSpyCommandDownloadFile::ExecuteImpl( SharePtr<SSocketContext>& pSocketCont
         {
             m_pClientDownloadMissionContext->m_pSocketContext = pSocketContext;
             m_pClientDownloadMissionContext->m_bUploadMode = this->m_bUploadMode;
-            size_t uClientDownloadMissionThreadId;
+            uint32_t uClientDownloadMissionThreadId;
             _beginthreadex(NULL, 0, (unsigned(_stdcall*)(void*))ClientDownloadMissionThreadFunc, m_pClientDownloadMissionContext, 0, &uClientDownloadMissionThreadId);
         }
         break;
@@ -172,7 +172,7 @@ void CSpyCommandDownloadFile::Deserialize( CSerializer& serializer )
             if (bExamSuccess)
             {
                 serializer << m_downloadFiles.size();
-                for (size_t i = 0; i< m_downloadFiles.size(); ++i)
+                for (uint32_t i = 0; i< m_downloadFiles.size(); ++i)
                 {
                     serializer << m_downloadFiles[i];
                 }
@@ -196,7 +196,7 @@ void CSpyCommandDownloadFile::Deserialize( CSerializer& serializer )
             serializer << m_pSvrDownloadMissionContext->GetStorePath();
             serializer << sockAddr.sin_port;
             serializer << m_pSvrDownloadMissionContext->GetDownloadFiles()->size();
-            for (size_t i = 0; i < m_pSvrDownloadMissionContext->GetDownloadFiles()->size(); ++i)
+            for (uint32_t i = 0; i < m_pSvrDownloadMissionContext->GetDownloadFiles()->size(); ++i)
             {
                 CUtilityManager::GetInstance()->SerializeDirectory(m_pSvrDownloadMissionContext->GetDownloadFiles()->at(i), serializer);
             }
@@ -227,10 +227,10 @@ void CSpyCommandDownloadFile::Serialize( CSerializer& serializer )
             serializer >> bExamSuccess;
             if (bExamSuccess)
             {
-                size_t uFilesCount = 0;
+                uint32_t uFilesCount = 0;
                 serializer >> uFilesCount;
                 m_downloadFiles.resize(uFilesCount);
-                for (size_t i = 0; i < uFilesCount; ++i)
+                for (uint32_t i = 0; i < uFilesCount; ++i)
                 {
                     serializer >> m_downloadFiles[i];
                 }
@@ -250,9 +250,9 @@ void CSpyCommandDownloadFile::Serialize( CSerializer& serializer )
             m_pClientDownloadMissionContext = new SClientDownloadMissionContext;
             serializer >> m_pClientDownloadMissionContext->m_saveRootPath;
             serializer >> m_pClientDownloadMissionContext->m_pSvrListenPort;
-            size_t uDirectoriesCount = 0;
+            uint32_t uDirectoriesCount = 0;
             serializer >> uDirectoriesCount;
-            for (size_t i = 0; i < uDirectoriesCount; ++i)
+            for (uint32_t i = 0; i < uDirectoriesCount; ++i)
             {
                 SDirectory* pFilesToDownload = new SDirectory(NULL, NULL);
                 CUtilityManager::GetInstance()->DeserializeDirectory(pFilesToDownload, serializer, &m_pClientDownloadMissionContext->m_uTotalFileSize, &m_pClientDownloadMissionContext->m_uTotalFileCount);
@@ -323,9 +323,9 @@ DWORD CSpyCommandDownloadFile::SvrDownloadMissionThreadFunc( LPVOID param )
             svrFeedBackCmd.SetUploadMode(pSvrDownloadMissionContext->IsUploadMode());
             CSpyCommandManager::GetInstance()->SendCommand(pSvrDownloadMissionContext->GetSocketContext(), &svrFeedBackCmd);
 
-            size_t uThreadCount = 0;
+            uint32_t uThreadCount = 0;
             HANDLE threadHandle[WORK_THREAD_COUNT];
-            size_t uSelectCount = 0;
+            uint32_t uSelectCount = 0;
             // Waiting for connection
             while (true)
             {
@@ -336,7 +336,7 @@ DWORD CSpyCommandDownloadFile::SvrDownloadMissionThreadFunc( LPVOID param )
                 int iReadCount = ::select((int)listenSocket + 1, &listenSet, NULL, NULL, NULL);
                 while (iReadCount > 0 && uThreadCount < WORK_THREAD_COUNT)
                 {
-                    size_t uSvrDownloadWorkThreadId;
+                    uint32_t uSvrDownloadWorkThreadId;
                     threadHandle[uThreadCount++] = (HANDLE)_beginthreadex(NULL, 0, (unsigned(_stdcall*)(void*))SvrDownloadWorkThreadFunc, pSvrDownloadMissionContext, 0, &uSvrDownloadWorkThreadId);
                     --iReadCount;
                 }
@@ -417,15 +417,15 @@ DWORD CSpyCommandDownloadFile::SvrDownloadWorkThreadFunc(LPVOID param)
                 fileDataHeader << bSendSuccess;
                 fileDataHeader << info.m_uFileIndex;
                 fileDataHeader << info.m_uStartPos;
-                size_t uSendLengthForThisTime = (size_t)min(CServerDownloadMissionContext::WORK_LOCK_FILE_LENGTH, uFileSizeForNow - info.m_uStartPos);
+                uint32_t uSendLengthForThisTime = (uint32_t)min(CServerDownloadMissionContext::WORK_LOCK_FILE_LENGTH, uFileSizeForNow - info.m_uStartPos);
                 fileDataHeader << uSendLengthForThisTime;
-                size_t msgSize = fileDataHeader.GetWritePos();
+                uint32_t msgSize = fileDataHeader.GetWritePos();
                 fileDataHeader.RewriteData(4, &msgSize, sizeof(msgSize));
-                size_t uSendHeaderCount = 0;
+                uint32_t uSendHeaderCount = 0;
                 void* pHeaderData = (void*)fileDataHeader.GetBuffer();
                 while (uSendHeaderCount < fileDataHeader.GetWritePos())
                 {
-                    size_t uSendCount = fileDataHeader.GetWritePos() - uSendHeaderCount;
+                    uint32_t uSendCount = fileDataHeader.GetWritePos() - uSendHeaderCount;
                     if(!Beats_Send(newSocket, pHeaderData, uSendCount))
                     {
                         bBreakSignal = true;
@@ -467,7 +467,7 @@ DWORD CSpyCommandDownloadFile::SvrDownloadWorkThreadFunc(LPVOID param)
                 {
                     const SBeatsSocket* pSockInfo = Beats_GetSockInfo(newSocket);
                     BEATS_ASSERT(pSockInfo != NULL);
-                    size_t uLifeTime = GetTickCount() - pSockInfo->m_uCreateTime;
+                    uint32_t uLifeTime = GetTickCount() - pSockInfo->m_uCreateTime;
                     BEATS_PRINT(_T("client upload work thread %d exit, network life time %d, send data %lld, receive data %lld, average download speed %g kb/s upload speed %g kb/s"),
                         GetCurrentThreadId(), uLifeTime, pSockInfo->m_uSendDataCount, pSockInfo->m_uReceiveDataCount, pSockInfo->m_uReceiveDataCount / (uLifeTime * 0.001) / 1024,
                         pSockInfo->m_uSendDataCount / (uLifeTime * 0.001) / 1024);
@@ -483,12 +483,12 @@ DWORD CSpyCommandDownloadFile::SvrDownloadWorkThreadFunc(LPVOID param)
 }
 
 void CSpyCommandDownloadFile::SvrDownloadSendFileData(SOCKET sock, HANDLE hFileHandle, BYTE* pBuffer, const unsigned long long& uStartPos, 
-                                                      size_t uSendLength, const unsigned long long& uFileSize)
+                                                      uint32_t uSendLength, const unsigned long long& uFileSize)
 {
     if (uFileSize > 0)
     {
         BEATS_ASSERT(uStartPos < uFileSize, _T("Start pos (%d) should never be greater than file size (%d)!"), uStartPos, uFileSize);
-        size_t uSendDataCounter = 0;
+        uint32_t uSendDataCounter = 0;
 
         LARGE_INTEGER uStartPosLargeInteger;
         uStartPosLargeInteger.QuadPart = uStartPos + uSendDataCounter;
@@ -498,14 +498,14 @@ void CSpyCommandDownloadFile::SvrDownloadSendFileData(SOCKET sock, HANDLE hFileH
         // uSendLength is the size of data should be send. We try to read as much as uSendLength and try to send as much as uReadCountForThisTime.
         while (uSendDataCounter < uSendLength && bSendSuccess)
         {
-            size_t uReadCountForThisTime = min(WORK_SEND_PIECE_SIZE, uSendLength - uSendDataCounter);
+            uint32_t uReadCountForThisTime = min(WORK_SEND_PIECE_SIZE, uSendLength - uSendDataCounter);
             ReadFile(hFileHandle, pBuffer, uReadCountForThisTime, (LPDWORD)&uReadCountForThisTime, NULL);
             BEATS_ASSERT(uReadCountForThisTime > 0, _T("Send count should never be less than 1"));
             
-            size_t uSendCounter = 0;
+            uint32_t uSendCounter = 0;
             while (uSendCounter < uReadCountForThisTime && bSendSuccess)
             {
-                size_t uSendCount = uReadCountForThisTime - uSendCounter ;
+                uint32_t uSendCount = uReadCountForThisTime - uSendCounter ;
                 bSendSuccess = Beats_Send(sock, pBuffer, uSendCount) && uSendCount > 0;
                 BEATS_WARNING(bSendSuccess, _T("Send data failed! uSendCount = %d uSendDataCounter = %d uSendLengthForThisTime = %d."), 
                     uSendCount, uSendDataCounter, uSendLength);
@@ -523,9 +523,9 @@ DWORD CSpyCommandDownloadFile::ClientDownloadMissionThreadFunc(LPVOID param)
 {
     SClientDownloadMissionContext* pDownloadMissionContext = (SClientDownloadMissionContext*) param;
     HANDLE threadHandle[WORK_THREAD_COUNT];
-    for (size_t i = 0; i < WORK_THREAD_COUNT; ++i)
+    for (uint32_t i = 0; i < WORK_THREAD_COUNT; ++i)
     {
-        size_t uClientDownloadWorkThreadId;
+        uint32_t uClientDownloadWorkThreadId;
         threadHandle[i] = (HANDLE)_beginthreadex(NULL, 0, (unsigned(_stdcall*)(void*))ClientDownloadWorkThreadFunc, pDownloadMissionContext, 0, &uClientDownloadWorkThreadId);
     }
     WaitForMultipleObjectsEx((DWORD)WORK_THREAD_COUNT, threadHandle, TRUE, INFINITE, FALSE);
@@ -545,10 +545,10 @@ DWORD CSpyCommandDownloadFile::ClientDownloadWorkThreadFunc(LPVOID param)
     CSerializer fileRecvBuffer(1 * 1024 * 1024); // 1M
     if(Beats_Connect(MySocket, &listenSocketAddr))
     {
-        size_t uFileIndex = 0xFFFFFFFF;
+        uint32_t uFileIndex = 0xFFFFFFFF;
         unsigned long long uStartPos = 0;
-        size_t uDataLength = 0;
-        size_t uWriteCounter = 0;
+        uint32_t uDataLength = 0;
+        uint32_t uWriteCounter = 0;
         bool bTaskFinished = false;
         while (!bTaskFinished)
         {
@@ -559,8 +559,8 @@ DWORD CSpyCommandDownloadFile::ClientDownloadWorkThreadFunc(LPVOID param)
             int iReadCount = ::select(maxFd + 1, &downloadSet, NULL, NULL, NULL);
             if (iReadCount > 0)
             {
-                size_t uCurrentWritePos = fileRecvBuffer.GetWritePos();
-                size_t uRestSize = fileRecvBuffer.GetBufferSize() - uCurrentWritePos;
+                uint32_t uCurrentWritePos = fileRecvBuffer.GetWritePos();
+                uint32_t uRestSize = fileRecvBuffer.GetBufferSize() - uCurrentWritePos;
                 if (uRestSize == 0)
                 {
                     fileRecvBuffer.IncreaseBufferSize();
@@ -608,11 +608,11 @@ DWORD CSpyCommandDownloadFile::ClientDownloadWorkThreadFunc(LPVOID param)
                         }
                         else
                         {
-                            size_t uReadableSize = fileRecvBuffer.GetWritePos() - fileRecvBuffer.GetReadPos();
+                            uint32_t uReadableSize = fileRecvBuffer.GetWritePos() - fileRecvBuffer.GetReadPos();
                             bTransferFinished = (uWriteCounter + uReadableSize) >= uDataLength ;
                             BEATS_ASSERT(uWriteCounter <= uDataLength);
                             bool bShouldWriteToBuffer = bTransferFinished || uReadableSize > 3 * 1024 * 1024;
-                            size_t uWriteCount = 0;
+                            uint32_t uWriteCount = 0;
                             if (bShouldWriteToBuffer)
                             {
                                 WIN32_FIND_DATA* pFileData = pDownloadMissionContext->m_downloadTaskList[uFileIndex];
@@ -652,7 +652,7 @@ DWORD CSpyCommandDownloadFile::ClientDownloadWorkThreadFunc(LPVOID param)
                             uDataLength = 0;
                             uWriteCounter = 0;
 
-                            size_t uRestFileDataLength = fileRecvBuffer.GetWritePos() - fileRecvBuffer.GetReadPos();
+                            uint32_t uRestFileDataLength = fileRecvBuffer.GetWritePos() - fileRecvBuffer.GetReadPos();
                             memmove((void*)fileRecvBuffer.GetBuffer(), fileRecvBuffer.GetReadPtr(), uRestFileDataLength);
                             fileRecvBuffer.SetReadPos(0);
                             fileRecvBuffer.SetWritePos(uRestFileDataLength);
@@ -667,7 +667,7 @@ DWORD CSpyCommandDownloadFile::ClientDownloadWorkThreadFunc(LPVOID param)
 #ifdef _DEBUG
     const SBeatsSocket* pSockInfo = Beats_GetSockInfo(MySocket);
     BEATS_ASSERT(pSockInfo != NULL);
-    size_t uLifeTime = GetTickCount() - pSockInfo->m_uCreateTime;
+    uint32_t uLifeTime = GetTickCount() - pSockInfo->m_uCreateTime;
     BEATS_PRINT(_T("Client download work thread %d exit, network life time %d, send data %lld, receive data %lld, average download speed %g kb/s upload speed %g kb/s"),
         GetCurrentThreadId(), uLifeTime, pSockInfo->m_uSendDataCount, pSockInfo->m_uReceiveDataCount, pSockInfo->m_uReceiveDataCount / (uLifeTime * 0.001) / 1024,
         pSockInfo->m_uSendDataCount / (uLifeTime * 0.001) / 1024);

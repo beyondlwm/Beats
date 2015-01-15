@@ -23,7 +23,7 @@ public:
     bool IsZero();
     bool LongerThan(const CVector2& other);
 
-    float& operator [] ( const size_t i );
+    float& operator [] ( const uint32_t i );
     CVector2& operator = ( const CVector2& rkVector );
     CVector2& operator = ( const float value );
     bool operator == ( const CVector2& rkVector ) const;

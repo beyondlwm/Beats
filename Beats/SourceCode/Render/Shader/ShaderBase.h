@@ -7,8 +7,8 @@ public:
     CShaderBase();
     virtual ~CShaderBase();
 
-    size_t GetIndex();
-    void SetIndex(size_t uIndex);
+    uint32_t GetIndex();
+    void SetIndex(uint32_t uIndex);
 
     const TString& GetShaderFileName();
     void SetShaderFileName(const TString& szFileName);
@@ -17,7 +17,7 @@ public:
     void SetMainFuncName(const TString& szMainFuncName);
 
 private:
-    size_t m_uIndex;
+    uint32_t m_uIndex;
     TString m_szShaderFileName;
     TString m_szMainFuncName;
 };

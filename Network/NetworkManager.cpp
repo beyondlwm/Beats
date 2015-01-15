@@ -6,7 +6,7 @@ CNetworkManager* CNetworkManager::m_pInstance = NULL;
 
 static const BYTE VersionHigh = 2;
 static const BYTE VersionLow = 2;
-static const size_t MaxResendDataTimes = 5;
+static const uint32_t MaxResendDataTimes = 5;
 
 CNetworkManager::CNetworkManager()
 : m_bInitialized(false)
@@ -94,7 +94,7 @@ bool CNetworkManager::DestroySocket(SOCKET socket)
     return bRet;
 }
 
-bool CNetworkManager::Bind(SOCKET socketToBind, const sockaddr_in* pAddr, int iAddrSize, bool bAvoidConflictPort/* = false */, size_t uTryRebindCount/* = 50*/)
+bool CNetworkManager::Bind(SOCKET socketToBind, const sockaddr_in* pAddr, int iAddrSize, bool bAvoidConflictPort/* = false */, uint32_t uTryRebindCount/* = 50*/)
 {
     bool bRet = false;
     bool bParameterValid = socketToBind != INVALID_SOCKET && pAddr != NULL && iAddrSize > 0;
@@ -144,7 +144,7 @@ bool CNetworkManager::Connect(SOCKET connectSocket, const sockaddr_in* pAddress,
     return bRet;
 }
 
-bool CNetworkManager::SendTo(SOCKET sendingSocket, void* pData, size_t& uDataLength, size_t uIP, size_t uPort, size_t uRetryCount /*= 0*/)
+bool CNetworkManager::SendTo(SOCKET sendingSocket, void* pData, uint32_t& uDataLength, uint32_t uIP, uint32_t uPort, uint32_t uRetryCount /*= 0*/)
 {
     bool bRet = false;
     std::map<SOCKET, SBeatsSocket*>::iterator iter = m_socketMap.find(sendingSocket);
@@ -161,7 +161,7 @@ bool CNetworkManager::SendTo(SOCKET sendingSocket, void* pData, size_t& uDataLen
         int iValueLength = sizeof(iMaxMessageSize);
         getsockopt(sendingSocket, SOL_SOCKET, SO_MAX_MSG_SIZE, (char*)&iMaxMessageSize, &iValueLength);
         BEATS_ASSERT(iValueLength == 4);
-        bool bSizeValid = uDataLength < (size_t)iMaxMessageSize;
+        bool bSizeValid = uDataLength < (uint32_t)iMaxMessageSize;
         BEATS_ASSERT(bSizeValid, _T("Data is too long for sendto, datasize: %d, max message size %d"), uDataLength, iMaxMessageSize);
         if (bSizeValid)
         {
@@ -195,7 +195,7 @@ bool CNetworkManager::SendTo(SOCKET sendingSocket, void* pData, size_t& uDataLen
     return bRet;
 }
 
-bool CNetworkManager::RecvFrom( SOCKET receiveSocket, void* pData, size_t& uDataLength, sockaddr_in* pReceiveInfo /*= 0*/, int* pInfoSize /*= 0*/)
+bool CNetworkManager::RecvFrom( SOCKET receiveSocket, void* pData, uint32_t& uDataLength, sockaddr_in* pReceiveInfo /*= 0*/, int* pInfoSize /*= 0*/)
 {
     bool bRet = false;
     bool bExamParameter = receiveSocket != INVALID_SOCKET && pData != NULL && uDataLength > 0;
@@ -207,7 +207,7 @@ bool CNetworkManager::RecvFrom( SOCKET receiveSocket, void* pData, size_t& uData
         if(iReceivedDataCount != SOCKET_ERROR)
         {
             iter->second->m_uReceiveDataCount += iReceivedDataCount;
-            uDataLength = (size_t)iReceivedDataCount;
+            uDataLength = (uint32_t)iReceivedDataCount;
             bRet = true;
         }
         else
@@ -220,26 +220,26 @@ bool CNetworkManager::RecvFrom( SOCKET receiveSocket, void* pData, size_t& uData
     return bRet;
 }
 
-bool CNetworkManager::Send(SOCKET sendingSocket, void* pData, size_t& uDataLength, size_t uFlag /*= 0*/)
+bool CNetworkManager::Send(SOCKET sendingSocket, void* pData, uint32_t& uDataLength, uint32_t uFlag /*= 0*/)
 {
     bool bRet = sendingSocket != INVALID_SOCKET && pData != NULL && uDataLength > 0;
     BEATS_ASSERT(bRet, _T("Parameter is invalid in send! Socket %d Data Address 0x%x, DataLength %d Flag %d"), sendingSocket, pData, uDataLength, uFlag);
     if (bRet)
     {
         SBeatsSocket* pSocket = m_socketMap[sendingSocket];
-        size_t uSendCount = ::send(sendingSocket, (const char*)pData, (int)uDataLength, (int)uFlag);
+        uint32_t uSendCount = ::send(sendingSocket, (const char*)pData, (int)uDataLength, (int)uFlag);
 
         bRet = uSendCount != SOCKET_ERROR;
         BEATS_WARNING(bRet, _T("Send data error, error id %d"), WSAGetLastError());
         BEATS_WARNING(uSendCount > 0, _T("Sending data failed with length 0! ErrorCode:%d"), GetLastError());
         if (bRet)
         {
-            size_t uCurrentTime = GetTickCount();
+            uint32_t uCurrentTime = GetTickCount();
             pSocket->m_uSendDataCountInCalcTime += uSendCount;
-            size_t fDeltaTimeInMs = uCurrentTime - pSocket->m_uLastUploadSpeedCalcTime;
+            uint32_t fDeltaTimeInMs = uCurrentTime - pSocket->m_uLastUploadSpeedCalcTime;
             if (fDeltaTimeInMs >= SBeatsSocket::SPEED_CALC_INTERVAL )
             {
-                pSocket->m_uUploadSpeed = (size_t)(pSocket->m_uSendDataCountInCalcTime / (fDeltaTimeInMs * 0.001F));
+                pSocket->m_uUploadSpeed = (uint32_t)(pSocket->m_uSendDataCountInCalcTime / (fDeltaTimeInMs * 0.001F));
                 pSocket->m_uLastUploadSpeedCalcTime = uCurrentTime;
                 pSocket->m_uSendDataCountInCalcTime = 0;
             }
@@ -249,7 +249,7 @@ bool CNetworkManager::Send(SOCKET sendingSocket, void* pData, size_t& uDataLengt
         }
         else
         {
-            size_t uErrorCode = WSAGetLastError();
+            uint32_t uErrorCode = WSAGetLastError();
             switch (uErrorCode)
             {
             case WSAECONNRESET:
@@ -264,25 +264,25 @@ bool CNetworkManager::Send(SOCKET sendingSocket, void* pData, size_t& uDataLengt
     return bRet;
 }
 
-bool CNetworkManager::Receive(SOCKET receiveSocket, void* pData, size_t& uDataLength, size_t uFlag/* = 0*/)
+bool CNetworkManager::Receive(SOCKET receiveSocket, void* pData, uint32_t& uDataLength, uint32_t uFlag/* = 0*/)
 {
     bool bRet = receiveSocket != INVALID_SOCKET && pData != NULL && uDataLength > 0;
     BEATS_ASSERT(bRet, _T("Parameter is invalid in send! Socket %d Data Address 0x%x, DataLength %d Flag %d"), receiveSocket, pData, uDataLength, uFlag);
     if (bRet)
     {
-        static const size_t MAX_RECEIVE_BUFFER_SIZE = 1024 * 512; // 512K buffer to receive.
+        static const uint32_t MAX_RECEIVE_BUFFER_SIZE = 1024 * 512; // 512K buffer to receive.
         uDataLength = min(uDataLength, MAX_RECEIVE_BUFFER_SIZE);
         SBeatsSocket* pSocket = m_socketMap[receiveSocket];
         int iReceivedCount = ::recv(receiveSocket, (char*)pData, (int)uDataLength, (int)uFlag);
-        size_t uCurrentTime = GetTickCount();
+        uint32_t uCurrentTime = GetTickCount();
         bRet = iReceivedCount != SOCKET_ERROR;
         if (bRet)
         {
             pSocket->m_uReceiveDataCountInCalcTime += iReceivedCount;
-            size_t fDeltaTimeInMs = uCurrentTime - pSocket->m_uLastDownloadSpeedCalcTime;
+            uint32_t fDeltaTimeInMs = uCurrentTime - pSocket->m_uLastDownloadSpeedCalcTime;
             if (fDeltaTimeInMs >= SBeatsSocket::SPEED_CALC_INTERVAL )
             {
-                pSocket->m_uDownloadSpeed = (size_t)(pSocket->m_uReceiveDataCountInCalcTime / (fDeltaTimeInMs * 0.001F));
+                pSocket->m_uDownloadSpeed = (uint32_t)(pSocket->m_uReceiveDataCountInCalcTime / (fDeltaTimeInMs * 0.001F));
                 pSocket->m_uLastDownloadSpeedCalcTime = uCurrentTime;
                 pSocket->m_uReceiveDataCountInCalcTime = 0;
             }
@@ -292,7 +292,7 @@ bool CNetworkManager::Receive(SOCKET receiveSocket, void* pData, size_t& uDataLe
         }
         else
         {
-            size_t uErrorCode = WSAGetLastError();
+            uint32_t uErrorCode = WSAGetLastError();
             switch (uErrorCode)
             {
                 case WSAECONNRESET:

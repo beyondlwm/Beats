@@ -40,14 +40,14 @@ public:
     virtual CPropertyDescriptionBase* AddChild(CPropertyDescriptionBase* pProperty);
     virtual bool DeleteChild(CPropertyDescriptionBase* pProperty, bool bKeepChildOrder = false);
     virtual void DeleteAllChild();
-    CPropertyDescriptionBase* GetChild(size_t i) const;
+    CPropertyDescriptionBase* GetChild(uint32_t i) const;
     std::vector<CPropertyDescriptionBase*>& GetChildren();
-    size_t GetChildrenCount() const;
+    uint32_t GetChildrenCount() const;
     void Save();
     template<typename T>
     void InitializeValue(const T& value)
     {
-        for (size_t i = 0; i < eVT_Count; ++i)
+        for (uint32_t i = 0; i < eVT_Count; ++i)
         {
             if (m_valueArray[i] == NULL)
             {
@@ -62,7 +62,7 @@ public:
     template<typename T>
     void DestroyValue()
     {
-        for (size_t i = 0; i < eVT_Count; ++i)
+        for (uint32_t i = 0; i < eVT_Count; ++i)
         {
             T* pValue = (T*)m_valueArray[i];
             BEATS_SAFE_DELETE(pValue);

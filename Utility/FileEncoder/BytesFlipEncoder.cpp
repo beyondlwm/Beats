@@ -3,7 +3,7 @@
 #include "BytesFlipEncoder.h"
 #include "UtilityManager.h"
 
-static const size_t Read_Buffer_Size = 1024 * 1024 * 10; // 10M
+static const uint32_t Read_Buffer_Size = 1024 * 1024 * 10; // 10M
 
 CBytesFlipEncoder::CBytesFlipEncoder()
 {
@@ -21,7 +21,7 @@ void CBytesFlipEncoder::SetStepRange(unsigned short iStepMin, unsigned short iSt
     m_header.m_iStepMax = iStepMax;
 }
 
-void CBytesFlipEncoder::SetRandomSeed(size_t uRadomSeed)
+void CBytesFlipEncoder::SetRandomSeed(uint32_t uRadomSeed)
 {
     m_header.m_uRandomSeed = uRadomSeed;
 }
@@ -45,14 +45,14 @@ bool CBytesFlipEncoder::EncodeImpl(CSerializer* pSourceSerializer, CSerializer* 
             srand((unsigned int)m_header.m_uRandomSeed);
             unsigned short uFlipDeltaValue = m_header.m_iFlipCountMax - m_header.m_iFlipCountMin;
             unsigned short uStepDeltaValue = m_header.m_iStepMax - m_header.m_iStepMin;
-            size_t uTotalReadCounter = 0;
+            uint32_t uTotalReadCounter = 0;
             while (pSourceSerializer->GetReadPos() < pSourceSerializer->GetWritePos())
             {
                 unsigned short uFlipCount = (unsigned short)(((double)rand() / RAND_MAX) * uFlipDeltaValue + m_header.m_iFlipCountMin);
                 unsigned short uFlipSizeEachTime = std::min<unsigned short>(uFlipCount, pSourceSerializer->GetWritePos() - pSourceSerializer->GetReadPos());
                 unsigned char* pSourceData = (unsigned char*)pSourceSerializer->GetReadPtr();
                 unsigned char* pEncodeData = (unsigned char*)pEncodeSerializer->GetWritePtr();
-                for (size_t i = 0; i < uFlipSizeEachTime; ++i)
+                for (uint32_t i = 0; i < uFlipSizeEachTime; ++i)
                 {
                     pEncodeData[i] = ~pSourceData[i];
                 }
@@ -61,8 +61,8 @@ bool CBytesFlipEncoder::EncodeImpl(CSerializer* pSourceSerializer, CSerializer* 
                 uTotalReadCounter += uFlipSizeEachTime;
                 // Do step logic.
                 unsigned short uStepCount = (unsigned short)(((double)rand() / RAND_MAX) * uStepDeltaValue) + m_header.m_iStepMin;
-                size_t uCurrendReadPos = pSourceSerializer->GetReadPos();
-                size_t uNewPos = uCurrendReadPos + uStepCount;
+                uint32_t uCurrendReadPos = pSourceSerializer->GetReadPos();
+                uint32_t uNewPos = uCurrendReadPos + uStepCount;
                 if (uNewPos >= pSourceSerializer->GetWritePos())
                 {
                     uStepCount = (unsigned short)(pSourceSerializer->GetWritePos() - uCurrendReadPos);
@@ -123,11 +123,11 @@ bool CBytesFlipEncoder::EncodeImpl(FILE* pSourceFile, FILE* pEncodeFile)
     return bRet;
 }
 
-bool CBytesFlipEncoder::DecodeImpl(CSerializer* pEncodeSerializer, size_t uStartPos, CSerializer* pDecodeSerializer)
+bool CBytesFlipEncoder::DecodeImpl(CSerializer* pEncodeSerializer, uint32_t uStartPos, CSerializer* pDecodeSerializer)
 {
     // Just Flip the encode data without header part.
     CSerializer tmpSerializer;
-    tmpSerializer.Serialize((void*)(pEncodeSerializer->GetBuffer() + m_header.m_uHeaderSize + uStartPos), (size_t)m_header.m_uOriDataSize);
+    tmpSerializer.Serialize((void*)(pEncodeSerializer->GetBuffer() + m_header.m_uHeaderSize + uStartPos), (uint32_t)m_header.m_uOriDataSize);
     bool bRet = EncodeImpl(&tmpSerializer, pDecodeSerializer);
     return bRet;
 }

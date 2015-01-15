@@ -13,14 +13,14 @@ struct SFileDataLayout
     {
 
     }
-    SFileDataLayout(size_t uStartPos, size_t uDataSize)
+    SFileDataLayout(uint32_t uStartPos, uint32_t uDataSize)
         : m_uStartPos(uStartPos)
         , m_uDataSize(uDataSize)
     {
 
     }
-    size_t m_uStartPos;
-    size_t m_uDataSize;
+    uint32_t m_uStartPos;
+    uint32_t m_uDataSize;
 };
 
 class COMPONENTS_DLL_DECL CComponentProject
@@ -29,22 +29,22 @@ public:
     CComponentProject();
     ~CComponentProject();
 
-    CComponentProjectDirectory* LoadProject(const TCHAR* pszProjectFile, std::map<size_t, std::vector<size_t> >& conflictIdMap);
+    CComponentProjectDirectory* LoadProject(const TCHAR* pszProjectFile, std::map<uint32_t, std::vector<uint32_t> >& conflictIdMap);
     bool CloseProject();
     void SaveProject();
 
     // Register file only when: 1. Load Project. 2.Add File. 3. Reload the file when close file(No matter save or not).
     // Unregister file only when: 1. Delete file. 2. Reset the id when close file.
-    size_t RegisterFile(CComponentProjectDirectory* pDirectory, const TString& strFileName, std::map<size_t, std::vector<size_t> >& failedId, size_t uSpecifyFileId = 0xFFFFFFFF);
-    bool AnalyseFile(const TString& strFileName, std::map<size_t, std::vector<size_t> >& outResult);
-    bool UnregisterFile(size_t uFileID);
-    void ReloadFile(size_t uFileID);
+    uint32_t RegisterFile(CComponentProjectDirectory* pDirectory, const TString& strFileName, std::map<uint32_t, std::vector<uint32_t> >& failedId, uint32_t uSpecifyFileId = 0xFFFFFFFF);
+    bool AnalyseFile(const TString& strFileName, std::map<uint32_t, std::vector<uint32_t> >& outResult);
+    bool UnregisterFile(uint32_t uFileID);
+    void ReloadFile(uint32_t uFileID);
 
     // Register/Unregister component only when we need to change some info in static record.
     // Register component only when: 1. Register file. 2. Resolve conflict.
     // Unregister component only when: Resolve conflict.
-    void RegisterComponent(size_t uFileID, size_t componentGuid, size_t componentId);
-    void UnregisterComponent(size_t componentId);
+    void RegisterComponent(uint32_t uFileID, uint32_t componentGuid, uint32_t componentId);
+    void UnregisterComponent(uint32_t componentId);
 
     CComponentProjectDirectory* GetRootDirectory() const;
     void SetRootDirectory(CComponentProjectDirectory* pDirectory);
@@ -52,53 +52,53 @@ public:
     const TString& GetProjectFilePath() const;
     const TString& GetProjectFileName() const;
 
-    const TString& GetComponentFileName(size_t id) const;
-    size_t GetComponentFileId(const TString& strFileName) const;
+    const TString& GetComponentFileName(uint32_t id) const;
+    uint32_t GetComponentFileId(const TString& strFileName) const;
 
-    size_t QueryFileId(size_t uComponentId, bool bOnlyInProjectFile);
-    void ResolveIdForFile(size_t uFileId, size_t idToResolve, bool bKeepId);
+    uint32_t QueryFileId(uint32_t uComponentId, bool bOnlyInProjectFile);
+    void ResolveIdForFile(uint32_t uFileId, uint32_t idToResolve, bool bKeepId);
 
-    void RegisterPropertyMaintainInfo(size_t uComponentGuid, const TString& strOriginPropertyName, const TString& strReplacePropertyName);
-    bool GetReplacePropertyName(size_t uComponentGuid, const TString& strOriginPropertyName, TString& strResult);
+    void RegisterPropertyMaintainInfo(uint32_t uComponentGuid, const TString& strOriginPropertyName, const TString& strReplacePropertyName);
+    bool GetReplacePropertyName(uint32_t uComponentGuid, const TString& strOriginPropertyName, TString& strResult);
 
     const std::vector<TString>* GetFileList() const;
 
-    void RegisterFileLayoutInfo(size_t uFileId, size_t uStartPos, size_t uDataLength);
-    bool QueryFileLayoutInfo(size_t uFileId, size_t& uStartPos, size_t& uDataLength) const;
+    void RegisterFileLayoutInfo(uint32_t uFileId, uint32_t uStartPos, uint32_t uDataLength);
+    bool QueryFileLayoutInfo(uint32_t uFileId, uint32_t& uStartPos, uint32_t& uDataLength) const;
 
-    void SetStartFile(size_t uFileId);
-    size_t GetStartFile() const;
+    void SetStartFile(uint32_t uFileId);
+    uint32_t GetStartFile() const;
     CComponentProjectDirectory* FindProjectDirectory(const TString& strPath, bool bAbsoluteOrLogicPath) const;
-    CComponentProjectDirectory* FindProjectDirectoryById(size_t uFileId);
+    CComponentProjectDirectory* FindProjectDirectoryById(uint32_t uFileId);
 
-    size_t QueryComponentGuid(size_t uId);
+    uint32_t QueryComponentGuid(uint32_t uId);
 
-    std::map<size_t, std::vector<size_t> >* GetFileToComponentMap() const;
-    std::map<size_t, std::set<size_t>>* GetIdToReferenceMap() const;
-    std::map<size_t, CComponentProjectDirectory*>* GetFileToDirectoryMap() const;
-    std::map<size_t, size_t>* GetComponentToFileMap() const;
+    std::map<uint32_t, std::vector<uint32_t> >* GetFileToComponentMap() const;
+    std::map<uint32_t, std::set<uint32_t>>* GetIdToReferenceMap() const;
+    std::map<uint32_t, CComponentProjectDirectory*>* GetFileToDirectoryMap() const;
+    std::map<uint32_t, uint32_t>* GetComponentToFileMap() const;
 
 private:
-    void LoadXMLProject(TiXmlElement* pNode, CComponentProjectDirectory* pProjectDirectory, TString& strStartFilePath, std::map<size_t, std::vector<size_t> >& conflictIdMap);
+    void LoadXMLProject(TiXmlElement* pNode, CComponentProjectDirectory* pProjectDirectory, TString& strStartFilePath, std::map<uint32_t, std::vector<uint32_t> >& conflictIdMap);
     void SaveProjectFile( TiXmlElement* pParentNode, const CComponentProjectDirectory* p);
 
 private:
     CComponentProjectDirectory* m_pProjectDirectory;
-    size_t m_uStartFileId;
+    uint32_t m_uStartFileId;
     std::vector<TString>* m_pComponentFiles;
-    std::map<size_t, size_t>* m_pComponentToTypeMap;
-    std::map<size_t, size_t>* m_pComponentToFileMap;
-    std::map<size_t, std::vector<size_t> >* m_pFileToComponentMap;
-    std::map<size_t, CComponentProjectDirectory*>* m_pFileToDirectoryMap;
-    std::map<size_t, std::vector<size_t> >* m_pTypeToComponentMap;
-    // Store property replace info, size_t is the guid of component, map is the old property name and new property name.
-    std::map<size_t, std::map<TString, TString> >* m_pPropertyMaintainMap;
+    std::map<uint32_t, uint32_t>* m_pComponentToTypeMap;
+    std::map<uint32_t, uint32_t>* m_pComponentToFileMap;
+    std::map<uint32_t, std::vector<uint32_t> >* m_pFileToComponentMap;
+    std::map<uint32_t, CComponentProjectDirectory*>* m_pFileToDirectoryMap;
+    std::map<uint32_t, std::vector<uint32_t> >* m_pTypeToComponentMap;
+    // Store property replace info, uint32_t is the guid of component, map is the old property name and new property name.
+    std::map<uint32_t, std::map<TString, TString> >* m_pPropertyMaintainMap;
     // This member only available in game mode, to save the info about file data layout in the export file.
-    std::map<size_t, SFileDataLayout>* m_pFileDataLayout;
+    std::map<uint32_t, SFileDataLayout>* m_pFileDataLayout;
     // Key is the proxy id of the real component, and the value is the reference ids, this data collect from XML, it is static info.
-    std::map<size_t, std::set<size_t>>* m_pIdToReferenceMap;
+    std::map<uint32_t, std::set<uint32_t>>* m_pIdToReferenceMap;
     // Key is the reference id, and the value is the proxy of real component.
-    std::map<size_t, size_t>* m_pReferenceToIdMap;
+    std::map<uint32_t, uint32_t>* m_pReferenceToIdMap;
 
     TString m_strProjectFilePath;
     TString m_strProjectFileName;

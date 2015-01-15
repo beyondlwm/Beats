@@ -7,7 +7,7 @@ CSpyHookBase::CSpyHookBase()
 , m_hHookHandle(NULL)
 , m_hModuleHandle(NULL)
 {
-    size_t eipForHandleFetch = 0;
+    uint32_t eipForHandleFetch = 0;
     BEATS_ASSI_GET_EIP(eipForHandleFetch);
     m_bInit = GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCTSTR) eipForHandleFetch, &m_hModuleHandle) == TRUE;
     BEATS_ASSERT(m_bInit);

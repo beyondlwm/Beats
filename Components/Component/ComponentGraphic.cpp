@@ -39,7 +39,7 @@ void CComponentGraphic::SetPosition( int x, int y )
 void CComponentGraphic::CaculateSize()
 {
     BEATS_ASSERT(m_pOwner != NULL);
-    size_t bodySize = 0;
+    uint32_t bodySize = 0;
     if (m_pOwner->GetDependencies() != NULL)
     {
         bodySize = m_pOwner->GetDependencies()->size() * DEPENDENCY_HEIGHT;
@@ -65,29 +65,29 @@ void CComponentGraphic::GetPosition(int* pOutX, int* pOutY)
     *pOutY = m_gridPosY;
 }
 
-void CComponentGraphic::GetDependencyPosition( size_t uDependencyIndex, int* pOutX, int* pOutY )
+void CComponentGraphic::GetDependencyPosition( uint32_t uDependencyIndex, int* pOutX, int* pOutY )
 {
     BEATS_ASSERT(m_pOwner->GetDependency(uDependencyIndex) != NULL);
     *pOutX = m_gridPosX + MIN_WIDTH;
     *pOutY = m_gridPosY - HEADER_HEIGHT - (int)uDependencyIndex * DEPENDENCY_HEIGHT;
 }
 
-size_t CComponentGraphic::GetDependencyWidth()
+uint32_t CComponentGraphic::GetDependencyWidth()
 {
     return DEPENDENCY_WIDTH;
 }
 
-size_t CComponentGraphic::GetDependencyHeight()
+uint32_t CComponentGraphic::GetDependencyHeight()
 {
     return DEPENDENCY_HEIGHT;
 }
 
-size_t CComponentGraphic::GetWidth()
+uint32_t CComponentGraphic::GetWidth()
 {
     return m_width;
 }
 
-size_t CComponentGraphic::GetHeight()
+uint32_t CComponentGraphic::GetHeight()
 {
     return m_height;
 }
@@ -125,12 +125,12 @@ CComponentProxy* CComponentGraphic::GetOwner() const
 {
     return m_pOwner;
 }
-size_t CComponentGraphic::GetHeaderHeight()
+uint32_t CComponentGraphic::GetHeaderHeight()
 {
     return HEADER_HEIGHT;
 }
 
-size_t CComponentGraphic::GetConnectWidth()
+uint32_t CComponentGraphic::GetConnectWidth()
 {
     return CONNECTION_WIDTH;
 }

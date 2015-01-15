@@ -7,7 +7,7 @@ public:
     CStartUpFrame(const wxString& title, const wxPoint& pos, const wxSize& size, long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
     ~CStartUpFrame();
 
-    size_t GetFuncSwitcher();
+    uint32_t GetFuncSwitcher();
 private:
     void FillModuleList();
 
@@ -31,7 +31,7 @@ protected:
     virtual void OnFunctionEnabled( wxCommandEvent& event );
     virtual void OnLaunchBtnClick( wxCommandEvent& event );
     virtual void OnExitBtnClick( wxCommandEvent& event );
-    size_t m_funcSwitcher;
+    uint32_t m_funcSwitcher;
 };
 
 #endif

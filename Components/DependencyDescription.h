@@ -34,20 +34,20 @@ enum EDependencyChangeAction
 class COMPONENTS_DLL_DECL CDependencyDescription
 {
 public:
-    CDependencyDescription(EDependencyType type, size_t dependencyGuid, CComponentProxy* pOwner, size_t uIndex, bool bIsList);
+    CDependencyDescription(EDependencyType type, uint32_t dependencyGuid, CComponentProxy* pOwner, uint32_t uIndex, bool bIsList);
     ~CDependencyDescription();
 
-    CDependencyDescriptionLine* GetDependencyLine(size_t uIndex = 0) const;
-    CDependencyDescriptionLine* SetDependency(size_t uIndex, CComponentProxy* pComponent);
-    size_t GetDependencyLineCount() const;
+    CDependencyDescriptionLine* GetDependencyLine(uint32_t uIndex = 0) const;
+    CDependencyDescriptionLine* SetDependency(uint32_t uIndex, CComponentProxy* pComponent);
+    uint32_t GetDependencyLineCount() const;
     void SetOwner(CComponentProxy* pOwner);
     CComponentProxy* GetOwner();
-    size_t GetDependencyGuid() const;
+    uint32_t GetDependencyGuid() const;
     void Hide();
     void Show();
     bool IsVisible() const;
     bool IsListType() const;
-    size_t GetIndex() const;
+    uint32_t GetIndex() const;
 
     const TCHAR* GetDisplayName();
     void SetDisplayName(const TCHAR* pszName);
@@ -55,14 +55,14 @@ public:
     void SetVariableName(const TCHAR* pszName);
     CDependencyDescriptionLine* AddDependency(CComponentProxy* pComponentInstance);
     void RemoveDependencyLine(CDependencyDescriptionLine* pComponentInstance);
-    void RemoveDependencyByIndex(size_t uIndex);
-    void SwapLineOrder(size_t uSourceIndex, size_t uTargetIndex);
+    void RemoveDependencyByIndex(uint32_t uIndex);
+    void SwapLineOrder(uint32_t uSourceIndex, uint32_t uTargetIndex);
     bool IsInDependency(CComponentProxy* pComponentInstance);
     void SaveToXML(TiXmlElement* pParentNode);
     void LoadFromXML(TiXmlElement* pNode);
     EDependencyType GetType();
-    size_t GetSelectedDependencyIndex() const;
-    void SetSelectedDependencyIndex(size_t index);
+    uint32_t GetSelectedDependencyIndex() const;
+    void SetSelectedDependencyIndex(uint32_t index);
     bool IsMatch(CComponentProxy* pDependencyComponent);
     void Serialize(CSerializer& serializer);
 
@@ -76,9 +76,9 @@ private:
     EDependencyType m_type;
     EDependencyChangeAction m_changeAction;
     CComponentProxy* m_pChangeActionProxy;
-    size_t m_uIndex;
+    uint32_t m_uIndex;
     CComponentProxy* m_pOwner;
-    size_t m_uDependencyGuid;
+    uint32_t m_uDependencyGuid;
     bool m_bHideRender;
     bool m_bIsListType;
     TString m_displayName;

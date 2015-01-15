@@ -35,7 +35,7 @@ CFloatPropertyDescription::~CFloatPropertyDescription()
 bool CFloatPropertyDescription::AnalyseUIParameterImpl( const std::vector<TString>& result)
 {
     std::vector<TString> cache;
-    for (size_t i = 0; i < result.size(); ++i)
+    for (uint32_t i = 0; i < result.size(); ++i)
     {
         cache.clear();
         CStringHelper::GetInstance()->SplitString(result[i].c_str(), PROPERTY_KEYWORD_SPLIT_STR, cache);

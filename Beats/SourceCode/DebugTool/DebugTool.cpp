@@ -28,7 +28,7 @@ void CDebugTool::InitPrintFuncPool()
 
 void CDebugTool::PrintDebugMsg()
 {
-    for (size_t i = 0; i < m_activePrintFunc.size(); ++i)
+    for (uint32_t i = 0; i < m_activePrintFunc.size(); ++i)
     {
         (this->*m_activePrintFunc[i])();
     }
@@ -64,7 +64,7 @@ void CDebugTool::SwitchDebugMsgPrinting( bool enable )
     m_activePrintFunc.clear();
     if (enable)
     {
-        for (size_t i = 0; i < ePMT_Count; ++i)
+        for (uint32_t i = 0; i < ePMT_Count; ++i)
         {
             m_activePrintFunc.push_back(m_printFuncPool[i]);
         }

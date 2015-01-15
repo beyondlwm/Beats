@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "StringHelper.h"
-static const size_t MAX_CACH_SIZE = 10240;
+static const uint32_t MAX_CACH_SIZE = 10240;
 CStringHelper* CStringHelper::m_pInstance = NULL;
 
 CStringHelper::CStringHelper()
@@ -23,7 +23,7 @@ bool CStringHelper::SplitString( const TCHAR* pParameter, const TCHAR* pSpliter,
         if (bIgnoreSpace)
         {
             TCHAR* pWriter = cache;
-            for (size_t i = 0; i < ((size_t)pFindStr - size_t(pReader)) / sizeof(TCHAR); ++i)
+            for (uint32_t i = 0; i < ((uint32_t)pFindStr - uint32_t(pReader)) / sizeof(TCHAR); ++i)
             {
                 if (pReader[i] != _T(' '))
                 {
@@ -40,8 +40,8 @@ bool CStringHelper::SplitString( const TCHAR* pParameter, const TCHAR* pSpliter,
         }
         else
         {
-            BEATS_ASSERT((size_t)pFindStr - size_t(pReader) < MAX_CACH_SIZE);
-            memcpy(cache, pReader, (size_t)pFindStr - size_t(pReader));
+            BEATS_ASSERT((uint32_t)pFindStr - uint32_t(pReader) < MAX_CACH_SIZE);
+            memcpy(cache, pReader, (uint32_t)pFindStr - uint32_t(pReader));
         }
         result.push_back(cache);
         memset(cache, 0, MAX_CACH_SIZE);
@@ -49,14 +49,14 @@ bool CStringHelper::SplitString( const TCHAR* pParameter, const TCHAR* pSpliter,
         pFindStr = _tcsstr(pReader, pSpliter);
     }
     memset(cache, 0, MAX_CACH_SIZE);
-    const size_t restCount = _tcslen(pReader);
+    const uint32_t restCount = _tcslen(pReader);
     if (restCount > 0)
     {
         BEATS_ASSERT(restCount < MAX_CACH_SIZE);
         if (bIgnoreSpace)
         {
             TCHAR* pWriter = cache;
-            for (size_t i = 0; i < restCount; ++i)
+            for (uint32_t i = 0; i < restCount; ++i)
             {
                 if (pReader[i] != _T(' '))
                 {
@@ -81,7 +81,7 @@ bool CStringHelper::SplitString( const TCHAR* pParameter, const TCHAR* pSpliter,
     return true;
 }
 
-void CStringHelper::ConvertToTCHAR( const wchar_t* pData, TCHAR* pBuffer, size_t bufferLength )
+void CStringHelper::ConvertToTCHAR( const wchar_t* pData, TCHAR* pBuffer, uint32_t bufferLength )
 {
     BEATS_ASSERT(wcslen(pData) * sizeof(wchar_t) < bufferLength, _T("ConvertToTCHAR failed! More buffer length are required!"));
 #ifdef _UNICODE
@@ -91,7 +91,7 @@ void CStringHelper::ConvertToTCHAR( const wchar_t* pData, TCHAR* pBuffer, size_t
 #endif
 }
 
-void CStringHelper::ConvertToTCHAR( const char* pData, TCHAR* pBuffer, size_t bufferLength )
+void CStringHelper::ConvertToTCHAR( const char* pData, TCHAR* pBuffer, uint32_t bufferLength )
 {
     BEATS_ASSERT(strlen(pData) * sizeof(char) < bufferLength, _T("ConvertToTCHAR failed! More buffer length are required!"));
 #ifdef _UNICODE
@@ -105,7 +105,7 @@ void CStringHelper::ConvertToTCHAR( const char* pData, TCHAR* pBuffer, size_t bu
 #endif
 }
 
-void CStringHelper::ConvertToCHAR( const TCHAR* pData, char* pBuffer, size_t bufferLength )
+void CStringHelper::ConvertToCHAR( const TCHAR* pData, char* pBuffer, uint32_t bufferLength )
 {
 #ifdef _UNICODE
     #if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
@@ -118,7 +118,7 @@ void CStringHelper::ConvertToCHAR( const TCHAR* pData, char* pBuffer, size_t buf
 #endif
 }
 
-void CStringHelper::ConvertToWCHAR( const TCHAR* pData, wchar_t* pBuffer, size_t bufferLength ) const
+void CStringHelper::ConvertToWCHAR( const TCHAR* pData, wchar_t* pBuffer, uint32_t bufferLength ) const
 {
 #ifdef _UNICODE
     bufferLength; // Fix warning C4100.
@@ -157,8 +157,8 @@ TString CStringHelper::FilterString(const TCHAR* pData, const std::vector<TStrin
 int CStringHelper::FindFirstString( const TCHAR* pSource, const TCHAR* pTarget, bool bCaseSensive )
 {
     int iResult = -1;
-    size_t uTargetLength = _tcslen(pTarget);
-    size_t uSourceLength = _tcslen(pSource);
+    uint32_t uTargetLength = _tcslen(pTarget);
+    uint32_t uSourceLength = _tcslen(pSource);
     int iCounter = 0;
     if (!bCaseSensive)
     {
@@ -207,8 +207,8 @@ int CStringHelper::FindLastString( const TCHAR* pSource, const TCHAR* pTarget, b
 {
     int iResult = -1;
     BEATS_ASSERT(pSource != NULL && pTarget != NULL);
-    size_t uTargetLength = _tcslen(pTarget);
-    size_t uSourceLength = _tcslen(pSource);
+    uint32_t uTargetLength = _tcslen(pTarget);
+    uint32_t uSourceLength = _tcslen(pSource);
     BEATS_ASSERT(uTargetLength > 0 && uSourceLength > 0);
     int iCounter = (int)uSourceLength - (int)uTargetLength;
     if (iCounter >= 0)

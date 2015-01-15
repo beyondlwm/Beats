@@ -42,7 +42,7 @@ bool CSpyCommandSysCMD::ExecuteImpl(SharePtr<SSocketContext>& pSocketContext)
         if(!HandleSpecificCommand(cmdStr.c_str(), cmdStr))
         {
             FILE* pReadFile = _popen(cmdStr.c_str(), "rb");
-            static const size_t CONSOLE_CONTENT_BUFFER_SIZE = 10240;
+            static const uint32_t CONSOLE_CONTENT_BUFFER_SIZE = 10240;
             char buffer[CONSOLE_CONTENT_BUFFER_SIZE + 1];
             if (pReadFile != NULL)
             {
@@ -94,7 +94,7 @@ void CSpyCommandSysCMD::Deserialize(CSerializer& serializer)
 {
     super::Deserialize(serializer);
 
-    size_t uDataSize = m_pSerializer->GetWritePos() - m_pSerializer->GetReadPos();
+    uint32_t uDataSize = m_pSerializer->GetWritePos() - m_pSerializer->GetReadPos();
     serializer << m_type;
     serializer << uDataSize;
     serializer.Serialize(*m_pSerializer, uDataSize);
@@ -104,7 +104,7 @@ void CSpyCommandSysCMD::Serialize(CSerializer& serializer)
 {
     super::Serialize(serializer);
 
-    size_t uDataSize = 0;
+    uint32_t uDataSize = 0;
     serializer >> m_type;
     serializer >> uDataSize;
     m_pSerializer->Reset();

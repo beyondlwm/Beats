@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "SpyCommandBase.h"
 
-CSpyCommandBase::CSpyCommandBase( ESpyCommandType type, size_t uFeedbackFunc, size_t uUserDataPtr )
+CSpyCommandBase::CSpyCommandBase( ESpyCommandType type, uint32_t uFeedbackFunc, uint32_t uUserDataPtr )
 : m_type(type)
 , m_uFeedbackFunc(uFeedbackFunc)
 , m_uUserDataPtr(uUserDataPtr)
@@ -18,17 +18,17 @@ ESpyCommandType CSpyCommandBase::GetType() const
     return m_type;
 }
 
-size_t CSpyCommandBase::GetFeedbackFunc() const
+uint32_t CSpyCommandBase::GetFeedbackFunc() const
 {
     return m_uFeedbackFunc;
 }
 
-size_t CSpyCommandBase::GetUserDataPtr() const
+uint32_t CSpyCommandBase::GetUserDataPtr() const
 {
     return m_uUserDataPtr;
 }
 
-void CSpyCommandBase::SetFeedBackFuncAddr(size_t uFeedbackFunc, size_t uUserDataPtr)
+void CSpyCommandBase::SetFeedBackFuncAddr(uint32_t uFeedbackFunc, uint32_t uUserDataPtr)
 {
     m_uFeedbackFunc = uFeedbackFunc;
     m_uUserDataPtr = uUserDataPtr;

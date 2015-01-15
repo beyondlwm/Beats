@@ -46,7 +46,7 @@ const static TCHAR* szPropertyTypeStr[] =
 
 struct SBasicPropertyInfo
 {
-    SBasicPropertyInfo(bool bEditable, size_t uColor, const TCHAR* pszDisplayName = NULL, const TCHAR* pszCatalog = NULL, const TCHAR* pszTip = NULL, const TCHAR* pszVariableName = NULL)
+    SBasicPropertyInfo(bool bEditable, uint32_t uColor, const TCHAR* pszDisplayName = NULL, const TCHAR* pszCatalog = NULL, const TCHAR* pszTip = NULL, const TCHAR* pszVariableName = NULL)
         : m_bEditable(bEditable)
         , m_color(uColor)
     {
@@ -82,7 +82,7 @@ struct SBasicPropertyInfo
         return *this;
     }
     bool m_bEditable;
-    size_t m_color;
+    uint32_t m_color;
     TString m_displayName;
     TString m_catalog;
     TString m_tip;

@@ -16,7 +16,7 @@ enum ESpyTCPMessageType
 struct SSpyTCPMessageHeader
 {
     ESpyTCPMessageType m_type : 8;
-    size_t m_size;
+    uint32_t m_size;
 };
 
 enum ESocketContextFlagBit
@@ -68,7 +68,7 @@ struct SSocketContext
         }
     }
 
-    size_t m_uSocketFlagBit;
+    uint32_t m_uSocketFlagBit;
     SOCKET m_socket;
     CSerializer* m_pReceiveBuffer;
     CSerializer* m_pSendBuffer;

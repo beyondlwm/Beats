@@ -9,8 +9,8 @@
 #include <wx/textctrl.h>
 #include "FilePath/FilePathTool.h"
 
-static const size_t COMMAND_SEND_TEXT_COLOR = 0xFF000000;
-static const size_t COMMAND_RECEIVE_TEXT_COLOR = 0xFFFF0000;
+static const uint32_t COMMAND_SEND_TEXT_COLOR = 0xFF000000;
+static const uint32_t COMMAND_RECEIVE_TEXT_COLOR = 0xFFFF0000;
 
 CSpyUserPanel::CSpyUserPanel(const SBeatsSocket* pSockInfo,
                              HMODULE hSpyDLLHandle,
@@ -271,7 +271,7 @@ void CSpyUserPanel::OnSpySelectFileCtrlMenu(wxMenuEvent& event)
                 if (pDownloadFunc != NULL)
                 {
                     std::vector<TString> files;
-                    size_t uSelectedCount = m_pRemoteFileCtrl->GetSelectedItemCount();
+                    uint32_t uSelectedCount = m_pRemoteFileCtrl->GetSelectedItemCount();
                     if (uSelectedCount == 0)
                     {
                         const TString& curPath = m_pRemoteFileCtrl->GetCurrentDirectoryPath();
@@ -282,7 +282,7 @@ void CSpyUserPanel::OnSpySelectFileCtrlMenu(wxMenuEvent& event)
                     }
                     else
                     {
-                        size_t uCounter = 0;
+                        uint32_t uCounter = 0;
                         long item = m_pRemoteFileCtrl->GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
                         while ( item != -1 && uCounter++ < uSelectedCount )
                         {
@@ -387,7 +387,7 @@ void CSpyUserPanel::UpdateDirectoryCache(const SDirectory* pDirectory)
     CStringHelper::GetInstance()->SplitString(pDirectory->m_szPath.c_str(), _T("/"), result, false);
     SDirectory* pCurCache = m_pRootDirectoryCache;
     TString strCurPath;
-    for (size_t i = 0; i < result.size(); ++i)
+    for (uint32_t i = 0; i < result.size(); ++i)
     {
         strCurPath.append(result[i]).append(_T("/"));
         SDirectory* pChildDirectory = pCurCache->GetChild(strCurPath);
@@ -407,7 +407,7 @@ void CSpyUserPanel::UpdateDirectoryCache(const SDirectory* pDirectory)
     
     //1. Sync the child directories data.
     BEATS_ASSERT(pDirectory->m_szPath == pCurCache->m_szPath, _T("The cache path must be the same with it!"));
-    for (size_t i = 0; i < pDirectory->m_pDirectories->size(); ++i)
+    for (uint32_t i = 0; i < pDirectory->m_pDirectories->size(); ++i)
     {
         SDirectory* pChildDirectory = pDirectory->m_pDirectories->at(i);
         SDirectory* pCacheChildDirectory = pCurCache->GetChild(pChildDirectory->m_szPath);
@@ -450,7 +450,7 @@ void CSpyUserPanel::UpdateDirectoryCache(const SDirectory* pDirectory)
         pCurCache->m_pFileList->push_back(pData);
     }
     BEATS_ASSERT(pCurCache->m_pFileList->size() == pDirectory->m_pFileList->size(), _T("The data size must be the same now!"));
-    for (size_t i = 0; i < pCurCache->m_pFileList->size(); ++i)
+    for (uint32_t i = 0; i < pCurCache->m_pFileList->size(); ++i)
     {
         memcpy(pCurCache->m_pFileList->at(i), pDirectory->m_pFileList->at(i), sizeof(WIN32_FIND_DATA));
     }
@@ -466,7 +466,7 @@ SDirectory* CSpyUserPanel::GetCache(const TString& strPath) const
         SDirectory* pCurDirectory = m_pRootDirectoryCache;
         TString strCurPath;
         bool bFind = true;
-        for (size_t i = 0; i < result.size(); ++i)
+        for (uint32_t i = 0; i < result.size(); ++i)
         {
             strCurPath.append(result[i]);
             SDirectory* pChildDirectory = pCurDirectory->GetChild(strCurPath);

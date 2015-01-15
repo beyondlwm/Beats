@@ -10,7 +10,7 @@ struct SVertex;
 class COMPONENTS_DLL_DECL CDependencyDescriptionLine
 {
 public:
-    CDependencyDescriptionLine(CDependencyDescription* pOwner, size_t uIndex, CComponentProxy* pTo);
+    CDependencyDescriptionLine(CDependencyDescription* pOwner, uint32_t uIndex, CComponentProxy* pTo);
     ~CDependencyDescriptionLine();
 
     void UpdateRect(float cellSize, bool bInverseY = false);
@@ -21,13 +21,13 @@ public:
     void SetConnectComponent(CComponentProxy* pComponentTo);
     bool IsSelected();
     void SetSelected(bool bFlag);
-    size_t GetIndex();
-    void SetIndex(size_t uIndex);
+    uint32_t GetIndex();
+    void SetIndex(uint32_t uIndex);
     bool HitTest(float x, float y);
 
 private:
     bool m_bIsSelected;
-    size_t m_uIndex;
+    uint32_t m_uIndex;
     CDependencyDescription* m_pOwner;
     CComponentProxy* m_pConnectedComponent;
     SVertex* m_pRect; // 0 = left top, 1 = left down, 2 = right top, 3 = right down.

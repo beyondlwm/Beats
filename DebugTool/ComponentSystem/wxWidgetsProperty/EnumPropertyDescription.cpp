@@ -51,7 +51,7 @@ CEnumPropertyDescription::~CEnumPropertyDescription()
 
 bool CEnumPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>& parameterUnit)
 {
-    for (size_t i = 0; i < parameterUnit.size(); ++i)
+    for (uint32_t i = 0; i < parameterUnit.size(); ++i)
     {
         TString parameter = parameterUnit[i];
         std::vector<TString> result;
@@ -90,7 +90,7 @@ wxPGProperty* CEnumPropertyDescription::CreateWxProperty()
     wxArrayString labels;
     wxArrayInt values;
     const std::vector<SEnumData*>& enumData = *m_pPropertyData->m_pData;
-    for (size_t i = 0; i < enumData.size(); ++i)
+    for (uint32_t i = 0; i < enumData.size(); ++i)
     {
         labels.push_back(i < m_pPropertyData->m_displayString.size() ? m_pPropertyData->m_displayString[i].c_str() : enumData[i]->m_str.c_str());
         values.push_back(enumData[i]->m_value);

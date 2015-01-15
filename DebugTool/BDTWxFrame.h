@@ -66,7 +66,7 @@ public:
     CBDTWxFrame(const wxString& title, const wxPoint& pos, const wxSize& size, long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
     virtual ~CBDTWxFrame();
 
-    void Init(size_t funcSwitcher = 0xffffffff);
+    void Init(uint32_t funcSwitcher = 0xffffffff);
     void UnInit();
     bool IsInit();
 
@@ -79,16 +79,16 @@ public:
 
     void UpdatePerformGraphicData(const SPerformanceResult* pResult);
     void ClearGrid();
-    void ClearGridRow(size_t startRowIndex, size_t count);
+    void ClearGridRow(uint32_t startRowIndex, uint32_t count);
     void ClearPeakValue(SPerformanceRecord* pRecord);
 
     //memory
     void UpdateMemoryData();
-    size_t GetMemoryViewType();
-    bool FilterTest(size_t eip, IMAGEHLP_LINE& info, bool& getAddrSuccess );
+    uint32_t GetMemoryViewType();
+    bool FilterTest(uint32_t eip, IMAGEHLP_LINE& info, bool& getAddrSuccess );
     bool IsAutoUpdateMemory();
     bool IsMemoryUIChanged();
-    bool IsMemoryRecordChanged(size_t recordCount, size_t latestRecordTime);
+    bool IsMemoryRecordChanged(uint32_t recordCount, uint32_t latestRecordTime);
     void Exit(bool bRemind = false);
     int GetMemoryGridViewStartPos();
     int GetMemoryGridViewStartOffset();
@@ -111,9 +111,9 @@ public:
     void ActivateFile(const TCHAR* pszFileName);
 
     //Info
-    void AddInfoLog(const TCHAR* pLog, const TCHAR* pCatalog = 0, size_t logPos = 0, size_t color = 0);
+    void AddInfoLog(const TCHAR* pLog, const TCHAR* pCatalog = 0, uint32_t logPos = 0, uint32_t color = 0);
     CInfoPagePanel* GetInfoPage(const TCHAR* pPageName, bool bAutoAdd = true);
-    void SetPropertyInfo(const TCHAR* pCatalog, const TCHAR* pPropertyName, size_t propertyId, void* value, EReflectPropertyType type);
+    void SetPropertyInfo(const TCHAR* pCatalog, const TCHAR* pPropertyName, uint32_t propertyId, void* value, EReflectPropertyType type);
     void DeleteProperty(const TCHAR* pCatalog, const TCHAR* pPropertyName);
     void RegisterPropertyChangedHandler(TPropertyChangedHandler pFunc);
     TPropertyChangedHandler GetPropertyChangedHandler();
@@ -140,7 +140,7 @@ private:
     void DestroySpyPage();
 
     wxPropertyGridManager* CreatePropertyGrid(wxWindow* pParent);
-    void SetGridRowsCount(wxGrid* gird, size_t count);
+    void SetGridRowsCount(wxGrid* gird, uint32_t count);
 
     virtual void OnCloseWindow(wxCloseEvent& event);
     virtual void OnClickAbout( wxCommandEvent& event );
@@ -173,8 +173,8 @@ private:
     void RefreshViewMemoryBySize();
     void RefreshViewMemoryByTime();
     void ClearAllColumnLabel();
-    void RefreshMemoryGrid(size_t type);
-    void AdjustMemoryGridColumnCount(size_t count);
+    void RefreshMemoryGrid(uint32_t type);
+    void AdjustMemoryGridColumnCount(uint32_t count);
 
     //overview
     void OnModuleLoadTypeChanged(wxCommandEvent& event );
@@ -198,7 +198,7 @@ private:
     void DeleteItemInComponentFileList(wxTreeItemId itemId, bool bDeletePhysicalFile);
     void OpenComponentFile(const TCHAR* pFilePath);
     void CloseComponentFile(bool bRemindSave = true);
-    void ResolveIdConflict(const std::map<size_t, std::vector<size_t>>& conflictIdMap);
+    void ResolveIdConflict(const std::map<uint32_t, std::vector<uint32_t>>& conflictIdMap);
 
     void OnComponentStartDrag( wxTreeEvent& event );
     void OnComponentEndDrag( wxTreeEvent& event );
@@ -317,29 +317,29 @@ private:
 
     CRightsDialog* m_pRightsDialog;
 
-    size_t m_samplingFrequency;
-    size_t m_curSamplingCount;
-    size_t m_lineMaxValue;
-    size_t m_lineStep;
-    size_t m_memoryViewType;
-    size_t m_latestRecordTimeForUI;
-    size_t m_memoryRecordCountForUI;
+    uint32_t m_samplingFrequency;
+    uint32_t m_curSamplingCount;
+    uint32_t m_lineMaxValue;
+    uint32_t m_lineStep;
+    uint32_t m_memoryViewType;
+    uint32_t m_latestRecordTimeForUI;
+    uint32_t m_memoryRecordCountForUI;
     int m_lastSelectedFilterPos;
     int m_memoryRecordCacheStartPos;
     bool m_initFlag;
     bool m_bMemoryUINeedUpdate;
 
     //performance
-    std::map<size_t, wxTreeItemId> m_performTreeItemMap;//use this map to quick find the wxItemId for a specific id of record
-    std::map<size_t, float> m_updateValueMap;
-    std::map<size_t, TString> m_staticLinkDllModu;
-    std::map<size_t, std::vector<char*>> m_symbolList;
-    std::map<size_t, TString> m_dynamicLinkDllModu;
+    std::map<uint32_t, wxTreeItemId> m_performTreeItemMap;//use this map to quick find the wxItemId for a specific id of record
+    std::map<uint32_t, float> m_updateValueMap;
+    std::map<uint32_t, TString> m_staticLinkDllModu;
+    std::map<uint32_t, std::vector<char*>> m_symbolList;
+    std::map<uint32_t, TString> m_dynamicLinkDllModu;
     std::set<TString> m_filterTexts;
 
     //component
-    size_t m_uLastComponentSearchTextUpdateTime;
-    size_t m_uLastComponentFileSearchTextUpdateTime;
+    uint32_t m_uLastComponentSearchTextUpdateTime;
+    uint32_t m_uLastComponentFileSearchTextUpdateTime;
     bool m_bComponentSearchTextUpdate;
     bool m_bComponentFileSearchTextUpdate;
     wxSplitterWindow* m_pComponentSpliterWindow;
@@ -361,7 +361,7 @@ private:
     wxButton* m_pOperateFileButton;
     wxButton* m_pSerializeButton;
     bool m_bNeedUpdatePropertyGrid;
-    std::map<size_t, wxTreeItemId> m_componentTreeIdMap; //use this map to quick find the wxItemId for a specific id of component
+    std::map<uint32_t, wxTreeItemId> m_componentTreeIdMap; //use this map to quick find the wxItemId for a specific id of component
     std::map<TString, wxTreeItemId> m_componentCatalogNameMap; //use this map to quick find the wxItemId for a catalog
     std::map<TString, wxTreeItemId> m_componentFileListMap; //use this map to quick find the wxItemId for a component file name.
 

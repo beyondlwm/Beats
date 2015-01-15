@@ -13,12 +13,12 @@ CComponentBase::~CComponentBase()
     BEATS_ASSERT(!m_bInitialize && !m_bLoaded, _T("Call Uninitialize before delete the component!"));
 }
 
-size_t CComponentBase::GetId() const
+uint32_t CComponentBase::GetId() const
 {
     return m_id;
 }
 
-void CComponentBase::SetId(size_t id)
+void CComponentBase::SetId(uint32_t id)
 {
     m_id = id;
 }

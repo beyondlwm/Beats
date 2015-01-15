@@ -45,7 +45,7 @@ CComponentProxy::CComponentProxy(CComponentGraphic* pGraphics)
     m_pProperties = new std::vector<CPropertyDescriptionBase*>;
 }
 
-CComponentProxy::CComponentProxy(CComponentGraphic* pGraphics, size_t uGuid, size_t uParentGuid, const TCHAR* pszClassName)
+CComponentProxy::CComponentProxy(CComponentGraphic* pGraphics, uint32_t uGuid, uint32_t uParentGuid, const TCHAR* pszClassName)
 : m_bIsTemplate(false)
 , m_uGuid(uGuid)
 , m_uParentGuid(uParentGuid)
@@ -66,7 +66,7 @@ CComponentProxy::~CComponentProxy()
     ClearProperty();
     if (m_pDependenciesDescription != NULL)
     {
-        for (size_t i = 0; i < m_pDependenciesDescription->size(); ++i)
+        for (uint32_t i = 0; i < m_pDependenciesDescription->size(); ++i)
         {
             BEATS_SAFE_DELETE((*m_pDependenciesDescription)[i]);
         }
@@ -92,12 +92,12 @@ CComponentProxy::~CComponentProxy()
 
 void CComponentProxy::Deserialize( CSerializer& serializer )
 {
-    size_t nPropertyCount = 0;
-    size_t nDependencyCount = 0;
+    uint32_t nPropertyCount = 0;
+    uint32_t nDependencyCount = 0;
     serializer >> nPropertyCount;
     serializer >> nDependencyCount;
-    size_t uPropertyCounter = 0;
-    size_t uDependencyCounter = 0;
+    uint32_t uPropertyCounter = 0;
+    uint32_t uDependencyCounter = 0;
     while (uPropertyCounter + uDependencyCounter < nPropertyCount + nDependencyCount)
     {
         bool bIsPropertyOrDependencyData;
@@ -109,8 +109,8 @@ void CComponentProxy::Deserialize( CSerializer& serializer )
             serializer >> ePropertyType;
             CPropertyDescriptionBase* pPropertyBase = CComponentProxyManager::GetInstance()->CreateProperty(ePropertyType, &serializer);
             this->AddProperty(pPropertyBase);
-            size_t startPos = serializer.GetReadPos();
-            size_t dataLenghth = 0;
+            uint32_t startPos = serializer.GetReadPos();
+            uint32_t dataLenghth = 0;
             serializer >> dataLenghth;
             pPropertyBase->DeserializeBasicInfo(serializer);
             TCHAR* pParameter = NULL;
@@ -128,7 +128,7 @@ void CComponentProxy::Deserialize( CSerializer& serializer )
             serializer >> bIsList;
             EDependencyType type;
             serializer >> type;
-            size_t uGuid;
+            uint32_t uGuid;
             serializer >> uGuid;
             CDependencyDescription* pNewDependency = new CDependencyDescription(type, uGuid, this, m_pDependenciesDescription->size(), bIsList);
             TCHAR* pName = NULL;
@@ -143,21 +143,21 @@ void CComponentProxy::Deserialize( CSerializer& serializer )
     }
 }
 
-CComponentBase* CComponentProxy::Clone(bool bCloneValue, CSerializer* /*pSerializer*/, size_t id, bool bCallInitFunc /*= true*/)
+CComponentBase* CComponentProxy::Clone(bool bCloneValue, CSerializer* /*pSerializer*/, uint32_t id, bool bCallInitFunc /*= true*/)
 {
     CComponentProxy* pNewInstance = new CComponentProxy(m_pGraphics->Clone(), m_uGuid, m_uParentGuid, m_strClassName.c_str());
     pNewInstance->SetDisplayName(m_strDisplayName.c_str());
     pNewInstance->SetCatalogName(m_strCatalogName.c_str());
     BEATS_ASSERT(pNewInstance->GetGuid() == GetGuid(), _T("Can't assign between two different type (0x%x and 0x%x) of Reflect Base!"), pNewInstance->GetGuid(), GetGuid());
     pNewInstance->ClearProperty();
-    for (size_t i = 0; i < (*m_pProperties).size(); ++i)
+    for (uint32_t i = 0; i < (*m_pProperties).size(); ++i)
     {
         CPropertyDescriptionBase* pNewProperty = (*m_pProperties)[i]->Clone(bCloneValue);
         pNewInstance->AddProperty(pNewProperty);
     }
     if (m_pDependenciesDescription != NULL)
     {
-        for (size_t i = 0; i < m_pDependenciesDescription->size(); ++i)
+        for (uint32_t i = 0; i < m_pDependenciesDescription->size(); ++i)
         {
             CDependencyDescription* pDependency = (*m_pDependenciesDescription)[i];
             CDependencyDescription* pNewDependency = new CDependencyDescription(pDependency->GetType(), pDependency->GetDependencyGuid(), pNewInstance, pNewInstance->GetDependencies()->size(), pDependency->IsListType());
@@ -193,14 +193,14 @@ CComponentBase* CComponentProxy::Clone(bool bCloneValue, CSerializer* /*pSeriali
 
 void CComponentProxy::Serialize( CSerializer& serializer, EValueType eValueType)
 {
-    size_t startPos = serializer.GetWritePos();
-    size_t totalSize = 0;
+    uint32_t startPos = serializer.GetWritePos();
+    uint32_t totalSize = 0;
     serializer << totalSize;
     serializer << GetGuid();
     serializer << GetId();
-    size_t uPropertyCounter = 0;
-    size_t uDepedencyCoutner = 0;
-    for (size_t i = 0; i < m_pSerializeOrder->size(); ++i)
+    uint32_t uPropertyCounter = 0;
+    uint32_t uDepedencyCoutner = 0;
+    for (uint32_t i = 0; i < m_pSerializeOrder->size(); ++i)
     {
         if ((*m_pSerializeOrder)[i] > 0)
         {
@@ -221,12 +221,12 @@ void CComponentProxy::Serialize( CSerializer& serializer, EValueType eValueType)
     serializer.SetWritePos(totalSize + startPos);
 }
 
-size_t CComponentProxy::GetGuid() const
+uint32_t CComponentProxy::GetGuid() const
 {
     return m_uGuid;
 }
 
-size_t CComponentProxy::GetParentGuid() const
+uint32_t CComponentProxy::GetParentGuid() const
 {
     return m_uParentGuid;
 }
@@ -304,9 +304,9 @@ void CComponentProxy::UpdateHostComponent()
     {
         CSerializer serializer;
         Serialize(serializer, eVT_CurrentValue);
-        size_t uTotalSize = 0;
-        size_t uGuid = 0;
-        size_t uId = 0;
+        uint32_t uTotalSize = 0;
+        uint32_t uGuid = 0;
+        uint32_t uId = 0;
         serializer >> uTotalSize;
         serializer >> uGuid;
         serializer >> uId;
@@ -343,7 +343,7 @@ void CComponentProxy::SaveToXML( TiXmlElement* pNode, bool bSaveOnlyNoneNativePa
         CStringHelper::GetInstance()->ConvertToCHAR(m_strUserDefineDisplayName.c_str(), szBuffer, MAX_PATH);
         pInstanceElement->SetAttribute("UserDefineName", szBuffer);
     }
-    for (size_t i = 0; i < m_pProperties->size(); ++i)
+    for (uint32_t i = 0; i < m_pProperties->size(); ++i)
     {
         CPropertyDescriptionBase* pProperty = (*m_pProperties)[i];
         if (!bSaveOnlyNoneNativePart || !pProperty->IsDataSame(true))
@@ -355,7 +355,7 @@ void CComponentProxy::SaveToXML( TiXmlElement* pNode, bool bSaveOnlyNoneNativePa
         }
     }
 
-    for (size_t i = 0; i < m_pDependenciesDescription->size(); ++i)
+    for (uint32_t i = 0; i < m_pDependenciesDescription->size(); ++i)
     {
         (*m_pDependenciesDescription)[i]->SaveToXML(pInstanceElement);
     }
@@ -378,7 +378,7 @@ void CComponentProxy::LoadFromXML( TiXmlElement* pNode )
         m_strUserDefineDisplayName.assign(szBuffer);
     }
     std::map<TString, CPropertyDescriptionBase*> unInitializedproperties;
-    for (size_t k = 0; k < m_pProperties->size(); ++k)
+    for (uint32_t k = 0; k < m_pProperties->size(); ++k)
     {
         BEATS_ASSERT(unInitializedproperties.find((*m_pProperties)[k]->GetBasicInfo()->m_variableName) == unInitializedproperties.end(),
                     _T("It's impossible to find more than one property which has same name: %s in component %s id %d"),
@@ -428,12 +428,12 @@ void CComponentProxy::LoadFromXML( TiXmlElement* pNode )
         const char* pFilePath = pNode->GetDocument()->Value();
         TCHAR szFilePath[MAX_PATH];
         CStringHelper::GetInstance()->ConvertToTCHAR(pFilePath, szFilePath, MAX_PATH);
-        size_t uFileId = CComponentProxyManager::GetInstance()->GetProject()->GetComponentFileId(szFilePath);
+        uint32_t uFileId = CComponentProxyManager::GetInstance()->GetProject()->GetComponentFileId(szFilePath);
         BEATS_ASSERT(uFileId != 0xFFFFFFFF);
         CComponentProxyManager::GetInstance()->GetRefreshFileList().push_back(uFileId);
     }
     // Run maintain logic.
-    for (size_t i = 0; i < unUsedXMLVariableNode.size(); ++i)
+    for (uint32_t i = 0; i < unUsedXMLVariableNode.size(); ++i)
     {
         EReflectPropertyType propertyType;
         unUsedXMLVariableNode[i]->Attribute("Type", (int*)&propertyType);
@@ -468,7 +468,7 @@ void CComponentProxy::LoadFromXML( TiXmlElement* pNode )
             }
             else
             {
-                for (size_t j = 0; j < matchTypeProperties.size(); )
+                for (uint32_t j = 0; j < matchTypeProperties.size(); )
                 {
                     const TString& strVariableName = matchTypeProperties[j]->GetBasicInfo()->m_variableName;
                     _stprintf(szInform, _T("Reallocate %s to %s?"), szTCHARVariableName, strVariableName.c_str());
@@ -493,13 +493,13 @@ void CComponentProxy::LoadFromXML( TiXmlElement* pNode )
             }
         }
     }
-    for (size_t i = 0; i < m_pDependenciesDescription->size(); ++i)
+    for (uint32_t i = 0; i < m_pDependenciesDescription->size(); ++i)
     {
         (*m_pDependenciesDescription)[i]->LoadFromXML(pNode);
     }
 }
 
-CDependencyDescription* CComponentProxy::GetDependency(size_t index)
+CDependencyDescription* CComponentProxy::GetDependency(uint32_t index)
 {
     BEATS_ASSERT(index < m_pDependenciesDescription->size());
     BEATS_ASSERT((*m_pDependenciesDescription)[index]->GetIndex() == index);
@@ -516,7 +516,7 @@ void CComponentProxy::AddDependencyDescription(CDependencyDescription* pDependen
     bool bExisting = false;
     if (pDependencyDesc != NULL)
     {
-        for (size_t i = 0; i < m_pDependenciesDescription->size(); ++i)
+        for (uint32_t i = 0; i < m_pDependenciesDescription->size(); ++i)
         {
             if ((*m_pDependenciesDescription)[i] == NULL)
             {
@@ -550,7 +550,7 @@ void CComponentProxy::AddBeConnectedDependencyDescriptionLine( CDependencyDescri
 void CComponentProxy::RemoveBeConnectedDependencyDescriptionLine( CDependencyDescriptionLine* pDependencyDescLine )
 {
     bool bRet = false;
-    for (size_t i = 0; i < m_pBeConnectedDependencyLines->size(); ++i)
+    for (uint32_t i = 0; i < m_pBeConnectedDependencyLines->size(); ++i)
     {
         if (pDependencyDescLine == (*m_pBeConnectedDependencyLines)[i])
         {
@@ -583,7 +583,7 @@ void CComponentProxy::ClearProperty()
 {
     if (m_pProperties != NULL)
     {
-        for (size_t i = 0; i < m_pProperties->size(); ++i)
+        for (uint32_t i = 0; i < m_pProperties->size(); ++i)
         {
             BEATS_SAFE_DELETE((*m_pProperties)[i]);
         }
@@ -599,7 +599,7 @@ const std::vector<CPropertyDescriptionBase*>* CComponentProxy::GetPropertyPool()
 CPropertyDescriptionBase* CComponentProxy::GetPropertyDescription(const TCHAR* pszVariableName) const
 {
     CPropertyDescriptionBase* pProperty = NULL;
-    for (size_t i = 0; i < m_pProperties->size(); ++i)
+    for (uint32_t i = 0; i < m_pProperties->size(); ++i)
     {
         const TString& name = (*m_pProperties)[i]->GetBasicInfo()->m_variableName;
         if(name.compare(pszVariableName) == 0)
@@ -613,13 +613,13 @@ CPropertyDescriptionBase* CComponentProxy::GetPropertyDescription(const TCHAR* p
 
 void CComponentProxy::Save()
 {
-    for (size_t i = 0; i < (*m_pProperties).size(); ++i)
+    for (uint32_t i = 0; i < (*m_pProperties).size(); ++i)
     {
         (*m_pProperties)[i]->Save();
     }
 }
 
-size_t CComponentProxy::GetProxyId()
+uint32_t CComponentProxy::GetProxyId()
 {
     return GetId();
 }
@@ -627,7 +627,7 @@ size_t CComponentProxy::GetProxyId()
 void CComponentProxy::Initialize()
 {
     super::Initialize();
-    for (size_t i = 0; i < (*m_pProperties).size(); ++i)
+    for (uint32_t i = 0; i < (*m_pProperties).size(); ++i)
     {
         (*m_pProperties)[i]->Initialize();
     }
@@ -639,13 +639,13 @@ void CComponentProxy::Initialize()
 
 void CComponentProxy::Uninitialize()
 {
-    size_t uComponentId = GetId();
-    const std::map<size_t, std::vector<CComponentReference*>>& referenceMap = CComponentProxyManager::GetInstance()->GetReferenceIdMap();
+    uint32_t uComponentId = GetId();
+    const std::map<uint32_t, std::vector<CComponentReference*>>& referenceMap = CComponentProxyManager::GetInstance()->GetReferenceIdMap();
     auto referenceIter = referenceMap.find(uComponentId);
     if (referenceIter != referenceMap.end())
     {
         std::vector<CComponentReference*> backup = referenceIter->second;
-        for (size_t i = 0; i < backup.size(); ++i)
+        for (uint32_t i = 0; i < backup.size(); ++i)
         {
             CComponentReference* pRef = backup.at(i);
             pRef->Uninitialize();
@@ -661,7 +661,7 @@ void CComponentProxy::Uninitialize()
     }
     if (m_pProperties != NULL)
     {
-        for (size_t i = 0; i < (*m_pProperties).size(); ++i)
+        for (uint32_t i = 0; i < (*m_pProperties).size(); ++i)
         {
             (*m_pProperties)[i]->Uninitialize();
         }

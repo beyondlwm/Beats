@@ -22,8 +22,8 @@ public:
 
 private:
     void ConvertMemoryManufactuer(const TString& inCode, TString& outResult);
-    void ConvertMemoryType(const size_t type, TString& outResult);
-    bool GetEDIDFromReg(void* pData, size_t& dataLength);
+    void ConvertMemoryType(const uint32_t type, TString& outResult);
+    bool GetEDIDFromReg(void* pData, uint32_t& dataLength);
 };
 
 #endif

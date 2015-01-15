@@ -135,7 +135,7 @@ void CGame::SetTask( ETaskType type)
 
 void CGame::SetAudioName( const TString& name )
 {
-    size_t pos = m_audioFullPath.rfind('.');
+    uint32_t pos = m_audioFullPath.rfind('.');
     if (pos != TString::npos)
     {
         TString suffix = m_audioFullPath.substr(pos+1);

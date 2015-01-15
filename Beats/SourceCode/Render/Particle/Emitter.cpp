@@ -2,7 +2,7 @@
 #include "Emitter.h"
 #include "ParticleManager.h"
 
-CEmitter::CEmitter(const CParticle& templateParticle, size_t emitCount, size_t interval, bool autoEmit )
+CEmitter::CEmitter(const CParticle& templateParticle, uint32_t emitCount, uint32_t interval, bool autoEmit )
 : super(templateParticle)
 , m_emitCount(emitCount)
 , m_emitIntervalMs(interval)
@@ -34,7 +34,7 @@ void CEmitter::Update( float deltaTimeMS )
 
 void CEmitter::Emit(long textureIndex)
 {
-    for (size_t i = 0; i < m_emitCount; ++i)
+    for (uint32_t i = 0; i < m_emitCount; ++i)
     {
         CParticle* pNewParticle = CParticleManager::GetInstance()->CreateParticle();
         // Initialize the new particle by the emitter.
@@ -42,7 +42,7 @@ void CEmitter::Emit(long textureIndex)
         pNewParticle->SetRadius(m_radius);
         pNewParticle->SetTotalLifeTime(m_totalLifeTimeMs);
         pNewParticle->SetPhysicsElement(m_physicElement);
-        for (size_t i = 0; i < m_pTextures.size(); ++i)
+        for (uint32_t i = 0; i < m_pTextures.size(); ++i)
         {        
             pNewParticle->AddTexture(m_pTextures[i]);
         }

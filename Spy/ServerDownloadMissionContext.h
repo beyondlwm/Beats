@@ -13,7 +13,7 @@ struct SDownloadingTaskInfo
 
     }
 
-    SDownloadingTaskInfo(WIN32_FIND_DATA* pData, size_t uFileIndex, const long long& uStartPos)
+    SDownloadingTaskInfo(WIN32_FIND_DATA* pData, uint32_t uFileIndex, const long long& uStartPos)
         : m_pData(pData)
         , m_uFileIndex(uFileIndex)
         , m_uStartPos(uStartPos)
@@ -25,7 +25,7 @@ struct SDownloadingTaskInfo
 
     }
     WIN32_FIND_DATA* m_pData;
-    size_t m_uFileIndex;
+    uint32_t m_uFileIndex;
     unsigned long long m_uStartPos;
 };
 
@@ -69,14 +69,14 @@ private:
     bool GetTaskByRule(EDownloadRule rule, SDownloadingTaskInfo& taskInfo);
 
 public:
-    static const size_t WORK_LOCK_FILE_LENGTH = 25 * 1024 * 1024; // 25M, it means a file with 100M size will be sent by 4 threads at the same time.
+    static const uint32_t WORK_LOCK_FILE_LENGTH = 25 * 1024 * 1024; // 25M, it means a file with 100M size will be sent by 4 threads at the same time.
 
 private:
     bool m_bUploadMode;
     EDownloadRule m_downloadRule;
     std::vector<SDirectory*>* m_pDownloadFiles;
     SOCKET m_listenSocket;
-    size_t m_uCurDownloadFileIndex;
+    uint32_t m_uCurDownloadFileIndex;
     SharePtr<SSocketContext> m_pSocketContext;
     unsigned long long m_uTotalFileSize;
     long long m_uUploadedSize;

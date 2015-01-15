@@ -86,8 +86,8 @@ void CBDTWxApp::CacheDataForUIThread(std::vector<SPerformanceResult*>& resultThi
         bool bNeedUpdate = m_pBDTWxFrame->IsMemoryUIChanged();
         if (!bNeedUpdate && m_pBDTWxFrame->IsAutoUpdateMemory())
         {
-            size_t latestTime = pMemoryDetector->GetLatestMemoryBlockTime();
-            size_t allMemoryRecordCount = pMemoryDetector->GetAllocMemorySize();
+            uint32_t latestTime = pMemoryDetector->GetLatestMemoryBlockTime();
+            uint32_t allMemoryRecordCount = pMemoryDetector->GetAllocMemorySize();
             bNeedUpdate = m_pBDTWxFrame->IsMemoryRecordChanged(allMemoryRecordCount, latestTime);
         }
         if (!m_pBDTWxFrame->IsAutoUpdateMemory() && m_bIsAutoUpdateLastFrame)
@@ -194,7 +194,7 @@ bool CBDTWxApp::GetFirstResult(std::vector<SPerformanceResult*>& outParam)
     return result;
 }
 
-size_t CBDTWxApp::GetPerformUpdateCount()
+uint32_t CBDTWxApp::GetPerformUpdateCount()
 {
     return m_performUpdateCount;
 }
@@ -204,12 +204,12 @@ SMemoryFrameRecord& CBDTWxApp::GetMemoryUICache()
     return m_memoryRecordForUICache;
 }
 
-void CBDTWxApp::SetClientMode( size_t mode )
+void CBDTWxApp::SetClientMode( uint32_t mode )
 {
     m_clientMode = mode;
 }
 
-size_t CBDTWxApp::GetClientMode()
+uint32_t CBDTWxApp::GetClientMode()
 {
     return m_clientMode;
 }
@@ -219,7 +219,7 @@ HANDLE CBDTWxApp::GetLaunchEvent()
     return m_launchEvent;
 }
 
-bool CBDTWxApp::Launch(size_t uFuncSwitcher, std::vector<std::string>* pMemHookModuleList )
+bool CBDTWxApp::Launch(uint32_t uFuncSwitcher, std::vector<std::string>* pMemHookModuleList )
 {
     m_functionSwitchBit = uFuncSwitcher;
     m_bInit = uFuncSwitcher != 0;
@@ -247,12 +247,12 @@ bool CBDTWxApp::IsEnable( EBDTFuncType funcType )
     return (m_functionSwitchBit & (1 << funcType)) > 0;
 }
 
-void CBDTWxApp::AddInfoLog( const TCHAR* pLog, const TCHAR* pCatalog /*= 0*/, size_t logPos /*=0*/, size_t color /*= 0*/)
+void CBDTWxApp::AddInfoLog( const TCHAR* pLog, const TCHAR* pCatalog /*= 0*/, uint32_t logPos /*=0*/, uint32_t color /*= 0*/)
 {
     m_pBDTWxFrame->AddInfoLog(pLog, pCatalog, logPos, color);
 }
 
-void CBDTWxApp::UpdatePropertyInfo(const TCHAR* pCatalog, const TCHAR* pPropertyName, size_t propertyId, void* value, EReflectPropertyType type )
+void CBDTWxApp::UpdatePropertyInfo(const TCHAR* pCatalog, const TCHAR* pPropertyName, uint32_t propertyId, void* value, EReflectPropertyType type )
 {
     m_pBDTWxFrame->SetPropertyInfo(pCatalog, pPropertyName, propertyId, value, type);
 }

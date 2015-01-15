@@ -11,12 +11,12 @@ CShaderBase::~CShaderBase()
 
 }
 
-size_t CShaderBase::GetIndex()
+uint32_t CShaderBase::GetIndex()
 {
     return m_uIndex;
 }
 
-void CShaderBase::SetIndex(size_t uIndex)
+void CShaderBase::SetIndex(uint32_t uIndex)
 {
     m_uIndex = uIndex;
 }

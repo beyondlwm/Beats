@@ -12,27 +12,27 @@
         serializer.SetUserData(&extraInfo);\
         serializer << COMPONENT_FILE_HEADERSTR;\
         serializer << COMPONENT_SYSTEM_VERSION;\
-        size_t nCurWritePos = serializer.GetWritePos();\
-        size_t nComponentCounter = 0;\
+        uint32_t nCurWritePos = serializer.GetWritePos();\
+        uint32_t nComponentCounter = 0;\
         serializer << nCurWritePos;
 
 #define REGISTER_COMPONENT(component, displayName, catalogName)\
     ++nComponentCounter;\
     {\
         serializer << (bool) false;\
-        size_t nDataSizePosHolder = serializer.GetWritePos();\
+        uint32_t nDataSizePosHolder = serializer.GetWritePos();\
         serializer << nDataSizePosHolder;\
         serializer << component::REFLECT_GUID;\
         serializer << component::PARENT_REFLECT_GUID;\
         serializer << _T(#component);\
         serializer << displayName;\
         serializer << catalogName;\
-        size_t nCountHolder = serializer.GetWritePos();\
+        uint32_t nCountHolder = serializer.GetWritePos();\
         serializer << nCountHolder;\
         serializer << nCountHolder;\
         component* pComponent = new component();\
         pComponent->ReflectData(serializer);\
-        size_t curWritePos = serializer.GetWritePos();\
+        uint32_t curWritePos = serializer.GetWritePos();\
         serializer.SetWritePos(nCountHolder);\
         SSerilaizerExtraInfo* pExtraInfo = (SSerilaizerExtraInfo*)(serializer.GetUserData());\
         serializer << pExtraInfo->m_uPropertyCount;\
@@ -48,19 +48,19 @@
     ++nComponentCounter;\
     {\
         serializer << (bool)true;\
-        size_t nDataSizePosHolder = serializer.GetWritePos();\
+        uint32_t nDataSizePosHolder = serializer.GetWritePos();\
         serializer << nDataSizePosHolder;\
         serializer << component::REFLECT_GUID;\
         serializer << component::PARENT_REFLECT_GUID;\
         serializer << _T(#component);\
-        size_t curWritePos = serializer.GetWritePos();\
+        uint32_t curWritePos = serializer.GetWritePos();\
         serializer.SetWritePos(nDataSizePosHolder);\
         serializer << (curWritePos - nDataSizePosHolder);\
         serializer.SetWritePos(curWritePos);\
     }
 
 #define END_REGISTER_COMPONENT\
-        size_t nNewCurWritePos = serializer.GetWritePos();\
+        uint32_t nNewCurWritePos = serializer.GetWritePos();\
         serializer.SetWritePos(nCurWritePos);\
         serializer << nComponentCounter;\
         serializer.SetWritePos(nNewCurWritePos);\

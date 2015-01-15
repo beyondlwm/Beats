@@ -9,19 +9,19 @@ public:
     CComponentProjectDirectory(CComponentProjectDirectory* pParent, const TString& strName);
     ~CComponentProjectDirectory();
 
-    bool AddFile(const TString& strFileName, std::map<size_t, std::vector<size_t> >& conflictMap);
+    bool AddFile(const TString& strFileName, std::map<uint32_t, std::vector<uint32_t> >& conflictMap);
     CComponentProjectDirectory* AddDirectory(const TString& strDirectoryName);
     void InsertDirectory(CComponentProjectDirectory* pDirectory, CComponentProjectDirectory* pPrevDirectory = NULL);
-    void InsertFile(size_t uFileId, size_t uPrevFileId = 0xFFFFFFFF);
-    bool DeleteFile(size_t uFileId);
-    bool RemoveFile(size_t uFileId);
+    void InsertFile(uint32_t uFileId, uint32_t uPrevFileId = 0xFFFFFFFF);
+    bool DeleteFile(uint32_t uFileId);
+    bool RemoveFile(uint32_t uFileId);
     bool DeleteDirectory(CComponentProjectDirectory* pDirectory);
     bool RemoveDirectory(CComponentProjectDirectory* pDirectory);
     bool DeleteAll(bool bUpdateProject);
 
     const TString& GetName() const;
     const std::vector<CComponentProjectDirectory*>& GetChildren() const;
-    const std::vector<size_t>& GetFileList() const;
+    const std::vector<uint32_t>& GetFileList() const;
     void SetParent(CComponentProjectDirectory* pParent);
     CComponentProjectDirectory* GetParent() const;
     CComponentProjectDirectory* FindChild(const TCHAR* pszChildName) const;
@@ -35,7 +35,7 @@ public:
 private:
     CComponentProjectDirectory* m_pParent;
     TString m_strName;
-    std::vector<size_t>* m_pFilesList;
+    std::vector<uint32_t>* m_pFilesList;
     std::vector<CComponentProjectDirectory*>* m_pChildrenVec;
 };
 

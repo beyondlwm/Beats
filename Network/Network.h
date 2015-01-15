@@ -26,16 +26,16 @@ struct SBeatsSocket
 
     }
     SOCKET m_socket;
-    size_t m_uCreateTime;
-    size_t m_uDownloadSpeed;
-    size_t m_uUploadSpeed;
-    size_t m_uLastDownloadSpeedCalcTime;
-    size_t m_uReceiveDataCountInCalcTime;
-    size_t m_uLastUploadSpeedCalcTime;
-    size_t m_uSendDataCountInCalcTime;
+    uint32_t m_uCreateTime;
+    uint32_t m_uDownloadSpeed;
+    uint32_t m_uUploadSpeed;
+    uint32_t m_uLastDownloadSpeedCalcTime;
+    uint32_t m_uReceiveDataCountInCalcTime;
+    uint32_t m_uLastUploadSpeedCalcTime;
+    uint32_t m_uSendDataCountInCalcTime;
     long long m_uSendDataCount;
     long long m_uReceiveDataCount;
-    static const size_t SPEED_CALC_INTERVAL = 2000;//Ms
+    static const uint32_t SPEED_CALC_INTERVAL = 2000;//Ms
 };
 
 
@@ -56,14 +56,14 @@ extern "C" {
     BEATS_NETWORK_DLL_DECL bool Beats_IsNetworkInitialized();
     BEATS_NETWORK_DLL_DECL SOCKET Beats_CreateSocket(int type, int protocol);
     BEATS_NETWORK_DLL_DECL bool Beats_DestroySocket(SOCKET socket);
-    BEATS_NETWORK_DLL_DECL bool Beats_Bind(SOCKET socketToBind, const sockaddr_in* pSockInfo, INT nSockInfoSize, bool bAvoidConflictPort = false, size_t uTryRebindCount = 50);
+    BEATS_NETWORK_DLL_DECL bool Beats_Bind(SOCKET socketToBind, const sockaddr_in* pSockInfo, INT nSockInfoSize, bool bAvoidConflictPort = false, uint32_t uTryRebindCount = 50);
     BEATS_NETWORK_DLL_DECL bool Beats_Listen(SOCKET socketToListen, int iBackLog);
     BEATS_NETWORK_DLL_DECL bool Beats_Accept(SOCKET listenSocket, SOCKET& newSocket, sockaddr_in* addr, int* addrlen);
     BEATS_NETWORK_DLL_DECL bool Beats_Connect(SOCKET connectSocket, const sockaddr_in* pAddr);
-    BEATS_NETWORK_DLL_DECL bool Beats_SendTo(SOCKET sendingSocket, void* pData, size_t& uDataLength, size_t uIP, size_t uPort, size_t uRetryCount = 0);
-    BEATS_NETWORK_DLL_DECL bool Beats_RecvFrom(SOCKET receiveSocket, void* pData, size_t& uDataLength, sockaddr_in* pReceiveInfo = NULL, int* pInfoSize = NULL);
-    BEATS_NETWORK_DLL_DECL bool Beats_Send(SOCKET sendingSocket, void* pData, size_t& uDataLength, size_t uFlag = 0);
-    BEATS_NETWORK_DLL_DECL bool Beats_Receive(SOCKET receiveSocket, void* pData, size_t& uDataLength, size_t uFlag = 0);
+    BEATS_NETWORK_DLL_DECL bool Beats_SendTo(SOCKET sendingSocket, void* pData, uint32_t& uDataLength, uint32_t uIP, uint32_t uPort, uint32_t uRetryCount = 0);
+    BEATS_NETWORK_DLL_DECL bool Beats_RecvFrom(SOCKET receiveSocket, void* pData, uint32_t& uDataLength, sockaddr_in* pReceiveInfo = NULL, int* pInfoSize = NULL);
+    BEATS_NETWORK_DLL_DECL bool Beats_Send(SOCKET sendingSocket, void* pData, uint32_t& uDataLength, uint32_t uFlag = 0);
+    BEATS_NETWORK_DLL_DECL bool Beats_Receive(SOCKET receiveSocket, void* pData, uint32_t& uDataLength, uint32_t uFlag = 0);
     BEATS_NETWORK_DLL_DECL const hostent* Beats_GetHostInfo();
     BEATS_NETWORK_DLL_DECL const SBeatsSocket* Beats_GetSockInfo(SOCKET sock);
     BEATS_NETWORK_DLL_DECL PIP_ADAPTER_INFO Beats_CreateNetAdapterInfo();

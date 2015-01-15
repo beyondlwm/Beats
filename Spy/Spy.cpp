@@ -68,7 +68,7 @@ const hostent* Spy_GetHostInfo()
     return Beats_GetHostInfo();
 }
 
-const SBeatsSocket* Spy_Connect(size_t uIPAddress)
+const SBeatsSocket* Spy_Connect(uint32_t uIPAddress)
 {
     const SBeatsSocket* pRet = NULL;
     SOCKET socket = Beats_CreateSocket(SOCK_STREAM, 0);
@@ -117,7 +117,7 @@ bool Spy_SendSystemCommand(SOCKET sock, const char* pszCmd, TCommandFeedBackFunc
     bool bRet = false;
     CSpyCommandSysCMD cmd;
     cmd.SetSystemCMDData(pszCmd);
-    cmd.SetFeedBackFuncAddr((size_t)pFeedbackFunc, (size_t)pUserData);
+    cmd.SetFeedBackFuncAddr((uint32_t)pFeedbackFunc, (uint32_t)pUserData);
     SharePtr<SSocketContext> socketContent = CSpyManager::GetInstance()->GetSocket(sock);
     BEATS_ASSERT(socketContent.Get() != NULL, _T("Invalid socket!"));
     if (socketContent.Get() != NULL)
@@ -131,7 +131,7 @@ bool Spy_SendFileInfoCommand(SOCKET sock, const TCHAR* pszCmd, TFileInfoFeedback
 {
     bool bRet = false;
     CSpyCommandGetFileInfo cmd;
-    cmd.SetFeedBackFuncAddr((size_t)pFeedbackFunc, (size_t)pUserData);
+    cmd.SetFeedBackFuncAddr((uint32_t)pFeedbackFunc, (uint32_t)pUserData);
     cmd.SetFileName(pszCmd);
     SharePtr<SSocketContext> socketContent = CSpyManager::GetInstance()->GetSocket(sock);
     BEATS_ASSERT(socketContent.Get() != NULL, _T("Invalid socket!"));

@@ -198,7 +198,7 @@ void CRenderManager::SendQuadToCache( const CVector3& center, float width, float
     |  |
     2¡ª3
     */
-    for (size_t i = 0; i < 4; ++i)
+    for (uint32_t i = 0; i < 4; ++i)
     {
         SVertex vertex;
         vertex.m_uv.x = (float)(i % 2);

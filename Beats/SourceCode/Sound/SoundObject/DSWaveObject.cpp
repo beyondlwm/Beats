@@ -85,7 +85,7 @@ bool CDSWaveObject::LoadDSData(unsigned int start, unsigned int count)
             {
                 //clear useless data to avoid noise when play to the end.
                 long resetDataBytes = bufferPieceSize >= count ? bufferPieceSize - count : m_bufferSize - count;
-                memset((LPVOID)((size_t)aptr1 + count), 0, resetDataBytes);
+                memset((LPVOID)((uint32_t)aptr1 + count), 0, resetDataBytes);
 
                 m_EOFPosInBuffer = start + count - 1;
                 DWORD playPos = 0;

@@ -19,7 +19,7 @@ class COMPONENTS_DLL_DECL CComponentProxy : public CComponentBase
 public:
     CComponentProxy();//Only ComponentReference should use this constructor.
     CComponentProxy(CComponentGraphic* pGraphics);
-    CComponentProxy(CComponentGraphic* pGraphics, size_t uGuid, size_t uParentGuid, const TCHAR* pszClassName);
+    CComponentProxy(CComponentGraphic* pGraphics, uint32_t uGuid, uint32_t uParentGuid, const TCHAR* pszClassName);
     virtual ~CComponentProxy();
 
     const TString& GetDisplayName() const;
@@ -43,7 +43,7 @@ public:
     const std::vector<CPropertyDescriptionBase*>* GetPropertyPool() const;
     CPropertyDescriptionBase* GetPropertyDescription(const TCHAR* pszVariableName) const;
 
-    CDependencyDescription* GetDependency(size_t uIndex);
+    CDependencyDescription* GetDependency(uint32_t uIndex);
     const std::vector<CDependencyDescription*>* GetDependencies();
     void AddDependencyDescription(CDependencyDescription* pDependencyDesc);
     void AddBeConnectedDependencyDescriptionLine(CDependencyDescriptionLine* pDependencyDescLine);
@@ -51,14 +51,14 @@ public:
     const std::vector<CDependencyDescriptionLine*>* GetBeConnectedDependencyLines();
 
     //Simulate the real component.
-    static const size_t REFLECT_GUID = 1;
-    static const size_t PARENT_REFLECT_GUID = super::REFLECT_GUID;
-    virtual size_t GetGuid() const;
-    virtual size_t GetParentGuid() const override;
+    static const uint32_t REFLECT_GUID = 1;
+    static const uint32_t PARENT_REFLECT_GUID = super::REFLECT_GUID;
+    virtual uint32_t GetGuid() const;
+    virtual uint32_t GetParentGuid() const override;
     virtual const TCHAR* GetClassStr() const;
     void Save();
-    virtual size_t GetProxyId();
-    virtual CComponentBase* Clone(bool bCloneValue, CSerializer* pSerializer, size_t id, bool bCallInitFunc = true) override;
+    virtual uint32_t GetProxyId();
+    virtual CComponentBase* Clone(bool bCloneValue, CSerializer* pSerializer, uint32_t id, bool bCallInitFunc = true) override;
 
     ///*
     //    We have two ways for interaction:
@@ -87,8 +87,8 @@ protected:
 
 private:
     bool m_bIsTemplate;
-    size_t m_uGuid;
-    size_t m_uParentGuid;
+    uint32_t m_uGuid;
+    uint32_t m_uParentGuid;
     CComponentGraphic* m_pGraphics;
     std::vector<char>* m_pSerializeOrder; // this variable save the order of property/dependency data comes in when deserialize. we have to keep the order when serialize.
     TString m_strClassName;

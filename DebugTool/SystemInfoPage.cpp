@@ -90,7 +90,7 @@ void CBDTWxFrame::CreateSystemInfoPage()
 
     std::vector<TString> hotFixList;
     CSystemDetector::GetInstance()->GetHotFixList(hotFixList);
-    for (size_t i = 0; i < hotFixList.size(); ++i)
+    for (uint32_t i = 0; i < hotFixList.size(); ++i)
     {
         if (hotFixList[i].compare(_T("File 1")) != 0 )//filter unknow hotfix names
         {
@@ -178,10 +178,10 @@ void CBDTWxFrame::OnModuleLoadTypeChanged( wxCommandEvent& event )
 {
     m_pModuleList->Clear();
     m_pModuleSymbolList->Clear();
-    std::map<size_t, TString>& operateMap = event.GetSelection() == 0 ? 
+    std::map<uint32_t, TString>& operateMap = event.GetSelection() == 0 ? 
                                             m_staticLinkDllModu : 
                                             m_dynamicLinkDllModu;
-    std::map<size_t, TString>::iterator iter = operateMap.begin();
+    std::map<uint32_t, TString>::iterator iter = operateMap.begin();
     for (; iter != operateMap.end(); ++iter)
     {
         TString strFileName = CFilePathTool::GetInstance()->FileName(iter->second.c_str());
@@ -209,11 +209,11 @@ void CBDTWxFrame::InitStaticLinkModuList()
         {
             PCHAR moduleName = (PCHAR)((PBYTE)processModule + idte->Name);
             HMODULE handle = GetModuleHandleA(moduleName);
-            BEATS_ASSERT(m_staticLinkDllModu.find(size_t(handle)) == m_staticLinkDllModu.end(),
+            BEATS_ASSERT(m_staticLinkDllModu.find(uint32_t(handle)) == m_staticLinkDllModu.end(),
                         _T("the module is already in static link module list."));
             TCHAR pathCache[256];
             GetModuleFileName(handle, pathCache, 256);
-            m_staticLinkDllModu[(size_t)handle] = TString(pathCache);
+            m_staticLinkDllModu[(uint32_t)handle] = TString(pathCache);
             ++idte;
         }
     }
@@ -228,7 +228,7 @@ void CBDTWxFrame::GetSymbol(IMAGE_THUNK_DATA* pITDdata, HMODULE processModule, H
         {
             IMAGE_IMPORT_BY_NAME* pIBNdata = (IMAGE_IMPORT_BY_NAME*)R2VA(processModule, pITDdata->u1.AddressOfData);
             char* symbolName = (char*)(&pIBNdata->Name);
-            m_symbolList[(size_t)dllModule].push_back(symbolName);
+            m_symbolList[(uint32_t)dllModule].push_back(symbolName);
             GetSymbol(++pITDdata, processModule, dllModule);
         }
         else
@@ -246,22 +246,22 @@ void CBDTWxFrame::GetSymbol(IMAGE_THUNK_DATA* pITDdata, HMODULE processModule, H
             //if the name is hidden.
             if (iede->AddressOfNames == 0 || iede->AddressOfNameOrdinals == 0)
             {
-                m_symbolList[(size_t)dllModule].push_back("无符号名称信息");
+                m_symbolList[(uint32_t)dllModule].push_back("无符号名称信息");
             }
             else
             {
                 //export by id
-                size_t id = pITDdata->u1.AddressOfData & (~(1 << 31));
+                uint32_t id = pITDdata->u1.AddressOfData & (~(1 << 31));
                 if ( id != 0)
                 {
-                    WORD* pExportFuncIndexRVA = (WORD*)R2VA(size_t(dllModule), iede->AddressOfNameOrdinals);
-                    DWORD* pExportFuncNameRVA = (DWORD*)R2VA(size_t(dllModule), iede->AddressOfNames);
+                    WORD* pExportFuncIndexRVA = (WORD*)R2VA(uint32_t(dllModule), iede->AddressOfNameOrdinals);
+                    DWORD* pExportFuncNameRVA = (DWORD*)R2VA(uint32_t(dllModule), iede->AddressOfNames);
                     while (*pExportFuncIndexRVA != id - iede->Base)
                     {
                         ++pExportFuncIndexRVA;
                         ++pExportFuncNameRVA;
                     }
-                    m_symbolList[(size_t)dllModule].push_back((char*)R2VA(size_t(dllModule), *pExportFuncNameRVA));
+                    m_symbolList[(uint32_t)dllModule].push_back((char*)R2VA(uint32_t(dllModule), *pExportFuncNameRVA));
 
                     GetSymbol(++pITDdata, processModule, dllModule);
                 }
@@ -272,7 +272,7 @@ void CBDTWxFrame::GetSymbol(IMAGE_THUNK_DATA* pITDdata, HMODULE processModule, H
 
 void CBDTWxFrame::InitSymbolList()
 {
-    for (std::map<size_t, TString>::iterator iter = m_staticLinkDllModu.begin(); iter != m_staticLinkDllModu.end(); ++iter)
+    for (std::map<uint32_t, TString>::iterator iter = m_staticLinkDllModu.begin(); iter != m_staticLinkDllModu.end(); ++iter)
     {
         TString strFileName = CFilePathTool::GetInstance()->FileName(iter->second.c_str());
         TString dllName = strFileName.c_str();
@@ -313,18 +313,18 @@ void CBDTWxFrame::InitDynamicLinkModuList()
 
     EnumProcessModules(hProcess, moduleCache, sizeof(moduleCache), &cacheNeeded);
     BEATS_ASSERT(cacheNeeded < sizeof(moduleCache), _T("Moudule cache is too small!"));
-    size_t moduleCount = cacheNeeded / sizeof(HMODULE);
-    for (size_t i = 0; i < moduleCount; ++i)
+    uint32_t moduleCount = cacheNeeded / sizeof(HMODULE);
+    for (uint32_t i = 0; i < moduleCount; ++i)
     {
         if (moduleCache[i] != GetModuleHandle(NULL))//filter exe it self.
         {
-            if (m_staticLinkDllModu.find((size_t)moduleCache[i]) == m_staticLinkDllModu.end())
+            if (m_staticLinkDllModu.find((uint32_t)moduleCache[i]) == m_staticLinkDllModu.end())
             {   
                 TCHAR nameCache[256];
                 GetModuleFileName(moduleCache[i],nameCache, sizeof(nameCache));
-                BEATS_ASSERT(m_dynamicLinkDllModu.find((size_t)moduleCache[i]) == m_dynamicLinkDllModu.end(),
+                BEATS_ASSERT(m_dynamicLinkDllModu.find((uint32_t)moduleCache[i]) == m_dynamicLinkDllModu.end(),
                     _T("the module is already in dynamic link dll module list"));
-                m_dynamicLinkDllModu[(size_t)moduleCache[i]] = nameCache;
+                m_dynamicLinkDllModu[(uint32_t)moduleCache[i]] = nameCache;
             }
         }
     }
@@ -337,10 +337,10 @@ void CBDTWxFrame::OnModuleSelectChanged( wxCommandEvent& /*event*/ )
         m_pModuleSymbolList->Clear();
         wxString selectedModuleName = m_pModuleList->GetStringSelection();
         HMODULE module = GetModuleHandle(selectedModuleName);
-        std::map<size_t, std::vector<char*>>::iterator iter = m_symbolList.find(size_t(module));
+        std::map<uint32_t, std::vector<char*>>::iterator iter = m_symbolList.find(uint32_t(module));
         if (iter != m_symbolList.end())
         {
-            for (size_t i = 0; i < iter->second.size(); ++i)
+            for (uint32_t i = 0; i < iter->second.size(); ++i)
             {
                 m_pModuleSymbolList->Append(iter->second[i]);
             }
@@ -356,10 +356,10 @@ void CBDTWxFrame::OnFullPathSelected( wxCommandEvent& event )
 void CBDTWxFrame::FillModuleList( bool isDynamicList, bool fullpath )
 {
     m_pModuleList->Clear();
-    std::map<size_t, TString>& operateMap = isDynamicList ? 
+    std::map<uint32_t, TString>& operateMap = isDynamicList ? 
                                             m_dynamicLinkDllModu: 
                                             m_staticLinkDllModu;
-    std::map<size_t, TString>::iterator iter = operateMap.begin();
+    std::map<uint32_t, TString>::iterator iter = operateMap.begin();
     for (; iter != operateMap.end(); ++iter)
     {
         TString strFileName = CFilePathTool::GetInstance()->FileName(iter->second.c_str());

@@ -6,15 +6,15 @@
 #define DECLARE_REFLECT_GUID(className, guid, parentClassName)\
     DECLARE_REFLECT_GUID_ABSTRACT(className, guid, parentClassName)\
     public:\
-    virtual CComponentBase* Clone(bool /*bCloneFromTemplate*/, CSerializer* pSerializer, size_t id, bool bCallInitFunc = true){BEATS_ASSERT(typeid(className) == typeid(*this), _T("Define wrong class type: define %s"), _T(#className));CComponentBase* pNewInstance = new className; pNewInstance->SetId(id); if (pSerializer != NULL){pNewInstance->ReflectData(*pSerializer);if(bCallInitFunc){pNewInstance->Initialize();}} return pNewInstance;}\
+    virtual CComponentBase* Clone(bool /*bCloneFromTemplate*/, CSerializer* pSerializer, uint32_t id, bool bCallInitFunc = true){BEATS_ASSERT(typeid(className) == typeid(*this), _T("Define wrong class type: define %s"), _T(#className));CComponentBase* pNewInstance = new className; pNewInstance->SetId(id); if (pSerializer != NULL){pNewInstance->ReflectData(*pSerializer);if(bCallInitFunc){pNewInstance->Initialize();}} return pNewInstance;}\
     private:
 
 #define DECLARE_REFLECT_GUID_ABSTRACT(className, guid, parentClassName)\
         public:\
-        static const size_t REFLECT_GUID = guid;\
-        static const size_t PARENT_REFLECT_GUID = parentClassName::REFLECT_GUID;\
-        virtual size_t GetGuid() const {return REFLECT_GUID;}\
-        virtual size_t GetParentGuid() const {return PARENT_REFLECT_GUID;}\
+        static const uint32_t REFLECT_GUID = guid;\
+        static const uint32_t PARENT_REFLECT_GUID = parentClassName::REFLECT_GUID;\
+        virtual uint32_t GetGuid() const {return REFLECT_GUID;}\
+        virtual uint32_t GetParentGuid() const {return PARENT_REFLECT_GUID;}\
         virtual const TCHAR* GetClassStr() const {return _T(#className);}\
         private:\
         typedef parentClassName super;
@@ -30,8 +30,8 @@ public:
     DECLARE_REFLECT_GUID(CComponentBase, 0xFBA14097, CComponentBase)
     
 public:
-    size_t GetId() const;
-    void SetId(size_t id);
+    uint32_t GetId() const;
+    void SetId(uint32_t id);
 
     virtual bool Load(); // this method do some load stuff, which can be done in other thread.
     virtual bool Unload();
@@ -52,6 +52,6 @@ public:
 private:
     bool m_bLoaded;
     bool m_bInitialize;
-    size_t m_id;
+    uint32_t m_id;
 };
 #endif

@@ -15,14 +15,14 @@ public:
                                     const char* pszProfile,
                                     const D3DXMACRO* pDefine,
                                     CVertexShader** ppShader,
-                                    size_t* pRegisterId = NULL);
+                                    uint32_t* pRegisterId = NULL);
 
     bool CreatePixelShaderFromFile(const char* pszFilePath, 
                                     const char* pszFuncName,
                                     const char* pszProfile,
                                     const D3DXMACRO* pDefine,
                                     CPixelShader** ppPixelShader,
-                                    size_t* pRegisterId = NULL);
+                                    uint32_t* pRegisterId = NULL);
 
     bool SetVertexShader(CVertexShader* pVertexShader);
     bool SetPixelShader(CPixelShader* pPixelShader);

@@ -14,11 +14,11 @@ public:
     virtual ~CComponentInstance();
     virtual void Uninitialize() override;
 
-    void SetDataPos(size_t uDataPos);
-    size_t GetDataPos() const;
+    void SetDataPos(uint32_t uDataPos);
+    uint32_t GetDataPos() const;
 
-    void SetDataSize(size_t uDataSize);
-    size_t GetDataSize() const;
+    void SetDataSize(uint32_t uDataSize);
+    uint32_t GetDataSize() const;
 
 public:
     void SetProxyComponent(CComponentProxy* pProxy);
@@ -30,8 +30,8 @@ public:
     CComponentBase* CloneInstance();
 
 private:
-    size_t m_uDataPos;
-    size_t m_uDataSize;
+    uint32_t m_uDataPos;
+    uint32_t m_uDataSize;
     CComponentProxy* m_pProxyComponent;
     // This member only for: when this instance is deleted, it must tell the sync proxy to unregister itself.
     CComponentProxy* m_pSyncProxyComponent;

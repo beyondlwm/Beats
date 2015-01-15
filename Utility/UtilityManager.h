@@ -15,12 +15,12 @@ struct SDirectory
     }
     ~SDirectory()
     {
-        for (size_t i = 0; i < m_pFileList->size(); ++i)
+        for (uint32_t i = 0; i < m_pFileList->size(); ++i)
         {
             BEATS_SAFE_DELETE((*m_pFileList)[i]);
         }
         BEATS_SAFE_DELETE(m_pFileList);
-        for (size_t i = 0; i < m_pDirectories->size(); ++i)
+        for (uint32_t i = 0; i < m_pDirectories->size(); ++i)
         {
             BEATS_SAFE_DELETE((*m_pDirectories)[i]);
         }
@@ -30,7 +30,7 @@ struct SDirectory
     SDirectory* GetChild(const TString& childPath) const
     {
         SDirectory* pRet = NULL;
-        for (size_t i = 0; i < m_pDirectories->size(); ++i)
+        for (uint32_t i = 0; i < m_pDirectories->size(); ++i)
         {
             if (m_pDirectories->at(i)->m_szPath.compare(childPath) == 0)
             {
@@ -79,7 +79,7 @@ struct SDiskInfo
         if (this != &rRef)
         {
             m_logicDriverInfo.clear();
-            for (size_t i = 0; i < rRef.m_logicDriverInfo.size(); ++i)
+            for (uint32_t i = 0; i < rRef.m_logicDriverInfo.size(); ++i)
             {
                 m_logicDriverInfo.push_back(rRef.m_logicDriverInfo[i]);
             }
@@ -107,17 +107,17 @@ public:
     bool FillDirectory(SDirectory& fileList, bool bFillSubDirectory = true, CFileFilter* pFileFilter = NULL, unsigned long long* pFileSize = NULL);
     unsigned long long BuildDirectoryToList(SDirectory* pDirectory, std::vector<TFileData*>& listToAppend);
     void SerializeDirectory(SDirectory* pDirectory, CSerializer& serializer);
-    void DeserializeDirectory(SDirectory* pDirectory, CSerializer& serializer, long long* pTotalDataSize = NULL, size_t* pFileCount = NULL);
+    void DeserializeDirectory(SDirectory* pDirectory, CSerializer& serializer, long long* pTotalDataSize = NULL, uint32_t* pFileCount = NULL);
 
     // MD5
     bool CalcMD5(CMD5& md5, SDirectory& fileList);
 
 #endif
-    bool WriteDataToFile(FILE* pFile, void* pData, size_t uDataLength, size_t uRetryCount = 20);
-    bool ReadDataFromFile(FILE* pFile, void* pData, size_t uDataLength, size_t uRetryCount = 20);
+    bool WriteDataToFile(FILE* pFile, void* pData, uint32_t uDataLength, uint32_t uRetryCount = 20);
+    bool ReadDataFromFile(FILE* pFile, void* pData, uint32_t uDataLength, uint32_t uRetryCount = 20);
 
     // System Module
-    bool GetProcessModule(size_t uProcessId, std::vector<TString>& modulePath);
+    bool GetProcessModule(uint32_t uProcessId, std::vector<TString>& modulePath);
     const TString& GetModuleFileName();
     void SetModuleFileName(const TCHAR* pszFileName);
     

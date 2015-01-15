@@ -17,7 +17,7 @@ CServerDownloadMissionContext::CServerDownloadMissionContext(SharePtr<SSocketCon
     InitializeCriticalSection(&m_taskSection);
     InitializeCriticalSection(&m_criticalSection);
     BEATS_ASSERT(m_pDownloadFiles != NULL && m_pDownloadFiles->size() > 0, _T("Download Files Can't be NULL or Empty!'"));
-    for (size_t i = 0; i < m_pDownloadFiles->size(); ++i)
+    for (uint32_t i = 0; i < m_pDownloadFiles->size(); ++i)
     {
         CUtilityManager::GetInstance()->BuildDirectoryToList((*m_pDownloadFiles)[i], m_downloadTaskList);
     }
@@ -77,7 +77,7 @@ bool CServerDownloadMissionContext::GetTaskFromList(SDownloadingTaskInfo& taskIn
         if (uFileSize > WORK_LOCK_FILE_LENGTH)
         {
 #ifdef _DEBUG
-            for (size_t i = 0; i < m_downloadingTaskList.size(); ++i)
+            for (uint32_t i = 0; i < m_downloadingTaskList.size(); ++i)
             {
                 BEATS_ASSERT(m_downloadingTaskList[i].m_pData != taskInfo.m_pData, _T("Add downloading task info failed! it is already exists! file %s"), taskInfo.m_pData->cFileName);
             }

@@ -11,7 +11,7 @@ CComponentProjectDirectory::CComponentProjectDirectory(CComponentProjectDirector
     {
         pParent->m_pChildrenVec->push_back(this);
     }
-    m_pFilesList = new std::vector<size_t>();
+    m_pFilesList = new std::vector<uint32_t>();
     m_pChildrenVec = new std::vector<CComponentProjectDirectory*>();
 }
 
@@ -22,13 +22,13 @@ CComponentProjectDirectory::~CComponentProjectDirectory()
     BEATS_SAFE_DELETE(m_pChildrenVec);
 }
 
-bool CComponentProjectDirectory::AddFile(const TString& strFileName, std::map<size_t, std::vector<size_t> >& conflictMap)
+bool CComponentProjectDirectory::AddFile(const TString& strFileName, std::map<uint32_t, std::vector<uint32_t> >& conflictMap)
 {
     CComponentProject* pProject = CComponentProxyManager::GetInstance()->GetProject();
-    size_t uFileId = pProject->RegisterFile(this, strFileName, conflictMap);
+    uint32_t uFileId = pProject->RegisterFile(this, strFileName, conflictMap);
 #ifdef _DEBUG
     bool bFind = false;
-    for (size_t i = 0; i < m_pFilesList->size(); ++i)
+    for (uint32_t i = 0; i < m_pFilesList->size(); ++i)
     {
         if (m_pFilesList->at(i) == uFileId)
         {
@@ -66,7 +66,7 @@ CComponentProjectDirectory* CComponentProjectDirectory::AddDirectory(const TStri
 void CComponentProjectDirectory::InsertDirectory(CComponentProjectDirectory* pDirectory, CComponentProjectDirectory* pPrevDirectory/* = NULL*/)
 {
 #ifdef _DEBUG
-    for (size_t i = 0; i < m_pChildrenVec->size(); i++)
+    for (uint32_t i = 0; i < m_pChildrenVec->size(); i++)
     {
         if (m_pChildrenVec->at(i) == pDirectory)
         {
@@ -96,11 +96,11 @@ void CComponentProjectDirectory::InsertDirectory(CComponentProjectDirectory* pDi
     pDirectory->SetParent(this);
 }
 
-void CComponentProjectDirectory::InsertFile(size_t uFileId, size_t uPrevFileId/* = 0xFFFFFFFF*/)
+void CComponentProjectDirectory::InsertFile(uint32_t uFileId, uint32_t uPrevFileId/* = 0xFFFFFFFF*/)
 {
 #ifdef _DEBUG
     bool bFind = false;
-    for (size_t i = 0; i < m_pFilesList->size(); ++i)
+    for (uint32_t i = 0; i < m_pFilesList->size(); ++i)
     {
         if (m_pFilesList->at(i) == uFileId)
         {
@@ -130,7 +130,7 @@ void CComponentProjectDirectory::InsertFile(size_t uFileId, size_t uPrevFileId/*
     }
 }
 
-bool CComponentProjectDirectory::DeleteFile(size_t uFileId)
+bool CComponentProjectDirectory::DeleteFile(uint32_t uFileId)
 {
     bool bRet = false;
     if (RemoveFile(uFileId))
@@ -149,10 +149,10 @@ bool CComponentProjectDirectory::DeleteFile(size_t uFileId)
     return bRet;
 }
 
-bool CComponentProjectDirectory::RemoveFile(size_t uFileId)
+bool CComponentProjectDirectory::RemoveFile(uint32_t uFileId)
 {
     bool bRet = false;
-    for (std::vector<size_t>::iterator iter = m_pFilesList->begin(); iter != m_pFilesList->end(); ++iter)
+    for (std::vector<uint32_t>::iterator iter = m_pFilesList->begin(); iter != m_pFilesList->end(); ++iter)
     {
         if (*iter == uFileId)
         {
@@ -212,7 +212,7 @@ const std::vector<CComponentProjectDirectory*>& CComponentProjectDirectory::GetC
     return *m_pChildrenVec;
 }
 
-const std::vector<size_t>& CComponentProjectDirectory::GetFileList() const
+const std::vector<uint32_t>& CComponentProjectDirectory::GetFileList() const
 {
     return *m_pFilesList;
 }
@@ -231,7 +231,7 @@ CComponentProjectDirectory* CComponentProjectDirectory::GetParent() const
 CComponentProjectDirectory* CComponentProjectDirectory::FindChild(const TCHAR* pszChildName) const
 {
     CComponentProjectDirectory* pRet = NULL;
-    for (size_t i = 0; i < m_pChildrenVec->size(); ++i)
+    for (uint32_t i = 0; i < m_pChildrenVec->size(); ++i)
     {
         if (m_pChildrenVec->at(i)->GetName().compare(pszChildName) == 0)
         {
@@ -246,12 +246,12 @@ void CComponentProjectDirectory::Serialize(CSerializer& serializer) const
 {
     serializer << m_strName;
     serializer << m_pFilesList->size();
-    for (std::vector<size_t>::iterator iter = m_pFilesList->begin(); iter != m_pFilesList->end(); ++iter)
+    for (std::vector<uint32_t>::iterator iter = m_pFilesList->begin(); iter != m_pFilesList->end(); ++iter)
     {
         serializer << *iter;
     }
     serializer << m_pChildrenVec->size();
-    for (size_t i = 0; i < m_pChildrenVec->size(); ++i)
+    for (uint32_t i = 0; i < m_pChildrenVec->size(); ++i)
     {
         (*m_pChildrenVec)[i]->Serialize(serializer);
     }
@@ -259,21 +259,21 @@ void CComponentProjectDirectory::Serialize(CSerializer& serializer) const
 
 void CComponentProjectDirectory::Deserialize(CSerializer& serializer)
 {
-    std::map<size_t, CComponentProjectDirectory*>* pFileToDirectoryMap = CComponentInstanceManager::GetInstance()->GetProject()->GetFileToDirectoryMap();
+    std::map<uint32_t, CComponentProjectDirectory*>* pFileToDirectoryMap = CComponentInstanceManager::GetInstance()->GetProject()->GetFileToDirectoryMap();
     serializer >> m_strName;
-    size_t uFileCount = 0;
+    uint32_t uFileCount = 0;
     serializer >> uFileCount;
-    for (size_t i = 0; i < uFileCount; ++i)
+    for (uint32_t i = 0; i < uFileCount; ++i)
     {
-        size_t uFileId = 0;
+        uint32_t uFileId = 0;
         serializer >> uFileId;
         m_pFilesList->push_back(uFileId);
         BEATS_ASSERT(pFileToDirectoryMap->find(uFileId) == pFileToDirectoryMap->end());
         (*pFileToDirectoryMap)[uFileId] = this;
     }
-    size_t uChildrenCount = 0;
+    uint32_t uChildrenCount = 0;
     serializer >> uChildrenCount;
-    for (size_t i = 0; i < uChildrenCount; ++i)
+    for (uint32_t i = 0; i < uChildrenCount; ++i)
     {
         CComponentProjectDirectory* pDirectory = new CComponentProjectDirectory(this, _T(""));
         pDirectory->Deserialize(serializer);

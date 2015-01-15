@@ -111,7 +111,7 @@ void CBDTWxFrame::OnSpyConnectButtonClick(wxCommandEvent& /*event*/)
         BEATS_ASSERT(uIpAddress != INADDR_NONE && uIpAddress != 0, _T("输入的IP地址 %s 不合法!"), ipAddress);
         if (uIpAddress != INADDR_NONE)
         {
-            typedef const SBeatsSocket* (*TConnectFunc)(size_t);
+            typedef const SBeatsSocket* (*TConnectFunc)(uint32_t);
             TConnectFunc pConnectProc = (TConnectFunc)GetProcAddress(m_hSpyDllHandle, "Spy_Connect");
             const SBeatsSocket* pSockInfo = pConnectProc(uIpAddress);
             if (pSockInfo != NULL)

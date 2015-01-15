@@ -22,7 +22,7 @@ CVector3::~CVector3()
 
 }
 
-float& CVector3::operator [] ( const size_t i )
+float& CVector3::operator [] ( const uint32_t i )
 {
     BEATS_ASSERT( i < 3 , _T("Index out of bound!"));
 

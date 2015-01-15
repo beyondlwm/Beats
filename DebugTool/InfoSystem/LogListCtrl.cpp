@@ -12,9 +12,9 @@ CLogListCtrl::~CLogListCtrl()
 {
     BEATS_SAFE_DELETE_VECTOR(m_pLogs);
     DeleteCriticalSection(&m_logUpdateSection);
-    for (size_t i = 0; i < m_conditionFilters.size(); ++i)
+    for (uint32_t i = 0; i < m_conditionFilters.size(); ++i)
     {
-        for (size_t j = 0; j < m_conditionFilters[i].size(); ++j)
+        for (uint32_t j = 0; j < m_conditionFilters[i].size(); ++j)
         {
             BEATS_SAFE_DELETE(m_conditionFilters[i][j]);
         }
@@ -22,7 +22,7 @@ CLogListCtrl::~CLogListCtrl()
     m_conditionFilters.clear();
 }
 
-void CLogListCtrl::AddLog( const TCHAR* pLog, size_t logPos, const wxTextAttr* pTextAttr )
+void CLogListCtrl::AddLog( const TCHAR* pLog, uint32_t logPos, const wxTextAttr* pTextAttr )
 {
     EnterCriticalSection(&m_logUpdateSection);
     SInfoData* pInfoData = new SInfoData;
@@ -81,9 +81,9 @@ wxString CLogListCtrl::OnGetItemText( long item, long column ) const
     EnterCriticalSection(const_cast<CRITICAL_SECTION*>(&m_logUpdateSection));
     wxString pStrData = wxEmptyString;
     // To avoid thread sync problem, such as UI needs to get #11 item to display in wxwidgets thread while we have delete it in main thread.
-    if (m_visibleLogId.size() > (size_t)item && m_pLogs.size() > m_visibleLogId[item])
+    if (m_visibleLogId.size() > (uint32_t)item && m_pLogs.size() > m_visibleLogId[item])
     {
-        size_t uVisibleId = m_visibleLogId[item];
+        uint32_t uVisibleId = m_visibleLogId[item];
         SInfoData* pLogData = m_pLogs[uVisibleId];
         if (column == 0)
         {
@@ -96,10 +96,10 @@ wxString CLogListCtrl::OnGetItemText( long item, long column ) const
         else if (column == 2)
         {
             bool bSamePosAsAbove = false;
-            size_t pos = pLogData->m_pos;
+            uint32_t pos = pLogData->m_pos;
             if (item > 0)
             {
-                size_t lastpos = m_pLogs[m_visibleLogId[item - 1]]->m_pos;
+                uint32_t lastpos = m_pLogs[m_visibleLogId[item - 1]]->m_pos;
                 if (lastpos == pos)
                 {
                     bSamePosAsAbove = true;
@@ -108,7 +108,7 @@ wxString CLogListCtrl::OnGetItemText( long item, long column ) const
             }
             if (!bSamePosAsAbove)
             {
-                std::map<size_t, wxString>::const_iterator iter = m_addressMap.find(pos);
+                std::map<uint32_t, wxString>::const_iterator iter = m_addressMap.find(pos);
                 if (iter != m_addressMap.end())
                 {
                     pStrData = iter->second;
@@ -124,7 +124,7 @@ wxListItemAttr * CLogListCtrl::OnGetItemAttr( long item ) const
 {
     EnterCriticalSection(const_cast<CRITICAL_SECTION*>(&m_logUpdateSection));
     static wxListItemAttr tmpCacheTextAttr;
-    if ((size_t)item < m_visibleLogId.size() && m_visibleLogId[item] < m_pLogs.size())
+    if ((uint32_t)item < m_visibleLogId.size() && m_visibleLogId[item] < m_pLogs.size())
     {
         tmpCacheTextAttr.SetTextColour(wxColour(m_pLogs[m_visibleLogId[item]]->m_color));
     }    
@@ -135,9 +135,9 @@ wxListItemAttr * CLogListCtrl::OnGetItemAttr( long item ) const
 bool CLogListCtrl::ShouldShowLog( const SInfoData& data)
 {
     bool bPassCondition = true;
-    for (size_t i = 0; i < m_conditionFilters.size(); ++i)
+    for (uint32_t i = 0; i < m_conditionFilters.size(); ++i)
     {
-        for (size_t j = 0; j < m_conditionFilters[i].size(); ++j)
+        for (uint32_t j = 0; j < m_conditionFilters[i].size(); ++j)
         {
             bPassCondition = true;
             SFilterCondition* pCondition = m_conditionFilters[i][j];
@@ -187,7 +187,7 @@ void CLogListCtrl::UpdateList()
 {
     EnterCriticalSection(&m_logUpdateSection);
     m_visibleLogId.clear();
-    for (size_t i = 0; i < m_pLogs.size(); ++i)
+    for (uint32_t i = 0; i < m_pLogs.size(); ++i)
     {
         bool bVisible = ShouldShowLog(*m_pLogs[i]);
         if (bVisible)
@@ -202,9 +202,9 @@ void CLogListCtrl::UpdateList()
 
 void CLogListCtrl::DeleteAllFilterConditions()
 {
-    for (size_t i = 0; i < m_conditionFilters.size(); ++i)
+    for (uint32_t i = 0; i < m_conditionFilters.size(); ++i)
     {
-        for (size_t j = 0; j < m_conditionFilters[i].size(); ++j)
+        for (uint32_t j = 0; j < m_conditionFilters[i].size(); ++j)
         {
             BEATS_SAFE_DELETE(m_conditionFilters[i][j]);
         }

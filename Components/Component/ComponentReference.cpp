@@ -3,7 +3,7 @@
 #include "Utility/TinyXML/tinyxml.h"
 #include "ComponentGraphic.h"
 
-CComponentReference::CComponentReference(size_t uProxyId, size_t uProxyGuid, CComponentGraphic* pGraphics)
+CComponentReference::CComponentReference(uint32_t uProxyId, uint32_t uProxyGuid, CComponentGraphic* pGraphics)
     : m_uReferenceId(uProxyId)
     , m_uReferenceGuid(uProxyGuid)
     , m_pHostProxy(NULL)
@@ -30,19 +30,19 @@ CComponentProxy* CComponentReference::GetHostProxy()
     return m_pHostProxy;
 }
 
-size_t CComponentReference::GetProxyId()
+uint32_t CComponentReference::GetProxyId()
 {
     return m_uReferenceId;
 }
 
-size_t CComponentReference::GetGuid() const
+uint32_t CComponentReference::GetGuid() const
 {
     return m_uReferenceGuid;
 }
 
-size_t CComponentReference::GetParentGuid() const
+uint32_t CComponentReference::GetParentGuid() const
 {
-    size_t uParentGuid = 0xFFFFFFFF;
+    uint32_t uParentGuid = 0xFFFFFFFF;
     if (m_pHostProxy != NULL)
     {
         uParentGuid = m_pHostProxy->GetParentGuid();

@@ -7,7 +7,7 @@ class CQuadCache : public CRenderCacheBase
 {
     typedef CRenderCacheBase super;
 public:
-    CQuadCache(size_t maxVertexCount, IDirect3DDevice9* pRenderDevice, long vertexFVF, long vertexSize);
+    CQuadCache(uint32_t maxVertexCount, IDirect3DDevice9* pRenderDevice, long vertexFVF, long vertexSize);
     virtual ~CQuadCache();
 
 public:

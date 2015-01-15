@@ -5,10 +5,10 @@
 
 struct SInfoData
 {
-    size_t m_color;
+    uint32_t m_color;
     wxString m_log;
-    size_t m_time;
-    size_t m_pos;
+    uint32_t m_time;
+    uint32_t m_pos;
 };
 
 enum ELogFilterType
@@ -28,9 +28,9 @@ struct SFilterCondition
     union
     {
         wxString* m_pStrFilter;
-        size_t    m_colorFilter;
-        size_t m_timeFilter;
-        size_t m_posFilter;
+        uint32_t    m_colorFilter;
+        uint32_t m_timeFilter;
+        uint32_t m_posFilter;
     };
     SFilterCondition()
         : m_type(eLFT_None)
@@ -76,7 +76,7 @@ public:
     virtual ~CLogListCtrl();
 
 public:
-    void AddLog(const TCHAR* pLog, size_t logPos, const wxTextAttr* pTextAttr);
+    void AddLog(const TCHAR* pLog, uint32_t logPos, const wxTextAttr* pTextAttr);
     void ClearAllLog();
 
     void AddFilterCondition(std::vector<SFilterCondition*>& condition);
@@ -90,11 +90,11 @@ private:
     virtual wxListItemAttr *OnGetItemAttr(long item) const;
 
 private:
-    std::vector<size_t> m_visibleLogId;
+    std::vector<uint32_t> m_visibleLogId;
 
     std::vector<SInfoData*>    m_pLogs;
     std::vector<std::vector<SFilterCondition*>> m_conditionFilters; // AND relationship among m_conditionFilters' element , OR relationship among its element's elements.
-    std::map<size_t, wxString> m_addressMap;
+    std::map<uint32_t, wxString> m_addressMap;
     CRITICAL_SECTION m_logUpdateSection;
 };
 

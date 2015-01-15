@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "LineListCache.h"
 
-CLineListCache::CLineListCache(size_t maxVertexCount, IDirect3DDevice9* pRenderDevice, long vertexFVF, long vertexSize)
+CLineListCache::CLineListCache(uint32_t maxVertexCount, IDirect3DDevice9* pRenderDevice, long vertexFVF, long vertexSize)
 : super(maxVertexCount, pRenderDevice, vertexFVF, vertexSize, eRCT_Line)
 {
     m_prmitiveType = D3DPT_LINELIST;

@@ -25,7 +25,7 @@ CDSoundObject::CDSoundObject(ESoundType type)
     BOOL result = InitializeCriticalSectionAndSpinCount(&m_CSLoadData, 4000);
     BEATS_ASSERT(result != 0, _T("Failed to initialize critical section!"));
     m_hCheckPlayEndThread = (HANDLE)(_beginthreadex(NULL, 0, (unsigned (__stdcall*)(void*))CheckPlayEndProc, (void*)this, CREATE_SUSPENDED, (unsigned*)(&m_checkPlayEndThreadID)));
-    for (size_t i = 0; i < THREAD_COUNT; ++i)
+    for (uint32_t i = 0; i < THREAD_COUNT; ++i)
     {
         m_destructEvent[i] = CreateEvent(NULL, FALSE, FALSE, NULL);
     }
@@ -84,7 +84,7 @@ bool CDSoundObject::CreateNotifyThread()
 {
     bool result = false;
     //event
-    for (size_t i = 0; i < BUFFER_PIECE_COUNT; ++i)
+    for (uint32_t i = 0; i < BUFFER_PIECE_COUNT; ++i)
     {
         m_notifyEvent[i] = CreateEvent(NULL, FALSE, FALSE, NULL);
     }

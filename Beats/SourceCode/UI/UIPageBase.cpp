@@ -89,7 +89,7 @@ void CUIPageBase::InitUIEvent()
 
 void CUIPageBase::SetAllComponentsVisible( bool visible )
 {
-    for (size_t i = 0; i < m_pComponents.size(); ++i)
+    for (uint32_t i = 0; i < m_pComponents.size(); ++i)
     {
         if (m_pComponents[i] != NULL)
         {

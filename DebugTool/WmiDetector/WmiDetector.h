@@ -21,8 +21,8 @@ enum EFirmwareTableType
 struct SFirmwareTables
 {
     EFirmwareTableType type;
-    size_t startPos;
-    size_t length;
+    uint32_t startPos;
+    uint32_t length;
     SFirmwareTables()
         : type(eFTT_Count)
         , startPos(0)
@@ -30,7 +30,7 @@ struct SFirmwareTables
     {
 
     }
-    SFirmwareTables(EFirmwareTableType firmType, size_t pos, size_t size)
+    SFirmwareTables(EFirmwareTableType firmType, uint32_t pos, uint32_t size)
         : type(firmType)
         , startPos(pos)
         , length(size)
@@ -49,11 +49,11 @@ public:
     void Uninit();
     bool GetItemInfo(const TString&, const TString&, std::vector<TString>&);
     bool GetItemInfo(const TString&, const TString&, TString&);
-    void GetSMBiosData(LPBYTE pData, size_t& length);
-    void GetHDDSMARTData(LPBYTE pData, size_t& length);
+    void GetSMBiosData(LPBYTE pData, uint32_t& length);
+    void GetHDDSMARTData(LPBYTE pData, uint32_t& length);
 
-    bool GetFirmwareTables(const LPBYTE biosData, const size_t biosDataLen, const EFirmwareTableType type, std::vector<SFirmwareTables>& out);
-    bool GetStrFromFirmwareTables(size_t id, unsigned char* tablesBuff, TString& out);
+    bool GetFirmwareTables(const LPBYTE biosData, const uint32_t biosDataLen, const EFirmwareTableType type, std::vector<SFirmwareTables>& out);
+    bool GetStrFromFirmwareTables(uint32_t id, unsigned char* tablesBuff, TString& out);
 
 private:  
     void VariantToString(const LPVARIANT, TString &) const;

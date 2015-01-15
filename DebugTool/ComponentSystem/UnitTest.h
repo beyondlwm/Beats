@@ -22,7 +22,7 @@ REGISTER_PROPERTY(bool, eRPT_Bool);
 REGISTER_PROPERTY(float, eRPT_Float);
 REGISTER_PROPERTY(double, eRPT_Double);
 REGISTER_PROPERTY(int, eRPT_Int);
-REGISTER_PROPERTY(size_t, eRPT_UInt);
+REGISTER_PROPERTY(uint32_t, eRPT_UInt);
 REGISTER_PROPERTY(TString, eRPT_Str);
 REGISTER_PROPERTY(CComponentBase*, eRPT_Ptr);
 REGISTER_PROPERTY_TEMPLATE1(std::vector, eRPT_List);
@@ -112,7 +112,7 @@ private:
     float m_floatValue;
     double m_doubleValue;
     int m_intValue;
-    size_t m_uintValue;
+    uint32_t m_uintValue;
     TString m_strValue;
     std::vector<int> m_listValue;
     std::map<ETestEnum, CTestComponent*> m_mapValue;

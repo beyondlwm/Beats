@@ -13,15 +13,15 @@ public:
     SOCKET CreateSocket(int type, int protocol);
     bool DestroySocket(SOCKET pSocket);
 
-    bool Bind(SOCKET socketToBind, const sockaddr_in* pSockInfo, INT nSockInfoSize, bool bAvoidConflictPort = false, size_t uTryRebindCount = 50);
+    bool Bind(SOCKET socketToBind, const sockaddr_in* pSockInfo, INT nSockInfoSize, bool bAvoidConflictPort = false, uint32_t uTryRebindCount = 50);
     bool Listen(SOCKET socketToListen, int iBackLog);
     bool Accept(SOCKET listenSocket, SOCKET& newSocket, sockaddr_in* pAddress, int* iAddrLen);
     bool Connect(SOCKET connectSockent, const sockaddr_in* pAddress, int iAddrLen);
 
-    bool SendTo(SOCKET sendingSocket, void* pData, size_t& uDataLength, size_t uIP, size_t uPort, size_t uRetryCount = 0);
-    bool RecvFrom(SOCKET receiveSocket, void* pData, size_t& uDataLength, sockaddr_in* pReceiveInfo = NULL, int* pInfoSize = NULL);
-    bool Send(SOCKET sendingSocket, void* pData, size_t& uDataLength, size_t uFlag = 0);
-    bool Receive(SOCKET receiveSocket, void* pData, size_t& uDataLength, size_t uFlag = 0);
+    bool SendTo(SOCKET sendingSocket, void* pData, uint32_t& uDataLength, uint32_t uIP, uint32_t uPort, uint32_t uRetryCount = 0);
+    bool RecvFrom(SOCKET receiveSocket, void* pData, uint32_t& uDataLength, sockaddr_in* pReceiveInfo = NULL, int* pInfoSize = NULL);
+    bool Send(SOCKET sendingSocket, void* pData, uint32_t& uDataLength, uint32_t uFlag = 0);
+    bool Receive(SOCKET receiveSocket, void* pData, uint32_t& uDataLength, uint32_t uFlag = 0);
 
     const SBeatsSocket* GetSocketInfo(SOCKET socket);
     const hostent* GetHostInfo();

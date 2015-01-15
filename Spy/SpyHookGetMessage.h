@@ -13,7 +13,7 @@ public:
 
     static LRESULT CALLBACK GetMessageProc(int nCode, WPARAM wParam, LPARAM lParam);
     static bool RecordTextMessage(const MSG* pMsg, CSerializer& serializer);
-    static bool FlushSameCharInfo(TCHAR& cLastChar, size_t& uSameCount, TCHAR* pFlushString);
+    static bool FlushSameCharInfo(TCHAR& cLastChar, uint32_t& uSameCount, TCHAR* pFlushString);
 private:
     HANDLE m_hWriteFileSemaphore;
 

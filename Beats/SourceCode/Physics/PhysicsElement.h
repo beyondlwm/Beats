@@ -49,8 +49,8 @@ public:
     void SetVelocity(float value, EVectorPos pos);
     const CVector3& GetVelocity() const;
 
-    void SetID(size_t uId);
-    size_t GetID() const;
+    void SetID(uint32_t uId);
+    uint32_t GetID() const;
 
 private:
     void AddChild(CPhysicsElement* pChild);
@@ -58,7 +58,7 @@ private:
     void SetParent(CPhysicsElement* pParent);
 
 private:
-    size_t m_uId;
+    uint32_t m_uId;
     bool m_active;
     CPhysicsElement* m_pParent;
     CBaseObject* m_pOwner;

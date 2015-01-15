@@ -9,7 +9,7 @@ class CEmitter;
 class CParticle
 {
 public:
-    CParticle(size_t uID);
+    CParticle(uint32_t uID);
     CParticle(const CParticle& rVal);
 
     virtual ~CParticle();
@@ -28,7 +28,7 @@ public:
     const CPhysicsElement* GetPhysics() const;
 
     void AddTexture(LPDIRECT3DTEXTURE9 pTexture);
-    void SetTextureIndex(size_t index);
+    void SetTextureIndex(uint32_t index);
     LPDIRECT3DTEXTURE9 GetTexture() const;
 
     void SetRecycleFlag(bool flag);
@@ -58,7 +58,7 @@ protected:
     long m_totalLifeTimeMs;
     unsigned long m_restLifeTimeMs;
     EParticleType m_type;
-    size_t m_curTextureIndex;
+    uint32_t m_curTextureIndex;
     bool m_recycleFlag;
     CEmitter* m_pEmitter;
     std::vector<LPDIRECT3DTEXTURE9> m_pTextures;

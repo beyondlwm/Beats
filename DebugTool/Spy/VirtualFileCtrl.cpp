@@ -63,7 +63,7 @@ void CVirtualFileCtrl::UpdateFiles()
 
         wxListItem item;
         BEATS_ASSERT(m_pDiskInfo != NULL, _T("Disk Info Can't be NULL!"));
-        for (size_t i = 0; i < m_pDiskInfo->m_logicDriverInfo.size(); ++i)
+        for (uint32_t i = 0; i < m_pDiskInfo->m_logicDriverInfo.size(); ++i)
         {
             item.m_itemId = i;
             item.m_col = 0;
@@ -96,7 +96,7 @@ void CVirtualFileCtrl::UpdateFiles()
             SetColumn(3, columnItem);
         }
 
-        size_t uItemCounter = 0;
+        uint32_t uItemCounter = 0;
 
         wxListItem item;
         item.SetId(uItemCounter++);
@@ -105,7 +105,7 @@ void CVirtualFileCtrl::UpdateFiles()
         item.SetImage(wxFileIconsTable::folder);
         InsertItem(item);
         BEATS_ASSERT(m_pCurrentDirectory != NULL, _T("Directory Info Can't be NULL!"));
-        for (size_t i = 0; i < m_pCurrentDirectory->m_pDirectories->size(); ++i)
+        for (uint32_t i = 0; i < m_pCurrentDirectory->m_pDirectories->size(); ++i)
         {
             item.SetId(uItemCounter++);
             item.SetColumn(0);
@@ -137,7 +137,7 @@ void CVirtualFileCtrl::UpdateFiles()
             SetItem(item);
         }
         item.Clear();
-        for (size_t i = 0; i < m_pCurrentDirectory->m_pFileList->size(); ++i)
+        for (uint32_t i = 0; i < m_pCurrentDirectory->m_pFileList->size(); ++i)
         {
             const WIN32_FIND_DATA* pData = m_pCurrentDirectory->m_pFileList->at(i);
             item.SetId(uItemCounter++);
@@ -217,8 +217,8 @@ wxString CVirtualFileCtrl::GetBytesDisplayString(unsigned long long uSizeInBytes
     else
     {
         strResult = wxString::Format(_T("%lld"), (unsigned long long)(ceilf((float)uSizeInBytes / 1024)));
-        size_t uStrCounter = 0;
-        size_t uStrLength = strResult.Length();
+        uint32_t uStrCounter = 0;
+        uint32_t uStrLength = strResult.Length();
         while (uStrLength > uStrCounter + 3)
         {
             uStrCounter += 3;

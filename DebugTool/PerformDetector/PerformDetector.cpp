@@ -20,7 +20,7 @@ CPerformDetector::CPerformDetector()
 CPerformDetector::~CPerformDetector()
 {
     DestroyResultPool();
-    std::map<size_t, SPerformanceRecord*>::iterator iter = m_recordMap.begin();
+    std::map<uint32_t, SPerformanceRecord*>::iterator iter = m_recordMap.begin();
     for (; iter != m_recordMap.end(); ++iter)
     {
         BEATS_SAFE_DELETE(iter->second);
@@ -28,7 +28,7 @@ CPerformDetector::~CPerformDetector()
     m_recordMap.clear();
 }
 
-void CPerformDetector::StartDetectNode( int type, size_t id )
+void CPerformDetector::StartDetectNode( int type, uint32_t id )
 {
     if (!m_bPause)
     {
@@ -37,7 +37,7 @@ void CPerformDetector::StartDetectNode( int type, size_t id )
             m_pCurRecord = &m_rootRecord;
         }
         //try to check if this record exists, if no, create a new one.
-        std::map<size_t, SPerformanceRecord*>::iterator iter = m_recordMap.find(id);
+        std::map<uint32_t, SPerformanceRecord*>::iterator iter = m_recordMap.find(id);
         SPerformanceRecord* pRecord = NULL;
         if (iter == m_recordMap.end())
         {
@@ -126,10 +126,10 @@ void CPerformDetector::DestroyResultPool()
     BEATS_SAFE_DELETE_VECTOR(m_resultPool);
 }
 
-void CPerformDetector::SetTypeName( const TCHAR* typeStr[], size_t size )
+void CPerformDetector::SetTypeName( const TCHAR* typeStr[], uint32_t size )
 {
     m_typeName.resize(0);
-    for (size_t i = 0; i < size; ++i)
+    for (uint32_t i = 0; i < size; ++i)
     {
         m_typeName.push_back(typeStr[i]);
     }    
@@ -137,7 +137,7 @@ void CPerformDetector::SetTypeName( const TCHAR* typeStr[], size_t size )
 
 const TCHAR* CPerformDetector::GetTypeName( int type )
 {
-    BEATS_ASSERT((size_t)type < m_typeName.size(), _T("Get Performance Type Error: out of bound for string name"));
+    BEATS_ASSERT((uint32_t)type < m_typeName.size(), _T("Get Performance Type Error: out of bound for string name"));
     const TCHAR* result = m_typeName[type];
     return result;
 }
@@ -159,7 +159,7 @@ void CPerformDetector::ResetFrameResult()
     if (m_bClearAllRequest)
     {
         m_bClearAllRequest = false;
-        std::map<size_t, SPerformanceRecord*>::iterator iter = m_recordMap.begin();
+        std::map<uint32_t, SPerformanceRecord*>::iterator iter = m_recordMap.begin();
         for (; iter != m_recordMap.end(); ++iter)
         {
             iter->second->Reset();
@@ -182,25 +182,25 @@ void CPerformDetector::GetResultThisFrame( std::vector<SPerformanceResult*>& out
     outResult.resize(0);
     if (m_lastResultPoolIndex > m_resultPoolIndex)
     {
-        for (size_t i = m_lastResultPoolIndex; i < m_resultPool.size(); ++i)
+        for (uint32_t i = m_lastResultPoolIndex; i < m_resultPool.size(); ++i)
         {
             outResult.push_back(m_resultPool[i]);
         }
-        for (size_t i = 0; i < m_resultPoolIndex; ++i)
+        for (uint32_t i = 0; i < m_resultPoolIndex; ++i)
         {
             outResult.push_back(m_resultPool[i]);
         }
     }
     else
     {
-        for (size_t i = m_lastResultPoolIndex; i < m_resultPoolIndex; ++i)
+        for (uint32_t i = m_lastResultPoolIndex; i < m_resultPoolIndex; ++i)
         {
             outResult.push_back(m_resultPool[i]);
         }
     }
 }
 
-SPerformanceRecord* CPerformDetector::GetRecord( size_t id )
+SPerformanceRecord* CPerformDetector::GetRecord( uint32_t id )
 {
     BEATS_ASSERT(id == 0 || m_recordMap.find(id) != m_recordMap.end(), _T("Can't get record with id %d"), id);
     return id == 0 ? &m_rootRecord : m_recordMap[id];

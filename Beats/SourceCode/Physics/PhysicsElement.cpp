@@ -164,12 +164,12 @@ const CVector3& CPhysicsElement::GetVelocity() const
     return m_velocity;
 }
 
-void CPhysicsElement::SetID(size_t uId)
+void CPhysicsElement::SetID(uint32_t uId)
 {
     m_uId = uId;
 }
 
-size_t CPhysicsElement::GetID() const
+uint32_t CPhysicsElement::GetID() const
 {
     return m_uId;
 }

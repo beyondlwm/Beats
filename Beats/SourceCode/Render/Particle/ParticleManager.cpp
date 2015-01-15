@@ -14,11 +14,11 @@ CParticleManager::CParticleManager()
 
 CParticleManager::~CParticleManager()
 {
-    for (size_t i = 0; i < m_particle.size(); ++i)
+    for (uint32_t i = 0; i < m_particle.size(); ++i)
     {
         BEATS_SAFE_DELETE(m_particle[i]);
     }
-    for (size_t i = 0; i < m_recycleParticle.size(); ++i)
+    for (uint32_t i = 0; i < m_recycleParticle.size(); ++i)
     {
         BEATS_SAFE_DELETE(m_recycleParticle[i]);
     }
@@ -31,7 +31,7 @@ void CParticleManager::Init()
 
 void CParticleManager::Update( float deltaTime )
 {
-    for (size_t i = 0; i < m_particle.size(); ++i)
+    for (uint32_t i = 0; i < m_particle.size(); ++i)
     {
         CParticle* pParticle = m_particle[i];
         if (pParticle != NULL)
@@ -69,7 +69,7 @@ CParticle* CParticleManager::CreateParticle()
 
 void CParticleManager::Register(CParticle* pParticle)
 {
-    size_t uId = pParticle->GetID();
+    uint32_t uId = pParticle->GetID();
     if (uId == INVALID_ID)
     {
         pParticle->SetID(m_particle.size());
@@ -85,7 +85,7 @@ void CParticleManager::Register(CParticle* pParticle)
 
 void CParticleManager::UnRegister(CParticle* pParticle)
 {
-    size_t uId = pParticle->GetID();
+    uint32_t uId = pParticle->GetID();
     m_recycleParticle.push_back(pParticle);
 
     if (uId != INVALID_ID)

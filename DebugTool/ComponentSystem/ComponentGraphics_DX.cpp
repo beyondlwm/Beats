@@ -78,7 +78,7 @@ void CComponentGraphic_DX::RecreateTextures( IDirect3DDevice9* pRenderDevice, co
 
 void CComponentGraphic_DX::ReleaseTextures()
 {
-    for (size_t i = 0; i < eCT_Count; ++i)
+    for (uint32_t i = 0; i < eCT_Count; ++i)
     {
         m_pTextures[i]->Release();
     }
@@ -183,7 +183,7 @@ void CComponentGraphic_DX::DrawDependencies( float cellSize )
 {
     if (m_pOwner->GetDependencies() != NULL)
     {
-        size_t uDependencyCount = m_pOwner->GetDependencies()->size();
+        uint32_t uDependencyCount = m_pOwner->GetDependencies()->size();
         for (int i = 0; i < (int)uDependencyCount; ++i)
         {
             // 1. Draw background.
@@ -305,8 +305,8 @@ void CComponentGraphic_DX::DrawDependencyLine( float cellSize, const CDependency
     BEATS_ASSERT(pDependency != NULL);
     if (pDependency->IsVisible())
     {
-        size_t uDependencyLineCount = pDependency->GetDependencyLineCount();
-        for (size_t i = 0; i < uDependencyLineCount; ++i)
+        uint32_t uDependencyLineCount = pDependency->GetDependencyLineCount();
+        for (uint32_t i = 0; i < uDependencyLineCount; ++i)
         {
             CDependencyDescriptionLine* pDependencyLine = pDependency->GetDependencyLine(i);
             const SVertex* pData = pDependencyLine->GetRectArray();

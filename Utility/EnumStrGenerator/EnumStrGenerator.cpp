@@ -32,13 +32,13 @@ bool CEnumStrGenerator::ScanEnumInFile( const TCHAR* pFileName )
         if (ScanKeyWordInCPlusPlusFile(ENUM_KEYWORD_STR, &serializer))
         {
             bool bIsKeyWord = IsEnumKeyword(&serializer);
-            size_t startPos = serializer.GetReadPos();
+            uint32_t startPos = serializer.GetReadPos();
             startPos += strlen(ENUM_KEYWORD_STR);
             serializer.SetReadPos(startPos);
             if (bIsKeyWord && ScanKeyWordInCPlusPlusFile("{", &serializer))
             {
-                size_t endPos = serializer.GetReadPos();
-                size_t enumNameLength = endPos - startPos;
+                uint32_t endPos = serializer.GetReadPos();
+                uint32_t enumNameLength = endPos - startPos;
                 char* enumName = new char[enumNameLength + 1];
                 enumName[enumNameLength] = 0;
                 serializer.SetReadPos(startPos);
@@ -68,14 +68,14 @@ bool CEnumStrGenerator::ScanEnumInFile( const TCHAR* pFileName )
                     ScanKeyWordInCPlusPlusFile("}", &serializer);
                     endPos = serializer.GetReadPos();
                     serializer.SetReadPos(startPos);
-                    size_t dataLength = endPos - startPos;
+                    uint32_t dataLength = endPos - startPos;
                     char* textBuff = new char[dataLength + 1];
                     textBuff[dataLength] = 0;
                     serializer.Deserialize(textBuff, dataLength);
                     BEATS_ASSERT(serializer.GetReadPos() == endPos);
                     char* newTextBuff = new char[dataLength + 1];
                     newTextBuff[dataLength] = 0;
-                    size_t length = 0;
+                    uint32_t length = 0;
                     FilterCPlusPlusFileComments(textBuff, newTextBuff, length);
                     TCHAR* tcharBuff = new TCHAR[length + 1];
                     tcharBuff[length] = 0;
@@ -85,7 +85,7 @@ bool CEnumStrGenerator::ScanEnumInFile( const TCHAR* pFileName )
                     std::vector<TString> rawEnumString;
                     CStringHelper::GetInstance()->SplitString(strNewText.c_str(), _T(","), rawEnumString);
                     int iDefaultEnumValue = 0;
-                    for (size_t i = 0; i < rawEnumString.size(); ++i)
+                    for (uint32_t i = 0; i < rawEnumString.size(); ++i)
                     {
                         // The last enum string could be empty, such as
                         // enum {E_1, E_2,}
@@ -185,7 +185,7 @@ bool CEnumStrGenerator::ScanKeyWordInCPlusPlusFile( const char* pKeyWord, CSeria
     return wordId == 3;
 }
 
-bool CEnumStrGenerator::FilterCPlusPlusFileComments( const char* text, char* outBuffer, size_t& bufferLenth )
+bool CEnumStrGenerator::FilterCPlusPlusFileComments( const char* text, char* outBuffer, uint32_t& bufferLenth )
 {
     bufferLenth = 0;
     const char* pReader = text;
@@ -237,7 +237,7 @@ bool CEnumStrGenerator::ScanEnumInDirectory( const TCHAR* pDirectory )
 #if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
     const TCHAR* pFileStr = _T("*.*");
     TString wildCmpStr(pDirectory);
-    size_t pathSize = _tcslen(pDirectory);
+    uint32_t pathSize = _tcslen(pDirectory);
     if (pDirectory[pathSize - 1] != '/')
     {
         wildCmpStr.append(_T("/"));
@@ -320,7 +320,7 @@ void CEnumStrGenerator::Init(const std::vector<TString>& scanPathList, const TCH
 {
     if (!LoadCacheFile(pszCacheFileName))
     {
-        for(size_t i = 0; i < scanPathList.size(); ++i)
+        for(uint32_t i = 0; i < scanPathList.size(); ++i)
         {
             ScanEnumInDirectory(scanPathList[i].c_str());
         }
@@ -339,7 +339,7 @@ void CEnumStrGenerator::SaveCacheFile(const TCHAR* pszCacheFileName)
         serializer << iter->first;
         serializer << iter->second->m_enumFilePath;
         serializer << iter->second->m_enumValue.size();
-        for (size_t i = 0; i < iter->second->m_enumValue.size(); ++i)
+        for (uint32_t i = 0; i < iter->second->m_enumValue.size(); ++i)
         {
             serializer << iter->second->m_enumValue[i]->m_str;
             serializer << iter->second->m_enumValue[i]->m_value;
@@ -358,9 +358,9 @@ bool CEnumStrGenerator::LoadCacheFile(const TCHAR* pszCacheFileName)
     if (CFilePathTool::GetInstance()->Exists(fullPathStr.c_str()))
     {
         CSerializer serializer(fullPathStr.c_str());
-        size_t enumTypeCount = 0;
+        uint32_t enumTypeCount = 0;
         serializer >> enumTypeCount;
-        for(size_t i = 0; i < enumTypeCount; ++i)
+        for(uint32_t i = 0; i < enumTypeCount; ++i)
         {
             TString enumTypeStr;
             serializer >> enumTypeStr;
@@ -369,9 +369,9 @@ bool CEnumStrGenerator::LoadCacheFile(const TCHAR* pszCacheFileName)
             {
                 SEnumScanData* pEnumScanData = new SEnumScanData;
                 serializer >> pEnumScanData->m_enumFilePath;
-                size_t dataStrCount = 0;
+                uint32_t dataStrCount = 0;
                 serializer >> dataStrCount;
-                for (size_t j = 0; j < dataStrCount; ++j)
+                for (uint32_t j = 0; j < dataStrCount; ++j)
                 {
                     SEnumData* pEnumData = new SEnumData();
                     serializer >> pEnumData->m_str;
@@ -390,11 +390,11 @@ bool CEnumStrGenerator::LoadCacheFile(const TCHAR* pszCacheFileName)
                     enumTypeStr.c_str(),
                     iter->second->m_enumFilePath.c_str(),
                     strFilePath.c_str());
-                size_t uCount = 0;
+                uint32_t uCount = 0;
                 serializer >> uCount;
-                for (size_t i = 0; i < uCount; ++i)
+                for (uint32_t i = 0; i < uCount; ++i)
                 {
-                    size_t uDataHolder2 = 0;
+                    uint32_t uDataHolder2 = 0;
                     serializer >> strFilePath;
                     serializer >> uDataHolder2;
                 }

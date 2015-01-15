@@ -9,18 +9,18 @@ public:
     CIdManager();
     ~CIdManager();
 public:
-    size_t GenerateId();
-    bool ReserveId(size_t id, bool bCheckIsAlreadyRequested = true);
-    void RecycleId(size_t id);
+    uint32_t GenerateId();
+    bool ReserveId(uint32_t id, bool bCheckIsAlreadyRequested = true);
+    void RecycleId(uint32_t id);
     void Reset();
-    bool IsIdFree(size_t id);
+    bool IsIdFree(uint32_t id);
     void Lock();
     void UnLock();
     bool IsLocked() const;
 private:
     bool m_bLock;
-    size_t m_lastId;
-    std::set<size_t> m_freeIdPool;
+    uint32_t m_lastId;
+    std::set<uint32_t> m_freeIdPool;
 };
 
 

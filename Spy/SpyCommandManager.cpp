@@ -63,12 +63,12 @@ bool CSpyCommandManager::SendCommand( SharePtr<SSocketContext>& pSocketContext, 
     if (bRet && !pSocketContext->GetBitFlag(eSCFB_Invalid))
     {
         EnterCriticalSection(&pSocketContext->m_sendSection);
-        size_t uWritePos = pSocketContext->m_pSendBuffer->GetWritePos();
+        uint32_t uWritePos = pSocketContext->m_pSendBuffer->GetWritePos();
         *pSocketContext->m_pSendBuffer << eSMT_Command;
         *pSocketContext->m_pSendBuffer << 0;
         *pSocketContext->m_pSendBuffer << pCommand->GetType();
         pCommand->Deserialize(*pSocketContext->m_pSendBuffer);
-        size_t msgSize = pSocketContext->m_pSendBuffer->GetWritePos() - uWritePos;
+        uint32_t msgSize = pSocketContext->m_pSendBuffer->GetWritePos() - uWritePos;
         pSocketContext->m_pSendBuffer->RewriteData(uWritePos + 4, &msgSize, sizeof(msgSize));
         pSocketContext->SetBitFlag(eSCFB_CanSend, true);
         LeaveCriticalSection(&pSocketContext->m_sendSection);

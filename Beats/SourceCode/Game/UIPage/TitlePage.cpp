@@ -147,7 +147,7 @@ void CTitlePage::AddToTrackList( const TCHAR* name )
 void CTitlePage::ClearTrackList()
 {
     CEGUI::ItemListbox* pList = static_cast<CEGUI::ItemListbox*>(m_pComponents[eTPC_TrackList]);
-    for (size_t i = 0; i < m_listEntries.size(); ++i )
+    for (uint32_t i = 0; i < m_listEntries.size(); ++i )
     {
         pList->removeItem(m_listEntries[i]);
     }

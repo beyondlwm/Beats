@@ -26,7 +26,7 @@ public:
 private:
     int m_minValue;
     int m_maxValue;
-    size_t m_spinStep;
+    uint32_t m_spinStep;
 };
 
 #endif

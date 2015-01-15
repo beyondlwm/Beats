@@ -33,10 +33,10 @@ void CFileFilter::Serialize(CSerializer& serializer)
     serializer >> m_iMinFileSize;
     serializer >> m_iMaxFileSize;
     serializer >> m_bFileNameWildCardMatchAll;
-    size_t uCounter;
+    uint32_t uCounter;
     TString strData;
     serializer >> uCounter;
-    for (size_t i = 0; i < uCounter; ++i)
+    for (uint32_t i = 0; i < uCounter; ++i)
     {
         serializer >> strData;
         m_strFileNameWildCard.push_back(strData);
@@ -57,7 +57,7 @@ void CFileFilter::Deserialize(CSerializer& serializer)
     serializer << m_bFileNameWildCardMatchAll;
 
     serializer << m_strFileNameWildCard.size();
-    for (size_t i = 0; i < m_strFileNameWildCard.size(); ++i)
+    for (uint32_t i = 0; i < m_strFileNameWildCard.size(); ++i)
     {
         serializer << m_strFileNameWildCard[i];
     }
@@ -89,7 +89,7 @@ bool CFileFilter::FilterFile( const TFileData* pFileData ) const
         // filter name in m_strFileName
         if (bRet)
         {
-            for (size_t i = 0; i < m_strFileNameWildCard.size(); ++i)
+            for (uint32_t i = 0; i < m_strFileNameWildCard.size(); ++i)
             {
                 bool bWildCardResult = CStringHelper::GetInstance()->WildMatch(m_strFileNameWildCard[i].c_str(), pFileData->cFileName);
                 bRet = m_bFileNameWildCardMutex ? !bWildCardResult : bWildCardResult;

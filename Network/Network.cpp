@@ -51,7 +51,7 @@ extern "C"
         return CNetworkManager::GetInstance()->DestroySocket(socket);
     }
 
-    bool Beats_Bind(SOCKET socketToBind, const sockaddr_in* pSockInfo, INT nSockInfoSize, bool bAvoidConflictPort/* = false*/, size_t uTryRebindCount/* = 50*/)
+    bool Beats_Bind(SOCKET socketToBind, const sockaddr_in* pSockInfo, INT nSockInfoSize, bool bAvoidConflictPort/* = false*/, uint32_t uTryRebindCount/* = 50*/)
     {
         return CNetworkManager::GetInstance()->Bind(socketToBind, pSockInfo, nSockInfoSize, bAvoidConflictPort, uTryRebindCount);
     }
@@ -66,22 +66,22 @@ extern "C"
         return CNetworkManager::GetInstance()->Accept(listenSocket, newSocket, addr, addrlen);
     }
 
-    bool Beats_SendTo(SOCKET sendingSocket, void* pData, size_t& uDataLength, size_t uIP, size_t uPort, size_t uRetryCount/* = 0*/)
+    bool Beats_SendTo(SOCKET sendingSocket, void* pData, uint32_t& uDataLength, uint32_t uIP, uint32_t uPort, uint32_t uRetryCount/* = 0*/)
     {
         return CNetworkManager::GetInstance()->SendTo(sendingSocket, pData, uDataLength, uIP, uPort, uRetryCount);
     }
 
-    bool Beats_RecvFrom(SOCKET receiveSocket, void* pData, size_t& uDataLength, sockaddr_in* pReceiveInfo/* = NULL*/, int* pInfoSize/* = NULL*/)
+    bool Beats_RecvFrom(SOCKET receiveSocket, void* pData, uint32_t& uDataLength, sockaddr_in* pReceiveInfo/* = NULL*/, int* pInfoSize/* = NULL*/)
     {
         return CNetworkManager::GetInstance()->RecvFrom(receiveSocket, pData, uDataLength, pReceiveInfo, pInfoSize);
     }
 
-    bool Beats_Send(SOCKET sendingSocket, void* pData, size_t& uDataLength, size_t uFlag/* = 0*/)
+    bool Beats_Send(SOCKET sendingSocket, void* pData, uint32_t& uDataLength, uint32_t uFlag/* = 0*/)
     {
         return CNetworkManager::GetInstance()->Send(sendingSocket, pData, uDataLength, uFlag);
     }
 
-    bool Beats_Receive(SOCKET receiveSocket, void* pData, size_t& uDataLength, size_t uFlag/* = 0*/)
+    bool Beats_Receive(SOCKET receiveSocket, void* pData, uint32_t& uDataLength, uint32_t uFlag/* = 0*/)
     {
         return CNetworkManager::GetInstance()->Receive(receiveSocket, pData, uDataLength, uFlag);
     }

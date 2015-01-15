@@ -6,7 +6,7 @@
 CColorPropertyDescription::CColorPropertyDescription(CSerializer* pSerializer)
     : super(eRPT_UInt)
 {
-    size_t value = 0;
+    uint32_t value = 0;
     unsigned char r,g,b,a;
     if (pSerializer != NULL)
     {
@@ -22,26 +22,26 @@ CColorPropertyDescription::CColorPropertyDescription(CSerializer* pSerializer)
 CColorPropertyDescription::CColorPropertyDescription(const CColorPropertyDescription& rRef)
     : super(rRef)
 {
-    size_t value = 0;
+    uint32_t value = 0;
     InitializeValue(value);
 }
 
 CColorPropertyDescription::~CColorPropertyDescription()
 {
-    DestroyValue<size_t>();
+    DestroyValue<uint32_t>();
 }
 
 bool CColorPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>& result)
 {
     std::vector<TString> cache;
-    for (size_t i = 0; i < result.size(); ++i)
+    for (uint32_t i = 0; i < result.size(); ++i)
     {
         cache.clear();
         CStringHelper::GetInstance()->SplitString(result[i].c_str(), PROPERTY_KEYWORD_SPLIT_STR, cache);
         BEATS_ASSERT(cache.size() == 2);
         if (_tcsicmp(cache[0].c_str(), UIParameterAttrStr[eUIPAT_DefaultValue]) == 0)
         {
-            size_t uValue = 0;
+            uint32_t uValue = 0;
             GetValueByTChar(cache[1].c_str(), &uValue);
             unsigned char r = uValue >> 24;
             unsigned char g = (uValue >> 16) & 0x000000FF;
@@ -63,7 +63,7 @@ bool CColorPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString
 
 wxPGProperty* CColorPropertyDescription::CreateWxProperty()
 {
-    size_t uColorValue = *(size_t*)m_valueArray[eVT_CurrentValue];
+    uint32_t uColorValue = *(uint32_t*)m_valueArray[eVT_CurrentValue];
     unsigned char r = uColorValue >> 24;
     unsigned char g = (uColorValue >> 16) & 0x000000FF;
     unsigned char b = (uColorValue >> 8) & 0x000000FF;
@@ -72,7 +72,7 @@ wxPGProperty* CColorPropertyDescription::CreateWxProperty()
     wxPGProperty* pProperty = new wxColourProperty(wxPG_LABEL, wxPG_LABEL, colorVaule);
     pProperty->SetAttribute("HasAlpha", true);
     pProperty->SetClientData(this);
-    wxVariant var((wxLongLong)(*(size_t*)m_valueArray[eVT_CurrentValue]));
+    wxVariant var((wxLongLong)(*(uint32_t*)m_valueArray[eVT_CurrentValue]));
     pProperty->SetDefaultValue(var);
     pProperty->SetModifiedStatus(!IsDataSame(true));
 
@@ -83,7 +83,7 @@ void CColorPropertyDescription::SetValue( wxVariant& value, bool bSaveValue /*= 
 {
     wxColor colourValue;
     colourValue << value ;
-    size_t uNewValue = (colourValue.Red() << 24) + (colourValue.Green() << 16) + (colourValue.Blue() << 8) + colourValue.Alpha();
+    uint32_t uNewValue = (colourValue.Red() << 24) + (colourValue.Green() << 16) + (colourValue.Blue() << 8) + colourValue.Alpha();
     SetValueWithType(&uNewValue, eVT_CurrentValue);
     if (bSaveValue)
     {
@@ -93,17 +93,17 @@ void CColorPropertyDescription::SetValue( wxVariant& value, bool bSaveValue /*= 
 
 bool CColorPropertyDescription::CopyValue(void* pSourceValue, void* pTargetValue)
 {
-    bool bRet = *(size_t*)pTargetValue != *(size_t*)pSourceValue;
+    bool bRet = *(uint32_t*)pTargetValue != *(uint32_t*)pSourceValue;
     if (bRet)
     {
-        *(size_t*)pTargetValue = *(size_t*)pSourceValue;
+        *(uint32_t*)pTargetValue = *(uint32_t*)pSourceValue;
     }
     return bRet;
 }
 
 bool CColorPropertyDescription::IsDataSame( bool bWithDefaultOrXML )
 {
-    bool bRet = *(size_t*)m_valueArray[(bWithDefaultOrXML ? eVT_DefaultValue : eVT_SavedValue)] == *(size_t*)m_valueArray[eVT_CurrentValue];
+    bool bRet = *(uint32_t*)m_valueArray[(bWithDefaultOrXML ? eVT_DefaultValue : eVT_SavedValue)] == *(uint32_t*)m_valueArray[eVT_CurrentValue];
     return bRet;
 }
 
@@ -115,7 +115,7 @@ CPropertyDescriptionBase* CColorPropertyDescription::CreateNewInstance()
 
 void CColorPropertyDescription::GetValueAsChar( EValueType type, char* pOut ) const
 {
-    size_t iValue = *(size_t*)m_valueArray[type];
+    uint32_t iValue = *(uint32_t*)m_valueArray[type];
     sprintf(pOut, "0x%x", iValue);
 }
 
@@ -123,16 +123,16 @@ bool CColorPropertyDescription::GetValueByTChar(const TCHAR* pIn, void* pOutValu
 {
     TCHAR* pEndChar = NULL;
     _set_errno(0);
-    size_t uValue = _tcstoul(pIn, &pEndChar, 16);
+    uint32_t uValue = _tcstoul(pIn, &pEndChar, 16);
     BEATS_ASSERT(_tcslen(pEndChar) == 0, _T("Read uint from string %s error, stop at %s"), pIn, pEndChar);
     BEATS_ASSERT(errno == 0, _T("Call _tcstoul failed! string %s radix: 16"), pIn);
-    *(size_t*)pOutValue = uValue;
+    *(uint32_t*)pOutValue = uValue;
     return true;
 }
 
 void CColorPropertyDescription::Serialize( CSerializer& serializer, EValueType eValueType/* = eVT_SavedValue*/)
 {
-    size_t uColor = *(size_t*)m_valueArray[eValueType];
+    uint32_t uColor = *(uint32_t*)m_valueArray[eValueType];
 
     char r = uColor >> 24;
     char g = (uColor >> 16) & 0x000000FF;
@@ -145,5 +145,5 @@ void CColorPropertyDescription::Serialize( CSerializer& serializer, EValueType e
 
 void CColorPropertyDescription::Deserialize(CSerializer& serializer, EValueType eValueType /*= eVT_CurrentValue*/)
 {
-    serializer >> *(size_t*)m_valueArray[eValueType];
+    serializer >> *(uint32_t*)m_valueArray[eValueType];
 }

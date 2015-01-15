@@ -164,7 +164,7 @@ void CRecordTrackPage::AddDataToList(unsigned long playPos, EKeyCode code)
     pTextItem->setSelectionBrushImage("TaharezLook", "MultiListSelectionBrush");
     pTextItem->setUserData((void*)((long long)playPos));//use long long to avoid compiler warning
     CEGUI::ListboxItem* prevItem = NULL;
-    size_t index = CalculateItemIndex(playPos);
+    uint32_t index = CalculateItemIndex(playPos);
 
     if(index < pListBox->getItemCount())
     {
@@ -185,7 +185,7 @@ void CRecordTrackPage::RemoveDataFromList( CEGUI::ListboxItem* pSelectItem )
     CEGUI::Listbox* pListBox = static_cast<CEGUI::Listbox*>(m_pComponents[eRTPC_BeatsList]);
     if (pListBox->getItemCount() > 1)
     {
-        size_t itemIndex = pListBox->getItemIndex(pSelectItem);
+        uint32_t itemIndex = pListBox->getItemIndex(pSelectItem);
         bool isLastItem = pListBox->getItemCount() == itemIndex + 1;
         pListBox->setItemSelectState(isLastItem ? itemIndex - 1 : itemIndex + 1, true);
     }
@@ -197,16 +197,16 @@ void CRecordTrackPage::RemoveDataFromList( CEGUI::ListboxItem* pSelectItem )
 
 void CRecordTrackPage::RemoveDataFromList( unsigned long playPos )
 {
-    size_t index = CalculateItemIndex(playPos);
+    uint32_t index = CalculateItemIndex(playPos);
     CEGUI::Listbox* pListBox = static_cast<CEGUI::Listbox*>(m_pComponents[eRTPC_BeatsList]);
     RemoveDataFromList(pListBox->getListboxItemFromIndex(index));
 }
 
-size_t CRecordTrackPage::CalculateItemIndex( unsigned long pos )
+uint32_t CRecordTrackPage::CalculateItemIndex( unsigned long pos )
 {
-    size_t result = 0;
+    uint32_t result = 0;
     CEGUI::Listbox* pListBox = static_cast<CEGUI::Listbox*>(m_pComponents[eRTPC_BeatsList]);
-    size_t itemCount = pListBox->getItemCount();
+    uint32_t itemCount = pListBox->getItemCount();
     if (itemCount > 0)
     {
         unsigned long minPos = (unsigned long)((long long)(pListBox->getListboxItemFromIndex(0)->getUserData()));
@@ -227,11 +227,11 @@ size_t CRecordTrackPage::CalculateItemIndex( unsigned long pos )
         {
             //Binary chop
             CEGUI::ListboxItem* pItem = NULL;
-            size_t lastLowerIndex = 0;
-            size_t lastGreaterIndex = itemCount - 1;
+            uint32_t lastLowerIndex = 0;
+            uint32_t lastGreaterIndex = itemCount - 1;
             do
             {
-                size_t i = (size_t)((lastLowerIndex + lastGreaterIndex)* 0.5f);
+                uint32_t i = (uint32_t)((lastLowerIndex + lastGreaterIndex)* 0.5f);
                 pItem = pListBox->getListboxItemFromIndex(i);
                 unsigned long itemPos = (unsigned long)((long long)(pItem->getUserData()));
                 itemPos >= pos ? lastGreaterIndex = i : lastLowerIndex = i;
@@ -244,7 +244,7 @@ size_t CRecordTrackPage::CalculateItemIndex( unsigned long pos )
 
 void CRecordTrackPage::UpdateData( unsigned long playPos, EKeyCode code )
 {
-    size_t index = CalculateItemIndex(playPos);
+    uint32_t index = CalculateItemIndex(playPos);
     CEGUI::Listbox* pListBox = static_cast<CEGUI::Listbox*>(m_pComponents[eRTPC_BeatsList]);
     CEGUI::ListboxItem* pItem = pListBox->getListboxItemFromIndex(index);
     TCHAR playPosBuff[64];

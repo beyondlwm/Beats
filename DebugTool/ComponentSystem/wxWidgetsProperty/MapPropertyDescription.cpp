@@ -157,7 +157,7 @@ void CMapPropertyDescription::DeleteAllChild()
 
 void CMapPropertyDescription::ResetChildName()
 {
-    for (size_t i = 0; i < m_pChildren->size(); ++i)
+    for (uint32_t i = 0; i < m_pChildren->size(); ++i)
     {
         TCHAR szChildName[32];
         _stprintf(szChildName, _T("Child_%d"), i);
@@ -221,7 +221,7 @@ CPropertyDescriptionBase* CMapPropertyDescription::Clone(bool bCloneValue)
     CMapPropertyDescription* pNewProperty = static_cast<CMapPropertyDescription*>(super::Clone(bCloneValue));
     if (bCloneValue)
     {
-        for (size_t i = 0; i < m_pChildren->size(); ++i)
+        for (uint32_t i = 0; i < m_pChildren->size(); ++i)
         {
             CPropertyDescriptionBase* pPropertyBase = (*m_pChildren)[i];
             CPropertyDescriptionBase* pNewChildPropertyBase = pPropertyBase->Clone(true);
@@ -260,7 +260,7 @@ void CMapPropertyDescription::Serialize( CSerializer& serializer , EValueType eV
     serializer << m_pKeyPropertyTemplate->GetType();
     serializer << m_pValuePropertyTemplate->GetType();
     serializer << m_pChildren->size();
-    for (size_t i = 0; i < m_pChildren->size(); ++i)
+    for (uint32_t i = 0; i < m_pChildren->size(); ++i)
     {
         BEATS_ASSERT((*m_pChildren)[i]->GetChildrenCount() == 2, _T("An element of map must contain two children!"));
         (*m_pChildren)[i]->GetChild(0)->Serialize(serializer, eValueType);
@@ -271,9 +271,9 @@ void CMapPropertyDescription::Serialize( CSerializer& serializer , EValueType eV
 void CMapPropertyDescription::Deserialize(CSerializer& serializer, EValueType eValueType /*= eVT_CurrentValue*/)
 {
     DeleteAllChild();
-    size_t uChildrenCount = 0;
+    uint32_t uChildrenCount = 0;
     serializer >> uChildrenCount;
-    for (size_t i = 0; i < uChildrenCount; ++i)
+    for (uint32_t i = 0; i < uChildrenCount; ++i)
     {
         (*m_pChildren)[i]->GetChild(0)->Deserialize(serializer, eValueType);
         (*m_pChildren)[i]->GetChild(1)->Deserialize(serializer, eValueType);

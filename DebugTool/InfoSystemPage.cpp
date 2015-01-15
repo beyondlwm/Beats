@@ -39,7 +39,7 @@ CInfoPagePanel* CBDTWxFrame::GetInfoPage(const TCHAR* pPageName, bool bAutoAdd)
         pPageName = DEFAULT_PAGE_NAME;
     }
     bool bFind = false;
-    for (size_t i = 0; i < m_pInfoBoardNoteBook->GetPageCount(); ++i)
+    for (uint32_t i = 0; i < m_pInfoBoardNoteBook->GetPageCount(); ++i)
     {
         if (m_pInfoBoardNoteBook->GetPageText(i).CmpNoCase(pPageName) == 0)
         {
@@ -73,7 +73,7 @@ void CBDTWxFrame::OnInfoNoteBookChanged( wxBookCtrlEvent& /*event*/ )
 {
 }
 
-void CBDTWxFrame::AddInfoLog( const TCHAR* pLog, const TCHAR* pCatalog /*= 0*/, size_t logPos /*= 0*/, size_t color /*= 0*/ )
+void CBDTWxFrame::AddInfoLog( const TCHAR* pLog, const TCHAR* pCatalog /*= 0*/, uint32_t logPos /*= 0*/, uint32_t color /*= 0*/ )
 {
     CInfoPagePanel* pPanel = GetInfoPage(pCatalog);
     wxColor textColor;
@@ -82,7 +82,7 @@ void CBDTWxFrame::AddInfoLog( const TCHAR* pLog, const TCHAR* pCatalog /*= 0*/, 
     pPanel->AppendLogText(pLog, logPos, &textAttr);
 }
 
-void CBDTWxFrame::SetPropertyInfo(const TCHAR* pCatalog, const TCHAR* pPropertyName, size_t propertyId, void* value, EReflectPropertyType type )
+void CBDTWxFrame::SetPropertyInfo(const TCHAR* pCatalog, const TCHAR* pPropertyName, uint32_t propertyId, void* value, EReflectPropertyType type )
 {
     CInfoPagePanel* pPanel = GetInfoPage(pCatalog);
     pPanel->UpdateProperty(pPropertyName, propertyId, value, type);

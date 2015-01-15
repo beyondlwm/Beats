@@ -36,7 +36,7 @@ void CComponentInstance::Uninitialize()
         BEATS_ASSERT(m_pProxyComponent->GetHostComponent() == this);
         m_pProxyComponent->Uninitialize();
     }
-    size_t uComponentId = GetId();
+    uint32_t uComponentId = GetId();
     if (uComponentId != 0xFFFFFFFF)
     {
         CComponentInstanceManager::GetInstance()->UnregisterInstance(this);
@@ -44,22 +44,22 @@ void CComponentInstance::Uninitialize()
     }
 }
 
-void CComponentInstance::SetDataPos(size_t uDataPos)
+void CComponentInstance::SetDataPos(uint32_t uDataPos)
 {
     m_uDataPos = uDataPos;
 }
 
-size_t CComponentInstance::GetDataPos() const
+uint32_t CComponentInstance::GetDataPos() const
 {
     return m_uDataPos;
 }
 
-void CComponentInstance::SetDataSize(size_t uDataSize)
+void CComponentInstance::SetDataSize(uint32_t uDataSize)
 {
     m_uDataSize = uDataSize;
 }
 
-size_t CComponentInstance::GetDataSize() const
+uint32_t CComponentInstance::GetDataSize() const
 {
     return m_uDataSize;
 }
@@ -109,7 +109,7 @@ CComponentBase* CComponentInstance::CloneInstance()
     CSerializer serializer;
     Serialize(serializer);
 #ifdef _DEBUG
-    size_t uDataSize, uGuid, uId;
+    uint32_t uDataSize, uGuid, uId;
     serializer >> uDataSize >> uGuid >> uId;
     BEATS_ASSERT(uGuid == GetGuid() && uId == GetId());
 #else

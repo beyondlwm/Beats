@@ -22,7 +22,7 @@ void CPhysicsManager::Update(const float deltaTimeMs)
 {
     if (m_bActive)
     {
-        for (size_t i = 0; i < m_elements.size(); ++i)
+        for (uint32_t i = 0; i < m_elements.size(); ++i)
         {
             if (m_elements[i] != NULL)
             {
@@ -57,7 +57,7 @@ void CPhysicsManager::Register(CPhysicsElement* elem)
 
 void CPhysicsManager::Unregister(CPhysicsElement* elem)
 {
-    size_t uId = elem->GetID();
+    uint32_t uId = elem->GetID();
     BEATS_ASSERT(m_elements[uId] == elem);
     m_elements[uId] = NULL;
     m_freePos.push_back(uId);

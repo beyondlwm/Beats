@@ -23,11 +23,11 @@ CMemoryDetector::CMemoryDetector()
 , m_curModule(NULL)
 {
     InitializeCriticalSection(&m_CSLock);
-    size_t clientMode = static_cast<CBDTWxApp*>(wxApp::GetInstance())->GetClientMode();
+    uint32_t clientMode = static_cast<CBDTWxApp*>(wxApp::GetInstance())->GetClientMode();
     m_processInDebugMode = (clientMode & eCPM_Debug) > 0;
     m_processInUnicodeMode = (clientMode & eCPM_Unicode) > 0;
 
-    size_t curEip;
+    uint32_t curEip;
     BEATS_ASSI_GET_EIP(curEip);
     m_curModule = GetModuleFromAddress(curEip);
 }
@@ -40,7 +40,7 @@ CMemoryDetector::~CMemoryDetector()
     BEATS_SAFE_DELETE_MAP(m_record.recordMap, TRecordMap);
 }
 
-SMemoryRecord* CMemoryDetector::GetValidRecord(void* address, size_t size, size_t allocTime, size_t allocId, size_t usage)
+SMemoryRecord* CMemoryDetector::GetValidRecord(void* address, uint32_t size, uint32_t allocTime, uint32_t allocId, uint32_t usage)
 {
     if (m_recordPool.size() > 0)
     {
@@ -52,7 +52,7 @@ SMemoryRecord* CMemoryDetector::GetValidRecord(void* address, size_t size, size_
     return new SMemoryRecord(address, size, allocTime, allocId, usage );
 }
 
-void CMemoryDetector::AddRecord( void* pAddress, size_t size, size_t allocId, size_t usage /*= 0*/ )
+void CMemoryDetector::AddRecord( void* pAddress, uint32_t size, uint32_t allocId, uint32_t usage /*= 0*/ )
 {
 #ifdef _DEBUG
     bool recordExisting = m_record.recordMap.find(pAddress) != m_record.recordMap.end();
@@ -75,7 +75,7 @@ void CMemoryDetector::AddRecord( void* pAddress, size_t size, size_t allocId, si
 #endif
     }
 #endif
-    size_t curTime = GetTickCount();
+    uint32_t curTime = GetTickCount();
     SMemoryRecord* pNewRecord = GetValidRecord(pAddress, size, curTime, allocId, usage);
     BEATS_ASSERT(size > 0, _T("Alloc Memory size should be greater than 0"));
     m_record.recordMap[pAddress] = pNewRecord;
@@ -144,46 +144,46 @@ bool CMemoryDetector::PatchDll(HMODULE importmodule, LPCSTR exportmodulename, LP
     return ReplaceFunc(importmodule, (char*)exportmodulename, import, replacement);
 }
 
-LPVOID CMemoryDetector::OnHeapAlloc( SIZE_T size )
+LPVOID CMemoryDetector::OnHeapAlloc( uint32_t size )
 {
     static CMemoryDetector* pMemoryDetector = CMemoryDetector::GetInstance();
 
     EnterCriticalSection(pMemoryDetector->GetHeapOperationCS());
     void* newSize = m_allocFunc(size);
 
-    size_t curEBPValuel;
+    uint32_t curEBPValuel;
     BEATS_ASSI_GET_EBP(curEBPValuel);
     //increase the value to get the Eip value. imagine the stack.
-    size_t eip = *((size_t*)curEBPValuel + 1);
+    uint32_t eip = *((uint32_t*)curEBPValuel + 1);
     if (!pMemoryDetector->FilterRecordWithEIP(eip))
     {
         pMemoryDetector->AddRecord(newSize, size, eip);
         if (pMemoryDetector->m_processInDebugMode)
         {
-            pMemoryDetector->AddCallStackInfo((size_t)newSize);
+            pMemoryDetector->AddCallStackInfo((uint32_t)newSize);
         }
     }
     LeaveCriticalSection(pMemoryDetector->GetHeapOperationCS());
     return newSize;
 }
 
-LPVOID CMemoryDetector::OnHeapAllocDbg (SIZE_T size, int usage, const char* filePath, int line)
+LPVOID CMemoryDetector::OnHeapAllocDbg (uint32_t size, int usage, const char* filePath, int line)
 {
     static CMemoryDetector* pMemoryDetector = CMemoryDetector::GetInstance();
 
     EnterCriticalSection(pMemoryDetector->GetHeapOperationCS());
     void* newSize = m_allocFuncDbg(size, usage, filePath, line);
 
-    size_t curEBPValuel;
+    uint32_t curEBPValuel;
     BEATS_ASSI_GET_EBP(curEBPValuel);
     //increase the value to get the Eip value. imagine the stack.
-    size_t eip = *((size_t*)curEBPValuel + 1);
+    uint32_t eip = *((uint32_t*)curEBPValuel + 1);
     if (!pMemoryDetector->FilterRecordWithEIP(eip))
     {
         pMemoryDetector->AddRecord(newSize, size, eip);
         if (pMemoryDetector->m_processInDebugMode)
         {
-            pMemoryDetector->AddCallStackInfo((size_t)newSize);
+            pMemoryDetector->AddCallStackInfo((uint32_t)newSize);
         }
     }
     LeaveCriticalSection(pMemoryDetector->GetHeapOperationCS());
@@ -216,7 +216,7 @@ void CMemoryDetector::OnHeapFreeImpl( void* pAddress )
         DeleteRecord(pAddress);
         if (m_processInDebugMode)
         {
-            DeleteCallStackInfo(size_t(pAddress));
+            DeleteCallStackInfo(uint32_t(pAddress));
         }
     }
 }
@@ -226,7 +226,7 @@ void CMemoryDetector::Init( std::vector<std::string>* pMemHookModuleList )
     bool bHookCrt = false;
     bool bHookMFC = false;
 
-    for (size_t i = 0; i < pMemHookModuleList->size(); ++i)
+    for (uint32_t i = 0; i < pMemHookModuleList->size(); ++i)
     {
        m_hookModuleList.push_back(pMemHookModuleList->at(i));
        const char* pModuleName = (*pMemHookModuleList)[i].c_str();
@@ -240,7 +240,7 @@ void CMemoryDetector::Init( std::vector<std::string>* pMemHookModuleList )
 
 bool CMemoryDetector::CheckMemoryLeak()
 {
-    size_t recordTotalSize = 0;
+    uint32_t recordTotalSize = 0;
     for(std::map<void*, SMemoryRecord*>::iterator iter = m_record.recordMap.begin(); iter != m_record.recordMap.end(); ++iter)
     {
         recordTotalSize += iter->second->m_size;
@@ -256,14 +256,14 @@ bool CMemoryDetector::CheckMemoryLeak()
         DWORD displacement = 0;
         IMAGEHLP_LINE info;
         HANDLE processHandle = GetCurrentProcess();
-        size_t counter = 0;
+        uint32_t counter = 0;
         for(std::map<void*, SMemoryRecord*>::iterator iter = m_record.recordMap.begin(); iter != m_record.recordMap.end(); ++iter, ++counter)
         {
             BEATS_PRINT(_T("\n---------Block:%d-----------\n"), counter);
 
-            std::vector<size_t> callStack;
-            GetCallStack((size_t)(iter->first), callStack);
-            for (size_t i = 0; i < callStack.size(); ++i)
+            std::vector<uint32_t> callStack;
+            GetCallStack((uint32_t)(iter->first), callStack);
+            for (uint32_t i = 0; i < callStack.size(); ++i)
             {
                 bool ret = SymGetLineFromAddr(processHandle, callStack[i], &displacement, &info) == TRUE;
                 if (ret)
@@ -285,7 +285,7 @@ bool CMemoryDetector::CheckMemoryLeak()
     return m_allocMemorySize == 0;
 }
 // return data in sync mode for other thread.
-void CMemoryDetector::GetRecordCache(const SMemoryFrameRecord* pOriginData, SMemoryFrameRecord& out, EMemoryFrameRecordType type, size_t startPos, size_t itemCount)
+void CMemoryDetector::GetRecordCache(const SMemoryFrameRecord* pOriginData, SMemoryFrameRecord& out, EMemoryFrameRecordType type, uint32_t startPos, uint32_t itemCount)
 {
     EnterCriticalSection(&m_CSLock);
     if (pOriginData == NULL)
@@ -309,12 +309,12 @@ void CMemoryDetector::GetRecordCache(const SMemoryFrameRecord* pOriginData, SMem
                 TRecordU32Map::const_iterator startIter = pOriginData->recordMapForLocation.begin();
                 TRecordU32Map::const_iterator endIter = pOriginData->recordMapForLocation.end();
 
-                for (size_t counter = 0; counter < startPos; ++counter)
+                for (uint32_t counter = 0; counter < startPos; ++counter)
                 {
                     ++startIter;
                 }
                 
-                for (size_t counter = 0; (itemCount == 0 || counter < itemCount) && (startIter != endIter); ++counter )
+                for (uint32_t counter = 0; (itemCount == 0 || counter < itemCount) && (startIter != endIter); ++counter )
                 {
                     out.recordMapForLocation[startIter->first] = startIter->second;
                     ++startIter;
@@ -329,12 +329,12 @@ void CMemoryDetector::GetRecordCache(const SMemoryFrameRecord* pOriginData, SMem
                 TRecordMap::const_iterator startIter = pOriginData->recordMap.begin();
                 TRecordMap::const_iterator endIter = pOriginData->recordMap.end();
 
-                for (size_t counter = 0; counter < startPos; ++counter)
+                for (uint32_t counter = 0; counter < startPos; ++counter)
                 {
                     ++startIter;
                 }
 
-                for (size_t counter = 0; (itemCount == 0 || counter < itemCount) && (startIter != endIter); ++counter )
+                for (uint32_t counter = 0; (itemCount == 0 || counter < itemCount) && (startIter != endIter); ++counter )
                 {
                     out.recordMap[startIter->first] = startIter->second;
                     ++startIter;
@@ -348,7 +348,7 @@ void CMemoryDetector::GetRecordCache(const SMemoryFrameRecord* pOriginData, SMem
             {
                 TRecordU32Map::const_iterator startIter = pOriginData->recordMapForSize.begin();
                 TRecordU32Map::const_iterator endIter = pOriginData->recordMapForSize.end();
-                size_t counter = 0;
+                uint32_t counter = 0;
                 for (; (counter + startIter->second.size()) < startPos; ++startIter)
                 {
                     counter += startIter->second.size();
@@ -375,7 +375,7 @@ void CMemoryDetector::GetRecordCache(const SMemoryFrameRecord* pOriginData, SMem
         {
             TRecordU32Map::const_iterator startIter = pOriginData->recordMapForTime.begin();
             TRecordU32Map::const_iterator endIter = pOriginData->recordMapForTime.end();
-            size_t counter = 0;
+            uint32_t counter = 0;
             for (; (counter + startIter->second.size()) < startPos; ++startIter)
             {
                 counter += startIter->second.size();
@@ -403,34 +403,34 @@ void CMemoryDetector::GetRecordCache(const SMemoryFrameRecord* pOriginData, SMem
     LeaveCriticalSection(&m_CSLock);
 }
 
-size_t CMemoryDetector::GetAllocMemorySize()
+uint32_t CMemoryDetector::GetAllocMemorySize()
 {
     EnterCriticalSection(&m_CSLock);
-    size_t result = m_allocMemorySize;
+    uint32_t result = m_allocMemorySize;
     LeaveCriticalSection(&m_CSLock);
     return result;
 }
 
-size_t CMemoryDetector::GetAllocMemoryCount()
+uint32_t CMemoryDetector::GetAllocMemoryCount()
 {
     EnterCriticalSection(&m_CSLock);
-    size_t result = m_record.recordMap.size();
+    uint32_t result = m_record.recordMap.size();
     LeaveCriticalSection(&m_CSLock);
     return result;
 }
 
-size_t CMemoryDetector::GetMemoryBlockMaxSize()
+uint32_t CMemoryDetector::GetMemoryBlockMaxSize()
 {
     EnterCriticalSection(&m_CSLock);
-    size_t result = m_record.recordMapForSize.size() > 0 ? m_record.recordMapForSize.rbegin()->first : 0;
+    uint32_t result = m_record.recordMapForSize.size() > 0 ? m_record.recordMapForSize.rbegin()->first : 0;
     LeaveCriticalSection(&m_CSLock);
     return result;
 }
 
-size_t CMemoryDetector::GetLatestMemoryBlockTime()
+uint32_t CMemoryDetector::GetLatestMemoryBlockTime()
 {
     EnterCriticalSection(&m_CSLock);
-    size_t result = m_record.recordMapForTime.size() > 0 ? m_record.recordMapForTime.rbegin()->first : 0;
+    uint32_t result = m_record.recordMapForTime.size() > 0 ? m_record.recordMapForTime.rbegin()->first : 0;
     LeaveCriticalSection(&m_CSLock);
     return result;
 }
@@ -501,7 +501,7 @@ void CMemoryDetector::Uninit()
         m_record.recordMapForSize.clear();
         m_record.recordMapForTime.clear();
 
-        for (size_t i = 0; i < m_hookModuleList.size(); ++i)
+        for (uint32_t i = 0; i < m_hookModuleList.size(); ++i)
         {
             const char* pModuleName = m_hookModuleList[i].c_str();
             HookMFC(false, pModuleName);
@@ -528,11 +528,11 @@ bool CMemoryDetector::ReplaceFunc( HMODULE hookModule, const char* exprotModuleN
     {
         DWORD protect;
         // Locate the import's IAT entry. this is the address of function address tables
-        size_t** ppFunc = (size_t**)R2VA(hookModule, idte->FirstThunk);
-        size_t* pFunc = *ppFunc;
+        uint32_t** ppFunc = (uint32_t**)R2VA(hookModule, idte->FirstThunk);
+        uint32_t* pFunc = *ppFunc;
         while (pFunc != NULL) 
         {
-            if (pFunc == (size_t*)targetFunc) 
+            if (pFunc == (uint32_t*)targetFunc) 
             {
                 // Found the IAT entry. Overwrite the address stored in the IAT
                 // entry with the address of the replacement. Note that the IAT
@@ -541,7 +541,7 @@ bool CMemoryDetector::ReplaceFunc( HMODULE hookModule, const char* exprotModuleN
                 if (replaceFunc != NULL)
                 {
                     VirtualProtect(ppFunc, sizeof(ppFunc), PAGE_READWRITE, &protect);
-                    *ppFunc = (size_t*)replaceFunc;
+                    *ppFunc = (uint32_t*)replaceFunc;
                     VirtualProtect(ppFunc, sizeof(ppFunc), protect, &protect);
                 }
                 // The patch has been installed in the import module.
@@ -634,7 +634,7 @@ void CMemoryDetector::AddFilterStr( std::string filter )
 void CMemoryDetector::DelFilterStr( std::string filter )
 {
     std::transform(filter.begin(), filter.end(), filter.begin(), tolower);
-    for (size_t i = 0; i < m_filterList.size(); ++i)
+    for (uint32_t i = 0; i < m_filterList.size(); ++i)
     {
         if (m_filterList[i].compare(filter) == 0)
         {
@@ -649,27 +649,27 @@ const std::vector<std::string>& CMemoryDetector::GetFilterStr()
     return m_filterList;
 }
 
-void CMemoryDetector::AddCallStackInfo(size_t address)
+void CMemoryDetector::AddCallStackInfo(uint32_t address)
 {
     BEATS_ASSERT(m_callStackPool.find(address) == m_callStackPool.end(),
         _T("The address 0x%x is already in call stack pool!"), address);
-    std::vector<size_t>& callstack = m_callStackPool[address];
+    std::vector<uint32_t>& callstack = m_callStackPool[address];
     callstack.clear();
     AddCallStackInfoByEBP(callstack);
     //the last 2 elements are invalid, reason is unknown.
-    for (size_t i = 0; i < callstack.size() && i < 2; ++i)
+    for (uint32_t i = 0; i < callstack.size() && i < 2; ++i)
     {
         callstack.pop_back();
     }
 }
 
-void CMemoryDetector::DeleteCallStackInfo( size_t address )
+void CMemoryDetector::DeleteCallStackInfo( uint32_t address )
 {
     BEATS_ASSERT (m_callStackPool.find(address) != m_callStackPool.end(), _T("Call stack data is not existing."));
     m_callStackPool.erase(address);
 }
 
-void CMemoryDetector::GetCallStack( size_t address, std::vector<size_t>& out )
+void CMemoryDetector::GetCallStack( uint32_t address, std::vector<uint32_t>& out )
 {
     BEATS_ASSERT(m_callStackPool.find(address) != m_callStackPool.end(),
         _T("Can't Find the address 0x%x in call stack pool!"), address);
@@ -678,21 +678,21 @@ void CMemoryDetector::GetCallStack( size_t address, std::vector<size_t>& out )
     LeaveCriticalSection(&m_CSLock);
 }
 
-bool CMemoryDetector::AddCallStackInfoByEBP(std::vector<size_t>& callStack)
+bool CMemoryDetector::AddCallStackInfoByEBP(std::vector<uint32_t>& callStack)
 {
-    size_t eBPValue = 0;
+    uint32_t eBPValue = 0;
     BEATS_ASSI_GET_EBP(eBPValue);
-    size_t eIPValue = (*(size_t*)((size_t*)(eBPValue) + 1));//current eip,ignore it.
-    size_t lastEBPValue = *(size_t*)(eBPValue);
-    size_t ignoreFrameCount = 2;
+    uint32_t eIPValue = (*(uint32_t*)((uint32_t*)(eBPValue) + 1));//current eip,ignore it.
+    uint32_t lastEBPValue = *(uint32_t*)(eBPValue);
+    uint32_t ignoreFrameCount = 2;
     while (eIPValue != 0)
     {
         ignoreFrameCount == 0 ? callStack.push_back(eIPValue) : --ignoreFrameCount;
 
-        lastEBPValue = *(size_t*)(eBPValue);
+        lastEBPValue = *(uint32_t*)(eBPValue);
         // If the module enable FPO optimize, the address may be invalid.
         eBPValue = lastEBPValue;
-        size_t* pPtr = (size_t*)((size_t*)(eBPValue) + 1);
+        uint32_t* pPtr = (uint32_t*)((uint32_t*)(eBPValue) + 1);
         if (lastEBPValue == 0 || IsBadCodePtr((FARPROC)pPtr))
         {
             break;
@@ -707,9 +707,9 @@ void CMemoryDetector::SetProcessDebugFlag( bool inDebug )
     m_processInDebugMode = inDebug;
 }
 
-bool CMemoryDetector::FilterRecordWithEIP( size_t eip )
+bool CMemoryDetector::FilterRecordWithEIP( uint32_t eip )
 {
-    std::map<size_t, bool>::iterator iter = m_eipExamMap.find(eip);
+    std::map<uint32_t, bool>::iterator iter = m_eipExamMap.find(eip);
     if (iter == m_eipExamMap.end())
     {
         DWORD displacement = 0;
@@ -771,7 +771,7 @@ bool CMemoryDetector::IsHookableModule( HMODULE module )
     return bRet;
 }
 
-HMODULE CMemoryDetector::GetModuleFromAddress( size_t address )
+HMODULE CMemoryDetector::GetModuleFromAddress( uint32_t address )
 {
     MEMORY_BASIC_INFORMATION m = { 0 };
     VirtualQuery((void*)address, &m, sizeof(MEMORY_BASIC_INFORMATION));

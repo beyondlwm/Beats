@@ -159,7 +159,7 @@ void CStartUpFrame::OnLaunchBtnClick( wxCommandEvent& /*event*/ )
     wxArrayInt indexArray;
     m_pHookDllList->GetSelections(indexArray);
 
-    for (size_t i = 0;i < indexArray.GetCount(); ++i)
+    for (uint32_t i = 0;i < indexArray.GetCount(); ++i)
     {
         std::string tmp = m_pHookDllList->GetString(indexArray[i]);
         moduleList.push_back(tmp);
@@ -183,8 +183,8 @@ void CStartUpFrame::FillModuleList()
 
     EnumProcessModules(hProcess, moduleCache, sizeof(moduleCache), &cacheNeeded);
     BEATS_ASSERT(cacheNeeded < sizeof(moduleCache), _T("Moudule cache is too small!"));
-    size_t moduleCount = cacheNeeded / sizeof(HMODULE);
-    for (size_t i = 0; i < moduleCount; ++i)
+    uint32_t moduleCount = cacheNeeded / sizeof(HMODULE);
+    for (uint32_t i = 0; i < moduleCount; ++i)
     {
         TCHAR nameCache[256];
         GetModuleFileName(moduleCache[i],nameCache, sizeof(nameCache));
@@ -196,7 +196,7 @@ void CStartUpFrame::FillModuleList()
     }
 }
 
-size_t CStartUpFrame::GetFuncSwitcher()
+uint32_t CStartUpFrame::GetFuncSwitcher()
 {
     return m_funcSwitcher;
 }

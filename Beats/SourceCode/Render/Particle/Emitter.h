@@ -6,7 +6,7 @@ class CEmitter : public CParticle
 {
     typedef CParticle super;
 public:
-    CEmitter(const CParticle& templateParticle, size_t emitCount, size_t interval, bool autoEmit);
+    CEmitter(const CParticle& templateParticle, uint32_t emitCount, uint32_t interval, bool autoEmit);
     virtual ~CEmitter();
 
     virtual void Update(float deltaTimeMS);
@@ -15,8 +15,8 @@ public:
     void OnParticleRecycled(CParticle* pParticle);
 
 private:
-    size_t m_emitCount;
-    size_t m_emitIntervalMs;
+    uint32_t m_emitCount;
+    uint32_t m_emitIntervalMs;
     float m_startTime;
     float m_elapsedTime;
     bool m_autoEmit;

@@ -4,7 +4,7 @@
 
 struct SPerformanceResult
 {
-    size_t id;
+    uint32_t id;
     float result;
     LARGE_INTEGER startCount;
 };
@@ -12,15 +12,15 @@ struct SPerformanceResult
 struct SPerformanceRecord
 {
     int type;
-    size_t id;//this will be an unique id for each record.
-    size_t updateCount;
+    uint32_t id;//this will be an unique id for each record.
+    uint32_t updateCount;
     float maxValue;
     float totalValue;
     SPerformanceRecord* pParent;
     const TCHAR* typeStr;
     std::vector<SPerformanceRecord*> children;
 
-    SPerformanceRecord(size_t idParam = 0, int typeParam = 0)
+    SPerformanceRecord(uint32_t idParam = 0, int typeParam = 0)
         : id (idParam)
         , updateCount(0)
         , type(typeParam)
@@ -37,7 +37,7 @@ struct SPerformanceRecord
         updateCount = 0;
         maxValue = 0;
         totalValue = 0;
-        for (size_t i = 0; i < children.size(); ++i)
+        for (uint32_t i = 0; i < children.size(); ++i)
         {
             children[i]->Reset();
         }

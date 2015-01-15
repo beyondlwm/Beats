@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "QuadCache.h"
 
-CQuadCache::CQuadCache(size_t maxVertexCount, IDirect3DDevice9* pRenderDevice, long vertexFVF, long vertexSize)
+CQuadCache::CQuadCache(uint32_t maxVertexCount, IDirect3DDevice9* pRenderDevice, long vertexFVF, long vertexSize)
 : super(maxVertexCount, pRenderDevice, vertexFVF, vertexSize, eRCT_Quad)
 {
     

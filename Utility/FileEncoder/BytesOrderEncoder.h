@@ -15,8 +15,8 @@ struct SBytesOrderEncodeHeader : public SEncodeHeader
     {
 
     }
-    size_t m_uSectionCount;
-    size_t m_uRandomSeed;
+    uint32_t m_uSectionCount;
+    uint32_t m_uRandomSeed;
 };
 class CBytesOrderEncoder : public CFileEncoderBase
 {
@@ -27,20 +27,20 @@ public:
 
 public:
 
-    void SetSectionCount(size_t sectionCount);
-    void SetRandomSeed(size_t randomSeed);
+    void SetSectionCount(uint32_t sectionCount);
+    void SetRandomSeed(uint32_t randomSeed);
 
     virtual EFileEncodeType GetType() {return eFET_BytesOrder;}
 
 private:
     virtual bool EncodeImpl(CSerializer* pSourceFile, CSerializer* pEncodeFile);
     virtual bool EncodeImpl(FILE* hSourceFile, FILE* hEncodeFile);
-    virtual bool DecodeImpl(CSerializer* pEncodeFile, size_t uStartPos, CSerializer* pDecodeFile);
+    virtual bool DecodeImpl(CSerializer* pEncodeFile, uint32_t uStartPos, CSerializer* pDecodeFile);
     virtual bool DecodeImpl(FILE* hEncodeFile, long long uStartPos, FILE* hDecodeFile);
 
     virtual SEncodeHeader* GetEncodeHeader();
 
-    void GetShuffleOrder(std::vector<size_t>& shuffleOrder);
+    void GetShuffleOrder(std::vector<uint32_t>& shuffleOrder);
 
 
 private:

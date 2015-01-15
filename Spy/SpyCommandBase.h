@@ -23,13 +23,13 @@ enum ESpyCommandType
 class CSpyCommandBase
 {
 public:
-    CSpyCommandBase(ESpyCommandType type, size_t uFeedbackFunc = 0, size_t uUserDataPtr = 0);
+    CSpyCommandBase(ESpyCommandType type, uint32_t uFeedbackFunc = 0, uint32_t uUserDataPtr = 0);
     virtual ~CSpyCommandBase();
 
     ESpyCommandType GetType() const;
-    size_t GetFeedbackFunc() const;
-    size_t GetUserDataPtr() const;
-    void SetFeedBackFuncAddr(size_t uFeedbackFunc, size_t uUserDataPtr);
+    uint32_t GetFeedbackFunc() const;
+    uint32_t GetUserDataPtr() const;
+    void SetFeedBackFuncAddr(uint32_t uFeedbackFunc, uint32_t uUserDataPtr);
 
     bool Execute(SharePtr<SSocketContext>& pSocketContext);
     virtual void Deserialize(CSerializer& serializer);
@@ -41,7 +41,7 @@ private:
 protected:
 
     ESpyCommandType m_type;
-    size_t m_uFeedbackFunc;
-    size_t m_uUserDataPtr;
+    uint32_t m_uFeedbackFunc;
+    uint32_t m_uUserDataPtr;
 };
 #endif

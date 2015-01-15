@@ -30,7 +30,7 @@ bool CServiceManager::Install( const TCHAR* pszServiceName, const TCHAR* pszServ
     // 1. Copy files to the system directory.
     if (pDependLibs != NULL)
     {
-        for (size_t i = 0; i < pDependLibs->size(); ++i)
+        for (uint32_t i = 0; i < pDependLibs->size(); ++i)
         {
             moduleDepends.push_back((*pDependLibs)[i]);
         }
@@ -38,7 +38,7 @@ bool CServiceManager::Install( const TCHAR* pszServiceName, const TCHAR* pszServ
     TCHAR szSystemDirectory[MAX_PATH];
     GetSystemDirectory(szSystemDirectory, MAX_PATH);
 
-    for (size_t i = 0; i < moduleDepends.size(); ++i)
+    for (uint32_t i = 0; i < moduleDepends.size(); ++i)
     {
         if (moduleDepends[i].find(szSystemDirectory) != 0)
         {
@@ -133,7 +133,7 @@ bool CServiceManager::UnInstall(const TCHAR* pszServiceName, const std::vector<T
     Sleep(3000);
     if (pDependLibs != NULL)
     {
-        for (size_t i = 0; i < pDependLibs->size(); ++i)
+        for (uint32_t i = 0; i < pDependLibs->size(); ++i)
         {
             DeleteFile(pDependLibs->at(i).c_str());
         }

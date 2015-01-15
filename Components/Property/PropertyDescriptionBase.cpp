@@ -14,7 +14,7 @@ CPropertyDescriptionBase::CPropertyDescriptionBase(EReflectPropertyType type)
 , m_pParent(NULL)
 , m_pChildren(new std::vector<CPropertyDescriptionBase*>())
 {
-    for (size_t i = 0; i < eVT_Count; ++i)
+    for (uint32_t i = 0; i < eVT_Count; ++i)
     {
         m_valueArray[i] = NULL;
     }
@@ -29,7 +29,7 @@ CPropertyDescriptionBase::CPropertyDescriptionBase(const CPropertyDescriptionBas
 , m_pParent(NULL)
 , m_pChildren(new std::vector<CPropertyDescriptionBase*>())
 {
-    for (size_t i = 0; i < eVT_Count; ++i)
+    for (uint32_t i = 0; i < eVT_Count; ++i)
     {
         m_valueArray[i] = NULL;
     }
@@ -38,7 +38,7 @@ CPropertyDescriptionBase::CPropertyDescriptionBase(const CPropertyDescriptionBas
 CPropertyDescriptionBase::~CPropertyDescriptionBase()
 {
     BEATS_SAFE_DELETE(m_pBasicInfo);
-    for (size_t i = 0; i < m_pChildren->size(); ++i)
+    for (uint32_t i = 0; i < m_pChildren->size(); ++i)
     {
         BEATS_SAFE_DELETE((*m_pChildren)[i]);
     }
@@ -122,7 +122,7 @@ bool CPropertyDescriptionBase::DeserializeBasicInfo(CSerializer& serializer)
 CPropertyDescriptionBase* CPropertyDescriptionBase::AddChild(CPropertyDescriptionBase* pProperty)
 {
 #ifdef _DEBUG
-    for (size_t i = 0; i < m_pChildren->size(); ++i)
+    for (uint32_t i = 0; i < m_pChildren->size(); ++i)
     {
         BEATS_ASSERT((*m_pChildren)[i] != pProperty);
     }
@@ -136,7 +136,7 @@ CPropertyDescriptionBase* CPropertyDescriptionBase::AddChild(CPropertyDescriptio
 bool CPropertyDescriptionBase::DeleteChild(CPropertyDescriptionBase* pProperty, bool bKeepChildOrder/* = false*/)
 {
     bool bRet = false;
-    for (size_t i = 0; i < m_pChildren->size(); ++i)
+    for (uint32_t i = 0; i < m_pChildren->size(); ++i)
     {
         if((*m_pChildren)[i] == pProperty)
         {
@@ -161,20 +161,20 @@ bool CPropertyDescriptionBase::DeleteChild(CPropertyDescriptionBase* pProperty, 
 
 void CPropertyDescriptionBase::DeleteAllChild()
 {
-    for (size_t i = 0; i < m_pChildren->size(); ++i)
+    for (uint32_t i = 0; i < m_pChildren->size(); ++i)
     {
         BEATS_SAFE_DELETE((*m_pChildren)[i]);
     }
     m_pChildren->clear();
 }
 
-CPropertyDescriptionBase* CPropertyDescriptionBase::GetChild(size_t i) const
+CPropertyDescriptionBase* CPropertyDescriptionBase::GetChild(uint32_t i) const
 {
     BEATS_ASSERT(i < m_pChildren->size());
     return (*m_pChildren)[i];
 }
 
-size_t CPropertyDescriptionBase::GetChildrenCount() const
+uint32_t CPropertyDescriptionBase::GetChildrenCount() const
 {
     return m_pChildren->size();
 }
@@ -261,7 +261,7 @@ void CPropertyDescriptionBase::SetValueWithType(void* pValue, EValueType type, b
                 CComponentProxyManager::GetInstance()->SetReflectCheckFlag(true);
                 pHostComponent->ReflectData(serializer);
                 const std::vector<CComponentInstance*>& syncComponents = pRealProperty->GetOwner()->GetSyncComponents();
-                for (size_t i = 0; i < syncComponents.size(); ++i)
+                for (uint32_t i = 0; i < syncComponents.size(); ++i)
                 {
                     serializer.SetReadPos(0);
                     syncComponents[i]->ReflectData(serializer);

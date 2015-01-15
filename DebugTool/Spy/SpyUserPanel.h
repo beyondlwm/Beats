@@ -86,7 +86,7 @@ private:
     wxChoice* m_pCommandChoice;
     CVirtualFileCtrl* m_pRemoteFileCtrl;
     HMODULE m_hSpyDllHandle;
-    size_t m_uCurSelectHistoryIndex;
+    uint32_t m_uCurSelectHistoryIndex;
     std::vector<std::string> m_historyCommand;
 };
 

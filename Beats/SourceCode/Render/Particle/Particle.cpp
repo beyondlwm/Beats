@@ -3,7 +3,7 @@
 #include "../RenderManager.h"
 #include "Emitter.h"
 
-CParticle::CParticle(size_t uID)
+CParticle::CParticle(uint32_t uID)
 : m_id(uID)
 , m_radius(1.0f)
 , m_color(0)
@@ -25,7 +25,7 @@ CParticle::CParticle( const CParticle& rVal )
 , m_recycleFlag(rVal.m_recycleFlag)
 {
     GetPhysics()->SetVelocity(rVal.GetPhysics()->GetVelocity());
-    for (size_t i = 0; i < rVal.m_pTextures.size(); ++i)
+    for (uint32_t i = 0; i < rVal.m_pTextures.size(); ++i)
     {   
         rVal.m_pTextures[i]->AddRef();
         m_pTextures.push_back(rVal.m_pTextures[i]);
@@ -34,7 +34,7 @@ CParticle::CParticle( const CParticle& rVal )
 
 CParticle::~CParticle()
 {
-    for (size_t i = 0; i < m_pTextures.size(); ++i)
+    for (uint32_t i = 0; i < m_pTextures.size(); ++i)
     {
         m_pTextures[i]->Release();
     }
@@ -127,7 +127,7 @@ LPDIRECT3DTEXTURE9 CParticle::GetTexture() const
     return m_pTextures[m_curTextureIndex];
 }
 
-void CParticle::SetTextureIndex( size_t index )
+void CParticle::SetTextureIndex( uint32_t index )
 {
     BEATS_ASSERT(index < m_pTextures.size(), _T("Texture Index is out of bound!"));
     m_curTextureIndex = index;

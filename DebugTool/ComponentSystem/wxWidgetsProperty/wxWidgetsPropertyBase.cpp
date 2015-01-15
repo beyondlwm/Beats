@@ -34,7 +34,7 @@ void CWxwidgetsPropertyBase::Initialize()
     {
         m_pVisibleWhenTrigger->Initialize();
         const std::vector<STriggerContent*>& triggerContent = m_pVisibleWhenTrigger->GetContent();
-        for (size_t i = 0; i < triggerContent.size(); ++i)
+        for (uint32_t i = 0; i < triggerContent.size(); ++i)
         {
             // 0 means or 1 means and.
             if(triggerContent[i] != NULL && (int)triggerContent[i] != 1)
@@ -83,7 +83,7 @@ wxEnumProperty* CWxwidgetsPropertyBase::CreateComboProperty() const
         bool bMatched = false;
         char szBuffer[1024];
         this->GetValueAsChar(eVT_DefaultValue, szBuffer);
-        for (size_t i = 0; i < labels.size(); ++i)
+        for (uint32_t i = 0; i < labels.size(); ++i)
         {
             if (labels[i].CompareTo(wxString(szBuffer)) == 0)
             {
@@ -103,7 +103,7 @@ wxEnumProperty* CWxwidgetsPropertyBase::CreateComboProperty() const
         }
 
         this->GetValueAsChar(eVT_CurrentValue, szBuffer);
-        for (size_t i = 0; i < labels.size(); ++i)
+        for (uint32_t i = 0; i < labels.size(); ++i)
         {
             if (labels[i].CompareTo(wxString(szBuffer)) == 0)
             {
@@ -130,7 +130,7 @@ wxEnumProperty* CWxwidgetsPropertyBase::CreateComboProperty() const
 void CWxwidgetsPropertyBase::SetValueList(const std::vector<TString>& valueList)
 {
     wxArrayString labels;
-    for (size_t i = 0; i < valueList.size(); ++i)
+    for (uint32_t i = 0; i < valueList.size(); ++i)
     {
         labels.push_back(valueList[i].c_str());
     }
@@ -147,7 +147,7 @@ void CWxwidgetsPropertyBase::SetValueList(const std::vector<TString>& valueList)
     else
     {
         wxPGChoices choices;
-        for (size_t i = 0; i < valueList.size(); ++i)
+        for (uint32_t i = 0; i < valueList.size(); ++i)
         {
             choices.Add(valueList[i].c_str());
         }
@@ -166,7 +166,7 @@ void CWxwidgetsPropertyBase::SaveToXML( TiXmlElement* pParentNode )
     GetValueAsChar(eVT_CurrentValue, szValue);
     pVariableElement->SetAttribute("SavedValue", szValue);
     pParentNode->LinkEndChild(pVariableElement);
-    for (size_t i = 0; i < m_pChildren->size(); ++i)
+    for (uint32_t i = 0; i < m_pChildren->size(); ++i)
     {
         (*m_pChildren)[i]->SaveToXML(pVariableElement);
     }

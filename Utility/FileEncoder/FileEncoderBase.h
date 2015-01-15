@@ -15,7 +15,7 @@ enum EFileEncodeType
 
 struct SEncodeHeader
 {
-    SEncodeHeader(size_t uHeaderSize, EFileEncodeType type)
+    SEncodeHeader(uint32_t uHeaderSize, EFileEncodeType type)
         : m_type(type)
         , m_uHeaderSize(uHeaderSize)
         , m_uOriDataSize(0)
@@ -27,7 +27,7 @@ struct SEncodeHeader
 
     }
     EFileEncodeType m_type;
-    size_t m_uHeaderSize;
+    uint32_t m_uHeaderSize;
     long long m_uOriDataSize;
     long long m_uEncodeDataSize;
 };
@@ -43,7 +43,7 @@ public:
     virtual bool Encode(CSerializer* pSourceSerializer, CSerializer* pEncodeSerializer);
     virtual bool Encode(const TCHAR* pszSourceFilePath, const TCHAR* pszEncodeFilePath = NULL);
 
-    virtual bool Decode(CSerializer* pSourceSerializer, size_t uStartPos, CSerializer* pDecodeSerializer);
+    virtual bool Decode(CSerializer* pSourceSerializer, uint32_t uStartPos, CSerializer* pDecodeSerializer);
     virtual bool Decode(const TCHAR* pszEncodeFilePath, long long uStartPos = 0, const TCHAR* pszDecodeFilePath = NULL);
 
     virtual bool UnitTest();
@@ -51,13 +51,13 @@ public:
 
 private:
 
-    bool ReadEncodeHeader(CSerializer* pEncodeSerializer, size_t uStartPos);
+    bool ReadEncodeHeader(CSerializer* pEncodeSerializer, uint32_t uStartPos);
     bool ReadEncodeHeader(FILE* hEncodeFile, long long uStartPos);
 
     virtual bool EncodeImpl(CSerializer* pSourceFile, CSerializer* pEncodeFile) = 0;
     virtual bool EncodeImpl(FILE* hSourceFile, FILE* hEncodeFile) = 0;
 
-    virtual bool DecodeImpl(CSerializer* pEncodeFile, size_t uStartPos, CSerializer* pDecodeFile) = 0;
+    virtual bool DecodeImpl(CSerializer* pEncodeFile, uint32_t uStartPos, CSerializer* pDecodeFile) = 0;
     virtual bool DecodeImpl(FILE* hEncodeFile, long long uStartPos, FILE* hDecodeFile) = 0;
 
     virtual SEncodeHeader* GetEncodeHeader() = 0;

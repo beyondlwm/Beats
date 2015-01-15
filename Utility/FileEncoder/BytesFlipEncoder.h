@@ -22,7 +22,7 @@ struct SBytesFlipEncodeHeader : public SEncodeHeader
     unsigned short m_iStepMax;
     unsigned short m_iFlipCountMin;
     unsigned short m_iFlipCountMax;
-    size_t m_uRandomSeed;
+    uint32_t m_uRandomSeed;
 };
 
 /*
@@ -38,7 +38,7 @@ public:
     virtual ~CBytesFlipEncoder();
 
     void SetStepRange(unsigned short iStepMin, unsigned short iStepMax);
-    void SetRandomSeed(size_t uRadomSeed);
+    void SetRandomSeed(uint32_t uRadomSeed);
     void SetFlipCountRange(unsigned short iFlipCountMin, unsigned short iFlipCountMax);
 
     virtual EFileEncodeType GetType() {return eFET_BytesFlip;}
@@ -48,7 +48,7 @@ private:
 
     virtual bool EncodeImpl(CSerializer* pSourceFile, CSerializer* pEncodeFile) override;
     virtual bool EncodeImpl(FILE* hSourceFile, FILE* hEncodeFile) override;
-    virtual bool DecodeImpl(CSerializer* pEncodeFile, size_t uStartPos, CSerializer* pDecodeFile) override;
+    virtual bool DecodeImpl(CSerializer* pEncodeFile, uint32_t uStartPos, CSerializer* pDecodeFile) override;
     virtual bool DecodeImpl(FILE* hEncodeFile, long long uStartPos, FILE* hDecodeFile) override;
 
     virtual SEncodeHeader* GetEncodeHeader();

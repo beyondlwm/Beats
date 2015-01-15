@@ -29,7 +29,7 @@ struct SClientDownloadMissionContext
     }
     ~SClientDownloadMissionContext()
     {
-        for (size_t i = 0; i < m_pDownloadFiles.size(); ++i)
+        for (uint32_t i = 0; i < m_pDownloadFiles.size(); ++i)
         {
             BEATS_SAFE_DELETE(m_pDownloadFiles[i]);
         }
@@ -58,11 +58,11 @@ struct SClientDownloadMissionContext
                 pDirectory->m_szPath = m_saveRootPath;
             }
         }
-        for (size_t i = 0; i < pDirectory->m_pFileList->size(); ++i)
+        for (uint32_t i = 0; i < pDirectory->m_pFileList->size(); ++i)
         {
             m_downloadTaskList.push_back((*pDirectory->m_pFileList)[i]);
         }
-        for (size_t i = 0; i < pDirectory->m_pDirectories->size(); ++i)
+        for (uint32_t i = 0; i < pDirectory->m_pDirectories->size(); ++i)
         {
             TString strNewDirectoryPath = pDirectory->m_szPath;
             strNewDirectoryPath.append((*pDirectory->m_pDirectories)[i]->m_data.cFileName);
@@ -77,7 +77,7 @@ struct SClientDownloadMissionContext
     u_short m_pSvrListenPort;
     std::vector<SDirectory*> m_pDownloadFiles;
     SharePtr<SSocketContext> m_pSocketContext;
-    size_t m_uTotalFileCount;
+    uint32_t m_uTotalFileCount;
     long long m_uTotalFileSize;
     long long m_uDownloadedSize;
     TString m_saveRootPath;
@@ -108,7 +108,7 @@ public:
 private:
     static DWORD SvrDownloadMissionThreadFunc(LPVOID param);
     static DWORD SvrDownloadWorkThreadFunc(LPVOID param);
-    static void SvrDownloadSendFileData(SOCKET sock, HANDLE hFile, BYTE* pBuffer, const unsigned long long& uStartPos, size_t uSendLength, 
+    static void SvrDownloadSendFileData(SOCKET sock, HANDLE hFile, BYTE* pBuffer, const unsigned long long& uStartPos, uint32_t uSendLength, 
                                         const unsigned long long& uFileSize);
 
     static DWORD ClientDownloadMissionThreadFunc(LPVOID param);

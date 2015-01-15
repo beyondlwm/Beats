@@ -22,7 +22,7 @@ private:
     bool UninitializeNetwork();
     void RegisterSocket(SharePtr<SSocketContext>& pNewSocket);
     void UnregisterSocket(SharePtr<SSocketContext>& pSocketContext);
-    bool GetSocket(SharePtr<SSocketContext>& pOutSocket, size_t uIndex);
+    bool GetSocket(SharePtr<SSocketContext>& pOutSocket, uint32_t uIndex);
 
     static DWORD LoopThreadFunc(LPVOID param);
     static DWORD NetworkReceiveThreadFunc(LPVOID param);

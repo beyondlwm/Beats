@@ -13,13 +13,13 @@ CIdManager::~CIdManager()
 
 }
 
-size_t CIdManager::GenerateId()
+uint32_t CIdManager::GenerateId()
 {
     BEATS_ASSERT(!m_bLock, _T("can't Generate id when it is locked!"));
-    size_t uRet = 0;
+    uint32_t uRet = 0;
     if (m_freeIdPool.size() > 0)
     {
-        std::set<size_t>::iterator iter = m_freeIdPool.begin();
+        std::set<uint32_t>::iterator iter = m_freeIdPool.begin();
         uRet = *iter;
         m_freeIdPool.erase(iter);
     }
@@ -30,7 +30,7 @@ size_t CIdManager::GenerateId()
     return uRet;
 }
 
-void CIdManager::RecycleId( size_t id )
+void CIdManager::RecycleId( uint32_t id )
 {
     if (!m_bLock)
     {
@@ -54,7 +54,7 @@ void CIdManager::RecycleId( size_t id )
     }
 }
 
-bool CIdManager::ReserveId( size_t id , bool bCheckIsAlreadyRequested/* = true*/)
+bool CIdManager::ReserveId( uint32_t id , bool bCheckIsAlreadyRequested/* = true*/)
 {
     bool bRet = true;
     if (!m_bLock)
@@ -62,7 +62,7 @@ bool CIdManager::ReserveId( size_t id , bool bCheckIsAlreadyRequested/* = true*/
         bRet = false;
         if (id >= m_lastId)
         {
-            for (size_t i = m_lastId; i < id; ++i)
+            for (uint32_t i = m_lastId; i < id; ++i)
             {
                 BEATS_ASSERT(m_freeIdPool.find(i) == m_freeIdPool.end());
                 m_freeIdPool.insert(i);
@@ -90,7 +90,7 @@ void CIdManager::Reset()
     m_freeIdPool.clear();
 }
 
-bool CIdManager::IsIdFree(size_t id)
+bool CIdManager::IsIdFree(uint32_t id)
 {
     bool bRet = id >= m_lastId || m_freeIdPool.find(id) != m_freeIdPool.end();
     return bRet;

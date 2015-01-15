@@ -47,7 +47,7 @@ enum EFileListMenuSelection
 class CComponentTreeItemData : public wxTreeItemData
 {
 public:
-    CComponentTreeItemData(bool bIsDirectory, size_t guid)
+    CComponentTreeItemData(bool bIsDirectory, uint32_t guid)
         : m_bIsDirectory(bIsDirectory)
         , m_componentGUID(guid)
     {
@@ -59,13 +59,13 @@ public:
     {
         return m_bIsDirectory;
     }
-    size_t GetGUID()
+    uint32_t GetGUID()
     {
         return m_componentGUID;
     }
 private:
     bool m_bIsDirectory;
-    size_t m_componentGUID;
+    uint32_t m_componentGUID;
 };
 
 class CComponentFileTreeItemData : public wxTreeItemData
@@ -125,7 +125,7 @@ void CBDTWxFrame::CreateComponentPage()
     fileIcons[eTCIT_Folder] = wxArtProvider::GetIcon(wxART_FOLDER, wxART_LIST, iconSize);
     fileIcons[eTCIT_FolderSelected] = wxArtProvider::GetIcon(wxART_FOLDER, wxART_LIST, iconSize);
     fileIcons[eTCIT_FolderOpened] = wxArtProvider::GetIcon(wxART_FOLDER_OPEN, wxART_LIST, iconSize);
-    for (size_t i = 0; i < eTCIT_Count; ++i)
+    for (uint32_t i = 0; i < eTCIT_Count; ++i)
     {
         pFileIconImages->Add(fileIcons[i]);
     }
@@ -301,7 +301,7 @@ wxPropertyGridManager* CBDTWxFrame::CreatePropertyGrid(wxWindow* pParent)
     return m_pPropertyGridManager;
 }
 
-CComponentProxy* CreateComponentProxy(CComponentGraphic* pGraphics, size_t guid, size_t parentGuid, TCHAR* pszClassName)
+CComponentProxy* CreateComponentProxy(CComponentGraphic* pGraphics, uint32_t guid, uint32_t parentGuid, TCHAR* pszClassName)
 {
     return new CComponentProxy(pGraphics, guid, parentGuid, pszClassName);
 }
@@ -322,8 +322,8 @@ void CBDTWxFrame::InitComponentsPage()
                                                                     CreateComponentProxy,
                                                                     CreateComponentGraphics);
     CComponentProxyManager::GetInstance()->InitializeAllTemplate();
-    const std::map<size_t, CComponentBase*>* pComponentsMap = CComponentProxyManager::GetInstance()->GetComponentTemplateMap();
-    for (std::map<size_t, CComponentBase*>::const_iterator componentIter = pComponentsMap->begin(); componentIter != pComponentsMap->end(); ++componentIter )
+    const std::map<uint32_t, CComponentBase*>* pComponentsMap = CComponentProxyManager::GetInstance()->GetComponentTemplateMap();
+    for (std::map<uint32_t, CComponentBase*>::const_iterator componentIter = pComponentsMap->begin(); componentIter != pComponentsMap->end(); ++componentIter )
     {
         CComponentProxy* pComponent = static_cast<CComponentProxy*>(componentIter->second);
         const TString& catalogName = pComponent->GetCatalogName();
@@ -336,7 +336,7 @@ void CBDTWxFrame::InitComponentsPage()
             BEATS_ASSERT(result.size() > 0);
             TString findStr;
             wxTreeItemId parentId = m_componentTreeIdMap[0];
-            for (size_t i = 0; i < result.size(); ++i)
+            for (uint32_t i = 0; i < result.size(); ++i)
             {
                 if (i > 0)
                 {
@@ -359,7 +359,7 @@ void CBDTWxFrame::InitComponentsPage()
         }
         iter = m_componentCatalogNameMap.find(catalogName);
         BEATS_ASSERT(iter != m_componentCatalogNameMap.end());
-        size_t guid = pComponent->GetGuid();
+        uint32_t guid = pComponent->GetGuid();
         CComponentTreeItemData* pComponentItemData = new CComponentTreeItemData(false, guid);
         m_componentTreeIdMap[guid] = m_pComponentTreeControl->AppendItem(iter->second, pComponent->GetDisplayName(), -1, -1, pComponentItemData);
     }
@@ -487,7 +487,7 @@ void CBDTWxFrame::OnComponentSearchIdle( wxCommandEvent& /*event*/ )
         m_bComponentSearchTextUpdate = false;
         wxString szText = m_pComponentSearchCtrl->GetValue();
         m_pComponentTreeControl->CollapseAll();
-        for (std::map<size_t, wxTreeItemId>::iterator iter = m_componentTreeIdMap.begin(); iter != m_componentTreeIdMap.end(); ++iter)
+        for (std::map<uint32_t, wxTreeItemId>::iterator iter = m_componentTreeIdMap.begin(); iter != m_componentTreeIdMap.end(); ++iter)
         {
             wxString lableText = m_pComponentTreeControl->GetItemText(iter->second);
             bool bMatch = lableText.Find(szText) != -1;
@@ -677,7 +677,7 @@ void CBDTWxFrame::OnComponentFileListMenuClicked( wxMenuEvent& event )
                         // When Add a new file in project, we must validate the id in this file. if id is conflicted, we have to resolve it.
                         CComponentFileTreeItemData* pCurItemData = static_cast<CComponentFileTreeItemData*>(m_pComponentFileTreeControl->GetItemData(item));
                         BEATS_ASSERT(pCurItemData != NULL && pCurItemData->IsDirectory());
-                        std::map<size_t, std::vector<size_t>> conflictMap;
+                        std::map<uint32_t, std::vector<uint32_t>> conflictMap;
                         pCurItemData->GetProjectDirectory()->AddFile(result, conflictMap);
                         ResolveIdConflict(conflictMap);
                         ActivateFile(result.c_str());
@@ -730,7 +730,7 @@ void CBDTWxFrame::OnComponentFileListMenuClicked( wxMenuEvent& event )
                     }
                     else
                     {
-                        size_t uFileId = pProject->GetComponentFileId(pCurItemData->GetFileName());
+                        uint32_t uFileId = pProject->GetComponentFileId(pCurItemData->GetFileName());
                         BEATS_ASSERT(uFileId != 0xFFFFFFFF, _T("Can't find file %s at project"), pCurItemData->GetProjectDirectory()->GetName().c_str());
                         bool bRet = pParentItemData->GetProjectDirectory()->DeleteFile(uFileId);
                         BEATS_ASSERT(bRet, _T("Delete file %s failed!"), pCurItemData->GetFileName().c_str());
@@ -757,7 +757,7 @@ void CBDTWxFrame::OnComponentFileListMenuClicked( wxMenuEvent& event )
                     if (!pCurItemData->IsDirectory())
                     {
                         path = pCurItemData->GetFileName();
-                        size_t pos = path.rfind(_T('\\'));
+                        uint32_t pos = path.rfind(_T('\\'));
                         path.resize(pos);
                     }
                 }
@@ -809,9 +809,9 @@ void CBDTWxFrame::OpenComponentFile( const TCHAR* pFilePath )
     BEATS_ASSERT(pFilePath != NULL && pFilePath[0] != 0, _T("Invalid file path"));
     CComponentProxyManager::GetInstance()->OpenFile(pFilePath);
     m_pComponentRenderWindowSizer->GetStaticBox()->SetLabel(wxString::Format(_T("渲染区    当前文件:%s"), pFilePath));
-    size_t uPageCount = m_pComponentPageNoteBook->GetPageCount();
+    uint32_t uPageCount = m_pComponentPageNoteBook->GetPageCount();
     int iComponentListPageIndex = -1;
-    for (size_t i = 0; i < uPageCount; ++i)
+    for (uint32_t i = 0; i < uPageCount; ++i)
     {
         if (m_pComponentPageNoteBook->GetPage(i) == m_pComponentListPanel)
         {
@@ -842,9 +842,9 @@ void CBDTWxFrame::CloseComponentFile(bool bRemindSave /*= true*/)
 
         pComponentManager->CloseFile(strCurWorkingFile.c_str());
         m_pComponentRenderWindowSizer->GetStaticBox()->SetLabel(_T("未命名"));
-        size_t uPageCount = m_pComponentPageNoteBook->GetPageCount();
+        uint32_t uPageCount = m_pComponentPageNoteBook->GetPageCount();
         int iComponentListPageIndex = -1;
-        for (size_t i = 0; i < uPageCount; ++i)
+        for (uint32_t i = 0; i < uPageCount; ++i)
         {
             if (m_pComponentPageNoteBook->GetPage(i) == m_pComponentListPanel)
             {
@@ -859,7 +859,7 @@ void CBDTWxFrame::CloseComponentFile(bool bRemindSave /*= true*/)
     }
 }
 
-void CBDTWxFrame::ResolveIdConflict(const std::map<size_t, std::vector<size_t>>& conflictIdMap)
+void CBDTWxFrame::ResolveIdConflict(const std::map<uint32_t, std::vector<uint32_t>>& conflictIdMap)
 {
     if (conflictIdMap.size() > 0)
     {
@@ -869,12 +869,12 @@ void CBDTWxFrame::ResolveIdConflict(const std::map<size_t, std::vector<size_t>>&
         if (iRet == IDYES)
         {
             CComponentProject* pProject = CComponentProxyManager::GetInstance()->GetProject();
-            size_t lAnswer = 0;
-            std::map<size_t, std::vector<size_t>>::const_iterator iter = conflictIdMap.begin();
+            uint32_t lAnswer = 0;
+            std::map<uint32_t, std::vector<uint32_t>>::const_iterator iter = conflictIdMap.begin();
             for (; iter != conflictIdMap.end(); ++iter)
             {
                 _stprintf(szConflictInfo, _T("Id为%d的组件出现于文件:\n"), iter->first);
-                for (size_t i = 0; i < iter->second.size(); ++i)
+                for (uint32_t i = 0; i < iter->second.size(); ++i)
                 {
                     TCHAR szFileName[1024];
                     _stprintf(szFileName, _T("%d.%s\n"), i, pProject->GetComponentFileName(iter->second[i]).c_str());
@@ -882,7 +882,7 @@ void CBDTWxFrame::ResolveIdConflict(const std::map<size_t, std::vector<size_t>>&
                 }
                 _tcscat(szConflictInfo, _T("需要保留ID的文件序号是(填-1表示全部分配新ID):"));
                 lAnswer = wxGetNumberFromUser(szConflictInfo, _T("promote"), _T("请填入序号"), lAnswer, -1, iter->second.size() - 1);
-                for (size_t i = 0; i < iter->second.size(); ++i)
+                for (uint32_t i = 0; i < iter->second.size(); ++i)
                 {
                     pProject->ResolveIdForFile(iter->second[i], iter->first, i == lAnswer);
                 }
@@ -1026,7 +1026,7 @@ void CBDTWxFrame::InsertComponentsInPropertyGrid( CComponentProxy* pComponent, w
 
 void CBDTWxFrame::InsertInPropertyGrid(const std::vector<CPropertyDescriptionBase*>& pProperties, wxPGProperty* pParent /* = NULL*/)
 {
-    for (size_t i = 0; i < pProperties.size(); ++i)
+    for (uint32_t i = 0; i < pProperties.size(); ++i)
     {
         CWxwidgetsPropertyBase* pPropertyBase = const_cast<CWxwidgetsPropertyBase*>(static_cast<CWxwidgetsPropertyBase*>(pProperties[i]));
         if (!pPropertyBase->IsHide())
@@ -1047,7 +1047,7 @@ void CBDTWxFrame::InsertInPropertyGrid(const std::vector<CPropertyDescriptionBas
         }
     }
     // Update the visibility after all the properties have been inserted in the grid.
-    for (size_t i = 0; i < pProperties.size(); ++i)
+    for (uint32_t i = 0; i < pProperties.size(); ++i)
     {
         CWxwidgetsPropertyBase* pPropertyBase = const_cast<CWxwidgetsPropertyBase*>(static_cast<CWxwidgetsPropertyBase*>(pProperties[i]));
         if (!pPropertyBase->IsHide())
@@ -1101,8 +1101,8 @@ void CBDTWxFrame::InitializeComponentTree(CComponentProjectDirectory* pProjectDa
         InitializeComponentTree(*iter, newDirectoryId);
     }
 
-    const std::vector<size_t>& files = pProjectData->GetFileList();
-    for (std::vector<size_t>::const_iterator iter = files.begin(); iter != files.end(); ++iter)
+    const std::vector<uint32_t>& files = pProjectData->GetFileList();
+    for (std::vector<uint32_t>::const_iterator iter = files.begin(); iter != files.end(); ++iter)
     {
         TString strComopnentFileName = CComponentProxyManager::GetInstance()->GetProject()->GetComponentFileName(*iter);
         CComponentFileTreeItemData* pData = new CComponentFileTreeItemData(NULL, strComopnentFileName);
@@ -1118,7 +1118,7 @@ void CBDTWxFrame::OpenProjectFile( const TCHAR* pPath )
     if (pPath != NULL && _tcslen(pPath) > 0)
     {
         CComponentProject* pProject = CComponentProxyManager::GetInstance()->GetProject();
-        std::map<size_t, std::vector<size_t>> conflictIdMap;
+        std::map<uint32_t, std::vector<uint32_t>> conflictIdMap;
         CComponentProjectDirectory* pProjectData = pProject->LoadProject(pPath, conflictIdMap);
         bool bEmptyProject = pProjectData == NULL;
         if (!bEmptyProject)

@@ -256,8 +256,8 @@ void CComponentRenderWindow::RenderGridLine()
     the size of outside rect is just twice as the screen size.
 */
     const wxSize currentSize = GetSize();
-    size_t clientAreaGridCountX = currentSize.x / m_cellSize;
-    size_t clientAreaGridCountY = currentSize.y / m_cellSize;
+    uint32_t clientAreaGridCountX = currentSize.x / m_cellSize;
+    uint32_t clientAreaGridCountY = currentSize.y / m_cellSize;
 
     D3DXVECTOR2 startPos;
     startPos.x = -m_currentClientPos.x - clientAreaGridCountX * m_cellSize;
@@ -268,7 +268,7 @@ void CComponentRenderWindow::RenderGridLine()
     startPos.y = (int)(startPos.y / m_cellSize) * m_cellSize;
     std::vector<SVertex2> linePosBuff;
 
-    for (size_t j = 0; j < clientAreaGridCountY * 2; ++j)
+    for (uint32_t j = 0; j < clientAreaGridCountY * 2; ++j)
     {
         SVertex2 linePos;
         linePos.m_color = 0x60606060;
@@ -281,7 +281,7 @@ void CComponentRenderWindow::RenderGridLine()
         linePos.m_position.z = MAX_Z_VALUE;
         linePosBuff.push_back(linePos);
     }
-    for (size_t i = 0; i < clientAreaGridCountX * 2; ++i)
+    for (uint32_t i = 0; i < clientAreaGridCountX * 2; ++i)
     {
         SVertex2 linePos;
         linePos.m_color = 0x60606060;
@@ -324,11 +324,11 @@ void CComponentRenderWindow::RenderGridLine()
 void CComponentRenderWindow::RenderComponents()
 {
     //1. Render all component instance.
-    const std::map<size_t, std::map<size_t, CComponentBase*>*>* pInstanceMap = CComponentProxyManager::GetInstance()->GetInstance()->GetComponentInstanceMap();
-    std::map<size_t, std::map<size_t, CComponentBase*>*>::const_iterator iter = pInstanceMap->begin();
+    const std::map<uint32_t, std::map<uint32_t, CComponentBase*>*>* pInstanceMap = CComponentProxyManager::GetInstance()->GetInstance()->GetComponentInstanceMap();
+    std::map<uint32_t, std::map<uint32_t, CComponentBase*>*>::const_iterator iter = pInstanceMap->begin();
     for (; iter != pInstanceMap->end(); ++iter)
     {
-        std::map<size_t, CComponentBase*>::iterator subIter = iter->second->begin();
+        std::map<uint32_t, CComponentBase*>::iterator subIter = iter->second->begin();
         for (; subIter != iter->second->end(); ++subIter)
         {
             CComponentProxy* pComponent = static_cast<CComponentProxy*>(subIter->second);
@@ -369,7 +369,7 @@ void CComponentRenderWindow::RenderDraggingDependencyLine()
         {
             int iDependencyPosX = 0; 
             int iDependencyPosY = 0;
-            size_t uIndex = m_pDraggingDependency->GetIndex();
+            uint32_t uIndex = m_pDraggingDependency->GetIndex();
             pSelectedComponent->GetGraphics()->GetDependencyPosition(uIndex, &iDependencyPosX, &iDependencyPosY);
             SVertex2 line[2];
             ConvertGridPosToWorldPos(iDependencyPosX, iDependencyPosY, &line[0].m_position.x, &line[0].m_position.y);
@@ -396,7 +396,7 @@ void CComponentRenderWindow::OnSize( wxSizeEvent& event )
         m_d3dPresentParam.BackBufferWidth = width;
 
         ResetDevice();
-        size_t minSize = min(height, width);
+        uint32_t minSize = min(height, width);
         if (m_cellSize > minSize)
         {
             m_cellSize = minSize;
@@ -476,18 +476,18 @@ void CComponentRenderWindow::OnMouseMove( wxMouseEvent& event )
                     const std::vector<CDependencyDescription*>* pDependencies = pSelectedComponent->GetDependencies();
                     if (pDependencies != NULL)
                     {
-                        for (size_t i = 0; i < pDependencies->size(); ++i)
+                        for (uint32_t i = 0; i < pDependencies->size(); ++i)
                         {
                             CDependencyDescription* pDesc = pDependencies->at(i);
-                            size_t uLineCount = pDesc->GetDependencyLineCount();
-                            for (size_t j = 0; j < uLineCount; ++j)
+                            uint32_t uLineCount = pDesc->GetDependencyLineCount();
+                            for (uint32_t j = 0; j < uLineCount; ++j)
                             {
                                 pDesc->GetDependencyLine(j)->UpdateRect(m_cellSize);
                             }
                         }
                     }
                     const std::vector<CDependencyDescriptionLine*>* pBeConnectedLine = pSelectedComponent->GetBeConnectedDependencyLines();
-                    for (size_t i = 0; i < pBeConnectedLine->size(); ++i)
+                    for (uint32_t i = 0; i < pBeConnectedLine->size(); ++i)
                     {
                         CDependencyDescriptionLine* pDescLine = pBeConnectedLine->at(i);
                         pDescLine->UpdateRect(m_cellSize);
@@ -667,11 +667,11 @@ CComponentProxy* CComponentRenderWindow::HitTestForComponent( wxPoint pos, EComp
     bool bFoundResult = false;
     CComponentProxy* pClickedComponent = NULL;
     // Find the component for select. reverse iterator the instance map, because the last one will always be rendered at the top, so we will select top first.
-    const std::map<size_t, std::map<size_t, CComponentBase*>*>* pInstanceMap = CComponentProxyManager::GetInstance()->GetInstance()->GetComponentInstanceMap();
-    std::map<size_t, std::map<size_t, CComponentBase*>*>::const_reverse_iterator iter = pInstanceMap->rbegin();
+    const std::map<uint32_t, std::map<uint32_t, CComponentBase*>*>* pInstanceMap = CComponentProxyManager::GetInstance()->GetInstance()->GetComponentInstanceMap();
+    std::map<uint32_t, std::map<uint32_t, CComponentBase*>*>::const_reverse_iterator iter = pInstanceMap->rbegin();
     for (; iter != pInstanceMap->rend() && !bFoundResult; ++iter)
     {
-        std::map<size_t, CComponentBase*>::const_reverse_iterator subIter = iter->second->rbegin();
+        std::map<uint32_t, CComponentBase*>::const_reverse_iterator subIter = iter->second->rbegin();
         for (; subIter != iter->second->rend() && !bFoundResult; ++subIter)
         {
             CComponentGraphic* pGraphics = static_cast<CComponentProxy*>(subIter->second)->GetGraphics();
@@ -709,12 +709,12 @@ CComponentProxy* CComponentRenderWindow::HitTestForComponent( wxPoint pos, EComp
             const std::vector<CDependencyDescription*>* pDependencies = pComponentProxy->GetDependencies();
             if (pDependencies != NULL)
             {
-                for (size_t i = 0; i < pDependencies->size() && !bFoundResult; ++i)
+                for (uint32_t i = 0; i < pDependencies->size() && !bFoundResult; ++i)
                 {
                     CDependencyDescription* pDependency = pDependencies->at(i);
                     int iDependencyX, iDependencyY;
                     pGraphics->GetDependencyPosition(i, &iDependencyX, &iDependencyY);
-                    for (size_t j = 0; j < pDependency->GetDependencyLineCount(); ++j)
+                    for (uint32_t j = 0; j < pDependency->GetDependencyLineCount(); ++j)
                     {
                         CDependencyDescriptionLine* pLine = pDependency->GetDependencyLine(j);
                         bool bInLine = pLine->HitTest(fClickWorldPosX, fClickWorldPosY);
@@ -776,7 +776,7 @@ void CComponentRenderWindow::OnComponentMenuClicked( wxMenuEvent& event )
             if (m_pMainFrame != NULL && iComponentId != 0xFFFFFFFF)
             {
                 CComponentProject* pProject = CComponentProxyManager::GetInstance()->GetProject();
-                size_t uFileId = pProject->QueryFileId(iComponentId, false);
+                uint32_t uFileId = pProject->QueryFileId(iComponentId, false);
                 if (uFileId != 0xFFFFFFFF)
                 {
                     TString filePath = pProject->GetComponentFileName(uFileId);
@@ -853,23 +853,23 @@ void CComponentRenderWindow::DeleteSelectedDependencyLine()
 
 void CComponentRenderWindow::UpdateAllDependencyLine()
 {
-    const std::map<size_t, std::map<size_t, CComponentBase*>*>* pInstanceMap = CComponentProxyManager::GetInstance()->GetInstance()->GetComponentInstanceMap();
-    std::map<size_t, std::map<size_t, CComponentBase*>*>::const_reverse_iterator iter = pInstanceMap->rbegin();
+    const std::map<uint32_t, std::map<uint32_t, CComponentBase*>*>* pInstanceMap = CComponentProxyManager::GetInstance()->GetInstance()->GetComponentInstanceMap();
+    std::map<uint32_t, std::map<uint32_t, CComponentBase*>*>::const_reverse_iterator iter = pInstanceMap->rbegin();
     for (; iter != pInstanceMap->rend(); ++iter)
     {
-        std::map<size_t, CComponentBase*>::const_reverse_iterator subIter = iter->second->rbegin();
+        std::map<uint32_t, CComponentBase*>::const_reverse_iterator subIter = iter->second->rbegin();
         for (; subIter != iter->second->rend(); ++subIter)
         {
             CComponentProxy* pComponent = static_cast<CComponentProxy*>(subIter->second);
             const std::vector<CDependencyDescription*>* pDependencies = pComponent->GetDependencies();
             if (pDependencies != NULL)
             {
-                size_t uDepedencyCount = pDependencies->size();
-                for (size_t i = 0; i < uDepedencyCount; ++i)
+                uint32_t uDepedencyCount = pDependencies->size();
+                for (uint32_t i = 0; i < uDepedencyCount; ++i)
                 {
                     CDependencyDescription* pDesc = pDependencies->at(i);
-                    size_t uDependencyLineCount = pDesc->GetDependencyLineCount();
-                    for (size_t j = 0; j < uDependencyLineCount; ++j)
+                    uint32_t uDependencyLineCount = pDesc->GetDependencyLineCount();
+                    for (uint32_t j = 0; j < uDependencyLineCount; ++j)
                     {
                         pDesc->GetDependencyLine(j)->UpdateRect(m_cellSize);
                     }

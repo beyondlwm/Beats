@@ -2,7 +2,7 @@
 #include "RenderCacheBase.h"
 #include "../../Function/Function.h"
 
-CRenderCacheBase::CRenderCacheBase(size_t maxVertexCount, IDirect3DDevice9* pRenderDevice, long vertexFVF, long vertexSize,ERenderCacheType type)
+CRenderCacheBase::CRenderCacheBase(uint32_t maxVertexCount, IDirect3DDevice9* pRenderDevice, long vertexFVF, long vertexSize,ERenderCacheType type)
 : m_maxVertexCount(maxVertexCount)
 , m_vertexCounter(0)
 , m_functionCounter(0)
@@ -31,7 +31,7 @@ void CRenderCacheBase::AddToCache( const void* pVertexData, const Function<void(
     {
         if (m_functionCache.size() == 0 || m_functionCache.back().second != (*pFunction))
         {
-            m_functionCache.push_back(std::pair<size_t, Function<void(void)>>(m_vertexCounter, *pFunction));
+            m_functionCache.push_back(std::pair<uint32_t, Function<void(void)>>(m_vertexCounter, *pFunction));
         }
     }
     ++m_vertexCounter;
@@ -77,7 +77,7 @@ void CRenderCacheBase::Render()
     else
     {
         //handle first scope.
-        size_t firstVertexIndexForFunc = m_functionCache[0].first;
+        uint32_t firstVertexIndexForFunc = m_functionCache[0].first;
         if (firstVertexIndexForFunc > 0)
         {
             m_pRenderDevice->DrawIndexedPrimitive(m_prmitiveType, (UINT)0, 0, (UINT)firstVertexIndexForFunc - 1, (UINT)0, (UINT)((firstVertexIndexForFunc - 1) * 0.5f));
@@ -85,9 +85,9 @@ void CRenderCacheBase::Render()
 
         while (m_functionCounter < m_functionCache.size())
         {
-            size_t startVertexIndex = m_functionCache[m_functionCounter].first;
-            size_t endVertexIndex = (m_functionCounter + 1 < m_functionCache.size()) ? m_functionCache[m_functionCounter + 1].first - 1 : m_vertexCounter - 1;
-            size_t vertexCount = 1 + (endVertexIndex - startVertexIndex);
+            uint32_t startVertexIndex = m_functionCache[m_functionCounter].first;
+            uint32_t endVertexIndex = (m_functionCounter + 1 < m_functionCache.size()) ? m_functionCache[m_functionCounter + 1].first - 1 : m_vertexCounter - 1;
+            uint32_t vertexCount = 1 + (endVertexIndex - startVertexIndex);
 
             m_functionCache[m_functionCounter].second();
 
@@ -124,7 +124,7 @@ void CRenderCacheBase::CreateBuffer()
             0);
         BEATS_ASSERT(!FAILED(hr), _T("CreateVertexBuffer() - FAILED"));
 
-        hr = m_pRenderDevice->CreateIndexBuffer((UINT)m_maxVertexCount / 4 * 6 * sizeof(size_t),
+        hr = m_pRenderDevice->CreateIndexBuffer((UINT)m_maxVertexCount / 4 * 6 * sizeof(uint32_t),
             D3DUSAGE_WRITEONLY,
             D3DFMT_INDEX32,
             D3DPOOL_SYSTEMMEM,

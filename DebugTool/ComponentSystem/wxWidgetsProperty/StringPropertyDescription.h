@@ -24,7 +24,7 @@ public:
     virtual void Deserialize(CSerializer& serializer, EValueType eValueType = eVT_CurrentValue) override;
 
 private:
-    size_t m_maxLength;
+    uint32_t m_maxLength;
 };
 
 

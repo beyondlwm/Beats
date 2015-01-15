@@ -243,7 +243,7 @@ void CWmiDetector::VariantToString(const LPVARIANT pVar,TString &chRetValue) con
     }
 }
 
-void CWmiDetector::GetSMBiosData( LPBYTE pData, size_t& length )
+void CWmiDetector::GetSMBiosData( LPBYTE pData, uint32_t& length )
 {
     HRESULT hr=m_pWbemLoc->ConnectServer(_bstr_t(L"ROOT\\WMI"),  
         NULL,  
@@ -308,7 +308,7 @@ void CWmiDetector::GetSMBiosData( LPBYTE pData, size_t& length )
     BEATS_ASSERT(SUCCEEDED(hr), _T("Init WMI failed!"));
 }
 
-void CWmiDetector::GetHDDSMARTData(LPBYTE pData, size_t& length)
+void CWmiDetector::GetHDDSMARTData(LPBYTE pData, uint32_t& length)
 {
     HRESULT hr=m_pWbemLoc->ConnectServer(_bstr_t(L"ROOT\\WMI"),  
         NULL,  
@@ -374,23 +374,23 @@ void CWmiDetector::GetHDDSMARTData(LPBYTE pData, size_t& length)
 }
 
 
-bool CWmiDetector::GetFirmwareTables(const LPBYTE biosData, const size_t biosDataLength, const EFirmwareTableType firmType, std::vector<SFirmwareTables>& out)
+bool CWmiDetector::GetFirmwareTables(const LPBYTE biosData, const uint32_t biosDataLength, const EFirmwareTableType firmType, std::vector<SFirmwareTables>& out)
 {
     out.clear();
-    size_t index = 0;
+    uint32_t index = 0;
     bool ret = false;
     while (index < biosDataLength)
     {
         //Get Formatted section length
-        size_t formattedSecLen = 0;
-        size_t type = biosData[index];
+        uint32_t formattedSecLen = 0;
+        uint32_t type = biosData[index];
         if (( type >=0) && (type <= 127))
         {
             formattedSecLen = biosData[index + 1];
         }
         //Get UnFormatted section length
-        size_t unformattedSecLen = 0;
-        size_t checkPos = index + biosData[index + 1];
+        uint32_t unformattedSecLen = 0;
+        uint32_t checkPos = index + biosData[index + 1];
         while (checkPos < biosDataLength - 1)
         {
             if ((biosData[checkPos] == 0) && (biosData[checkPos + 1] == 0))
@@ -400,7 +400,7 @@ bool CWmiDetector::GetFirmwareTables(const LPBYTE biosData, const size_t biosDat
             }
             ++checkPos;
         }
-        size_t curTableLength = unformattedSecLen + formattedSecLen;
+        uint32_t curTableLength = unformattedSecLen + formattedSecLen;
         if (curTableLength > 0)
         {
             if ((biosData[index] == firmType))
@@ -414,10 +414,10 @@ bool CWmiDetector::GetFirmwareTables(const LPBYTE biosData, const size_t biosDat
     return ret;
 }
 
-bool CWmiDetector::GetStrFromFirmwareTables(size_t targetId, unsigned char* tablesBuff, TString& out )
+bool CWmiDetector::GetStrFromFirmwareTables(uint32_t targetId, unsigned char* tablesBuff, TString& out )
 {
-    const size_t MAX_STRING = 0x3E8; //1K
-    const size_t MAX_STRING_TABLE = 0x19; //25
+    const uint32_t MAX_STRING = 0x3E8; //1K
+    const uint32_t MAX_STRING_TABLE = 0x19; //25
     out.clear();
     char array_of_string_entries[MAX_STRING_TABLE][MAX_STRING];
     int index = (int)*(tablesBuff+1);
@@ -440,7 +440,7 @@ bool CWmiDetector::GetStrFromFirmwareTables(size_t targetId, unsigned char* tabl
         still_more_data = *(tablesBuff+index) + *(tablesBuff+index+1);
     }
     targetId -= 1;
-    if (targetId < (size_t)id)
+    if (targetId < (uint32_t)id)
     {
 #ifdef _UNICODE
         TCHAR temp[256] = {0};

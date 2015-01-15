@@ -15,8 +15,8 @@ public:
     virtual bool IsContainerProperty() override;
     bool IsFixed() const;
     void SetFixed(bool bFixedFlag);
-    size_t GetMaxCount() const;
-    void SetMaxCount(size_t uMaxCount);
+    uint32_t GetMaxCount() const;
+    void SetMaxCount(uint32_t uMaxCount);
     void SetTemplateProperty(CPropertyDescriptionBase* pTemplateProperty);
     CPropertyDescriptionBase* GetTemplateProperty() const;
 
@@ -45,7 +45,7 @@ private:
 
 private:
     bool m_bFixCount;
-    size_t m_uMaxCount;
+    uint32_t m_uMaxCount;
     CPropertyDescriptionBase* m_pChildTemplate;
 };
 

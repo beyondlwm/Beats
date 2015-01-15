@@ -9,16 +9,16 @@ class CPerformDetector
 
 public:
     //void Start(int type, bool isStaticRecord = false);
-    void StartDetectNode(int type, size_t id);
+    void StartDetectNode(int type, uint32_t id);
 
     float StopDetectNode(int type);
     void ResetFrameResult();
     void ClearFrameResult();//Put this method at the end of the process.
 
-    void SetTypeName(const TCHAR* typeStr[] , size_t size);
+    void SetTypeName(const TCHAR* typeStr[] , uint32_t size);
     const TCHAR* GetTypeName(int type);
 
-    SPerformanceRecord* GetRecord(size_t id);
+    SPerformanceRecord* GetRecord(uint32_t id);
     void GetResultThisFrame(std::vector<SPerformanceResult*>& outResult);
 
     bool PauseSwitcher();
@@ -31,8 +31,8 @@ private:
     void DestroyResultPool();
     void UpdateRecord(SPerformanceResult* pResult);
 private:
-    size_t m_resultPoolIndex;
-    size_t m_lastResultPoolIndex;
+    uint32_t m_resultPoolIndex;
+    uint32_t m_lastResultPoolIndex;
     SPerformanceRecord* m_pCurRecord;
     bool m_bPause;
     bool m_bPauseRequest;    //We can only switch pause when a frame is end. Save the request.
@@ -42,7 +42,7 @@ private:
     std::vector<SPerformanceResult*> m_resultPool;//use a pool to avoid calling delete/new frequently.
     std::stack<SPerformanceResult*> m_resultOrder;
     std::vector<const TCHAR*> m_typeName;
-    std::map<size_t, SPerformanceRecord*> m_recordMap;
+    std::map<uint32_t, SPerformanceRecord*> m_recordMap;
     SPerformanceRecord m_rootRecord;
 };
 #endif

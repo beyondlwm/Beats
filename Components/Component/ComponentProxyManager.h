@@ -9,7 +9,7 @@ class CComponentGraphic;
 class CComponentReference;
 class CComponentProjectDirectory;
 
-typedef CComponentProxy* (*TCreateComponentEditorProxyFunc)(CComponentGraphic* pGraphics, size_t guid, size_t parentGuid, TCHAR* className);
+typedef CComponentProxy* (*TCreateComponentEditorProxyFunc)(CComponentGraphic* pGraphics, uint32_t guid, uint32_t parentGuid, TCHAR* className);
 typedef CComponentGraphic* (*TCreateGraphicFunc)();
 
 class CComponentProxyManager : public CComponentManagerBase
@@ -29,16 +29,16 @@ public:
 
     void Export(const TCHAR* pSavePath);
 
-    void QueryDerivedClass(size_t uBaseClassGuid, std::vector<size_t>& result, bool bRecurse) const;
-    void RegisterClassInheritInfo(size_t uDerivedClassGuid, size_t uBaseClassGuid);
-    TString QueryComponentName(size_t uGuid) const;
+    void QueryDerivedClass(uint32_t uBaseClassGuid, std::vector<uint32_t>& result, bool bRecurse) const;
+    void RegisterClassInheritInfo(uint32_t uDerivedClassGuid, uint32_t uBaseClassGuid);
+    TString QueryComponentName(uint32_t uGuid) const;
 
     void SaveTemplate(const TCHAR* pszFilePath);
     void SaveCurFile();
-    void SaveToFile(const TCHAR* pszFileName, std::map<size_t, std::vector<CComponentProxy*>>& components);
+    void SaveToFile(const TCHAR* pszFileName, std::map<uint32_t, std::vector<CComponentProxy*>>& components);
 
-    void RegisterPropertyCreator(size_t enumType, TCreatePropertyFunc func);
-    CPropertyDescriptionBase* CreateProperty(size_t propertyType, CSerializer* serializer);
+    void RegisterPropertyCreator(uint32_t enumType, TCreatePropertyFunc func);
+    CPropertyDescriptionBase* CreateProperty(uint32_t propertyType, CSerializer* serializer);
 
     void DeserializeTemplateData(const TCHAR* pszPath,
                                  const TCHAR* pszEDSFileName,
@@ -55,32 +55,32 @@ public:
     CDependencyDescription* GetCurrReflectDependency() const;
     void SetCurrReflectDependency(CDependencyDescription* pDependency);
 
-    const std::map<size_t, TString>& GetAbstractComponentNameMap() const;
+    const std::map<uint32_t, TString>& GetAbstractComponentNameMap() const;
 
     // We won't call OnPropertyChange when loading files.
     bool IsLoadingFile() const;
 
-    bool IsParent(size_t uParentGuid, size_t uChildGuid) const;
+    bool IsParent(uint32_t uParentGuid, uint32_t uChildGuid) const;
 
     void RegisterComponentReference(CComponentReference* pReference);
     void UnregisterComponentReference(CComponentReference* pReference);
-    const std::map<size_t, std::vector<CComponentReference*>>& GetReferenceIdMap() const;
-    const std::map<size_t, CComponentReference*>& GetReferenceMap() const;
+    const std::map<uint32_t, std::vector<CComponentReference*>>& GetReferenceIdMap() const;
+    const std::map<uint32_t, CComponentReference*>& GetReferenceMap() const;
 
-    CComponentReference* CreateReference(size_t uProxyId, size_t uReferenceGuid, size_t uId = 0xFFFFFFFF);
+    CComponentReference* CreateReference(uint32_t uProxyId, uint32_t uReferenceGuid, uint32_t uId = 0xFFFFFFFF);
 
-    const std::map<size_t, CComponentProxy*>& GetComponentsInCurScene() const;
+    const std::map<uint32_t, CComponentProxy*>& GetComponentsInCurScene() const;
     void OnCreateComponentInScene(CComponentProxy* pProxy);
     void OnDeleteComponentInScene(CComponentProxy* pProxy);
 
     bool IsExporting() const;
-    const std::set<size_t>& GetLoadedFiles() const;
+    const std::set<uint32_t>& GetLoadedFiles() const;
 
     // Useful for exporting, at that phase, no need to create any component instance.
     bool IsEnableCreateInstanceWithProxy() const;
     void SetEnableCreateInstanceWithProxy(bool bFlag);
 
-    std::vector<size_t>& GetRefreshFileList();
+    std::vector<uint32_t>& GetRefreshFileList();
 
 private:
     void LoadTemplateDataFromXML(const TCHAR* pWorkingPath);
@@ -96,21 +96,21 @@ private:
     TString m_currentViewFilePath;
     CPropertyDescriptionBase* m_pCurrReflectPropertyDescription;
     CDependencyDescription* m_pCurrReflectDependency;
-    std::map<size_t, TCreatePropertyFunc>* m_pPropertyCreatorMap;
-    std::map<size_t, TString> m_abstractComponentNameMap;
+    std::map<uint32_t, TCreatePropertyFunc>* m_pPropertyCreatorMap;
+    std::map<uint32_t, TString> m_abstractComponentNameMap;
     // This map save the inherit relationship for all components. so when we instance a component pointer, we can decide which instance to generate.
-    std::map<size_t, std::vector<size_t> >* m_pComponentInheritMap;
+    std::map<uint32_t, std::vector<uint32_t> >* m_pComponentInheritMap;
 
     // This map store all reference info, key value is the real component id. 
     // This data is dynamic register and unregistered. while static data is CComponentProject::m_pReferenceIdMap
-    std::map<size_t, std::vector<CComponentReference*>> m_referenceIdMap;
-    std::map<size_t, CComponentReference*> m_referenceMap;
+    std::map<uint32_t, std::vector<CComponentReference*>> m_referenceIdMap;
+    std::map<uint32_t, CComponentReference*> m_referenceMap;
 
-    std::map<size_t, CComponentProxy*> m_proxyInCurScene;
-    std::set<size_t> m_loadedFiles;
+    std::map<uint32_t, CComponentProxy*> m_proxyInCurScene;
+    std::set<uint32_t> m_loadedFiles;
 
     // This list saves the file need to be re-save after loaded, because of property maintain logic.
-    std::vector<size_t> m_refreshFileList;
+    std::vector<uint32_t> m_refreshFileList;
 };
 
 

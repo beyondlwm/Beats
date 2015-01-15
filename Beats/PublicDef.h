@@ -1,6 +1,7 @@
 #ifndef BEATS_PUBLICDEF_H__INCLUDE
 #define BEATS_PUBLICDEF_H__INCLUDE
 
+#include <cstdint>
 #include "BeatsTchar.h"
 #if (BEATS_PLATFORM == BEATS_PLATFORM_ANDROID)
 #include <android/log.h>
@@ -134,7 +135,7 @@ private:\
 #define BEATS_SAFE_DELETE_ARRAY(p) if (p!=NULL){delete[] p; p = NULL;}
 
 #define BEATS_SAFE_DELETE_VECTOR(p)\
-    for(size_t i = 0; i < (p).size(); ++i)\
+    for(uint32_t i = 0; i < (p).size(); ++i)\
     { BEATS_SAFE_DELETE((p)[i]);}\
     (p).clear();
 

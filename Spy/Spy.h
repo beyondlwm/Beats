@@ -25,7 +25,7 @@ class CFileFilter;
 BEATS_SPY_DLL_DECL bool Init(void);
 BEATS_SPY_DLL_DECL bool Uninit(void);
 BEATS_SPY_DLL_DECL const hostent* Spy_GetHostInfo();
-BEATS_SPY_DLL_DECL const SBeatsSocket* Spy_Connect(size_t uIPAddress);
+BEATS_SPY_DLL_DECL const SBeatsSocket* Spy_Connect(uint32_t uIPAddress);
 BEATS_SPY_DLL_DECL bool Spy_GetNetAdapterInfo(std::string& strInfo);
 
 
