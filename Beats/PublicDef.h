@@ -177,15 +177,4 @@ private:\
 
 #define BEATS_ASSI_GET_EBP(intVariable) __asm{mov intVariable, Ebp}
 
-
-#ifdef _UNICODE
-#define TString std::wstring
-#define TOfstream std::wofstream
-#define TIfstream std::wifstream
-#else
-#define TString std::string
-#define TOfstream std::ofstream
-#define TIfstream std::ifstream
-#endif
-
 #endif

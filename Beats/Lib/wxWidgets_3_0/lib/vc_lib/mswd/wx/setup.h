@@ -167,7 +167,7 @@
 // absolutely necessary -- updating it is strongly recommended as the ANSI mode
 // will disappear completely in future wxWidgets releases.
 #ifndef wxUSE_UNICODE
-    #define wxUSE_UNICODE 1
+    #define wxUSE_UNICODE 0
 #endif
 
 // wxUSE_WCHAR_T is required by wxWidgets now, don't change.

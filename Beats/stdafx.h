@@ -45,7 +45,7 @@
 #include <map>
 #include <list>
 #include <math.h>
-
+#include <algorithm>
 #include <d3dx9.h>
 #include <DXErr.h>
 
