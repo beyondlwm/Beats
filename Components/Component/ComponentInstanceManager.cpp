@@ -346,7 +346,7 @@ void CComponentInstanceManager::ResolveDependency()
             }
             else
             {
-                *(uint32_t*)pDependencyResolver->pVariableAddress = (uint32_t)pComponentToBeLink;
+                *(ptrdiff_t*)pDependencyResolver->pVariableAddress = (ptrdiff_t)pComponentToBeLink;
             }
         }
     }

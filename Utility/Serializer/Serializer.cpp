@@ -494,7 +494,7 @@ uint32_t CSerializer::ReadToDataInList( const std::vector<SBufferData>& dataList
     {
         for (uint32_t i = 0; i < dataList.size(); ++i)
         {
-            if (((uint32_t)m_pWritePtr - (uint32_t)m_pReadPtr >= dataList[i].dataLength) && memcmp(dataList[i].pData, m_pReadPtr, dataList[i].dataLength) == 0)
+            if (((ptrdiff_t)m_pWritePtr - (ptrdiff_t)m_pReadPtr >= dataList[i].dataLength) && memcmp(dataList[i].pData, m_pReadPtr, dataList[i].dataLength) == 0)
             {
                 if (pMatchDataId != NULL)
                 {
@@ -523,7 +523,7 @@ uint32_t CSerializer::ReadToData(const SBufferData& data, bool bReverse/* = fals
     bool bFindData = false;
     while (m_pReadPtr <= m_pWritePtr && m_pReadPtr >= m_pBuffer)
     {
-        if (((uint32_t)m_pWritePtr - (uint32_t)m_pReadPtr >= data.dataLength) && memcmp(data.pData, m_pReadPtr, data.dataLength) == 0)
+        if (((ptrdiff_t)m_pWritePtr - (ptrdiff_t)m_pReadPtr >= data.dataLength) && memcmp(data.pData, m_pReadPtr, data.dataLength) == 0)
         {
             bFindData = true;
             break;

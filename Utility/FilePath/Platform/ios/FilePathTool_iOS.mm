@@ -91,8 +91,7 @@ TString CFilePathTool::RootPath( const TCHAR* pszPath )
 
 bool CFilePathTool::Canonical(TCHAR* pszOutBuffer, const TCHAR* pszOriginPath)
 {
-    // TODO: Unimplement
-    BEATS_ASSERT(false, _T(__FUNCTION__)_T(" not implemented!"));
+    strcpy(pszOutBuffer, pszOriginPath);
     return false;
 }
 

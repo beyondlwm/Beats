@@ -23,7 +23,7 @@ bool CStringHelper::SplitString( const TCHAR* pParameter, const TCHAR* pSpliter,
         if (bIgnoreSpace)
         {
             TCHAR* pWriter = cache;
-            for (uint32_t i = 0; i < ((uint32_t)pFindStr - uint32_t(pReader)) / sizeof(TCHAR); ++i)
+            for (uint32_t i = 0; i < ((ptrdiff_t)pFindStr - (ptrdiff_t)pReader) / sizeof(TCHAR); ++i)
             {
                 if (pReader[i] != _T(' '))
                 {
@@ -41,7 +41,7 @@ bool CStringHelper::SplitString( const TCHAR* pParameter, const TCHAR* pSpliter,
         else
         {
             BEATS_ASSERT((uint32_t)pFindStr - uint32_t(pReader) < MAX_CACH_SIZE);
-            memcpy(cache, pReader, (uint32_t)pFindStr - uint32_t(pReader));
+            memcpy(cache, pReader, (ptrdiff_t)pFindStr - (ptrdiff_t)pReader);
         }
         result.push_back(cache);
         memset(cache, 0, MAX_CACH_SIZE);
