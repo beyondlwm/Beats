@@ -47,7 +47,7 @@ void CComponentBase::SetLoadFlag(bool bFlag)
     m_bLoaded = bFlag;
 }
 
-bool CComponentBase::IsInitialized()
+bool CComponentBase::IsInitialized() const
 {
     return m_bInitialize;
 }

@@ -40,7 +40,7 @@ public:
 
     virtual void Initialize();// this method can only be called in main thread, including render operation.
     virtual void Uninitialize();
-    bool IsInitialized();
+    bool IsInitialized() const;
     void SetInitializeFlag(bool bFlag);
 
     virtual void ReflectData(CSerializer& serializer);
