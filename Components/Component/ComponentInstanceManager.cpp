@@ -53,17 +53,24 @@ CSerializer* CComponentInstanceManager::Import(const TCHAR* pszFilePath)
         // 1. Load binarize data and file sturcture.
         uint32_t uFileCount = 0;
         serializer >> uFileCount;
+        std::map<uint32_t, std::vector<uint32_t> > conflictMap;
         for (uint32_t i = 0; i < uFileCount; ++i)
         {
+            TString strFileName;
+            serializer >> strFileName;
+            // This is a hack way here!
+            const_cast<std::vector<TString>*>(m_pProject->GetFileList())->push_back(strFileName);
+            BEATS_ASSERT(conflictMap.size() == 0);
+
             uint32_t uStartPos = 0;
             serializer >> uStartPos;
             BEATS_ASSERT(uStartPos == (serializer.GetReadPos() - sizeof(uStartPos)), _T("File start pos not match!"));
             uint32_t uFileSize = 0;
             serializer >> uFileSize;
             m_pProject->RegisterFileLayoutInfo(i, uStartPos, uFileSize);
-
             uint32_t uComponentCount = 0;
             serializer >> uComponentCount;
+
             for (uint32_t j = 0; j < uComponentCount; ++j)
             {
                 uint32_t uComponentDataSize, uGuid, uId;

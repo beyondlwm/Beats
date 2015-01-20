@@ -442,15 +442,16 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
     serializer << uFileCount;
     for (uint32_t i = 0; i < uFileCount; ++i)
     {
+        const TString strFileName = CFilePathTool::GetInstance()->FileName(m_pProject->GetComponentFileName(i).c_str());
+        serializer << strFileName;
         uint32_t uComponentCount = 0;
         uint32_t uWritePos = serializer.GetWritePos();
         serializer << uWritePos;// File Start pos.
         serializer << 12;// File size placeholder.
-        serializer.GetWritePos();
-        serializer << uComponentCount;
+        serializer << uComponentCount; // component count place holder
         std::map<uint32_t, std::vector<uint32_t> >* pFileToComponent = m_pProject->GetFileToComponentMap();
         std::map<uint32_t, std::vector<uint32_t> >::iterator iter = pFileToComponent->find(i);
-        BEATS_ASSERT(iter != pFileToComponent->end(), _T("File: %s\ndoes not have a component!"), m_pProject->GetComponentFileName(i).c_str());
+        BEATS_ASSERT(iter != pFileToComponent->end(), _T("File: %s\ndoes not have a component!"), strFileName.c_str());
         if (iter != pFileToComponent->end())
         {
             if (m_loadedFiles.find(i) != m_loadedFiles.end())
