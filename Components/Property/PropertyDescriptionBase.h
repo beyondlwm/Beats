@@ -23,7 +23,7 @@ public:
     void SetType(EReflectPropertyType type);
 
     CComponentProxy* GetOwner() const;
-    void SetOwner(CComponentProxy* pOwner);
+    virtual void SetOwner(CComponentProxy* pOwner);
 
     CPropertyDescriptionBase* GetParent() const;
     void SetParent(CPropertyDescriptionBase* pParent);
