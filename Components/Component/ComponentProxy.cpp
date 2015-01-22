@@ -178,14 +178,13 @@ CComponentBase* CComponentProxy::Clone(bool bCloneValue, CSerializer* /*pSeriali
     }
     if (bCallInitFunc)
     {
-        if (m_pHostComponent != NULL)
+        BEATS_ASSERT(pNewInstance->IsInitialized() == false, _T("Impossible to Initialize compnent twice!"));
+        pNewInstance->Initialize();
+        if (pNewInstance->GetHostComponent() != NULL)
         {
-            pNewInstance->UpdateHostComponent();
             BEATS_ASSERT(pNewInstance->GetHostComponent()->IsInitialized() == false, _T("Impossible to Initialize comopnent twice!"));
             pNewInstance->m_pHostComponent->Initialize();
         }
-        BEATS_ASSERT(pNewInstance->IsInitialized() == false, _T("Impossible to Initialize comopnent twice!"));
-        pNewInstance->Initialize();
     }
 
     return pNewInstance;
@@ -633,6 +632,9 @@ void CComponentProxy::Initialize()
     }
     if (m_pHostComponent != NULL && !GetTemplateFlag())
     {
+        // Sync data to host component for the first time!
+        // Don't call host component's initialize because we must wait all proxy's host component finish sync.
+        BEATS_ASSERT(m_pHostComponent->IsInitialized() == false);
         UpdateHostComponent();
     }
 }
