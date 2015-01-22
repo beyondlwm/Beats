@@ -16,6 +16,7 @@ class CComponentInstance;
 class COMPONENTS_DLL_DECL CComponentProxy : public CComponentBase
 {
     typedef CComponentBase super;
+    friend class CComponentInstance;
 public:
     CComponentProxy();//Only ComponentReference should use this constructor.
     CComponentProxy(CComponentGraphic* pGraphics);
@@ -73,10 +74,11 @@ public:
 
     virtual void Initialize() override;
     virtual void Uninitialize() override;
+    const std::vector<CComponentInstance*>& GetSyncComponents() const;
 
+private:
     void AddSyncComponent(CComponentInstance* pInstance);
     void RemoveSyncComponent(CComponentInstance* pInstance);
-    const std::vector<CComponentInstance*>& GetSyncComponents() const;
 
 protected:
     std::vector<CPropertyDescriptionBase*>* m_pProperties;

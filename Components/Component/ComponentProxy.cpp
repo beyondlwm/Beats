@@ -674,7 +674,6 @@ void CComponentProxy::AddSyncComponent(CComponentInstance* pInstance)
     auto iter = std::find(m_syncComponents.begin(), m_syncComponents.end(), pInstance);
     BEATS_ASSERT(iter == m_syncComponents.end(), _T("Can't add an instance twice!"));
 #endif
-    pInstance->SetSyncProxyComponent(this);
     m_syncComponents.push_back(pInstance);
 }
 

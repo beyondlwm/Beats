@@ -16,10 +16,7 @@ CComponentInstance::CComponentInstance()
 
 CComponentInstance::~CComponentInstance()
 {
-    if (m_pSyncProxyComponent != NULL)
-    {
-        m_pSyncProxyComponent->RemoveSyncComponent(this);
-    }
+    SetSyncProxyComponent(NULL);
     if (m_pProxyComponent != NULL)
     {
         BEATS_ASSERT(m_pProxyComponent->GetHostComponent() == this);
@@ -77,8 +74,18 @@ CComponentProxy* CComponentInstance::GetProxyComponent() const
 
 void CComponentInstance::SetSyncProxyComponent(CComponentProxy* pProxy)
 {
-    BEATS_ASSERT(m_pSyncProxyComponent == NULL);
-    m_pSyncProxyComponent = pProxy;
+    if (pProxy != m_pSyncProxyComponent)
+    {
+        if (m_pSyncProxyComponent != NULL)
+        {
+            m_pSyncProxyComponent->RemoveSyncComponent(this);
+        }
+        m_pSyncProxyComponent = pProxy;
+        if (m_pSyncProxyComponent != NULL)
+        {
+            m_pSyncProxyComponent->AddSyncComponent(this);
+        }
+    }
 }
 
 void CComponentInstance::Serialize(CSerializer& serializer)
