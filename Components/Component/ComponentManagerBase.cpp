@@ -38,38 +38,6 @@ void CComponentManagerBase::Release()
     BEATS_SAFE_DELETE(m_pUninitializedComponents);
 }
 
-void CComponentManagerBase::InitializeAllInstance()
-{
-    std::map<uint32_t, std::map<uint32_t, CComponentBase*>*>::iterator iter = m_pComponentInstanceMap->begin();
-    for (; iter != m_pComponentInstanceMap->end(); ++iter)
-    {
-        std::map<uint32_t, CComponentBase*>::iterator subIter = iter->second->begin();
-        for (; subIter != iter->second->end(); ++subIter)
-        {
-            BEATS_ASSERT(subIter->second != NULL);
-            BEATS_ASSERT(subIter->second->IsInitialized() == false, _T("Can't initialize component twice!"));
-            subIter->second->Initialize();
-            BEATS_ASSERT(subIter->second->IsInitialized(),
-                _T("The initialize flag of component %s is not set after initialize func!"),
-                subIter->second->GetClassStr());
-        }
-    }
-}
-
-void CComponentManagerBase::InitializeAllTemplate()
-{
-    std::map<uint32_t, CComponentBase*>::iterator iter = m_pComponentTemplateMap->begin();
-    for (; iter != m_pComponentTemplateMap->end(); ++iter)
-    {
-        BEATS_ASSERT(iter->second != NULL);
-        BEATS_ASSERT(iter->second->IsInitialized() == false, _T("Can't initialize component twice!"));
-        iter->second->Initialize();
-        BEATS_ASSERT(iter->second->IsInitialized(),
-            _T("The initialize flag of component %s is not set after initialize func!"),
-            iter->second->GetClassStr());
-    }
-}
-
 void CComponentManagerBase::DeleteAllInstance()
 {
     std::map<uint32_t, std::map<uint32_t, CComponentBase*>*>::iterator iter = m_pComponentInstanceMap->begin();
@@ -87,39 +55,6 @@ void CComponentManagerBase::DeleteAllInstance()
         BEATS_SAFE_DELETE(m_pUninitializedComponents->at(i));
     }
     m_pUninitializedComponents->clear();
-}
-
-void CComponentManagerBase::UninitializeAllInstance()
-{
-    std::vector<CComponentBase*> allComponent;
-    std::map<uint32_t, std::map<uint32_t, CComponentBase*>*>::iterator iter = m_pComponentInstanceMap->begin();
-    for (; iter != m_pComponentInstanceMap->end(); ++iter)
-    {
-        std::map<uint32_t, CComponentBase*>::iterator subIter = iter->second->begin();
-        for (; subIter != iter->second->end(); ++subIter)
-        {
-            BEATS_ASSERT(subIter->second != NULL);
-            allComponent.push_back(subIter->second);
-        }
-    }
-    for (uint32_t i = 0; i < allComponent.size(); ++i)
-    {
-        if (allComponent[i]->IsInitialized())
-        {
-            allComponent[i]->Uninitialize();
-            m_pUninitializedComponents->push_back(allComponent[i]);
-        }
-    }
-}
-
-void CComponentManagerBase::UninitializeAllTemplate()
-{
-    for (std::map<uint32_t, CComponentBase*>::iterator iter = m_pComponentTemplateMap->begin(); iter != m_pComponentTemplateMap->end(); ++iter)
-    {
-        BEATS_ASSERT(iter->second != NULL);
-        BEATS_ASSERT(iter->second->IsInitialized() || iter->second->GetGuid() != 1);
-        iter->second->Uninitialize();
-    }
 }
 
 bool CComponentManagerBase::RegisterTemplate( CComponentBase* pComponent )

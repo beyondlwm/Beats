@@ -44,6 +44,31 @@ CComponentProxyManager::~CComponentProxyManager()
     BEATS_SAFE_DELETE(m_pComponentInheritMap);
 }
 
+void CComponentProxyManager::InitializeAllTemplate()
+{
+    std::map<uint32_t, CComponentBase*>::iterator iter = m_pComponentTemplateMap->begin();
+    for (; iter != m_pComponentTemplateMap->end(); ++iter)
+    {
+        BEATS_ASSERT(iter->second != NULL);
+        BEATS_ASSERT(iter->second->REFLECT_GUID == CComponentProxy::REFLECT_GUID, _T("Only proxy template can be initialized!"));
+        BEATS_ASSERT(iter->second->IsInitialized() == false, _T("Can't initialize component twice!"));
+        iter->second->Initialize();
+        BEATS_ASSERT(iter->second->IsInitialized(),
+            _T("The initialize flag of component %s is not set after initialize func!"),
+            iter->second->GetClassStr());
+    }
+}
+
+void CComponentProxyManager::UninitializeAllTemplate()
+{
+    for (std::map<uint32_t, CComponentBase*>::iterator iter = m_pComponentTemplateMap->begin(); iter != m_pComponentTemplateMap->end(); ++iter)
+    {
+        BEATS_ASSERT(iter->second != NULL);
+        BEATS_ASSERT(iter->second->IsInitialized() || iter->second->GetGuid() != 1);
+        iter->second->Uninitialize();
+    }
+}
+
 void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bCloseLoadedFile/*= false*/)
 {
     bool bRestoreLoadingPhase = m_bLoadingFilePhase;

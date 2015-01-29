@@ -337,6 +337,30 @@ void CComponentInstanceManager::SetClonePhaseFlag(bool bInClonePhase)
     m_bInClonePhase = bInClonePhase;
 }
 
+void CComponentInstanceManager::UninitializeAllInstance()
+{
+    std::vector<CComponentBase*> allComponent;
+
+    std::map<uint32_t, std::map<uint32_t, CComponentBase*>*>::iterator iter = m_pComponentInstanceMap->begin();
+    for (; iter != m_pComponentInstanceMap->end(); ++iter)
+    {
+        std::map<uint32_t, CComponentBase*>::iterator subIter = iter->second->begin();
+        for (; subIter != iter->second->end(); ++subIter)
+        {
+            BEATS_ASSERT(subIter->second != NULL);
+            allComponent.push_back(subIter->second);
+        }
+    }
+    for (uint32_t i = 0; i < allComponent.size(); ++i)
+    {
+        if (allComponent[i]->IsInitialized())
+        {
+            allComponent[i]->Uninitialize();
+            m_pUninitializedComponents->push_back(allComponent[i]);
+        }
+    }
+}
+
 void CComponentInstanceManager::ResolveDependency()
 {
     for (uint32_t i = 0; i < m_pDependencyResolver->size(); ++i)

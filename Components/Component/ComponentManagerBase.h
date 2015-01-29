@@ -45,11 +45,6 @@ public:
     //Call it in derived class destructor instead of ~CComponentManagerBase(), because we still need the singleton(derived class)
     //In the Release, If We do it in ~CComponentManagerBase(), we can no longer visit the singleton.
     void Release();
-    void DeleteAllInstance();
-    void InitializeAllInstance();
-    void InitializeAllTemplate();
-    void UninitializeAllInstance();
-    void UninitializeAllTemplate();
 
     bool RegisterTemplate(CComponentBase* pComponent);
     bool UnregisterTemplate(CComponentBase* pComponent);
@@ -78,6 +73,9 @@ public:
     bool GetForbidDependencyResolve() const;
     void AddDependencyResolver( CDependencyDescription* pDescription, uint32_t uIndex, uint32_t uGuid, uint32_t uInstanceId, void* pVariableAddress, bool bIsList, TAddDependencyFunc pFunc = NULL);
     virtual void ResolveDependency() = 0;
+
+private:
+    void DeleteAllInstance();
 
 protected:
     bool m_bForbidDependencyResolve;

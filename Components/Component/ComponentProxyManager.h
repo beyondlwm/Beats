@@ -18,6 +18,9 @@ class CComponentProxyManager : public CComponentManagerBase
     BEATS_DECLARE_SINGLETON(CComponentProxyManager);
     typedef CPropertyDescriptionBase* (*TCreatePropertyFunc)(CSerializer* serializer);
 public:
+    void InitializeAllTemplate();
+    void UninitializeAllTemplate();
+
     // param bCloseLoadedFile means if current working file include pFilePath, shall we close those loaded sub file.
     void OpenFile(const TCHAR* pFilePath, bool bCloseLoadedFile = false);
     void LoadFile(const TCHAR* pszFilePath, std::vector<CComponentProxy*>* pComponentContainer);

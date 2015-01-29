@@ -23,6 +23,7 @@ public:
     uint32_t GetCurLoadFileId() const;
     bool IsInClonePhase() const;
     void SetClonePhaseFlag(bool bInClonePhase);
+    void UninitializeAllInstance();
 
     virtual void ResolveDependency() override;
 
