@@ -339,17 +339,49 @@ void CComponentInstanceManager::SetClonePhaseFlag(bool bInClonePhase)
 
 void CComponentInstanceManager::UninitializeAllInstance()
 {
-    std::vector<CComponentBase*> allComponent;
+    std::map<uint32_t, std::vector<uint32_t> >* pFileToComponentMap = m_pProject->GetFileToComponentMap();
+    auto fileToComponentIter = pFileToComponentMap->find(m_uCurLoadFileId);
+    BEATS_ASSERT(fileToComponentIter != pFileToComponentMap->end());
+    std::vector<uint32_t> componentsList = fileToComponentIter->second;
 
+    std::map<uint32_t, CComponentProjectDirectory*>* pFileToDirectoryMap = m_pProject->GetFileToDirectoryMap();
+    auto fileToDirectoryIter = pFileToDirectoryMap->find(m_uCurLoadFileId);
+    BEATS_ASSERT(fileToDirectoryIter != pFileToDirectoryMap->end());
+    CComponentProjectDirectory* pCurrDirectory = fileToDirectoryIter->second;
+    pCurrDirectory = pCurrDirectory->GetParent(); // Don't handle current directory any more.
+    uint32_t uFileCount = 1;
+    // We need to keep the order for uninitialize.
+    while (pCurrDirectory != NULL)
+    {
+        for (auto fileIter = pCurrDirectory->GetFileList().rbegin(); fileIter != pCurrDirectory->GetFileList().rend(); ++fileIter)
+        {
+            uint32_t uFileId = *fileIter;
+            BEATS_ASSERT(pFileToComponentMap->find(uFileId) != pFileToComponentMap->end());
+            std::vector<uint32_t>& componentsListInFile = pFileToComponentMap->find(uFileId)->second;
+            componentsList.insert(componentsList.end(), componentsListInFile.begin(), componentsListInFile.end());
+            ++uFileCount;
+        }
+        pCurrDirectory = pCurrDirectory->GetParent();
+    }
+    BEATS_ASSERT(uFileCount == m_loadedFiles.size());
+
+#ifdef _DEBUG
+    uint32_t uComponentsCount = 0;
     std::map<uint32_t, std::map<uint32_t, CComponentBase*>*>::iterator iter = m_pComponentInstanceMap->begin();
     for (; iter != m_pComponentInstanceMap->end(); ++iter)
     {
-        std::map<uint32_t, CComponentBase*>::iterator subIter = iter->second->begin();
-        for (; subIter != iter->second->end(); ++subIter)
-        {
-            BEATS_ASSERT(subIter->second != NULL);
-            allComponent.push_back(subIter->second);
-        }
+        uComponentsCount += iter->second->size();
+    }
+    BEATS_ASSERT(uComponentsCount == componentsList.size());
+#endif
+
+    // Record all instance first, to avoid one instance is uninitialize by another instance's uninitialize.
+    std::vector<CComponentInstance*> allComponent;
+    for (uint32_t i = 0; i < componentsList.size(); ++i)
+    {
+        CComponentInstance* pCurrInstance = static_cast<CComponentInstance*>(GetComponentInstance(componentsList[i]));
+        BEATS_ASSERT(pCurrInstance != NULL);
+        allComponent.push_back(pCurrInstance);
     }
     for (uint32_t i = 0; i < allComponent.size(); ++i)
     {
