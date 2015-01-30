@@ -33,16 +33,6 @@
 #define PROPERTY_KEYWORD_SPLIT_STR _T(":")
 #define COMPONENT_SYSTEM_VERSION 4
 
-template<typename T>
-inline void InitValue(const T& param)
-{
-    //TODO: I don't know how to init a template value, so this is the HACK way.
-    if (sizeof(T) <= 4)
-    {
-        memset((void*)&param, 0, sizeof(T));
-    }
-}
-
 struct SSerilaizerExtraInfo
 {
     SSerilaizerExtraInfo()
@@ -229,8 +219,7 @@ inline void DeserializeVariable(std::map<T1, T2>& value, CSerializer* pSerialize
 #endif
     for (uint32_t i = 0; i < childCount; ++i)
     {
-        T1 key;
-        InitValue(key);
+        T1 key = T1();
 #ifdef EDITOR_MODE
         CPropertyDescriptionBase* pCurrReflectProperty = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();
         if (pCurrReflectProperty != NULL)
@@ -243,8 +232,7 @@ inline void DeserializeVariable(std::map<T1, T2>& value, CSerializer* pSerialize
         }
 #endif
         DeserializeVariable(key, pSerializer);
-        T2 myValue;
-        InitValue(myValue);
+        T2 myValue = T2();
 #ifdef EDITOR_MODE
         if (pCurrReflectProperty != NULL)
         {
@@ -310,8 +298,7 @@ inline EReflectPropertyType GetEnumType(classType& value, CSerializer* pSerializ
     if (pSerializer != NULL)\
     {\
         *pSerializer << (uint32_t)enumType;\
-        T tmp;\
-        InitValue(tmp);\
+        T tmp = T();\
         GetEnumType(tmp, pSerializer);\
     }\
     return enumType;\
@@ -324,11 +311,9 @@ inline EReflectPropertyType GetEnumType(classType& value, CSerializer* pSerializ
     if (pSerializer != NULL)\
 {\
     *pSerializer << (uint32_t)enumType;\
-    T1 tmp1;\
-    InitValue(tmp1);\
+    T1 tmp1 = T1();\
     GetEnumType(tmp1, pSerializer);\
-    T2 tmp2;\
-    InitValue(tmp2);\
+    T2 tmp2 = T2();\
     GetEnumType(tmp2, pSerializer);\
 }\
     return enumType;\
