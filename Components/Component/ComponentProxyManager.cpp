@@ -50,7 +50,7 @@ void CComponentProxyManager::InitializeAllTemplate()
     for (; iter != m_pComponentTemplateMap->end(); ++iter)
     {
         BEATS_ASSERT(iter->second != NULL);
-        BEATS_ASSERT(iter->second->REFLECT_GUID == CComponentProxy::REFLECT_GUID, _T("Only proxy template can be initialized!"));
+        BEATS_ASSERT(dynamic_cast<CComponentProxy*>(iter->second) != NULL, _T("Only proxy template can be initialized!"));
         BEATS_ASSERT(iter->second->IsInitialized() == false, _T("Can't initialize component twice!"));
         iter->second->Initialize();
         BEATS_ASSERT(iter->second->IsInitialized(),

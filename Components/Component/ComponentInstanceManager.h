@@ -23,7 +23,7 @@ public:
     uint32_t GetCurLoadFileId() const;
     bool IsInClonePhase() const;
     void SetClonePhaseFlag(bool bInClonePhase);
-    void UninitializeAllInstance();
+    void UninitializeAllInstance(CComponentProject* pProject, uint32_t uCurrentLoadFile, uint32_t uTotalFileCount);
 
     virtual void ResolveDependency() override;
 
@@ -32,7 +32,6 @@ private:
 private:
     bool m_bInClonePhase;
     uint32_t m_uCurLoadFileId;
-    uint32_t m_uCurWorkingFileId;
     CSerializer* m_pSerializer;
     std::set<uint32_t> m_loadedFiles;
 };

@@ -75,6 +75,7 @@ public:
 
     std::map<uint32_t, std::vector<uint32_t> >* GetFileToComponentMap() const;
     std::map<uint32_t, std::set<uint32_t>>* GetIdToReferenceMap() const;
+    std::map<uint32_t, uint32_t>* GetReferenceMap();
     std::map<uint32_t, CComponentProjectDirectory*>* GetFileToDirectoryMap() const;
     std::map<uint32_t, uint32_t>* GetComponentToFileMap() const;
 

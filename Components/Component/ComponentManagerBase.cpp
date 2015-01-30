@@ -2,6 +2,7 @@
 #include "ComponentManagerBase.h"
 #include "Utility/IdManager/IdManager.h"
 #include "ComponentProject.h"
+#include "ComponentProjectDirectory.h"
 
 void DefaultAddDependencyFunc(void* pContainer, void* pDependency)
 {
@@ -36,25 +37,6 @@ void CComponentManagerBase::Release()
     BEATS_SAFE_DELETE(m_pComponentTemplateMap);
     BEATS_SAFE_DELETE(m_pDependencyResolver);
     BEATS_SAFE_DELETE(m_pUninitializedComponents);
-}
-
-void CComponentManagerBase::DeleteAllInstance()
-{
-    std::map<uint32_t, std::map<uint32_t, CComponentBase*>*>::iterator iter = m_pComponentInstanceMap->begin();
-    for (; iter != m_pComponentInstanceMap->end(); ++iter)
-    {
-        std::map<uint32_t, CComponentBase*>::iterator subIter = iter->second->begin();
-        for (; subIter != iter->second->end(); ++subIter)
-        {
-            BEATS_SAFE_DELETE(subIter->second);
-        }
-        BEATS_SAFE_DELETE(iter->second);
-    }
-    for (uint32_t i = 0; i < m_pUninitializedComponents->size(); ++i)
-    {
-        BEATS_SAFE_DELETE(m_pUninitializedComponents->at(i));
-    }
-    m_pUninitializedComponents->clear();
 }
 
 bool CComponentManagerBase::RegisterTemplate( CComponentBase* pComponent )
@@ -246,4 +228,23 @@ void CComponentManagerBase::AddDependencyResolver( CDependencyDescription* pDesc
         pDependencyResovler->pAddFunc = pFunc == NULL ? DefaultAddDependencyFunc : pFunc;
         m_pDependencyResolver->push_back(pDependencyResovler);
     }
+}
+
+void CComponentManagerBase::DeleteAllInstance()
+{
+    std::map<uint32_t, std::map<uint32_t, CComponentBase*>*>::iterator iter = m_pComponentInstanceMap->begin();
+    for (; iter != m_pComponentInstanceMap->end(); ++iter)
+    {
+        std::map<uint32_t, CComponentBase*>::iterator subIter = iter->second->begin();
+        for (; subIter != iter->second->end(); ++subIter)
+        {
+            BEATS_SAFE_DELETE(subIter->second);
+        }
+        BEATS_SAFE_DELETE(iter->second);
+    }
+    for (uint32_t i = 0; i < m_pUninitializedComponents->size(); ++i)
+    {
+        BEATS_SAFE_DELETE(m_pUninitializedComponents->at(i));
+    }
+    m_pUninitializedComponents->clear();
 }

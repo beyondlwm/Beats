@@ -362,6 +362,11 @@ std::map<uint32_t, std::set<uint32_t>>* CComponentProject::GetIdToReferenceMap()
     return m_pIdToReferenceMap;
 }
 
+std::map<uint32_t, uint32_t>* CComponentProject::GetReferenceMap()
+{
+    return m_pReferenceToIdMap;
+}
+
 std::map<uint32_t, CComponentProjectDirectory*>* CComponentProject::GetFileToDirectoryMap() const
 {
     return m_pFileToDirectoryMap;
