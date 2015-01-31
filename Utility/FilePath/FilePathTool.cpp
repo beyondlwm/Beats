@@ -38,7 +38,9 @@ bool CFilePathTool::LoadFile(CSerializer* pSerializer, const TCHAR* pszFilePath,
         if (m_pAssetManager) 
         {
             AAsset* pFile = AAssetManager_open(m_pAssetManager, pszFilePath, AASSET_MODE_UNKNOWN);
-            if (pFile)
+            BEATS_ASSERT(pFile != NULL, _T("Open file %s failed!"), pszFilePath);
+            bRet = pFile != NULL;
+            if (bRet)
             {
                 off_t uFileSize = AAsset_getLength(pFile);
                 if (uDataLength != 0)

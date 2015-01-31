@@ -1499,6 +1499,8 @@ if( DEFINED LIBRARY_OUTPUT_PATH_ROOT
     endif()
     set( LIBRARY_OUTPUT_PATH "${LIBRARY_OUTPUT_PATH_ROOT}/libs/${ANDROID_NDK_ABI_NAME}" CACHE PATH "Output directory for Android libs" )
   endif()
+else()
+  set( LIBRARY_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/libs/${ANDROID_NDK_ABI_NAME}" CACHE PATH "Output directory for Android libs" )
 endif()
 
 # copy shaed stl library to build directory
