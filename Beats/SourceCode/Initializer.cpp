@@ -39,7 +39,6 @@ void CInitializer::Init(const HWND& hwnd, const HINSTANCE& hInstance)
     CUIFactory::GetInstance()->Init();
     CParticleManager::GetInstance()->Init();
     CPhysicsManager::GetInstance()->Init();
-    CUtilityManager::GetInstance()->Init();
     CGame::GetInstance()->RegisterTask(eTT_Title, new CTitleTask());
     CGame::GetInstance()->RegisterTask(eTT_RecordTrack, new CRecordTrack());
     CGame::GetInstance()->RegisterTask(eTT_PlayTrack, new CPlayTrack());

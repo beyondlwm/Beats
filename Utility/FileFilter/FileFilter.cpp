@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
 #include "FileFilter.h"
 #include "Serializer/Serializer.h"
 #include "StringHelper/StringHelper.h"
@@ -66,6 +65,8 @@ void CFileFilter::Deserialize(CSerializer& serializer)
 bool CFileFilter::FilterFile( const TFileData* pFileData ) const
 {
     bool bRet = pFileData != NULL;
+#if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
+
     if (bRet)
     {
         bool bIsFile = (pFileData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0;
@@ -114,6 +115,7 @@ bool CFileFilter::FilterFile( const TFileData* pFileData ) const
             }
         }
     }
+#endif
     return bRet;
 }
 
@@ -153,4 +155,3 @@ void CFileFilter::SetFileNameFilter(const std::vector<TString>& strFileNameFilte
     m_strFileNameWildCard = strFileNameFilter;
     m_bFileNameWildCardMatchAll = bMatchAll;
 }
-#endif

@@ -3,15 +3,18 @@
 #include "Serializer/Serializer.h"
 #include "EnumStrGenerator/EnumStrGenerator.h"
 #include "StringHelper/StringHelper.h"
+#include "MD5/md5.h"
+#include "FilePath/FilePathTool.h"
 #if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
     #include "ServiceManager/ServiceManager.h"
     #include "FileFilter/FileFilter.h"
-    #include "MD5/md5.h"
     #include <Commdlg.h>
     #include <psapi.h>
     #include <shlobj.h>
     #include <cderr.h>
     #pragma comment(lib, "psapi.lib")
+#elif(BEATS_PLATFORM == BEATS_PLATFORM_ANDROID)
+    #include <android/asset_manager.h>
 #endif
 
 
@@ -198,91 +201,6 @@ bool CUtilityManager::AcquireDirectory(HWND hwnd, TString& strDirectoryPath, con
     return bRet;
 }
 
-bool CUtilityManager::CalcMD5( CMD5& md5, SDirectory& fileList )
-{
-    bool bRet = false;
-    for (uint32_t i = 0; i < fileList.m_pFileList->size(); ++i)
-    {
-        TFileData* pFileData = fileList.m_pFileList->at(i);
-        TString strFilePath = fileList.m_szPath;
-        strFilePath.append(pFileData->cFileName);
-        FILE* pFile = _tfopen(strFilePath.c_str(), _T("rb"));
-        if (pFile != NULL)
-        {
-            md5.Update(pFile);
-            fclose(pFile);
-        }
-    }
-    for (uint32_t i = 0; i < fileList.m_pDirectories->size(); ++i)
-    {
-        CalcMD5(md5, *fileList.m_pDirectories->at(i));
-    }
-    return bRet;
-}
-
-bool CUtilityManager::FillDirectory(SDirectory& fileList, bool bFillSubDirectory/* = true*/, CFileFilter* pFileFilter/* = NULL*/, unsigned long long* pFileSize/* = NULL*/)
-{
-    std::string tmp;
-    TString& directoryPath = fileList.m_szPath;
-    TFileData FindFileData;
-    HANDLE hFind = INVALID_HANDLE_VALUE;
-    BEATS_ASSERT(directoryPath.length() > 0);
-    TCHAR lastCharacter = directoryPath.at(directoryPath.length() - 1);
-    if( lastCharacter != _T('\\') &&
-        lastCharacter != _T('/'))
-    {
-        directoryPath.append(_T("/"));
-    }
-    TString directoryPathMatch = directoryPath;
-    directoryPathMatch.append(_T("*"));
-
-    hFind = FindFirstFile(directoryPathMatch.c_str(), &FindFileData);
-    BOOL bFindFile = hFind != INVALID_HANDLE_VALUE;
-    while (bFindFile) 
-    {
-        if (pFileFilter == NULL || pFileFilter->FilterFile(&FindFileData))
-        {
-            if (FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-            {
-                if (_tcscmp(FindFileData.cFileName, _T(".")) != 0 &&
-                    _tcscmp(FindFileData.cFileName, _T("..")) != 0)
-                {
-                    TString strSubDirectoryPath = directoryPath;
-                    strSubDirectoryPath.append(FindFileData.cFileName).append(_T("/"));
-                    SDirectory* pSubDir = new SDirectory(&fileList, strSubDirectoryPath.c_str());
-                    pSubDir->SetData(FindFileData);
-                    fileList.m_pDirectories->push_back(pSubDir);
-
-                    if (bFillSubDirectory)
-                    {
-                        FillDirectory(*pSubDir, true, pFileFilter, pFileSize);
-                    }
-                }
-            }
-            else
-            {
-                TFileData* pFindData = new TFileData;
-                memcpy(pFindData, &FindFileData, sizeof(TFileData));
-                pFindData->dwReserved1 = (DWORD)(&fileList);
-                fileList.m_pFileList->push_back(pFindData);
-                if (pFileSize != NULL)
-                {
-                    unsigned long long uFileSize = pFindData->nFileSizeHigh;
-                    uFileSize = uFileSize << 32;
-                    uFileSize += pFindData->nFileSizeLow;
-                    *pFileSize += uFileSize;
-                }
-            }
-        }
-        bFindFile = FindNextFile(hFind, &FindFileData);
-        if (!bFindFile)
-        {
-            FindClose(hFind);
-        }
-    }
-    return true;
-}
-
 unsigned long long CUtilityManager::BuildDirectoryToList( SDirectory* pDirectory, std::vector<TFileData*>& listToAppend )
 {
     unsigned long long totalFileSize = 0;
@@ -368,9 +286,105 @@ void CUtilityManager::SerializeDirectory( SDirectory* pDirectory, CSerializer& s
 
 #endif
 
-void CUtilityManager::Init()
+bool CUtilityManager::FillDirectory(SDirectory& fileList, bool bFillSubDirectory/* = true*/, CFileFilter* pFileFilter/* = NULL*/, unsigned long long* pFileSize/* = NULL*/)
 {
-    return;    
+    TString& directoryPath = fileList.m_szPath;
+    TFileData FindFileData;
+#if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
+    HANDLE hFind = INVALID_HANDLE_VALUE;
+    BEATS_ASSERT(directoryPath.length() > 0);
+    TCHAR lastCharacter = directoryPath.at(directoryPath.length() - 1);
+    if (lastCharacter != _T('\\') &&
+        lastCharacter != _T('/'))
+    {
+        directoryPath.append(_T("/"));
+    }
+    TString directoryPathMatch = directoryPath;
+    directoryPathMatch.append(_T("*"));
+
+    hFind = FindFirstFile(directoryPathMatch.c_str(), &FindFileData);
+    BOOL bFindFile = hFind != INVALID_HANDLE_VALUE;
+    while (bFindFile)
+    {
+        if (pFileFilter == NULL || pFileFilter->FilterFile(&FindFileData))
+        {
+            if (FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+            {
+                if (_tcscmp(FindFileData.cFileName, _T(".")) != 0 &&
+                    _tcscmp(FindFileData.cFileName, _T("..")) != 0)
+                {
+                    TString strSubDirectoryPath = directoryPath;
+                    strSubDirectoryPath.append(FindFileData.cFileName).append(_T("/"));
+                    SDirectory* pSubDir = new SDirectory(&fileList, strSubDirectoryPath.c_str());
+                    pSubDir->SetData(FindFileData);
+                    fileList.m_pDirectories->push_back(pSubDir);
+
+                    if (bFillSubDirectory)
+                    {
+                        FillDirectory(*pSubDir, true, pFileFilter, pFileSize);
+                    }
+                }
+            }
+            else
+            {
+                TFileData* pFindData = new TFileData;
+                memcpy(pFindData, &FindFileData, sizeof(TFileData));
+                pFindData->dwReserved1 = (DWORD)(&fileList);
+                fileList.m_pFileList->push_back(pFindData);
+                if (pFileSize != NULL)
+                {
+                    unsigned long long uFileSize = pFindData->nFileSizeHigh;
+                    uFileSize = uFileSize << 32;
+                    uFileSize += pFindData->nFileSizeLow;
+                    *pFileSize += uFileSize;
+                }
+            }
+        }
+        bFindFile = FindNextFile(hFind, &FindFileData);
+        if (!bFindFile)
+        {
+            FindClose(hFind);
+        }
+    }
+#elif (BEATS_PLATFORM == BEATS_PLATFORM_ANDROID)
+    bool bInApk = directoryPath.find(ASSET_ROOT_PATH) == 0;// To check the directory is in the apk or other place.
+    if (true) 
+    {
+        AAssetManager* pAssetManager = CFilePathTool::GetInstance()->GetAssetManager();
+        AAssetDir* pDir = AAssetManager_openDir(pAssetManager, "");
+        const char* pszFileName = AAssetDir_getNextFileName(pDir);
+        while(pszFileName != nullptr)
+        {
+            BEATS_PRINT(_T("Find File %s"), pszFileName);
+            pszFileName = AAssetDir_getNextFileName(pDir);
+        }
+        AAssetDir_close(pDir);
+    }
+
+#endif
+    return true;
+}
+
+bool CUtilityManager::CalcMD5(CMD5& md5, SDirectory& fileList)
+{
+    bool bRet = false;
+    for (uint32_t i = 0; i < fileList.m_pFileList->size(); ++i)
+    {
+        TFileData* pFileData = fileList.m_pFileList->at(i);
+        TString strFilePath = fileList.m_szPath;
+        strFilePath.append(pFileData->cFileName);
+        FILE* pFile = _tfopen(strFilePath.c_str(), _T("rb"));
+        if (pFile != NULL)
+        {
+            md5.Update(pFile);
+            fclose(pFile);
+        }
+    }
+    for (uint32_t i = 0; i < fileList.m_pDirectories->size(); ++i)
+    {
+        CalcMD5(md5, *fileList.m_pDirectories->at(i));
+    }
+    return bRet;
 }
 
 bool CUtilityManager::WriteDataToFile(FILE* pFile, void* pData, uint32_t uDataLength, uint32_t uRetryCount/* = 20*/)

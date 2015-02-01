@@ -98,21 +98,22 @@ class CUtilityManager
 {
     BEATS_DECLARE_SINGLETON(CUtilityManager)
 public:
-    void Init();
 #if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
     bool AcquireSingleFilePath(bool saveOrOpen, HWND hwnd, TString& result, const TCHAR* Tiltle, const TCHAR* filter, const TCHAR* pszInitialPath);
     bool AcquireMuiltyFilePath(bool bAllowDirectory, HWND hwnd, std::vector<TString>& result, const TCHAR* Tiltle, const TCHAR* filter, const TCHAR* pszInitialPath);
     bool AcquireDirectory(HWND hwnd, TString& strDirectoryPath, const TCHAR* pszTitle);
-    // File Directory
-    bool FillDirectory(SDirectory& fileList, bool bFillSubDirectory = true, CFileFilter* pFileFilter = NULL, unsigned long long* pFileSize = NULL);
+    
     unsigned long long BuildDirectoryToList(SDirectory* pDirectory, std::vector<TFileData*>& listToAppend);
     void SerializeDirectory(SDirectory* pDirectory, CSerializer& serializer);
     void DeserializeDirectory(SDirectory* pDirectory, CSerializer& serializer, long long* pTotalDataSize = NULL, uint32_t* pFileCount = NULL);
 
+#endif
+    // File Directory
+    bool FillDirectory(SDirectory& fileList, bool bFillSubDirectory = true, CFileFilter* pFileFilter = NULL, unsigned long long* pFileSize = NULL);
+
     // MD5
     bool CalcMD5(CMD5& md5, SDirectory& fileList);
 
-#endif
     bool WriteDataToFile(FILE* pFile, void* pData, uint32_t uDataLength, uint32_t uRetryCount = 20);
     bool ReadDataFromFile(FILE* pFile, void* pData, uint32_t uDataLength, uint32_t uRetryCount = 20);
 
