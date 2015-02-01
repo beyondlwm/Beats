@@ -668,6 +668,13 @@ void CComponentProxy::Uninitialize()
             (*m_pProperties)[i]->Uninitialize();
         }
     }
+    // Make a copy, because the m_syncComponents will be changed in the loop.
+    std::vector<CComponentInstance*> syncComponents = m_syncComponents;
+    for (uint32_t i = 0; i < syncComponents.size(); ++i)
+    {
+        syncComponents[i]->SetSyncProxyComponent(NULL);
+    }
+    BEATS_ASSERT(m_syncComponents.size() == 0, _T("Not all sync components are cleared!"));
 }
 
 void CComponentProxy::AddSyncComponent(CComponentInstance* pInstance)
