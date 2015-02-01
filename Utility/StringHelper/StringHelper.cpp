@@ -160,7 +160,7 @@ const char* CStringHelper::Utf8ExtractCodePoint(const char* pBuffer, uint32_t& u
     uint32_t byteNum = Utf8GetByteNum(*pBuffer);
     for (uint32_t i = 0; i < byteNum; ++i)
     {
-        BYTE currByte = pBuffer[i];
+        unsigned char currByte = pBuffer[i];
         //not utf8 encoding
         BEATS_ASSERT(i == 0 || (currByte & 0xC0) == 0x80, _T("Invalid utf8 encoding."));
         uint32_t shiftNum = i == 0 ? 0 : 6;
@@ -192,15 +192,15 @@ std::string CStringHelper::WStringToUtf8(const wchar_t* wstr)
     {
         uint32_t byteNum = UnicodeGetByteNumFrom(c);
         if (byteNum == 1)
-            result.push_back((BYTE)c);
+            result.push_back((unsigned char)c);
         else
         {
             for (uint32_t j = 0; j < byteNum; ++j)
             {
-                BYTE byteHead = j == 0 ? masksUtf8[byteNum - 1] << 1 : (BYTE)0x80;
+                unsigned char byteHead = j == 0 ? masksUtf8[byteNum - 1] << 1 : (unsigned char)0x80;
                 int shiftNum = 6 * (byteNum - j - 1);
-                BYTE byteTail = (c >> shiftNum) & 0x3F;
-                BYTE byte = byteHead | byteTail;
+                unsigned char byteTail = (c >> shiftNum) & 0x3F;
+                unsigned char byte = byteHead | byteTail;
                 result.push_back(byte);
             }
         }

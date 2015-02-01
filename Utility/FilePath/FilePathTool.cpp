@@ -26,7 +26,8 @@ bool CFilePathTool::LoadFile(CSerializer* pSerializer, const TCHAR* pszFilePath,
     bool bRet = false;
 #if (BEATS_PLATFORM == BEATS_PLATFORM_ANDROID)
     TString strFilePath(pszFilePath);
-    if ( strFilePath[0] != _T('/'))
+    BEATS_ASSERT(strFilePath[0] != _T('/'));
+    if (strFilePath[0] != _T('/'))
     {
         const TCHAR* pszFilePath = strFilePath.c_str();
         // Found "assets/" at the beginning of the path and we don't want it
@@ -50,6 +51,7 @@ bool CFilePathTool::LoadFile(CSerializer* pSerializer, const TCHAR* pszFilePath,
                 }
                 pSerializer->ValidateBuffer(uFileSize);
                 AAsset_seek(pFile, uStartPos, SEEK_SET);
+
                 int bytesread = AAsset_read(pFile, pSerializer->GetWritePtr(), uFileSize);
                 pSerializer->SetWritePos(uFileSize);
                 BEATS_ASSERT(uFileSize == bytesread);
@@ -57,17 +59,14 @@ bool CFilePathTool::LoadFile(CSerializer* pSerializer, const TCHAR* pszFilePath,
             }
         }
     }
-    else
 #else
+    FILE* pFile = _tfopen(pszFilePath, pszMode);
+    bRet = pFile != NULL;
+    BEATS_ASSERT(pFile != NULL, _T("Can't open file %s"), pszFilePath);
+    if (pFile != NULL)
     {
-        FILE* pFile = _tfopen(pszFilePath, pszMode);
-        bRet = pFile != NULL;
-        BEATS_ASSERT(pFile != NULL, _T("Can't open file %s"), pszFilePath);
-        if (pFile != NULL)
-        {
-            pSerializer->Serialize(pFile, uStartPos, uDataLength);
-            fclose(pFile);
-        }
+        pSerializer->Serialize(pFile, uStartPos, uDataLength);
+        fclose(pFile);
     }
 #endif
     return bRet;
