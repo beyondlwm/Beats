@@ -244,21 +244,6 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bCloseLoadedF
             }
         }
 
-        ResolveDependency();
-        for (uint32_t i = 0; i < loadedComponents.size(); ++i)
-        {
-            loadedComponents[i]->Initialize();
-        }
-        for (uint32_t i = 0; i < loadedComponents.size(); ++i)
-        {
-            uint32_t uComponentId = loadedComponents[i]->GetId();
-            bool bIsReference = m_referenceMap.find(uComponentId) != m_referenceMap.end();
-            if (!bIsReference)
-            {
-                loadedComponents[i]->GetHostComponent()->Initialize();
-            }
-        }
-
         // Rebuild the m_proxyInCurScene
         m_proxyInCurScene.clear();
         uint32_t uCurViewFileId = m_pProject->GetComponentFileId(pFilePath);
@@ -277,6 +262,21 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bCloseLoadedF
                 {
                     m_proxyInCurScene[componentList[i]] = pProxy;
                 }
+            }
+        }
+
+        ResolveDependency();
+        for (uint32_t i = 0; i < loadedComponents.size(); ++i)
+        {
+            loadedComponents[i]->Initialize();
+        }
+        for (uint32_t i = 0; i < loadedComponents.size(); ++i)
+        {
+            uint32_t uComponentId = loadedComponents[i]->GetId();
+            bool bIsReference = m_referenceMap.find(uComponentId) != m_referenceMap.end();
+            if (!bIsReference)
+            {
+                loadedComponents[i]->GetHostComponent()->Initialize();
             }
         }
 
