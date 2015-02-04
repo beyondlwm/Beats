@@ -388,17 +388,25 @@ void CComponentInstanceManager::UninitializeAllInstance(CComponentProject* pProj
         BEATS_ASSERT(fileToDirectoryIter != pFileToDirectoryMap->end());
         CComponentProjectDirectory* pCurrDirectory = fileToDirectoryIter->second;
         pCurrDirectory = pCurrDirectory->GetParent(); // Don't handle current directory any more.
+#ifdef _DEBUG
         uint32_t uFileCount = 1;
+#endif
         // We need to keep the order for uninitialize.
         while (pCurrDirectory != NULL)
         {
             for (auto fileIter = pCurrDirectory->GetFileList().rbegin(); fileIter != pCurrDirectory->GetFileList().rend(); ++fileIter)
             {
                 uint32_t uFileId = *fileIter;
-                BEATS_ASSERT(pFileToComponentMap->find(uFileId) != pFileToComponentMap->end());
-                std::vector<uint32_t>& componentsListInFile = pFileToComponentMap->find(uFileId)->second;
-                componentsList.insert(componentsList.end(), componentsListInFile.begin(), componentsListInFile.end());
+                // Only when the file contains no components, this will be pFileToComponentMap->end().
+                BEATS_ASSERT(pFileToComponentMap->find(uFileId) != pFileToComponentMap->end(), _T("File %d contains no components?"), uFileId);
+                if (pFileToComponentMap->find(uFileId) != pFileToComponentMap->end())
+                {
+                    std::vector<uint32_t>& componentsListInFile = pFileToComponentMap->find(uFileId)->second;
+                    componentsList.insert(componentsList.end(), componentsListInFile.begin(), componentsListInFile.end());
+                }
+#ifdef _DEBUG
                 ++uFileCount;
+#endif
             }
             pCurrDirectory = pCurrDirectory->GetParent();
         }
