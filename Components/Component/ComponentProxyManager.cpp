@@ -280,16 +280,16 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bCloseLoadedF
             }
         }
 
-        for (uint32_t i = 0; i < m_refreshFileList.size(); ++i)
+        for (auto iter = m_refreshFileList.begin(); iter != m_refreshFileList.end(); ++iter)
         {
             std::map<uint32_t, std::vector<uint32_t> >* pFileToComponentMap = m_pProject->GetFileToComponentMap();
-            auto iter = pFileToComponentMap->find(m_refreshFileList[i]);
-            if (iter != pFileToComponentMap->end())
+            auto subIter = pFileToComponentMap->find(*iter);
+            if (subIter != pFileToComponentMap->end())
             {
                 std::map<uint32_t, std::vector<CComponentProxy*>> guidGroup;
-                for (uint32_t j = 0; j < iter->second.size(); ++j)
+                for (uint32_t j = 0; j < subIter->second.size(); ++j)
                 {
-                    CComponentProxy* pProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(iter->second.at(j)));
+                    CComponentProxy* pProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(subIter->second.at(j)));
                     BEATS_ASSERT(pProxy != NULL);
                     std::map<uint32_t, std::vector<CComponentProxy*>>::iterator iter = guidGroup.find(pProxy->GetGuid());
                     if (iter == guidGroup.end())
@@ -299,7 +299,7 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bCloseLoadedF
                     }
                     iter->second.push_back(pProxy);
                 }
-                const TString& strFileName = m_pProject->GetComponentFileName(m_refreshFileList[i]);
+                const TString& strFileName = m_pProject->GetComponentFileName(*iter);
                 SaveToFile(strFileName.c_str(), guidGroup);
             }
         }
@@ -983,7 +983,7 @@ void CComponentProxyManager::SetEnableCreateInstanceWithProxy(bool bFlag)
     m_bCreateInstanceWithProxy = bFlag;
 }
 
-std::vector<uint32_t>& CComponentProxyManager::GetRefreshFileList()
+std::set<uint32_t>& CComponentProxyManager::GetRefreshFileList()
 {
     return m_refreshFileList;
 }

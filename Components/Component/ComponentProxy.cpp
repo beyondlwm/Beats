@@ -429,7 +429,8 @@ void CComponentProxy::LoadFromXML( TiXmlElement* pNode )
         CStringHelper::GetInstance()->ConvertToTCHAR(pFilePath, szFilePath, MAX_PATH);
         uint32_t uFileId = CComponentProxyManager::GetInstance()->GetProject()->GetComponentFileId(szFilePath);
         BEATS_ASSERT(uFileId != 0xFFFFFFFF);
-        CComponentProxyManager::GetInstance()->GetRefreshFileList().push_back(uFileId);
+        std::set<uint32_t>& fileList = CComponentProxyManager::GetInstance()->GetRefreshFileList();
+        fileList.insert(uFileId);
     }
     // Run maintain logic.
     for (uint32_t i = 0; i < unUsedXMLVariableNode.size(); ++i)

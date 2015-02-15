@@ -83,7 +83,7 @@ public:
     bool IsEnableCreateInstanceWithProxy() const;
     void SetEnableCreateInstanceWithProxy(bool bFlag);
 
-    std::vector<uint32_t>& GetRefreshFileList();
+    std::set<uint32_t>& GetRefreshFileList();
 
 private:
     void LoadTemplateDataFromXML(const TCHAR* pWorkingPath);
@@ -113,7 +113,7 @@ private:
     std::set<uint32_t> m_loadedFiles;
 
     // This list saves the file need to be re-save after loaded, because of property maintain logic.
-    std::vector<uint32_t> m_refreshFileList;
+    std::set<uint32_t> m_refreshFileList;
 };
 
 
