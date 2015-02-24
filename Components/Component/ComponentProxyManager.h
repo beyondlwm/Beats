@@ -95,7 +95,6 @@ private:
     bool m_bExportingPhase;
     bool m_bReflectCheckFlag;
 
-    TString m_currentWorkingFilePath;
     TString m_currentViewFilePath;
     CPropertyDescriptionBase* m_pCurrReflectPropertyDescription;
     CDependencyDescription* m_pCurrReflectDependency;
@@ -110,7 +109,6 @@ private:
     std::map<uint32_t, CComponentReference*> m_referenceMap;
 
     std::map<uint32_t, CComponentProxy*> m_proxyInCurScene;
-    std::set<uint32_t> m_loadedFiles;
 
     // This list saves the file need to be re-save after loaded, because of property maintain logic.
     std::set<uint32_t> m_refreshFileList;

@@ -74,17 +74,22 @@ public:
     void AddDependencyResolver( CDependencyDescription* pDescription, uint32_t uIndex, uint32_t uGuid, uint32_t uInstanceId, void* pVariableAddress, bool bIsList, TAddDependencyFunc pFunc = NULL);
     virtual void ResolveDependency() = 0;
 
+protected:
+    void CalcSwitchFile(uint32_t uFileId, bool bCloseLoadedFile, std::vector<uint32_t>& loadFiles, std::vector<uint32_t>& unloadFiles, bool& bNewAddFile);
+
 private:
     void DeleteAllInstance();
 
 protected:
     bool m_bForbidDependencyResolve;
+    uint32_t m_uCurLoadFileId;
     CIdManager* m_pIdManager;
     CComponentProject* m_pProject;
     std::map<uint32_t, CComponentBase*>* m_pComponentTemplateMap;
     std::map<uint32_t, std::map<uint32_t, CComponentBase*>*>* m_pComponentInstanceMap;
     std::vector<SDependencyResolver*>* m_pDependencyResolver;
     std::vector<CComponentBase*>* m_pUninitializedComponents;
+    std::set<uint32_t> m_loadedFiles;
 };
 
 #endif

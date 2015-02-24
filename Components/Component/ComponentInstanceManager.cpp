@@ -13,7 +13,6 @@ CComponentInstanceManager* CComponentInstanceManager::m_pInstance = NULL;
 
 CComponentInstanceManager::CComponentInstanceManager()
     : m_bInClonePhase(false)
-    , m_uCurLoadFileId(0xFFFFFFFF)
 {
     m_pSerializer = new CSerializer;
 }
@@ -94,19 +93,22 @@ void CComponentInstanceManager::SwitchFile(uint32_t uFileId)
 {
     BEATS_ASSERT(uFileId != 0xFFFFFFFF);
     std::vector<uint32_t> loadFiles, unloadFiles;
-    bool bLoadThisFile= CalcSwitchFile(uFileId, loadFiles, unloadFiles);
+    bool bNewAddFile = false; // Useless here. Only useful when CComponentProxyManager call CalcSwitchFile.
+    CalcSwitchFile(uFileId, false, loadFiles, unloadFiles, bNewAddFile);
+    BEATS_ASSERT(!bNewAddFile, _T("This can't happen in CComponentInstanceManager, it can be true only in CComponentProxyManager"));
+    bool bLoadThisFile = loadFiles.size() > 0 && loadFiles.back() == uFileId;
     if (bLoadThisFile)
     {
         m_uCurLoadFileId = uFileId;
+    }
+    for (uint32_t i = 0; i < unloadFiles.size(); ++i)
+    {
+        CloseFile(unloadFiles[i]);
     }
     std::vector<CComponentBase*> loadedComponents;
     for (uint32_t i = 0; i < loadFiles.size(); ++i)
     {
         LoadFile(loadFiles[i], loadedComponents);
-    }
-    for (uint32_t i = 0; i < unloadFiles.size(); ++i)
-    {
-        CloseFile(unloadFiles[i]);
     }
     ResolveDependency();
 
@@ -118,127 +120,6 @@ void CComponentInstanceManager::SwitchFile(uint32_t uFileId)
     {
         loadedComponents[i]->PostInitialize();
     }
-}
-
-bool CComponentInstanceManager::CalcSwitchFile(uint32_t uFileId, std::vector<uint32_t>& loadFiles, std::vector<uint32_t>& unloadFiles)
-{
-    BEATS_ASSERT(uFileId != 0xFFFFFFFF);
-    std::vector<CComponentBase*> loadedComponents;
-    bool bLoadThisFile = true;
-    // 1. File is in the parent directory (loaded before): just change the content of m_proxyInCurScene
-    if (m_loadedFiles.find(uFileId) != m_loadedFiles.end())
-    {
-        // Change content will be done at last. So do nothing here.
-        bLoadThisFile = false;
-    }
-    else
-    {
-        CComponentProjectDirectory* pDirectory = m_pProject->FindProjectDirectoryById(uFileId);
-        BEATS_ASSERT(pDirectory != NULL);
-        TString strLogicPath;
-        // new open a file.
-        if (m_uCurLoadFileId == 0xFFFFFFFF)
-        {
-            std::vector<CComponentProjectDirectory*> directories;
-            CComponentProjectDirectory* pCurDirectory = pDirectory->GetParent();
-            while (pCurDirectory != NULL)
-            {
-                directories.push_back(pCurDirectory);
-                pCurDirectory = pCurDirectory->GetParent();
-            }
-            while (directories.size() > 0)
-            {
-                uint32_t uFileCount = directories.back()->GetFileList().size();
-                for (uint32_t i = 0; i < uFileCount; ++i)
-                {
-                    uint32_t uFileId = directories.back()->GetFileList().at(i);
-                    loadFiles.push_back(uFileId);
-                }
-                directories.pop_back();
-            }
-        }
-        else
-        {
-            CComponentProjectDirectory* pCurDirectory = m_pProject->FindProjectDirectoryById(m_uCurLoadFileId);
-            BEATS_ASSERT(pCurDirectory != NULL);
-            strLogicPath = pDirectory->MakeRelativeLogicPath(pCurDirectory);
-
-            // 2. File is at the same directory: close current file and open it.
-            if (strLogicPath.empty())
-            {
-                unloadFiles.push_back(m_uCurLoadFileId);
-            }
-            else
-            {
-                std::vector<TString> logicPaths;
-                CStringHelper::GetInstance()->SplitString(strLogicPath.c_str(), _T("/"), logicPaths);
-                BEATS_ASSERT(logicPaths.size() > 0);
-                // 3. File is in the son directory: don't close current, load rest files of directory and go on.
-                if (logicPaths[0].compare(_T("..")) != 0)
-                {
-                    // Load rest files of the same directory.
-                    const std::vector<uint32_t>& fileList = pCurDirectory->GetFileList();
-                    for (uint32_t i = 0;i < fileList.size(); ++i)
-                    {
-                        if (fileList[i] != m_uCurLoadFileId)
-                        {
-                            loadFiles.push_back(fileList[i]);
-                        }
-                    }
-                    // Load sub-directory to target, but don't load the last sub-directory, because we only need one file in it, the target file.
-                    CComponentProjectDirectory* pCurLoopDirectory = pDirectory;
-                    for (int i = 1; i < (int)logicPaths.size() - 1; ++i)
-                    {
-                        pCurLoopDirectory = pCurLoopDirectory->FindChild(logicPaths[i].c_str());
-                        uint32_t uFileCount = pCurLoopDirectory->GetFileList().size();
-                        for (uint32_t i = 0; i < uFileCount; ++i)
-                        {
-                            uint32_t uFileId = pCurLoopDirectory->GetFileList().at(i);
-                            loadFiles.push_back(uFileId);
-                        }
-                    }
-                }
-                else// 4. File is in other different directory: close current and change directory.
-                {
-                    // This means the file should be already loaded (since it's in the parent directory)
-                    // But it is not in the m_loadedFiles, so this file must be a new added one
-                    // So we do some nothing as if it is already loaded.
-                    BEATS_ASSERT(logicPaths.back().compare(_T("..")) != 0);
-                    unloadFiles.push_back(m_uCurLoadFileId);
-                    CComponentProjectDirectory* pCurLoopDirectory = pCurDirectory->GetParent();
-                    for (int i = 1; i < (int)logicPaths.size() - 1; ++i)
-                    {
-                        if (logicPaths[i].compare(_T("..")) == 0)
-                        {
-                            const std::vector<uint32_t>& fileList = pCurLoopDirectory->GetFileList();
-                            for (uint32_t i = 0; i < fileList.size(); ++i)
-                            {
-                                unloadFiles.push_back(fileList[i]);
-                            }
-                            pCurLoopDirectory = pCurLoopDirectory->GetParent();
-                        }
-                        else
-                        {
-                            pCurLoopDirectory = pCurLoopDirectory->FindChild(logicPaths[i].c_str());
-                            BEATS_ASSERT(pCurLoopDirectory != NULL);
-                            uint32_t uFileCount = pCurLoopDirectory->GetFileList().size();
-                            for (uint32_t i = 0; i < uFileCount; ++i)
-                            {
-                                uint32_t uFileId = pCurLoopDirectory->GetFileList().at(i);
-                                loadFiles.push_back(uFileId);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    if (bLoadThisFile)
-    {
-        loadFiles.push_back(uFileId);
-    }
-    return bLoadThisFile;
 }
 
 void CComponentInstanceManager::LoadFile(uint32_t uFileId, std::vector<CComponentBase*>& loadComponents)

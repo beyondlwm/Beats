@@ -14,7 +14,6 @@ public:
     uint32_t GetVersion();
     CSerializer* Import(const TCHAR* pszFilePath);
     void SwitchFile(uint32_t uFileId);
-    bool CalcSwitchFile(uint32_t uFileId, std::vector<uint32_t>& loadFiles, std::vector<uint32_t>& unloadFiles);
     void LoadFile(uint32_t uFileId, std::vector<CComponentBase*>& loadComponents);
     void CloseFile(uint32_t uFileId);
     CSerializer* GetFileSerializer() const;
@@ -31,9 +30,7 @@ private:
     void LoadDirectoryFiles(CComponentProjectDirectory* pDirectory, std::vector<CComponentBase*>& loadComponents);
 private:
     bool m_bInClonePhase;
-    uint32_t m_uCurLoadFileId;
     CSerializer* m_pSerializer;
-    std::set<uint32_t> m_loadedFiles;
 };
 
 #endif
