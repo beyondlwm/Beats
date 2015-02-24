@@ -279,7 +279,15 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bCloseLoadedF
                 loadedComponents[i]->GetHostComponent()->Initialize();
             }
         }
-
+        for (uint32_t i = 0; i < loadedComponents.size(); ++i)
+        {
+            uint32_t uComponentId = loadedComponents[i]->GetId();
+            bool bIsReference = m_referenceMap.find(uComponentId) != m_referenceMap.end();
+            if (!bIsReference)
+            {
+                loadedComponents[i]->GetHostComponent()->PostInitialize();
+            }
+        }
         for (auto iter = m_refreshFileList.begin(); iter != m_refreshFileList.end(); ++iter)
         {
             std::map<uint32_t, std::vector<uint32_t> >* pFileToComponentMap = m_pProject->GetFileToComponentMap();

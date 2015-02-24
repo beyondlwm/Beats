@@ -33,13 +33,14 @@ public:
     uint32_t GetId() const;
     void SetId(uint32_t id);
 
-    virtual bool Load(); // this method do some load stuff, which can be done in other thread.
+    virtual bool Load(); // This method do some load stuff, which can be done in other thread.
     virtual bool Unload();
     bool IsLoaded() const;
     void SetLoadFlag(bool bFlag);
 
-    virtual void Initialize();// this method can only be called in main thread, including render operation.
+    virtual void Initialize();// This method can only be called in main thread, including render operation.
     virtual void Uninitialize();
+    virtual void PostInitialize();// This function will be called when all the components's initialize is called.
     bool IsInitialized() const;
     void SetInitializeFlag(bool bFlag);
 

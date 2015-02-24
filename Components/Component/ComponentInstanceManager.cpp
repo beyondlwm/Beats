@@ -114,6 +114,10 @@ void CComponentInstanceManager::SwitchFile(uint32_t uFileId)
     {
         loadedComponents[i]->Initialize();
     }
+    for (uint32_t i = 0; i < loadedComponents.size(); ++i)
+    {
+        loadedComponents[i]->PostInitialize();
+    }
 }
 
 bool CComponentInstanceManager::CalcSwitchFile(uint32_t uFileId, std::vector<uint32_t>& loadFiles, std::vector<uint32_t>& unloadFiles)
