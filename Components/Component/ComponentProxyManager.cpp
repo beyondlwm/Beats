@@ -268,27 +268,32 @@ void CComponentProxyManager::LoadFileFromDirectory(CComponentProjectDirectory* p
 
 void CComponentProxyManager::CloseFile(const TCHAR* pszFilePath)
 {
+    BEATS_ASSERT(_tcslen(pszFilePath) > 0, _T("Can't close empty file!"));
+    uint32_t uFileId = m_pProject->GetComponentFileId(pszFilePath);
+    CloseFile(uFileId);
+}
+
+void CComponentProxyManager::CloseFile(uint32_t uFileId)
+{
     // TODO: Lock id manager, since we will recycle id in component's uninitialize function.
     // However, we don't want that, so we lock the id manager for now.
     m_pIdManager->Lock();
-    BEATS_ASSERT(_tcslen(pszFilePath) > 0, _T("Can't close empty file!"));
-    std::vector<CComponentBase*> componentToDelete;
-    uint32_t uFileId = m_pProject->GetComponentFileId(pszFilePath);
     // query id from the static data: m_pProject.
     std::map<uint32_t, std::vector<uint32_t> >* pFileToComponentMap = m_pProject->GetFileToComponentMap();
+    std::vector<CComponentBase*> componentToDelete;
     auto iter = pFileToComponentMap->find(uFileId);
     if (iter != pFileToComponentMap->end())
     {
 #ifdef _DEBUG
         // All components must exists before they call uninitialize.
-        for (uint32_t i = 0;i < iter->second.size(); ++i)
+        for (uint32_t i = 0; i < iter->second.size(); ++i)
         {
             uint32_t uComponentId = iter->second.at(i);
             CComponentProxy* pComponentProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(uComponentId));
             BEATS_ASSERT(pComponentProxy != NULL && pComponentProxy->IsInitialized());
         }
 #endif
-        for (uint32_t i = 0;i < iter->second.size(); ++i)
+        for (uint32_t i = 0; i < iter->second.size(); ++i)
         {
             uint32_t uComponentId = iter->second.at(i);
             CComponentProxy* pComponentProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(uComponentId));
@@ -311,11 +316,6 @@ void CComponentProxyManager::CloseFile(const TCHAR* pszFilePath)
     }
     m_loadedFiles.erase(uFileId);
     m_pIdManager->UnLock();
-}
-
-const TString& CComponentProxyManager::GetCurrentWorkingFilePath() const
-{
-    return m_pProject->GetComponentFileName(m_uCurLoadFileId);
 }
 
 const TString& CComponentProxyManager::GetCurrentViewFilePath() const

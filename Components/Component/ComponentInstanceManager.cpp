@@ -48,7 +48,7 @@ CSerializer* CComponentInstanceManager::Import(const TCHAR* pszFilePath)
         uint32_t uStartFile;
         serializer >> uStartFile;
         m_pProject->SetStartFile(uStartFile);
-        // 1. Load binarize data and file sturcture.
+        // 1. Load binarize data and file structure.
         uint32_t uFileCount = 0;
         serializer >> uFileCount;
         std::map<uint32_t, std::vector<uint32_t> > conflictMap;

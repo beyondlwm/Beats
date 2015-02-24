@@ -137,11 +137,10 @@ bool CComponentProjectDirectory::DeleteFile(uint32_t uFileId)
     {
         CComponentProxyManager* pComopnentManager = CComponentProxyManager::GetInstance();
         CComponentProject* pProject = pComopnentManager->GetProject();
-        TString strFileName = pProject->GetComponentFileName(uFileId);
-        bool bDeleteCurWorkingFile = strFileName.compare(pComopnentManager->GetCurrentWorkingFilePath()) == 0;
+        bool bDeleteCurWorkingFile = pComopnentManager->GetCurrLoadFileId() == uFileId;
         if (bDeleteCurWorkingFile)
         {
-            pComopnentManager->CloseFile(strFileName.c_str());
+            pComopnentManager->CloseFile(uFileId);
         }
         pProject->UnregisterFile(uFileId);
         bRet = true;

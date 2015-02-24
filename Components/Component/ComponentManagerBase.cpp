@@ -205,6 +205,11 @@ CComponentProject* CComponentManagerBase::GetProject() const
     return m_pProject;
 }
 
+uint32_t CComponentManagerBase::GetCurrLoadFileId()
+{
+    return m_uCurLoadFileId;
+}
+
 void CComponentManagerBase::SetForbidDependencyResolve(bool bEnable)
 {
     m_bForbidDependencyResolve = bEnable;

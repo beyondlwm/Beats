@@ -88,10 +88,10 @@ CComponentProjectDirectory* CComponentProject::LoadProject(const TCHAR* pszProje
 bool CComponentProject::CloseProject()
 {
     bool bRet = false;
-    const TString& strFilePath = CComponentProxyManager::GetInstance()->GetCurrentWorkingFilePath();
-    if (!strFilePath.empty())
+    uint32_t uCurrLoadFileId = CComponentProxyManager::GetInstance()->GetCurrLoadFileId();
+    if (uCurrLoadFileId != 0xFFFFFFFF)
     {
-        CComponentProxyManager::GetInstance()->CloseFile(strFilePath.c_str());
+        CComponentProxyManager::GetInstance()->CloseFile(uCurrLoadFileId);
     }
     CComponentProxyManager::GetInstance()->GetIdManager()->Reset();
     if (m_pProjectDirectory != NULL)
@@ -418,7 +418,7 @@ uint32_t CComponentProject::RegisterFile(CComponentProjectDirectory* pDirectory,
                     if (m_pComponentToFileMap->find(id) == m_pComponentToFileMap->end())
                     {
                         BEATS_ASSERT(CComponentProxyManager::GetInstance()->GetComponentInstance(id) != NULL, _T("It's impossible that can't find the component id in neither static and dynamic records."));
-                        uOriginalPosOfFile = GetComponentFileId(CComponentProxyManager::GetInstance()->GetCurrentWorkingFilePath());
+                        uOriginalPosOfFile = CComponentProxyManager::GetInstance()->GetCurrLoadFileId();
                     }
                     else
                     {
@@ -632,9 +632,8 @@ uint32_t CComponentProject::QueryFileId(uint32_t uComponentId, bool bOnlyInProje
         {
             // Can't find the data in static records since we may add the new component dynamically OR
             // Find the data in static records but we have delete it dynamically.
-            const TString& strCurWorkingFile = CComponentProxyManager::GetInstance()->GetCurrentWorkingFilePath();
-            BEATS_ASSERT(!strCurWorkingFile.empty());
-            uRet = GetComponentFileId(strCurWorkingFile);
+            uRet = CComponentProxyManager::GetInstance()->GetCurrLoadFileId();
+            BEATS_ASSERT(uRet != 0xFFFFFFFF);
             BEATS_ASSERT(CComponentProxyManager::GetInstance()->GetComponentInstance(uComponentId) != NULL);
         }
     }
@@ -685,8 +684,7 @@ void CComponentProject::RegisterComponent(uint32_t uFileID, uint32_t uComponentG
 {
     if (uFileID == 0xFFFFFFFF)
     {
-        const TString& strCurFilePath = CComponentProxyManager::GetInstance()->GetCurrentWorkingFilePath();
-        uFileID = GetComponentFileId(strCurFilePath);
+        uFileID = CComponentProxyManager::GetInstance()->GetCurrLoadFileId();
     }
     if (uFileID != 0xFFFFFFFF)
     {

@@ -27,7 +27,7 @@ public:
     void LoadFileFromDirectory(CComponentProjectDirectory* pDirectory, std::vector<CComponentProxy*>* pComponentContainer);
 
     void CloseFile(const TCHAR* pszFilePath);
-    const TString& GetCurrentWorkingFilePath() const;
+    void CloseFile(uint32_t uFileId);
     const TString& GetCurrentViewFilePath() const;
 
     void Export(const TCHAR* pSavePath);

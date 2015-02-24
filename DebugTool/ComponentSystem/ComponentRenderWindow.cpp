@@ -780,7 +780,7 @@ void CComponentRenderWindow::OnComponentMenuClicked( wxMenuEvent& event )
                 if (uFileId != 0xFFFFFFFF)
                 {
                     TString filePath = pProject->GetComponentFileName(uFileId);
-                    if (filePath.compare(CComponentProxyManager::GetInstance()->GetCurrentWorkingFilePath()) != 0)
+                    if (CComponentProxyManager::GetInstance()->GetCurrentViewFilePath().compare(filePath) != 0)
                     {
                         TCHAR szInfo[1024];
                         _stprintf(szInfo, _T("搜索到ID为%d的组件位于文件%s,是否跳转到该组件?"), iComponentId, filePath.c_str());

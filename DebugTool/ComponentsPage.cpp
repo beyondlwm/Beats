@@ -440,14 +440,15 @@ void CBDTWxFrame::OnActivateComponentFile(wxTreeEvent& event)
 {
     wxTreeItemId itemId = event.GetItem();
     CComponentFileTreeItemData* pData = (CComponentFileTreeItemData*)m_pComponentFileTreeControl->GetItemData(itemId);
-    const TString& curWorkingFile = CComponentProxyManager::GetInstance()->GetCurrentWorkingFilePath();
+    uint32_t uCurrLoadFileId = CComponentProxyManager::GetInstance()->GetCurrLoadFileId();
+    const TString& curWorkingFile = CComponentProxyManager::GetInstance()->GetProject()->GetComponentFileName(uCurrLoadFileId);
     if (pData->IsDirectory())
     {
         m_pComponentFileTreeControl->Toggle(itemId);
     }
     else if (_tcsicmp(pData->GetFileName().c_str(), curWorkingFile.c_str()) != 0)
     {
-        if (curWorkingFile.length() > 0)
+        if (uCurrLoadFileId != 0xFFFFFFFF)
         {
             CloseComponentFile();
         }
@@ -740,8 +741,8 @@ void CBDTWxFrame::OnComponentFileListMenuClicked( wxMenuEvent& event )
                 else
                 {
                     BEATS_ASSERT(item == m_pComponentFileTreeControl->GetRootItem(), _T("Only root doesn't have a parent!"));
-                    const TString& strFilePath = CComponentProxyManager::GetInstance()->GetCurrentWorkingFilePath();
-                    CComponentProxyManager::GetInstance()->CloseFile(strFilePath.c_str());
+                    uint32_t uCurrLoadFileId = CComponentProxyManager::GetInstance()->GetCurrLoadFileId();
+                    CComponentProxyManager::GetInstance()->CloseFile(uCurrLoadFileId);
                     pProject->GetRootDirectory()->DeleteAll(true);
                     m_pComponentFileTreeControl->DeleteChildren(item);// Never delete the root item.
                 }
@@ -828,9 +829,10 @@ void CBDTWxFrame::OpenComponentFile( const TCHAR* pFilePath )
 void CBDTWxFrame::CloseComponentFile(bool bRemindSave /*= true*/)
 {
     CComponentProxyManager* pComponentManager = CComponentProxyManager::GetInstance();
-    const TString& strCurWorkingFile = pComponentManager->GetCurrentWorkingFilePath();
-    if (strCurWorkingFile.length() > 0)
+    uint32_t uCurrLoadFileId = pComponentManager->GetCurrLoadFileId();
+    if (uCurrLoadFileId != 0xFFFFFFFF)
     {
+        const TString& strCurWorkingFile = pComponentManager->GetProject()->GetComponentFileName(uCurrLoadFileId);
         if (bRemindSave)
         {
             int iRet = wxMessageBox(wxString::Format(_T("是否要保存当前文件?\n%s"), strCurWorkingFile.c_str()), _T("保存文件"), wxYES_NO);
@@ -922,8 +924,7 @@ void CBDTWxFrame::OnComponentSaveButtonClick(wxCommandEvent& /*event*/)
             {
                 fclose(pProjectFile);
                 CComponentProxyManager::GetInstance()->GetProject()->SaveProject();
-                const TString curWorkingFile = CComponentProxyManager::GetInstance()->GetCurrentWorkingFilePath();
-                if (curWorkingFile.length() > 0)
+                if (CComponentProxyManager::GetInstance()->GetCurrLoadFileId() != 0xFFFFFFFF)
                 {
                     CComponentProxyManager::GetInstance()->SaveCurFile();
                 }
@@ -1137,7 +1138,7 @@ void CBDTWxFrame::OpenProjectFile( const TCHAR* pPath )
 void CBDTWxFrame::CloseProjectFile()
 {
     SelecteComponent(NULL);
-    if (CComponentProxyManager::GetInstance()->GetCurrentWorkingFilePath().length() > 0)
+    if (CComponentProxyManager::GetInstance()->GetCurrLoadFileId() != 0xFFFFFFFF)
     {
         CloseComponentFile();
     }

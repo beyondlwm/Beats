@@ -69,6 +69,7 @@ public:
     CIdManager* GetIdManager() const;
     CComponentProject* GetProject() const;
 
+    uint32_t GetCurrLoadFileId();
     void SetForbidDependencyResolve(bool bEnable);
     bool GetForbidDependencyResolve() const;
     void AddDependencyResolver( CDependencyDescription* pDescription, uint32_t uIndex, uint32_t uGuid, uint32_t uInstanceId, void* pVariableAddress, bool bIsList, TAddDependencyFunc pFunc = NULL);
