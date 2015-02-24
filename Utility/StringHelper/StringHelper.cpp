@@ -87,7 +87,7 @@ void CStringHelper::ConvertToTCHAR( const wchar_t* pData, TCHAR* pBuffer, uint32
 #ifdef _UNICODE
     wcscpy(pBuffer, pData);
 #else
-    sprintf(pBuffer, "%ls", pData);
+    wcstombs(pBuffer, pData, bufferLength);
 #endif
 }
 
@@ -98,7 +98,7 @@ void CStringHelper::ConvertToTCHAR( const char* pData, TCHAR* pBuffer, uint32_t 
     #if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
         MultiByteToWideChar(CP_ACP, 0, pData, -1, pBuffer, (int)bufferLength);
     #else
-        swprintf(pBuffer, bufferLength, L"%hs", pData);
+        mbstowcs(pBuffer, pData, bufferLength);
     #endif
 #else
     strcpy(pBuffer, pData);
@@ -111,7 +111,7 @@ void CStringHelper::ConvertToCHAR( const TCHAR* pData, char* pBuffer, uint32_t b
     #if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
         WideCharToMultiByte(CP_ACP, 0, pData, -1, pBuffer, (int)bufferLength, NULL, NULL);
     #else
-        sprintf(pBuffer, "%ls", pData);
+        wcstombs(pBuffer, pData, bufferLength);
     #endif
 #else
     strcpy(pBuffer, pData);
@@ -127,7 +127,7 @@ void CStringHelper::ConvertToWCHAR( const TCHAR* pData, wchar_t* pBuffer, uint32
     #if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
         MultiByteToWideChar(CP_ACP, 0, pData, -1, pBuffer, (int)bufferLength);
     #else
-        swprintf(pBuffer, bufferLength, L"%hs", pData);
+        mbstowcs(pBuffer, pData, bufferLength);
     #endif
 #endif
 }
