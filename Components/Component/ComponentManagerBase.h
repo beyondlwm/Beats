@@ -70,13 +70,11 @@ public:
     CComponentProject* GetProject() const;
 
     uint32_t GetCurrLoadFileId();
+    void CalcSwitchFile(uint32_t uFileId, bool bCloseLoadedFile, std::vector<uint32_t>& loadFiles, std::vector<uint32_t>& unloadFiles, bool& bNewAddFile);
     void SetForbidDependencyResolve(bool bEnable);
     bool GetForbidDependencyResolve() const;
     void AddDependencyResolver( CDependencyDescription* pDescription, uint32_t uIndex, uint32_t uGuid, uint32_t uInstanceId, void* pVariableAddress, bool bIsList, TAddDependencyFunc pFunc = NULL);
     virtual void ResolveDependency() = 0;
-
-protected:
-    void CalcSwitchFile(uint32_t uFileId, bool bCloseLoadedFile, std::vector<uint32_t>& loadFiles, std::vector<uint32_t>& unloadFiles, bool& bNewAddFile);
 
 private:
     void DeleteAllInstance();
