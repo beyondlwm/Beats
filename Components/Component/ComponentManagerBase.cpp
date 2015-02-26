@@ -350,10 +350,11 @@ void CComponentManagerBase::CalcSwitchFile(uint32_t uFileId, bool bCloseLoadedFi
                         }
                     }
                     // Load sub-directory to target, but don't load the last sub-directory, because we only need one file in it, the target file.
-                    CComponentProjectDirectory* pCurLoopDirectory = pDirectory;
-                    for (int i = 1; i < (int)logicPaths.size() - 1; ++i)
+                    CComponentProjectDirectory* pCurLoopDirectory = pCurDirectory;
+                    for (int i = 0; i < (int)logicPaths.size() - 1; ++i)
                     {
                         pCurLoopDirectory = pCurLoopDirectory->FindChild(logicPaths[i].c_str());
+                        BEATS_ASSERT(pCurLoopDirectory != NULL);
                         uint32_t uFileCount = pCurLoopDirectory->GetFileList().size();
                         for (uint32_t i = 0; i < uFileCount; ++i)
                         {
@@ -372,6 +373,7 @@ void CComponentManagerBase::CalcSwitchFile(uint32_t uFileId, bool bCloseLoadedFi
                     {
                         unloadFiles.push_back(m_uCurLoadFileId);
                         CComponentProjectDirectory* pCurLoopDirectory = pCurDirectory->GetParent();
+                        BEATS_ASSERT(pCurLoopDirectory != NULL);
                         for (int i = 1; i < (int)logicPaths.size() - 1; ++i)
                         {
                             if (logicPaths[i].compare(_T("..")) == 0)
@@ -382,6 +384,7 @@ void CComponentManagerBase::CalcSwitchFile(uint32_t uFileId, bool bCloseLoadedFi
                                     unloadFiles.push_back(fileList[i]);
                                 }
                                 pCurLoopDirectory = pCurLoopDirectory->GetParent();
+                                BEATS_ASSERT(pCurLoopDirectory != NULL);
                             }
                             else
                             {
