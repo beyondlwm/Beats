@@ -252,15 +252,6 @@ void CComponentManagerBase::CalcSwitchFile(uint32_t uFileId, bool bCloseLoadedFi
             CComponentProjectDirectory* pDirectory = m_pProject->FindProjectDirectoryById(uFileId);
             CComponentProjectDirectory* pCurDirectory = m_pProject->FindProjectDirectoryById(m_uCurLoadFileId);
 
-#ifdef _DEBUG
-            // Test Code, try to remove it when no error happen.
-            const TString& strCurrFile = m_pProject->GetComponentFileName(m_uCurLoadFileId);
-            CComponentProjectDirectory* pCurDirectoryEx = m_pProject->FindProjectDirectory(strCurrFile, true);
-            const TString& strOpenFileName = m_pProject->GetComponentFileName(uFileId);
-            CComponentProjectDirectory* pOpenFileDirectoryEx = m_pProject->FindProjectDirectory(strOpenFileName, true);
-            BEATS_ASSERT(pDirectory == pOpenFileDirectoryEx);
-            BEATS_ASSERT(pCurDirectory == pCurDirectoryEx);
-#endif
             BEATS_ASSERT(pDirectory != NULL && pCurDirectory != NULL);
             TString strLogicPath = pDirectory->MakeRelativeLogicPath(pCurDirectory);
             std::vector<TString> logicPaths;
@@ -291,7 +282,10 @@ void CComponentManagerBase::CalcSwitchFile(uint32_t uFileId, bool bCloseLoadedFi
             for (uint32_t i = 0; i < fileList.size(); ++i)
             {
                 BEATS_ASSERT(m_loadedFiles.find(fileList[i]) != m_loadedFiles.end());
-                unloadFiles.push_back(fileList[i]);
+                if (fileList[i] != uFileId)
+                {
+                    unloadFiles.push_back(fileList[i]);
+                }
             }
         }
     }

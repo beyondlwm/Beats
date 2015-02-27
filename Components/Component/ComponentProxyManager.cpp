@@ -106,7 +106,10 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bCloseLoadedF
                 m_uCurLoadFileId = uFileId;
             }
         }
-
+        if (bCloseLoadedFile && loadFiles.size() == 0) // It means we have load uFileId before, and we return to it with closing other loaded file.
+        {
+            m_uCurLoadFileId = uFileId;
+        }
         // Rebuild the m_proxyInCurScene
         m_proxyInCurScene.clear();
         uint32_t uCurViewFileId = m_pProject->GetComponentFileId(pFilePath);
