@@ -28,7 +28,7 @@ public:
 
     void CloseFile(const TCHAR* pszFilePath);
     void CloseFile(uint32_t uFileId);
-    const TString& GetCurrentViewFilePath() const;
+    const uint32_t GetCurrentViewFileId() const;
 
     void Export(const TCHAR* pSavePath);
 
@@ -95,7 +95,7 @@ private:
     bool m_bExportingPhase;
     bool m_bReflectCheckFlag;
 
-    TString m_currentViewFilePath;
+    uint32_t m_uCurrViewFileId;
     CPropertyDescriptionBase* m_pCurrReflectPropertyDescription;
     CDependencyDescription* m_pCurrReflectDependency;
     std::map<uint32_t, TCreatePropertyFunc>* m_pPropertyCreatorMap;

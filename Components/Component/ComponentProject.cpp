@@ -610,7 +610,7 @@ uint32_t CComponentProject::QueryFileId(uint32_t uComponentId, bool bOnlyInProje
         {
             // Can't find the data in static records since we may add the new component dynamically OR
             // Find the data in static records but we have delete it dynamically.
-            uRet = CComponentProxyManager::GetInstance()->GetCurrLoadFileId();
+            uRet = CComponentProxyManager::GetInstance()->GetCurrentViewFileId();
             BEATS_ASSERT(uRet != 0xFFFFFFFF);
             BEATS_ASSERT(CComponentProxyManager::GetInstance()->GetComponentInstance(uComponentId) != NULL);
         }

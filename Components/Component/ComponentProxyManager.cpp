@@ -25,6 +25,7 @@ CComponentProxyManager::CComponentProxyManager()
     , m_bLoadingFilePhase(false)
     , m_bExportingPhase(false)
     , m_bReflectCheckFlag(false)
+    , m_uCurrViewFileId(0xFFFFFFFF)
     , m_pCurrReflectPropertyDescription(NULL)
     , m_pCurrReflectDependency(NULL)
 {
@@ -79,7 +80,7 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bCloseLoadedF
     if (uFileId != 0xFFFFFFFF)
     {
         // Save cur file.
-        if (m_currentViewFilePath.compare(pFilePath) != 0)
+        if (m_uCurrViewFileId != uFileId)
         {
             SaveCurFile();
         }
@@ -179,7 +180,7 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bCloseLoadedF
         }
         m_refreshFileList.clear();
         m_bLoadingFilePhase = bRestoreLoadingPhase;
-        m_currentViewFilePath = pFilePath;
+        m_uCurrViewFileId = uFileId;
     }
 }
 
@@ -317,9 +318,9 @@ void CComponentProxyManager::CloseFile(uint32_t uFileId)
     m_pIdManager->UnLock();
 }
 
-const TString& CComponentProxyManager::GetCurrentViewFilePath() const
+const uint32_t CComponentProxyManager::GetCurrentViewFileId() const
 {
-    return m_currentViewFilePath;
+    return m_uCurrViewFileId;
 }
 
 void CComponentProxyManager::Export(const TCHAR* pSavePath)
@@ -509,7 +510,7 @@ void CComponentProxyManager::SaveTemplate(const TCHAR* pszFilePath)
 
 void CComponentProxyManager::SaveCurFile()
 {
-    if (!m_currentViewFilePath.empty())
+    if (m_uCurrViewFileId != 0xFFFFFFFF)
     {
         const std::map<uint32_t, CComponentProxy*>& componentsInScene = GetComponentsInCurScene();
         std::map<uint32_t, std::vector<CComponentProxy*>> guidGroup;
@@ -523,17 +524,17 @@ void CComponentProxyManager::SaveCurFile()
             guidGroup[uGuid].push_back(iter->second);
         }
 
-        SaveToFile(m_currentViewFilePath.c_str(), guidGroup);
+        const TString& strComponentFileName = m_pProject->GetComponentFileName(m_uCurrViewFileId);
+        BEATS_ASSERT(!strComponentFileName.empty());
+        SaveToFile(strComponentFileName.c_str(), guidGroup);
 
         // Recycle all id, because we will reload it in CComponentProject::ReloadFile
         for (auto iter = componentsInScene.begin(); iter != componentsInScene.end(); ++iter)
         {
             m_pIdManager->RecycleId(iter->first);
         }
-        uint32_t uFileId = m_pProject->GetComponentFileId(m_currentViewFilePath);
-        BEATS_ASSERT(uFileId != 0xFFFFFFFF);
         // We just reload the whole file to keep the id manager is working in the right way.
-        m_pProject->ReloadFile(uFileId);
+        m_pProject->ReloadFile(m_uCurrViewFileId);
     }
 }
 
