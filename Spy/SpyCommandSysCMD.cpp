@@ -145,9 +145,7 @@ bool CSpyCommandSysCMD::HandleSpecificCommand(const char* pCommand, std::string&
         GetCurrentDirectoryA(MAX_PATH, szCurDirectory);
         strcat_s(szCurDirectory, "\\");
         strcat_s(szCurDirectory, pCommand + strlen("cd "));
-        TCHAR szBuffer[MAX_PATH];
-        CStringHelper::GetInstance()->ConvertToTCHAR(szCurDirectory, szBuffer, MAX_PATH);
-        if (CFilePathTool::GetInstance()->IsDirectory(szBuffer))
+        if (CFilePathTool::GetInstance()->IsDirectory(szCurDirectory))
         {
             SetCurrentDirectoryA(szCurDirectory);
             strFeedback.clear();
@@ -168,9 +166,7 @@ bool CSpyCommandSysCMD::HandleSpecificCommand(const char* pCommand, std::string&
     }
     else if (pCommand[1] == ':')
     {
-        TCHAR szBuffer[MAX_PATH];
-        CStringHelper::GetInstance()->ConvertToTCHAR(pCommand, szBuffer, MAX_PATH);
-        if (CFilePathTool::GetInstance()->IsDirectory(szBuffer))
+        if (CFilePathTool::GetInstance()->IsDirectory(pCommand))
         {
             SetCurrentDirectoryA(pCommand);
             strFeedback.clear();

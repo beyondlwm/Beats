@@ -144,9 +144,7 @@ void CDependencyDescription::SaveToXML( TiXmlElement* pParentNode )
     else
     {
         TiXmlElement* pDependencyElement = new TiXmlElement("Dependency");
-        char szVariableName[MAX_PATH];
-        CStringHelper::GetInstance()->ConvertToCHAR(m_variableName.c_str(), szVariableName, MAX_PATH);
-        pDependencyElement->SetAttribute("VariableName", szVariableName);
+        pDependencyElement->SetAttribute("VariableName", m_variableName.c_str());
 
         for (uint32_t i = 0; i < m_dependencyLine.size(); ++i)
         {
@@ -160,7 +158,6 @@ void CDependencyDescription::SaveToXML( TiXmlElement* pParentNode )
             pDependencyNodeElement->SetAttribute("Guid", szGUIDHexStr);
             pDependencyElement->LinkEndChild(pDependencyNodeElement);
         }
-
         pParentNode->LinkEndChild(pDependencyElement);
     }
 }
@@ -171,10 +168,7 @@ void CDependencyDescription::LoadFromXML( TiXmlElement* pNode )
     while (pDependencyElement != NULL)
     {
         const char* szVariableName = pDependencyElement->Attribute("VariableName");
-        TCHAR szVariableNameTCHAR[MAX_PATH];
-        CStringHelper::GetInstance()->ConvertToTCHAR(szVariableName, szVariableNameTCHAR, MAX_PATH);
-
-        if (_tcscmp(szVariableNameTCHAR, m_variableName.c_str()) != 0)
+        if (_tcscmp(szVariableName, m_variableName.c_str()) != 0)
         {
             pDependencyElement = pDependencyElement->NextSiblingElement("Dependency");
         }

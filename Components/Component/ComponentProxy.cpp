@@ -340,9 +340,7 @@ void CComponentProxy::SaveToXML( TiXmlElement* pNode, bool bSaveOnlyNoneNativePa
     pInstanceElement->SetAttribute("PosY", posY);
     if (m_strUserDefineDisplayName.length() > 0)
     {
-        char szBuffer[MAX_PATH];
-        CStringHelper::GetInstance()->ConvertToCHAR(m_strUserDefineDisplayName.c_str(), szBuffer, MAX_PATH);
-        pInstanceElement->SetAttribute("UserDefineName", szBuffer);
+        pInstanceElement->SetAttribute("UserDefineName", m_strUserDefineDisplayName.c_str());
     }
     for (uint32_t i = 0; i < m_pProperties->size(); ++i)
     {
@@ -374,9 +372,7 @@ void CComponentProxy::LoadFromXML( TiXmlElement* pNode )
     const char* pszUserDefineName = pNode->Attribute("UserDefineName");
     if (pszUserDefineName != NULL)
     {
-        TCHAR szBuffer[MAX_PATH];
-        CStringHelper::GetInstance()->ConvertToTCHAR(pszUserDefineName, szBuffer, MAX_PATH);
-        m_strUserDefineDisplayName.assign(szBuffer);
+        m_strUserDefineDisplayName.assign(pszUserDefineName);
     }
     std::map<TString, CPropertyDescriptionBase*> unInitializedproperties;
     for (uint32_t k = 0; k < m_pProperties->size(); ++k)
@@ -395,15 +391,13 @@ void CComponentProxy::LoadFromXML( TiXmlElement* pNode )
         pVarElement->Attribute("Type", (int*)&propertyType);
         const char* szVariableName = pVarElement->Attribute("Variable");
         BEATS_ASSERT(szVariableName != NULL);
-        TCHAR szTCHARVariableName[MAX_PATH];
-        CStringHelper::GetInstance()->ConvertToTCHAR(szVariableName, szTCHARVariableName, MAX_PATH);
         bool bNeedMaintain = true;
-        std::map<TString, CPropertyDescriptionBase*>::iterator iter = unInitializedproperties.find(szTCHARVariableName);
+        std::map<TString, CPropertyDescriptionBase*>::iterator iter = unInitializedproperties.find(szVariableName);
         // If variable name or type has changed, we will check if we have handled before.
         if (iter == unInitializedproperties.end() || iter->second->GetType() != propertyType)
         {
             TString strReplacePropertyName;
-            bNeedMaintain = !pProject->GetReplacePropertyName(this->GetGuid(), szTCHARVariableName, strReplacePropertyName);
+            bNeedMaintain = !pProject->GetReplacePropertyName(this->GetGuid(), szVariableName, strReplacePropertyName);
             if (!bNeedMaintain && 
                 strReplacePropertyName.length() > 0)
             {
@@ -427,9 +421,7 @@ void CComponentProxy::LoadFromXML( TiXmlElement* pNode )
     {
         // Save the XML file to overwrite the old property data.
         const char* pFilePath = pNode->GetDocument()->Value();
-        TCHAR szFilePath[MAX_PATH];
-        CStringHelper::GetInstance()->ConvertToTCHAR(pFilePath, szFilePath, MAX_PATH);
-        uint32_t uFileId = CComponentProxyManager::GetInstance()->GetProject()->GetComponentFileId(szFilePath);
+        uint32_t uFileId = CComponentProxyManager::GetInstance()->GetProject()->GetComponentFileId(pFilePath);
         BEATS_ASSERT(uFileId != 0xFFFFFFFF);
         std::set<uint32_t>& fileList = CComponentProxyManager::GetInstance()->GetRefreshFileList();
         fileList.insert(uFileId);
@@ -441,9 +433,6 @@ void CComponentProxy::LoadFromXML( TiXmlElement* pNode )
         unUsedXMLVariableNode[i]->Attribute("Type", (int*)&propertyType);
         const char* szVariableName = unUsedXMLVariableNode[i]->Attribute("Variable");
 
-        TCHAR szTCHARVariableName[MAX_PATH];
-        CStringHelper::GetInstance()->ConvertToTCHAR(szVariableName, szTCHARVariableName, MAX_PATH);
-
         std::vector<CPropertyDescriptionBase*> matchTypeProperties;
         for (std::map<TString, CPropertyDescriptionBase*>::iterator iter = unInitializedproperties.begin(); iter != unInitializedproperties.end(); ++iter)
         {
@@ -454,26 +443,24 @@ void CComponentProxy::LoadFromXML( TiXmlElement* pNode )
         }
         if (matchTypeProperties.size() > 0)
         {
-            const char* pFilePath = pNode->GetDocument()->Value();
-            TCHAR szFilePath[MAX_PATH];
-            CStringHelper::GetInstance()->ConvertToTCHAR(pFilePath, szFilePath, MAX_PATH);
+            const char* pszFilePath = pNode->GetDocument()->Value();
             TCHAR szInform[1024];
             _stprintf(szInform, _T("Data:%s (In file\n%s\nComponent %s GUID:0x%x)is no longer valid in this version, contact developer for more information!\nTo Ignore click\"Yes\"\nReallocate click\"No\"\n"),
-                szTCHARVariableName,
-                szFilePath,
+                szVariableName,
+                pszFilePath,
                 this->GetClassStr(),
                 this->GetGuid());
             int iRet = MessageBox(NULL, szInform, _T("Maintain data"), MB_YESNO);
             if (iRet == IDYES)
             {
-                pProject->RegisterPropertyMaintainInfo(this->GetGuid(), szTCHARVariableName, _T(""));
+                pProject->RegisterPropertyMaintainInfo(this->GetGuid(), szVariableName, _T(""));
             }
             else
             {
                 for (uint32_t j = 0; j < matchTypeProperties.size(); )
                 {
                     const TString& strVariableName = matchTypeProperties[j]->GetBasicInfo()->m_variableName;
-                    _stprintf(szInform, _T("Reallocate %s to %s?"), szTCHARVariableName, strVariableName.c_str());
+                    _stprintf(szInform, _T("Reallocate %s to %s?"), szVariableName, strVariableName.c_str());
                     TCHAR szTitle[MAX_PATH];
                     _stprintf(szTitle, _T("Reallocate data %d/%d"), j + 1, matchTypeProperties.size());
                     int iRet = MessageBox(NULL, szInform, szTitle, MB_YESNO);
@@ -481,7 +468,7 @@ void CComponentProxy::LoadFromXML( TiXmlElement* pNode )
                     {
                         matchTypeProperties[j]->LoadFromXML(unUsedXMLVariableNode[i]);
                         unInitializedproperties.erase(strVariableName);
-                        pProject->RegisterPropertyMaintainInfo(this->GetGuid(), szTCHARVariableName, strVariableName);
+                        pProject->RegisterPropertyMaintainInfo(this->GetGuid(), szVariableName, strVariableName);
                         break;
                     }
                     else

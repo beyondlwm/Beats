@@ -107,9 +107,7 @@ void CPlayTrack::BuildRecord()
     ClearRecord();
     const TString& brfFilePath = CGame::GetInstance()->GetBRFFilePath();
     BEATS_ASSERT(brfFilePath.empty() == false, _T("Can't phase BRF file which is not existing!"));
-    char szBuffer[MAX_PATH];
-    CStringHelper::GetInstance()->ConvertToCHAR(brfFilePath.c_str(), szBuffer, MAX_PATH);
-    TiXmlDocument document(szBuffer);
+    TiXmlDocument document(brfFilePath.c_str());
     bool loadSuccess = document.LoadFile();
     BEATS_ASSERT(loadSuccess, _T("Bad BRF file: %s!"), brfFilePath.c_str());
     m_beatsRecord.clear();

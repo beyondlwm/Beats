@@ -56,18 +56,13 @@ CComponentProjectDirectory* CComponentProject::LoadProject(const TCHAR* pszProje
         m_strProjectFilePath = CFilePathTool::GetInstance()->ParentPath(pszProjectFile);
         m_strProjectFileName = CFilePathTool::GetInstance()->FileName(pszProjectFile);
 
-        char szProjectFileChar[MAX_PATH];
-        CStringHelper::GetInstance()->ConvertToCHAR(pszProjectFile, szProjectFileChar, MAX_PATH);
-
         TiXmlDocument document;
-        bool bLoadSuccess = document.LoadFile(szProjectFileChar);
-        BEATS_ASSERT(bLoadSuccess, _T("Load file %s failed!"), szProjectFileChar);
+        bool bLoadSuccess = document.LoadFile(pszProjectFile, TIXML_ENCODING_UTF8);
+        BEATS_ASSERT(bLoadSuccess, _T("Load file %s failed!"), pszProjectFile);
         if (bLoadSuccess)
         {
             TiXmlElement* pRootElement = document.RootElement();
-            TCHAR szTName[MAX_PATH];
-            CStringHelper::GetInstance()->ConvertToTCHAR(pRootElement->Value(), szTName, MAX_PATH);
-            m_pProjectDirectory = new CComponentProjectDirectory(NULL, szTName);
+            m_pProjectDirectory = new CComponentProjectDirectory(NULL, pRootElement->Value());
             TString strStartFile;
             LoadXMLProject(pRootElement, m_pProjectDirectory, strStartFile, conflictIdMap);
             m_uStartFileId = GetComponentFileId(strStartFile);
@@ -76,9 +71,7 @@ CComponentProjectDirectory* CComponentProject::LoadProject(const TCHAR* pszProje
         else
         {
             TCHAR info[MAX_PATH];
-            TCHAR reason[MAX_PATH];
-            CStringHelper::GetInstance()->ConvertToTCHAR(document.ErrorDesc(), reason, MAX_PATH);
-            _stprintf(info, _T("Load File :%s Failed!Reason:%s"), pszProjectFile, reason);
+            _stprintf(info, _T("Load File :%s Failed! Row:%d Col:%d Reason:%s"), pszProjectFile, document.ErrorRow(), document.ErrorCol(), document.ErrorDesc());
             MessageBox(NULL, info, _T("Load File Failed"), MB_OK | MB_ICONERROR);
         }
     }
@@ -120,17 +113,13 @@ void CComponentProject::SaveProject()
     document.LinkEndChild(pRootElement);
     TiXmlElement* pStartDirectoryNode = new TiXmlElement("StartFile");
     TString strRelativePath = CFilePathTool::GetInstance()->MakeRelative(m_strProjectFilePath.c_str(), GetComponentFileName(m_uStartFileId).c_str());
-    char szCharPath[MAX_PATH];
-    CStringHelper::GetInstance()->ConvertToCHAR(strRelativePath.c_str(), szCharPath, MAX_PATH);
-    pStartDirectoryNode->SetAttribute("FilePath", szCharPath);
+    pStartDirectoryNode->SetAttribute("FilePath", strRelativePath.c_str());
     pRootElement->LinkEndChild(pStartDirectoryNode);
 
     SaveProjectFile(pRootElement, m_pProjectDirectory);
     TString strFullPath = m_strProjectFilePath;
     strFullPath.append(_T("/")).append(m_strProjectFileName);
-    TCHAR szBuffer[MAX_PATH];
-    CStringHelper::GetInstance()->ConvertToCHAR(strFullPath.c_str(), szBuffer, MAX_PATH);
-    document.SaveFile(szBuffer);
+    document.SaveFile(strFullPath.c_str());
 }
 
 void CComponentProject::SaveProjectFile( TiXmlElement* pParentNode, const CComponentProjectDirectory* p)
@@ -140,9 +129,7 @@ void CComponentProject::SaveProjectFile( TiXmlElement* pParentNode, const CCompo
     if (p != m_pProjectDirectory)
     {
         pNewDirectoryElement = new TiXmlElement("Directory");
-        char szName[MAX_PATH];
-        CStringHelper::GetInstance()->ConvertToCHAR(p->GetName().c_str(), szName, MAX_PATH);
-        pNewDirectoryElement->SetAttribute("Name", szName);
+        pNewDirectoryElement->SetAttribute("Name", p->GetName().c_str());
         pParentNode->LinkEndChild(pNewDirectoryElement);
     }
 
@@ -160,9 +147,7 @@ void CComponentProject::SaveProjectFile( TiXmlElement* pParentNode, const CCompo
         uint32_t uFileNameId = *iter;
 
         TString strRelativePath = CFilePathTool::GetInstance()->MakeRelative(m_strProjectFilePath.c_str(), GetComponentFileName(uFileNameId).c_str());
-        char szCharPath[MAX_PATH];
-        CStringHelper::GetInstance()->ConvertToCHAR(strRelativePath.c_str(), szCharPath, MAX_PATH);
-        pNewFileElement->SetAttribute("Path", szCharPath);
+        pNewFileElement->SetAttribute("Path", strRelativePath.c_str());
         pNewDirectoryElement->LinkEndChild(pNewFileElement);
     }
 }
@@ -182,12 +167,9 @@ void CComponentProject::ResolveIdForFile(uint32_t uFileId, uint32_t idToResolve,
     }
     else
     {
-        char tmp[MAX_PATH] = {0};
         TString strFileName = GetComponentFileName(uFileId);
-        const TCHAR* pszFilePath = strFileName.c_str();
-        CStringHelper::GetInstance()->ConvertToCHAR(pszFilePath, tmp, MAX_PATH);
-        TiXmlDocument document(tmp);
-        bool loadSuccess = document.LoadFile(TIXML_ENCODING_LEGACY);
+        TiXmlDocument document(strFileName.c_str());
+        bool loadSuccess = document.LoadFile(TIXML_ENCODING_UTF8);
         if (loadSuccess)
         {
             int iNewID = CComponentProxyManager::GetInstance()->GetIdManager()->GenerateId();
@@ -239,9 +221,7 @@ void CComponentProject::ResolveIdForFile(uint32_t uFileId, uint32_t idToResolve,
         else
         {
             TCHAR info[MAX_PATH];
-            TCHAR reason[MAX_PATH];
-            CStringHelper::GetInstance()->ConvertToTCHAR(document.ErrorDesc(), reason, MAX_PATH);
-            _stprintf(info, _T("Load File :%s Failed!Reason: %s"), pszFilePath, reason);
+            _stprintf(info, _T("Load File :%s Failed!Row: %d Col: %d Reason: %s"), strFileName.c_str(), document.ErrorRow(), document.ErrorCol(), document.ErrorDesc());
             MessageBox(NULL, info, _T("Load File Failed"), MB_OK | MB_ICONERROR);
         }
     }
@@ -443,10 +423,8 @@ uint32_t CComponentProject::RegisterFile(CComponentProjectDirectory* pDirectory,
 bool CComponentProject::AnalyseFile(const TString& strFileName, std::map<uint32_t, std::vector<uint32_t> >& outResult)
 {
     outResult.clear();
-    char szFileName[MAX_PATH];
-    CStringHelper::GetInstance()->ConvertToCHAR(strFileName.c_str(), szFileName, MAX_PATH);
-    TiXmlDocument document(szFileName);
-    bool bLoadSuccess = document.LoadFile(TIXML_ENCODING_LEGACY);
+    TiXmlDocument document(strFileName.c_str());
+    bool bLoadSuccess = document.LoadFile(TIXML_ENCODING_UTF8);
     if (bLoadSuccess)
     {
         TiXmlElement* pRootElement = document.RootElement();
@@ -501,8 +479,8 @@ bool CComponentProject::AnalyseFile(const TString& strFileName, std::map<uint32_
     else
     {
         TCHAR reason[MAX_PATH];
-        CStringHelper::GetInstance()->ConvertToTCHAR(document.ErrorDesc(), reason, MAX_PATH);
-        BEATS_ASSERT(false, _T("Load File :%s Failed!Reason: %s"), strFileName.c_str(), reason);
+        _stprintf(reason, _T("%s row : %d col : %d"), document.ErrorDesc(), document.ErrorRow(), document.ErrorCol());
+        BEATS_ASSERT(false, _T("Load File :%s Failed!Reason: %s "), strFileName.c_str(), reason);
     }
     return true;
 }
@@ -650,17 +628,13 @@ void CComponentProject::LoadXMLProject(TiXmlElement* pNode, CComponentProjectDir
         if (strcmp(pText, "Directory") == 0)
         {
             const char* pName = pElement->Attribute("Name");
-            TCHAR szTName[MAX_PATH];
-            CStringHelper::GetInstance()->ConvertToTCHAR(pName, szTName, MAX_PATH);
-            CComponentProjectDirectory* pNewProjectFile = new CComponentProjectDirectory(pProjectDirectory, szTName);
+            CComponentProjectDirectory* pNewProjectFile = new CComponentProjectDirectory(pProjectDirectory, pName);
             LoadXMLProject(pElement, pNewProjectFile, strFile, conflictIdMap);
         }
         else if (strcmp(pText, "File") == 0)
         {
             const char* pPath = pElement->Attribute("Path");
-            TCHAR szTPath[MAX_PATH];
-            CStringHelper::GetInstance()->ConvertToTCHAR(pPath, szTPath, MAX_PATH);
-            TString strFilePath = CFilePathTool::GetInstance()->MakeAbsolute(m_strProjectFilePath.c_str(), szTPath);
+            TString strFilePath = CFilePathTool::GetInstance()->MakeAbsolute(m_strProjectFilePath.c_str(), pPath);
             pProjectDirectory->AddFile(strFilePath.c_str(), conflictIdMap);
             (*m_pFileToDirectoryMap)[m_pComponentFiles->size() - 1] = pProjectDirectory;
         }
@@ -668,9 +642,7 @@ void CComponentProject::LoadXMLProject(TiXmlElement* pNode, CComponentProjectDir
         {
             const char* pszStartFilePath = pElement->Attribute("FilePath");
             BEATS_ASSERT(pszStartFilePath != NULL);
-            TCHAR szTPath[MAX_PATH];
-            CStringHelper::GetInstance()->ConvertToTCHAR(pszStartFilePath, szTPath, MAX_PATH);
-            strFile = CFilePathTool::GetInstance()->MakeAbsolute(m_strProjectFilePath.c_str(), szTPath);
+            strFile = CFilePathTool::GetInstance()->MakeAbsolute(m_strProjectFilePath.c_str(), pszStartFilePath);
         }
         else
         {

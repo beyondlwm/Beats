@@ -175,7 +175,7 @@ void CWmiDetector::VariantToString(const LPVARIANT pVar,TString &chRetValue) con
     case VT_BSTR:
         {
             TCHAR szBuffer[10240];
-            CStringHelper::GetInstance()->ConvertToTCHAR((const wchar_t*)pVar->pbstrVal, szBuffer, 10240);
+            WideCharToMultiByte(CP_UTF8, 0, (const wchar_t*)pVar->pbstrVal, -1, szBuffer, (int)10240, NULL, NULL);
             chRetValue.assign(szBuffer);
             //delete space suffix
             chRetValue = chRetValue.substr(0, chRetValue.find_last_not_of(' ') + 1);
@@ -210,7 +210,7 @@ void CWmiDetector::VariantToString(const LPVARIANT pVar,TString &chRetValue) con
             hr = SafeArrayAccessData(pVar->parray,(void HUGEP**)&pBstr);
             hr = SafeArrayUnaccessData(pVar->parray);
             TCHAR szBuffer[10240];
-            CStringHelper::GetInstance()->ConvertToTCHAR((const wchar_t*)pBstr->GetBSTR(), szBuffer, 10240);
+            WideCharToMultiByte(CP_UTF8, 0, (const wchar_t*)pBstr->GetBSTR(), -1, szBuffer, (int)10240, NULL, NULL);
             chRetValue.assign(szBuffer);
         }
         break;
@@ -499,7 +499,7 @@ void CWmiDetector::DebugEnumClassProperty(const TCHAR* pNameSpace, const TString
                     TString result;
                     VariantToString(&vtProp, result);
                     TCHAR szBuffer[10240];
-                    CStringHelper::GetInstance()->ConvertToTCHAR((const wchar_t*)propName, szBuffer, 10240);
+                    WideCharToMultiByte(CP_UTF8, 0, (const wchar_t*)propName, -1, szBuffer, (int)10240, NULL, NULL);
                     OutputDebugString(szBuffer);
                     OutputDebugString(_T(":\n"));
                     OutputDebugString(result.c_str());

@@ -131,13 +131,11 @@ bool CTitlePage::AcquireAudioPath(TString& path)
 void CTitlePage::AddToTrackList( const TCHAR* name )
 {
     CEGUI::ItemListbox* pList = static_cast<CEGUI::ItemListbox*>(m_pComponents[eTPC_TrackList]);
-    char szBuffer[1024];
-    CStringHelper::GetInstance()->ConvertToCHAR(name, szBuffer, 1024);
-    CEGUI::ItemEntry* pItemEntry = new CEGUI::ItemEntry("Falagard/ItemEntry", szBuffer);
+    CEGUI::ItemEntry* pItemEntry = new CEGUI::ItemEntry("Falagard/ItemEntry", name);
     pItemEntry->setWindowRenderer("Falagard/ItemEntry");
     pItemEntry->setLookNFeel("TaharezLook/ListboxItem");
 
-    pItemEntry->setText(szBuffer);
+    pItemEntry->setText(name);
     pItemEntry->setFont("STZHONGS");
 
     pList->addItem(pItemEntry);
@@ -217,9 +215,7 @@ void CTitlePage::SetOwner( CTitleTask* pOwner )
 void CTitlePage::SetAudioPathText( const TString& path )
 {
     m_pComponents[eTPC_AudioFilePathTxt]->setFont("STZHONGS");
-    char szBuffer[1024];
-    CStringHelper::GetInstance()->ConvertToCHAR(path.c_str(), szBuffer, 1024);
-    m_pComponents[eTPC_AudioFilePathTxt]->setText(szBuffer);
+    m_pComponents[eTPC_AudioFilePathTxt]->setText(path.c_str());
     if (m_pComponents[eTPC_BeatsRecordTxt]->getText() != "")
     {
         m_pComponents[eTPC_StartBtn]->setEnabled(true);
@@ -229,9 +225,7 @@ void CTitlePage::SetAudioPathText( const TString& path )
 void CTitlePage::SetBRFPathText( const TString& path )
 {
     m_pComponents[eTPC_BeatsRecordTxt]->setFont("STZHONGS");
-    char szBuffer[1024];
-    CStringHelper::GetInstance()->ConvertToCHAR(path.c_str(), szBuffer, 1024);
-    m_pComponents[eTPC_BeatsRecordTxt]->setText(szBuffer);
+    m_pComponents[eTPC_BeatsRecordTxt]->setText(path.c_str());
     if (m_pComponents[eTPC_AudioFilePathTxt]->getText() != "")
     {
         m_pComponents[eTPC_StartBtn]->setEnabled(true);

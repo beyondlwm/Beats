@@ -76,9 +76,7 @@ void CUIPageBase::InitComponents( int count, const TCHAR* names[] )
 {
     for (int i = 0; i < count; ++i)
     {
-        char szBuffer[10240];
-        CStringHelper::GetInstance()->ConvertToCHAR(names[i], szBuffer, 10240);
-        m_pComponents.push_back(m_pRootWindow->getChildRecursive(szBuffer));
+        m_pComponents.push_back(m_pRootWindow->getChildRecursive(names[i]));
     }
 }
 

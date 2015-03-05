@@ -159,9 +159,7 @@ void CWxwidgetsPropertyBase::SaveToXML( TiXmlElement* pParentNode )
 {
     TiXmlElement* pVariableElement = new TiXmlElement("VariableNode");
     pVariableElement->SetAttribute("Type", m_type);
-    char variableName[MAX_PATH] = {0};
-    CStringHelper::GetInstance()->ConvertToCHAR(GetBasicInfo()->m_variableName.c_str(), variableName, MAX_PATH);
-    pVariableElement->SetAttribute("Variable", variableName);
+    pVariableElement->SetAttribute("Variable", GetBasicInfo()->m_variableName.c_str());
     char szValue[102400];
     GetValueAsChar(eVT_CurrentValue, szValue);
     pVariableElement->SetAttribute("SavedValue", szValue);
@@ -176,10 +174,8 @@ void CWxwidgetsPropertyBase::LoadFromXML( TiXmlElement* pNode )
 {
     BEATS_ASSERT(pNode != NULL);
     const char* pValue = pNode->Attribute("SavedValue");
-    TCHAR pTCHARValue[10240];
-    CStringHelper::GetInstance()->ConvertToTCHAR(pValue, pTCHARValue, 10240);
-    GetValueByTChar(pTCHARValue, m_valueArray[eVT_CurrentValue]);
-    GetValueByTChar(pTCHARValue, m_valueArray[eVT_SavedValue]);
+    GetValueByTChar(pValue, m_valueArray[eVT_CurrentValue]);
+    GetValueByTChar(pValue, m_valueArray[eVT_SavedValue]);
 }
 
 void CWxwidgetsPropertyBase::AnalyseUIParameter( const TCHAR* parameter )

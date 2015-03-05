@@ -192,10 +192,8 @@ void CComponentProxyManager::LoadFile(const TCHAR* pszFilePath, std::vector<CCom
     }
     bool bRestoreLoadingPhase = m_bLoadingFilePhase;
     m_bLoadingFilePhase = true;
-    char tmp[MAX_PATH] = {0};
-    CStringHelper::GetInstance()->ConvertToCHAR(pszFilePath, tmp, MAX_PATH);
-    TiXmlDocument document(tmp);
-    bool loadSuccess = document.LoadFile(TIXML_ENCODING_LEGACY);
+    TiXmlDocument document(pszFilePath);
+    bool loadSuccess = document.LoadFile(TIXML_ENCODING_UTF8);
     if (loadSuccess)
     {
         uint32_t uFileId = CComponentProxyManager::GetInstance()->GetProject()->GetComponentFileId(pszFilePath);
@@ -250,9 +248,7 @@ void CComponentProxyManager::LoadFile(const TCHAR* pszFilePath, std::vector<CCom
     else
     {
         TCHAR info[MAX_PATH];
-        TCHAR reason[MAX_PATH];
-        CStringHelper::GetInstance()->ConvertToTCHAR(document.ErrorDesc(), reason, MAX_PATH);
-        _stprintf(info, _T("Load file :%s Failed!Reason:%s"), pszFilePath, reason);
+        _stprintf(info, _T("Load file :%s Failed! Row: %d Col: %d Reason:%s"), pszFilePath, document.ErrorRow(), document.ErrorCol(), document.ErrorDesc());
         MessageBox(NULL, info, _T("Load File Failed"), MB_OK | MB_ICONERROR);
     }
 
@@ -493,9 +489,7 @@ void CComponentProxyManager::SaveTemplate(const TCHAR* pszFilePath)
         char szGUIDHexStr[32] = {0};
         sprintf(szGUIDHexStr, "0x%lx", iter->first);
         pComponentElement->SetAttribute("GUID", szGUIDHexStr);
-        char tmp[MAX_PATH] = {0};
-        CStringHelper::GetInstance()->ConvertToCHAR(GetComponentTemplate(iter->first)->GetClassStr(), tmp, MAX_PATH);
-        pComponentElement->SetAttribute("Name", tmp);
+        pComponentElement->SetAttribute("Name", GetComponentTemplate(iter->first)->GetClassStr());
         static_cast<CComponentProxy*>(iter->second)->SaveToXML(pComponentElement, true);
         // No property is saved, so don't save this template.
         TiXmlElement* pInstanceNode = pComponentElement->FirstChildElement("Instance");
@@ -510,9 +504,7 @@ void CComponentProxyManager::SaveTemplate(const TCHAR* pszFilePath)
         }
     }
     pRootElement->LinkEndChild(pComponentListElement);
-    char pathInChar[MAX_PATH] = {0};
-    CStringHelper::GetInstance()->ConvertToCHAR(pszFilePath, pathInChar, MAX_PATH);
-    document.SaveFile(pathInChar);
+    document.SaveFile(pszFilePath);
 }
 
 void CComponentProxyManager::SaveCurFile()
@@ -560,9 +552,7 @@ void CComponentProxyManager::SaveToFile(const TCHAR* pszFileName, std::map<uint3
         char szGUIDHexStr[32] = {0};
         sprintf(szGUIDHexStr, "0x%lx", iter->first);
         pComponentElement->SetAttribute("GUID", szGUIDHexStr);
-        char tmp[MAX_PATH] = {0};
-        CStringHelper::GetInstance()->ConvertToCHAR(GetComponentTemplate(iter->first)->GetClassStr(), tmp, MAX_PATH);
-        pComponentElement->SetAttribute("Name", tmp);
+        pComponentElement->SetAttribute("Name", GetComponentTemplate(iter->first)->GetClassStr());
         pComponentListElement->LinkEndChild(pComponentElement);
         for (uint32_t i = 0; i < iter->second.size(); ++i)
         {
@@ -572,9 +562,7 @@ void CComponentProxyManager::SaveToFile(const TCHAR* pszFileName, std::map<uint3
         }
     }
     pRootElement->LinkEndChild(pComponentListElement);
-    char pathInChar[MAX_PATH] = {0};
-    CStringHelper::GetInstance()->ConvertToCHAR(pszFileName, pathInChar, MAX_PATH);
-    document.SaveFile(pathInChar);
+    document.SaveFile(pszFileName);
 }
 
 void CComponentProxyManager::RegisterPropertyCreator( uint32_t enumType, TCreatePropertyFunc func )
@@ -864,10 +852,8 @@ std::set<uint32_t>& CComponentProxyManager::GetRefreshFileList()
 
 void CComponentProxyManager::LoadTemplateDataFromXML(const TCHAR* pszPath)
 {
-    char tmp[MAX_PATH] = {0};
-    CStringHelper::GetInstance()->ConvertToCHAR(pszPath, tmp, MAX_PATH);
-    TiXmlDocument document(tmp);
-    bool loadSuccess = document.LoadFile();
+    TiXmlDocument document(pszPath);
+    bool loadSuccess = document.LoadFile(TIXML_ENCODING_UTF8);
     if (loadSuccess)
     {
         TiXmlElement* pRootElement = document.RootElement();

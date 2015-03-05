@@ -26,12 +26,7 @@ public:
         eSCT_Force32Bit = 0xFFFFFFFF
     };
 public:
-    // Convert
     bool SplitString(const TCHAR* pParameter, const TCHAR* pSpliter, std::vector<TString>& result, bool bIgnoreSpace = true);
-    void ConvertToTCHAR(const wchar_t* pData, TCHAR* pBuffer, uint32_t bufferLength);
-    void ConvertToTCHAR( const char* pData, TCHAR* pBuffer, uint32_t bufferLength );
-    void ConvertToCHAR( const TCHAR* pData, char* pBuffer, uint32_t bufferLength );
-    void ConvertToWCHAR( const TCHAR* pData, wchar_t* pBuffer, uint32_t bufferLength ) const;
 
     // Filter and Find
     TString FilterString(const TCHAR* pData, const std::vector<TString>& filters);
@@ -39,9 +34,11 @@ public:
     int FindLastString(const TCHAR* pSource, const TCHAR* pTarget,  bool bCaseSensive);
 
     // Check character.
+#if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
+    // Only available in utf-16
     CStringHelper::EStringCharacterType GetCharacterType(wchar_t character) const;
     CStringHelper::EStringCharacterType GetCharacterType(const char* pszChar) const;
-
+#endif
     bool WildMatch(const TCHAR* pat, const TCHAR* str); 
 };
 

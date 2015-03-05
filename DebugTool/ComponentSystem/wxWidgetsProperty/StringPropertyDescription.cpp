@@ -112,7 +112,7 @@ CPropertyDescriptionBase* CStringPropertyDescription::CreateNewInstance()
 void CStringPropertyDescription::GetValueAsChar( EValueType type, char* pOut ) const
 {
     TString* pStr = (TString*)m_valueArray[type];
-    CStringHelper::GetInstance()->ConvertToCHAR(pStr->c_str(), pOut, 10240);
+    _tcscpy(pOut, pStr->c_str());
 }
 
 bool CStringPropertyDescription::GetValueByTChar(const TCHAR* pIn, void* pOutValue)

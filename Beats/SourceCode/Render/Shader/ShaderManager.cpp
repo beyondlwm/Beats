@@ -53,11 +53,8 @@ bool CShaderManager::CreateVertexShaderFromFile(const char* pszFilePath,
         if (CreateVertexShader((DWORD*)(pShader->GetBufferPointer()), &pVertexShader))
         {
             CVertexShader* pBeatsVertexShader = new CVertexShader(pVertexShader);
-            TCHAR szTCharBuffer[MAX_PATH];
-            CStringHelper::GetInstance()->ConvertToTCHAR(pszFuncName, szTCharBuffer, MAX_PATH);
-            pBeatsVertexShader->SetMainFuncName(szTCharBuffer);
-            CStringHelper::GetInstance()->ConvertToTCHAR(pszFilePath, szTCharBuffer, MAX_PATH);
-            pBeatsVertexShader->SetShaderFileName(szTCharBuffer);
+            pBeatsVertexShader->SetMainFuncName(pszFuncName);
+            pBeatsVertexShader->SetShaderFileName(pszFilePath);
 
             *ppVertexShader = pBeatsVertexShader;
 
@@ -92,11 +89,8 @@ bool CShaderManager::CreatePixelShaderFromFile(const char* pszFilePath,
         if (CreatePixelShader((DWORD*)(pShader->GetBufferPointer()), &pPixelShader))
         {
             CPixelShader * pBeatsPixelShader = new CPixelShader(pPixelShader);
-            TCHAR szTCharBuffer[MAX_PATH];
-            CStringHelper::GetInstance()->ConvertToTCHAR(pszFuncName, szTCharBuffer, MAX_PATH);
-            pBeatsPixelShader->SetMainFuncName(szTCharBuffer);
-            CStringHelper::GetInstance()->ConvertToTCHAR(pszFilePath, szTCharBuffer, MAX_PATH);
-            pBeatsPixelShader->SetShaderFileName(szTCharBuffer);
+            pBeatsPixelShader->SetMainFuncName(pszFuncName);
+            pBeatsPixelShader->SetShaderFileName(pszFilePath);
 
             *ppPixelShader = pBeatsPixelShader;
 
@@ -149,11 +143,9 @@ bool CShaderManager::CompileShaderFromFile(const char* pszFilePath,
 #ifdef _DEBUG
         if (!bRet)
         {
-            TCHAR szInfomation[10240];
-            CStringHelper::GetInstance()->ConvertToTCHAR((char*)(*ppErrorMsgs)->GetBufferPointer(), szInfomation, 10240);
             BEATS_ASSERT(bRet, _T("Compiling shader failed!\nerror: %d\n%s\n%s\n%s"), 
                 hr,
-                szInfomation, 
+                (char*)(*ppErrorMsgs)->GetBufferPointer(),
                 DXGetErrorString(hr),
                 DXGetErrorDescription(hr));
         }

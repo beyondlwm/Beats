@@ -296,7 +296,7 @@ CPropertyDescriptionBase* CListPropertyDescription::CreateNewInstance()
 
 void CListPropertyDescription::GetValueAsChar( EValueType type, char* pOut ) const
 {
-    CStringHelper::GetInstance()->ConvertToCHAR(((TString*)GetValue(type))->c_str(), pOut, 128);
+    _tcscpy(pOut, ((TString*)GetValue(type))->c_str());
 }
 
 bool CListPropertyDescription::GetValueByTChar(const TCHAR* /*pIn*/, void* /*pOutValue*/)

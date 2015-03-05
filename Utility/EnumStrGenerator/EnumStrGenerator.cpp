@@ -47,13 +47,10 @@ bool CEnumStrGenerator::ScanEnumInFile( const TCHAR* pFileName )
                 enumNewName[enumNameLength] = 0;
                 FilterCPlusPlusFileComments(enumName, enumNewName, enumNameLength);
                 BEATS_ASSERT(serializer.GetReadPos() == endPos);
-                TCHAR* tNameCharBuff = new TCHAR[enumNameLength + 1];
-                tNameCharBuff[enumNameLength] = 0;
-                CStringHelper::GetInstance()->ConvertToTCHAR(enumNewName, tNameCharBuff, enumNameLength + 1);
                 std::vector<TString> filters;
                 filters.push_back(_T("\r\n"));
                 filters.push_back(_T(" "));
-                TString strName = CStringHelper::GetInstance()->FilterString(tNameCharBuff, filters);
+                TString strName = CStringHelper::GetInstance()->FilterString(enumNewName, filters);
                 std::map<TString, SEnumScanData*>::iterator iter = m_enumStrPool.find(strName.c_str());
                 bool bExisting = iter != m_enumStrPool.end();
                 BEATS_WARNING(!bExisting, 
@@ -77,10 +74,7 @@ bool CEnumStrGenerator::ScanEnumInFile( const TCHAR* pFileName )
                     newTextBuff[dataLength] = 0;
                     uint32_t length = 0;
                     FilterCPlusPlusFileComments(textBuff, newTextBuff, length);
-                    TCHAR* tcharBuff = new TCHAR[length + 1];
-                    tcharBuff[length] = 0;
-                    CStringHelper::GetInstance()->ConvertToTCHAR(newTextBuff, tcharBuff, length + 1);
-                    TString strNewText = CStringHelper::GetInstance()->FilterString(tcharBuff, filters);
+                    TString strNewText = CStringHelper::GetInstance()->FilterString(newTextBuff, filters);
                     SEnumScanData* pEnumData = new SEnumScanData;
                     std::vector<TString> rawEnumString;
                     CStringHelper::GetInstance()->SplitString(strNewText.c_str(), _T(","), rawEnumString);
@@ -104,10 +98,8 @@ bool CEnumStrGenerator::ScanEnumInFile( const TCHAR* pFileName )
 
                     BEATS_SAFE_DELETE_ARRAY(textBuff);
                     BEATS_SAFE_DELETE_ARRAY(newTextBuff);
-                    BEATS_SAFE_DELETE_ARRAY(tcharBuff);
                     BEATS_SAFE_DELETE_ARRAY(enumName);
                     BEATS_SAFE_DELETE_ARRAY(enumNewName);
-                    BEATS_SAFE_DELETE_ARRAY(tNameCharBuff);
                     bRet = true;
                 }
             }

@@ -75,9 +75,7 @@ void CComponentReference::SaveToXML(TiXmlElement* pNode, bool bSaveOnlyNoneNativ
     pInstanceElement->SetAttribute("ReferenceId", m_uReferenceId);
     if (GetUserDefineDisplayName().length() > 0)
     {
-        char szBuffer[MAX_PATH];
-        CStringHelper::GetInstance()->ConvertToCHAR(GetUserDefineDisplayName().c_str(), szBuffer, MAX_PATH);
-        pInstanceElement->SetAttribute("UserDefineName", szBuffer);
+        pInstanceElement->SetAttribute("UserDefineName", GetUserDefineDisplayName().c_str());
     }
     pNode->LinkEndChild(pInstanceElement);
 }
@@ -94,9 +92,7 @@ void CComponentReference::LoadFromXML(TiXmlElement* pNode)
     const char* pszUserDefineName = pNode->Attribute("UserDefineName");
     if (pszUserDefineName != NULL)
     {
-        TCHAR szBuffer[MAX_PATH];
-        CStringHelper::GetInstance()->ConvertToTCHAR(pszUserDefineName, szBuffer, MAX_PATH);
-        SetUserDefineDisplayName(szBuffer);
+        SetUserDefineDisplayName(pszUserDefineName);
     }
 }
 

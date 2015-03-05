@@ -81,57 +81,6 @@ bool CStringHelper::SplitString( const TCHAR* pParameter, const TCHAR* pSpliter,
     return true;
 }
 
-void CStringHelper::ConvertToTCHAR( const wchar_t* pData, TCHAR* pBuffer, uint32_t bufferLength )
-{
-    BEATS_ASSERT(wcslen(pData) * sizeof(wchar_t) < bufferLength, _T("ConvertToTCHAR failed! More buffer length are required!"));
-#ifdef _UNICODE
-    wcscpy(pBuffer, pData);
-#else
-    wcstombs(pBuffer, pData, bufferLength);
-#endif
-}
-
-void CStringHelper::ConvertToTCHAR( const char* pData, TCHAR* pBuffer, uint32_t bufferLength )
-{
-    BEATS_ASSERT(strlen(pData) * sizeof(char) < bufferLength, _T("ConvertToTCHAR failed! More buffer length are required!"));
-#ifdef _UNICODE
-    #if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
-        MultiByteToWideChar(CP_ACP, 0, pData, -1, pBuffer, (int)bufferLength);
-    #else
-        mbstowcs(pBuffer, pData, bufferLength);
-    #endif
-#else
-    strcpy(pBuffer, pData);
-#endif
-}
-
-void CStringHelper::ConvertToCHAR( const TCHAR* pData, char* pBuffer, uint32_t bufferLength )
-{
-#ifdef _UNICODE
-    #if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
-        WideCharToMultiByte(CP_ACP, 0, pData, -1, pBuffer, (int)bufferLength, NULL, NULL);
-    #else
-        wcstombs(pBuffer, pData, bufferLength);
-    #endif
-#else
-    strcpy(pBuffer, pData);
-#endif
-}
-
-void CStringHelper::ConvertToWCHAR( const TCHAR* pData, wchar_t* pBuffer, uint32_t bufferLength ) const
-{
-#ifdef _UNICODE
-    bufferLength; // Fix warning C4100.
-    wcscpy(pBuffer, pData);
-#else
-    #if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
-        MultiByteToWideChar(CP_ACP, 0, pData, -1, pBuffer, (int)bufferLength);
-    #else
-        mbstowcs(pBuffer, pData, bufferLength);
-    #endif
-#endif
-}
-
 TString CStringHelper::FilterString(const TCHAR* pData, const std::vector<TString>& filters )
 {
     TString strRet;
@@ -254,6 +203,7 @@ int CStringHelper::FindLastString( const TCHAR* pSource, const TCHAR* pTarget, b
     return iResult;
 }
 
+#if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
 CStringHelper::EStringCharacterType CStringHelper::GetCharacterType(wchar_t character) const
 {
     EStringCharacterType ret = eSCT_Unknown;
@@ -329,9 +279,10 @@ CStringHelper::EStringCharacterType CStringHelper::GetCharacterType(wchar_t char
 CStringHelper::EStringCharacterType CStringHelper::GetCharacterType(const char* pszChar) const
 {
     wchar_t buffer;
-    ConvertToWCHAR(pszChar, &buffer, sizeof(buffer));
+    MultiByteToWideChar(CP_ACP, 0, pszChar, -1, &buffer, sizeof(wchar_t));
     return GetCharacterType(buffer);
 }
+#endif
 
 bool CStringHelper::WildMatch( const TCHAR* pat, const TCHAR* str )
 {
