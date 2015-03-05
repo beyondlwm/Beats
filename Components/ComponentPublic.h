@@ -54,10 +54,8 @@ inline EReflectPropertyType GetEnumType(T& value, CSerializer* pSerializer)
     if (bIsEnum)
     {
         eRet = eRPT_Enum;
-        TCHAR szNameBuffer[128];
-        CStringHelper::GetInstance()->ConvertToTCHAR(&pszTypeName[strlen("enum ")], szNameBuffer, 128);
         (*pSerializer) << (uint32_t)eRPT_Enum;
-        (*pSerializer) << (int)(value) << szNameBuffer;
+        (*pSerializer) << (int)(value) << &pszTypeName[strlen("enum ")];
     }
     BEATS_ASSERT(bIsEnum, _T("Unknown type!"));
     return eRet;
