@@ -23,7 +23,7 @@ CEnumStrGenerator::~CEnumStrGenerator()
     BEATS_SAFE_DELETE_MAP(m_enumStrPool, TEnumMap);
 }
 
-bool CEnumStrGenerator::ScanEnumInFile( const TCHAR* pFileName )
+bool CEnumStrGenerator::ScanEnumInFile( const TCHAR* pFileName, const TCHAR* pSpecifyEnumName )
 {
     bool bRet = false;
     CSerializer serializer(pFileName);
@@ -46,62 +46,65 @@ bool CEnumStrGenerator::ScanEnumInFile( const TCHAR* pFileName )
                 char* enumNewName = new char[enumNameLength + 1];
                 enumNewName[enumNameLength] = 0;
                 FilterCPlusPlusFileComments(enumName, enumNewName, enumNameLength);
+                BEATS_SAFE_DELETE_ARRAY(enumName);
                 BEATS_ASSERT(serializer.GetReadPos() == endPos);
                 std::vector<TString> filters;
                 filters.push_back(_T("\r\n"));
                 filters.push_back(_T(" "));
-                TString strName = CStringHelper::GetInstance()->FilterString(enumNewName, filters);
-                std::map<TString, SEnumScanData*>::iterator iter = m_enumStrPool.find(strName.c_str());
-                bool bExisting = iter != m_enumStrPool.end();
-                BEATS_WARNING(!bExisting, 
-                    _T("The enum type %s in %s is already scanned in %s, it may be you have scaned same file twice or a enum type with same name under different name space."), 
-                    strName.c_str(), 
-                    pFileName,
-                    iter->second->m_enumFilePath.c_str());
-                // If the length is 0, it means we meet no name enum declare or a typedef.
-                if (strName.length() != 0 && !bExisting)
+                TString strEnumName = CStringHelper::GetInstance()->FilterString(enumNewName, filters);
+                BEATS_SAFE_DELETE_ARRAY(enumNewName);
+                std::map<TString, SEnumScanData*>::iterator iter = m_enumStrPool.find(strEnumName.c_str());
+                if (pSpecifyEnumName == NULL || _tcscmp(pSpecifyEnumName, strEnumName.c_str()) == 0)
                 {
-                    startPos = endPos + 1; // Escape "{"
-                    ScanKeyWordInCPlusPlusFile("}", &serializer);
-                    endPos = serializer.GetReadPos();
-                    serializer.SetReadPos(startPos);
-                    uint32_t dataLength = endPos - startPos;
-                    char* textBuff = new char[dataLength + 1];
-                    textBuff[dataLength] = 0;
-                    serializer.Deserialize(textBuff, dataLength);
-                    BEATS_ASSERT(serializer.GetReadPos() == endPos);
-                    char* newTextBuff = new char[dataLength + 1];
-                    newTextBuff[dataLength] = 0;
-                    uint32_t length = 0;
-                    FilterCPlusPlusFileComments(textBuff, newTextBuff, length);
-                    TString strNewText = CStringHelper::GetInstance()->FilterString(newTextBuff, filters);
-                    SEnumScanData* pEnumData = new SEnumScanData;
-                    std::vector<TString> rawEnumString;
-                    CStringHelper::GetInstance()->SplitString(strNewText.c_str(), _T(","), rawEnumString);
-                    int iDefaultEnumValue = 0;
-                    for (uint32_t i = 0; i < rawEnumString.size(); ++i)
+                    bool bExisting = iter != m_enumStrPool.end();
+                    BEATS_WARNING(!bExisting,
+                        _T("The enum type %s in %s is already scanned in %s, it may be you have scaned same file twice or a enum type with same name under different name space."),
+                        strEnumName.c_str(),
+                        pFileName,
+                        iter->second->m_enumFilePath.c_str());
+                    // If the length is 0, it means we meet no name enum declare or a typedef.
+                    if (strEnumName.length() != 0 && !bExisting)
                     {
-                        // The last enum string could be empty, such as
-                        // enum {E_1, E_2,}
-                        if (!rawEnumString[i].empty())
+                        startPos = endPos + 1; // Escape "{"
+                        ScanKeyWordInCPlusPlusFile("}", &serializer);
+                        endPos = serializer.GetReadPos();
+                        serializer.SetReadPos(startPos);
+                        uint32_t dataLength = endPos - startPos;
+                        char* textBuff = new char[dataLength + 1];
+                        textBuff[dataLength] = 0;
+                        serializer.Deserialize(textBuff, dataLength);
+                        BEATS_ASSERT(serializer.GetReadPos() == endPos);
+                        char* newTextBuff = new char[dataLength + 1];
+                        newTextBuff[dataLength] = 0;
+                        uint32_t length = 0;
+                        FilterCPlusPlusFileComments(textBuff, newTextBuff, length);
+                        BEATS_SAFE_DELETE_ARRAY(textBuff);
+                        TString strNewText = CStringHelper::GetInstance()->FilterString(newTextBuff, filters);
+                        BEATS_SAFE_DELETE_ARRAY(newTextBuff);
+                        SEnumScanData* pEnumData = new SEnumScanData;
+                        std::vector<TString> rawEnumString;
+                        CStringHelper::GetInstance()->SplitString(strNewText.c_str(), _T(","), rawEnumString);
+                        int iDefaultEnumValue = 0;
+                        for (uint32_t i = 0; i < rawEnumString.size(); ++i)
                         {
-                            SEnumData* pData = AnalyseRawEnumString(rawEnumString[i], iDefaultEnumValue);
-                            pEnumData->m_enumValue.push_back(pData);
+                            // The last enum string could be empty, such as
+                            // enum {E_1, E_2,}
+                            if (!rawEnumString[i].empty())
+                            {
+                                SEnumData* pData = AnalyseRawEnumString(rawEnumString[i], iDefaultEnumValue);
+                                pEnumData->m_enumValue.push_back(pData);
+                            }
+                            else
+                            {
+                                BEATS_ASSERT(i == rawEnumString.size() - 1);
+                            }
                         }
-                        else
-                        {
-                            BEATS_ASSERT(i == rawEnumString.size() - 1);
-                        }
+                        pEnumData->m_enumFilePath.assign(pFileName);
+                        m_enumStrPool[strEnumName] = pEnumData;
+                        bRet = true;
                     }
-                    pEnumData->m_enumFilePath.assign(pFileName);
-                    m_enumStrPool[strName] = pEnumData;
-
-                    BEATS_SAFE_DELETE_ARRAY(textBuff);
-                    BEATS_SAFE_DELETE_ARRAY(newTextBuff);
-                    BEATS_SAFE_DELETE_ARRAY(enumName);
-                    BEATS_SAFE_DELETE_ARRAY(enumNewName);
-                    bRet = true;
                 }
+
             }
         }
     }
@@ -221,6 +224,18 @@ bool CEnumStrGenerator::GetEnumValueData( const TCHAR* pEnumType, const std::vec
         bRet = true;
     }
     return bRet;
+}
+
+void CEnumStrGenerator::RescanEnum(const TString& strEnumType)
+{
+    auto iter = m_enumStrPool.find(strEnumType);
+    if (iter != m_enumStrPool.end())
+    {
+        TString strFilePath = iter->second->m_enumFilePath;
+        BEATS_SAFE_DELETE(iter->second);
+        m_enumStrPool.erase(iter);
+        ScanEnumInFile(strFilePath.c_str(), strEnumType.c_str());
+    }
 }
 
 bool CEnumStrGenerator::ScanEnumInDirectory( const TCHAR* pDirectory )

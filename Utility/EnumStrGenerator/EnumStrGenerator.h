@@ -40,11 +40,12 @@ class CEnumStrGenerator
 public:
     void Init(const std::vector<TString>& scanPathList, const TCHAR* pszCacheFileName);
     bool GetEnumValueData(const TCHAR* pEnumType, const std::vector<SEnumData*>*& pResult);
+    void RescanEnum(const TString& strEnumType);
     void SaveCacheFile(const TCHAR* pszCacheFileName);
     bool LoadCacheFile(const TCHAR* pszCacheFileName);
 
 private:
-    bool ScanEnumInFile(const TCHAR* pFileName);
+    bool ScanEnumInFile(const TCHAR* pFileName, const TCHAR* pSpecifyEnumName = NULL);
     bool ScanEnumInDirectory(const TCHAR* pDirectory);
     // This method allows you scan a C++ file, which means it will handle "//" "/*" to filter comments content.
     bool ScanKeyWordInCPlusPlusFile(const char* pKeyWord, CSerializer* fileSerializer);
