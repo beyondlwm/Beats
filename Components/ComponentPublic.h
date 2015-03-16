@@ -62,6 +62,33 @@ inline EReflectPropertyType GetEnumType(T& value, CSerializer* pSerializer)
 }
 
 template<typename T>
+inline void SerializeVariable(T& value, CSerializer* pSerializer)
+{
+    *pSerializer << value;
+}
+
+template<typename T>
+inline void SerializeVariable(std::vector<T>& value, CSerializer* pSerializer)
+{
+    *pSerializer << value.size();
+    for (auto iter = value.begin(); iter != value.end(); ++iter)
+    {
+        *pSerializer << (*iter);
+    }
+}
+
+template<typename T1, typename T2>
+inline void SerializeVariable(std::map<T1, T2>& value, CSerializer* pSerializer)
+{
+    *pSerializer << value.size();
+    for (auto iter = value.begin(); iter != value.end(); ++iter)
+    {
+        *pSerializer << iter->first;
+        *pSerializer << iter->second;
+    }
+}
+
+template<typename T>
 inline void DeserializeVariable(T& value, CSerializer* pSerializer)
 {
     *pSerializer >> value;
@@ -615,8 +642,9 @@ inline bool CheckIfEnumHasExported(const TString& strEnumName)
         {\
             CPropertyDescriptionBase* pProperty = pProxy->GetPropertyDescription(_T(#property));\
             BEATS_ASSERT(pProperty != NULL, _T("Can not find property %s in component %s GUID:0x%x"), _T(#property), this->GetClassStr(), this->GetGuid());\
+            BEATS_ASSERT((pProperty->GetType() >= eRPT_Bool && pProperty->GetType() <= eRPT_Str) || pProperty->GetType() == eRPT_Color || pProperty->GetType() == eRPT_Enum || (pProperty->GetType() >= eRPT_Vec2F && pProperty->GetType() <= eRPT_Vec4F) || pProperty->GetType() == eRPT_Map || pProperty->GetType() == eRPT_List);\
             CSerializer serializer;\
-            serializer << property;\
+            SerializeVariable(property, &serializer);\
             pProperty->Deserialize(serializer);\
         }\
     }

@@ -275,6 +275,7 @@ void CMapPropertyDescription::Deserialize(CSerializer& serializer, EValueType eV
     serializer >> uChildrenCount;
     for (uint32_t i = 0; i < uChildrenCount; ++i)
     {
+        AddChild(NULL);
         (*m_pChildren)[i]->GetChild(0)->Deserialize(serializer, eValueType);
         (*m_pChildren)[i]->GetChild(1)->Deserialize(serializer, eValueType);
     }
