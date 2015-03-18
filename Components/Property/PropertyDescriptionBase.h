@@ -84,7 +84,7 @@ public:
     virtual CPropertyDescriptionBase* Clone(bool bCloneValue);
     virtual CPropertyDescriptionBase* CreateNewInstance() = 0;
 
-    virtual void GetValueAsChar(EValueType type, char* pOut) const = 0  ;
+    virtual void GetValueAsChar(EValueType type, char* pOut) const = 0;
     virtual bool GetValueByTChar(const TCHAR* pIn, void* pOutValue) = 0;
 
     // It's very important to know what this function mean.
@@ -102,9 +102,12 @@ public:
     virtual void Deserialize(CSerializer& serializer, EValueType eValueType = eVT_CurrentValue) = 0;
     virtual bool CopyValue(void* pSourceValue, void* pTargetValue) = 0;
 
+    void SetNoSyncHost(bool bValue);
+
 protected:
     bool m_bInitialized;
     bool m_bHide;
+    bool m_bNoSyncToHost;
     EReflectPropertyType m_type;
     CComponentProxy* m_pOwner;
     SharePtr<SBasicPropertyInfo>* m_pBasicInfo;

@@ -8,6 +8,7 @@
 CPropertyDescriptionBase::CPropertyDescriptionBase(EReflectPropertyType type)
 : m_bInitialized(false)
 , m_bHide(false)
+, m_bNoSyncToHost(false)
 , m_type(type)
 , m_pOwner(NULL)
 , m_pBasicInfo(new SharePtr<SBasicPropertyInfo>(new SBasicPropertyInfo(true, 0xFFFFFFFF)))
@@ -23,6 +24,7 @@ CPropertyDescriptionBase::CPropertyDescriptionBase(EReflectPropertyType type)
 CPropertyDescriptionBase::CPropertyDescriptionBase(const CPropertyDescriptionBase& rRef)
 : m_bInitialized(false)
 , m_bHide(rRef.IsHide())
+, m_bNoSyncToHost(rRef.m_bNoSyncToHost)
 , m_type(rRef.GetType())
 , m_pOwner(NULL)
 , m_pBasicInfo(new SharePtr<SBasicPropertyInfo>(*rRef.m_pBasicInfo))
@@ -235,7 +237,7 @@ void CPropertyDescriptionBase::SetValueWithType(void* pValue, EValueType type, b
     if (CopyValue(pValue, m_valueArray[type]) || bForceUpdateHostComponent)
     {
         // We need to reflect data when load from xml, at that time, owner is not initialized.
-        if (type == eVT_CurrentValue && GetOwner())
+        if (!m_bNoSyncToHost && type == eVT_CurrentValue && GetOwner())
         {
             // Some property is not the real property, such as container property.
             CPropertyDescriptionBase* pRealProperty = this;
@@ -271,4 +273,9 @@ void CPropertyDescriptionBase::SetValueWithType(void* pValue, EValueType type, b
             }
         }
     }
+}
+
+void CPropertyDescriptionBase::SetNoSyncHost(bool bValue)
+{
+    m_bNoSyncToHost = bValue;
 }
