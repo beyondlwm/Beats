@@ -147,6 +147,7 @@ CComponentBase* CComponentProxy::Clone(bool bCloneValue, CSerializer* /*pSeriali
 {
     CComponentProxy* pNewInstance = new CComponentProxy(m_pGraphics->Clone(), m_uGuid, m_uParentGuid, m_strClassName.c_str());
     pNewInstance->SetDisplayName(m_strDisplayName.c_str());
+    pNewInstance->SetUserDefineDisplayName(m_strUserDefineDisplayName.c_str());
     pNewInstance->SetCatalogName(m_strCatalogName.c_str());
     BEATS_ASSERT(pNewInstance->GetGuid() == GetGuid(), _T("Can't assign between two different type (0x%x and 0x%x) of Reflect Base!"), pNewInstance->GetGuid(), GetGuid());
     pNewInstance->ClearProperty();
