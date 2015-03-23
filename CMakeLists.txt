@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-PROJECT(Beats_Test)
+PROJECT(Beats)
 
 #1. Set Common Header.
 INCLUDE(${CMAKE_SOURCE_DIR}/CMakeCommon.cmake)
@@ -11,6 +11,22 @@ INCLUDE_DIRECTORIES(
 		${CMAKE_SOURCE_DIR}/Platform
 		${CMAKE_SOURCE_DIR}/Platform/${PLATFORM_FOLDER}
 		${ANDROID_NDK}/platforms/android-${ANDROID_API_LEVEL}/arch-arm/usr/include)
+
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+	if(MSVC)
+		SET_TARGET_PROPERTIES(Beats PROPERTIES STATIC_LIBRARY_FLAGS "/machine:x64")
+	else()
+		SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m64")  
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64")
+	endif(MSVC)
+else()
+	if(MSVC)
+		SET_TARGET_PROPERTIES(Beats PROPERTIES STATIC_LIBRARY_FLAGS "/machine:x86")
+	else()
+		SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")  
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
+	endif(MSVC)
+endif(CMAKE_SIZEOF_VOID_P EQUAL 8)
 
 ADD_SUBDIRECTORY(Utility)
 ADD_SUBDIRECTORY(Components)
