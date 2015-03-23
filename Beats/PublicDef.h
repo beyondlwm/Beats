@@ -28,7 +28,7 @@ static TCHAR szBeatsDialogBuffer[10240] = {0};
             int iRet = MessageBox(NULL, szBeatsDialogBuffer, _T("Beats assert"), MB_ABORTRETRYIGNORE | MB_ICONERROR);\
             if(iRet == IDABORT)\
             {\
-                __asm{int 3};\
+                __debugbreak();\
             }\
             else if(iRet == IDIGNORE)\
             {\
@@ -168,10 +168,19 @@ private:\
 
 //////////////////////////////////////////////////////////////////////////
 ///Assimbly
+
+#if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32 && !_WIN64)
+
 #define BEATS_ASSI_GET_EIP__(intVariable, LineNum) _asm call label##LineNum _asm label##LineNum: _asm pop intVariable __asm{}
 #define BEATS_ASSI_GET_EIP_(intVariable, LineNum) BEATS_ASSI_GET_EIP__(intVariable, LineNum)
 #define BEATS_ASSI_GET_EIP(intVariable) BEATS_ASSI_GET_EIP_(intVariable, __LINE__)
 
 #define BEATS_ASSI_GET_EBP(intVariable) __asm{mov intVariable, Ebp}
+
+#else
+
+#define BEATS_ASSI_GET_EIP(intVariable) 
+#define BEATS_ASSI_GET_EBP(intVariable) 
+#endif
 
 #endif

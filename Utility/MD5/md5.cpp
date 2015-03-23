@@ -149,12 +149,12 @@ void CMD5::Update(const void *input, uint32_t length)
 /* Updating the context with a string. */
 void CMD5::Update(const std::string &str) 
 {
-    Update((const BYTE*)str.c_str(), str.length() * sizeof(char));
+    Update((const BYTE*)str.c_str(), (uint32_t)(str.length() * sizeof(char)));
 }
 
 void CMD5::Update(const std::wstring &str) 
 {
-    Update((const BYTE*)str.c_str(), str.length() * sizeof(wchar_t));
+    Update((const BYTE*)str.c_str(), (uint32_t)(str.length() * sizeof(wchar_t)));
 }
 
 /* Updating the context with a file. */
@@ -188,7 +188,7 @@ void CMD5::Update(FILE* in)
         char* buffer = new char[BUFFER_SIZE];
         while (counter < uFileSize)
         {
-            uint32_t readCount = fread(buffer, 1, BUFFER_SIZE, in);
+            uint32_t readCount = (uint32_t)(fread(buffer, 1, BUFFER_SIZE, in));
             BEATS_ASSERT(readCount > 0);
             Update(buffer, readCount);
             counter += readCount;

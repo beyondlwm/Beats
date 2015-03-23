@@ -33,7 +33,7 @@ bool CEnumStrGenerator::ScanEnumInFile( const TCHAR* pFileName, const TCHAR* pSp
         {
             bool bIsKeyWord = IsEnumKeyword(&serializer);
             uint32_t startPos = serializer.GetReadPos();
-            startPos += strlen(ENUM_KEYWORD_STR);
+            startPos += (uint32_t)strlen(ENUM_KEYWORD_STR);
             serializer.SetReadPos(startPos);
             if (bIsKeyWord && ScanKeyWordInCPlusPlusFile("{", &serializer))
             {
@@ -119,28 +119,28 @@ bool CEnumStrGenerator::ScanKeyWordInCPlusPlusFile( const char* pKeyWord, CSeria
     std::vector<SBufferData> keyWords;
     SBufferData data;
     data.pData = "//";
-    data.dataLength = strlen((char*)data.pData) * sizeof(char);
+    data.dataLength = (uint32_t)(strlen((char*)data.pData) * sizeof(char));
     keyWords.push_back(data);
     data.pData = "/*";
-    data.dataLength = strlen((char*)data.pData) * sizeof(char);
+    data.dataLength = (uint32_t)(strlen((char*)data.pData) * sizeof(char));
     keyWords.push_back(data);
 
     SBufferData quoteSign;
     quoteSign.pData = "\"";
-    quoteSign.dataLength = strlen((char*)quoteSign.pData) * sizeof(char);
+    quoteSign.dataLength = (uint32_t)(strlen((char*)quoteSign.pData) * sizeof(char));
     keyWords.push_back(quoteSign);
 
     data.pData = (void*)pKeyWord;
-    data.dataLength = strlen((char*)data.pData) * sizeof(char);
+    data.dataLength = (uint32_t)(strlen((char*)data.pData) * sizeof(char));
     keyWords.push_back(data);
 
     SBufferData startComment;
     startComment.pData = "*/";
-    startComment.dataLength = strlen((char*)startComment.pData) * sizeof(char);
+    startComment.dataLength = (uint32_t)(strlen((char*)startComment.pData) * sizeof(char));
 
     SBufferData changeLine;
     changeLine.pData = "\r\n";
-    changeLine.dataLength = strlen((char*)changeLine.pData) * sizeof(char);
+    changeLine.dataLength = (uint32_t)(strlen((char*)changeLine.pData) * sizeof(char));
 
     int wordId = 0;
     while (fileSerializer->ReadToDataInList(keyWords, false, &wordId) != fileSerializer->GetWritePos())
@@ -244,7 +244,7 @@ bool CEnumStrGenerator::ScanEnumInDirectory( const TCHAR* pDirectory )
 #if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
     const TCHAR* pFileStr = _T("*.*");
     TString wildCmpStr(pDirectory);
-    uint32_t pathSize = _tcslen(pDirectory);
+    uint32_t pathSize = (uint32_t)(_tcslen(pDirectory));
     if (pDirectory[pathSize - 1] != '/')
     {
         wildCmpStr.append(_T("/"));

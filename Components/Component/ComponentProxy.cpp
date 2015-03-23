@@ -130,7 +130,7 @@ void CComponentProxy::Deserialize( CSerializer& serializer )
             serializer >> type;
             uint32_t uGuid;
             serializer >> uGuid;
-            CDependencyDescription* pNewDependency = new CDependencyDescription(type, uGuid, this, m_pDependenciesDescription->size(), bIsList);
+            CDependencyDescription* pNewDependency = new CDependencyDescription(type, uGuid, this, (uint32_t)m_pDependenciesDescription->size(), bIsList);
             TCHAR* pName = NULL;
             TCHAR** pNameHolder = &pName;
             serializer.Read(pNameHolder);
@@ -161,7 +161,7 @@ CComponentBase* CComponentProxy::Clone(bool bCloneValue, CSerializer* /*pSeriali
         for (uint32_t i = 0; i < m_pDependenciesDescription->size(); ++i)
         {
             CDependencyDescription* pDependency = (*m_pDependenciesDescription)[i];
-            CDependencyDescription* pNewDependency = new CDependencyDescription(pDependency->GetType(), pDependency->GetDependencyGuid(), pNewInstance, pNewInstance->GetDependencies()->size(), pDependency->IsListType());
+            CDependencyDescription* pNewDependency = new CDependencyDescription(pDependency->GetType(), pDependency->GetDependencyGuid(), pNewInstance, (uint32_t)pNewInstance->GetDependencies()->size(), pDependency->IsListType());
             pNewDependency->SetDisplayName(pDependency->GetDisplayName());
             pNewDependency->SetVariableName(pDependency->GetVariableName());
         }

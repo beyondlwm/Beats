@@ -49,7 +49,7 @@ bool CStringHelper::SplitString( const TCHAR* pParameter, const TCHAR* pSpliter,
         pFindStr = _tcsstr(pReader, pSpliter);
     }
     memset(cache, 0, MAX_CACH_SIZE);
-    const uint32_t restCount = _tcslen(pReader);
+    const uint32_t restCount = (const uint32_t)(_tcslen(pReader));
     if (restCount > 0)
     {
         BEATS_ASSERT(restCount < MAX_CACH_SIZE);
@@ -106,8 +106,8 @@ TString CStringHelper::FilterString(const TCHAR* pData, const std::vector<TStrin
 int CStringHelper::FindFirstString( const TCHAR* pSource, const TCHAR* pTarget, bool bCaseSensive )
 {
     int iResult = -1;
-    uint32_t uTargetLength = _tcslen(pTarget);
-    uint32_t uSourceLength = _tcslen(pSource);
+    uint32_t uTargetLength = (uint32_t)(_tcslen(pTarget));
+    uint32_t uSourceLength = (uint32_t)(_tcslen(pSource));
     int iCounter = 0;
     if (!bCaseSensive)
     {
@@ -156,8 +156,8 @@ int CStringHelper::FindLastString( const TCHAR* pSource, const TCHAR* pTarget, b
 {
     int iResult = -1;
     BEATS_ASSERT(pSource != NULL && pTarget != NULL);
-    uint32_t uTargetLength = _tcslen(pTarget);
-    uint32_t uSourceLength = _tcslen(pSource);
+    uint32_t uTargetLength = uint32_t(_tcslen(pTarget));
+    uint32_t uSourceLength = uint32_t(_tcslen(pSource));
     BEATS_ASSERT(uTargetLength > 0 && uSourceLength > 0);
     int iCounter = (int)uSourceLength - (int)uTargetLength;
     if (iCounter >= 0)

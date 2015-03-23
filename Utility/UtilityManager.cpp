@@ -102,7 +102,7 @@ UINT_PTR CALLBACK FolderHookProc(HWND hdlg, UINT uiMsg, WPARAM /*wParam*/, LPARA
                 strSelectFiles.append(szPath).append(_T("|"));
                 for (uint32_t i = 0; i < uSelectCount; ++i)
                 {
-                    int iSelectItemPos = ::SendMessage(hListCtrl, LVM_GETNEXTITEM, iLastPos, MAKELPARAM(LVIS_SELECTED, 0));
+                    int iSelectItemPos = (int)::SendMessage(hListCtrl, LVM_GETNEXTITEM, iLastPos, MAKELPARAM(LVIS_SELECTED, 0));
                     ::SendMessage(hListCtrl, LVM_GETITEMTEXT, (WPARAM)iSelectItemPos, (LPARAM)&lvi);
                     strSelectFiles.append(lvi.pszText).append(_T("|"));
                     strDisplayText.append(_T("\"")).append(lvi.pszText).append(_T("\" "));
@@ -381,8 +381,7 @@ bool CUtilityManager::WriteDataToFile(FILE* pFile, void* pData, uint32_t uDataLe
     uint32_t uCounter = 0;
     while (uCounter < uDataLength && uRetryCount > 0)
     {
-        DWORD uWriteCounter = 0;
-        uWriteCounter = fwrite((unsigned char*)pData + uCounter, sizeof(unsigned char), uDataLength - uCounter, pFile);
+        uint32_t uWriteCounter = (uint32_t)(fwrite((unsigned char*)pData + uCounter, sizeof(unsigned char), uDataLength - uCounter, pFile));
         uCounter += uWriteCounter;
         --uRetryCount;
     }
@@ -398,8 +397,7 @@ bool CUtilityManager::ReadDataFromFile(FILE* pFile, void* pData, uint32_t uDataL
     uint32_t uCounter = 0;
     while (uCounter < uDataLength && uRetryCount > 0)
     {
-        DWORD uReadCounter = 0;
-        uReadCounter = fread((unsigned char*)pData + uCounter, sizeof(unsigned char), uDataLength - uCounter, pFile);
+        DWORD uReadCounter = (uint32_t)(fread((unsigned char*)pData + uCounter, sizeof(unsigned char), uDataLength - uCounter, pFile));
         uCounter += uReadCounter;
         --uRetryCount;
     }

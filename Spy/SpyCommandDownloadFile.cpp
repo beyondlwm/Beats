@@ -627,7 +627,7 @@ DWORD CSpyCommandDownloadFile::ClientDownloadWorkThreadFunc(LPVOID param)
                                 BEATS_ASSERT(pFile != NULL, _T("Open File %s Failed"), szFilePath.c_str());
                                 _fseeki64(pFile, uStartPos, SEEK_SET);
                                 uWriteCount = min(uDataLength - uWriteCounter, fileRecvBuffer.GetWritePos() - fileRecvBuffer.GetReadPos());
-                                uWriteCount = fwrite(fileRecvBuffer.GetReadPtr(), 1, uWriteCount, pFile);
+                                uWriteCount = (uint32_t)(fwrite(fileRecvBuffer.GetReadPtr(), 1, uWriteCount, pFile));
                                 uWriteCounter += uWriteCount;
                                 uStartPos += uWriteCount;
                                 fileRecvBuffer.SetReadPos(fileRecvBuffer.GetReadPos() + uWriteCount);

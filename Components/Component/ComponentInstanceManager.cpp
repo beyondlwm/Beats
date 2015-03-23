@@ -250,8 +250,8 @@ uint32_t CComponentInstanceManager::GetVersion()
 
 void CComponentInstanceManager::LoadDirectoryFiles(CComponentProjectDirectory* pDirectory, std::vector<CComponentBase*>& loadComponents)
 {
-    uint32_t uFileCount = pDirectory->GetFileList().size();
-    for (uint32_t i = 0; i < uFileCount; ++i)
+    size_t uFileCount = pDirectory->GetFileList().size();
+    for (size_t i = 0; i < uFileCount; ++i)
     {
         uint32_t uFileId = pDirectory->GetFileList().at(i);
         LoadFile(uFileId, loadComponents);

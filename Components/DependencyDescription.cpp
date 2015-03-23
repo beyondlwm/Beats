@@ -64,7 +64,7 @@ CDependencyDescriptionLine* CDependencyDescription::SetDependency( uint32_t uInd
 uint32_t CDependencyDescription::GetDependencyLineCount() const
 {
     BEATS_ASSERT(m_dependencyLine.size() <= 1 || m_bIsListType);
-    return m_dependencyLine.size();
+    return (uint32_t)m_dependencyLine.size();
 }
 
 CDependencyDescriptionLine* CDependencyDescription::AddDependency( CComponentProxy* pComponentInstance )
@@ -81,7 +81,7 @@ CDependencyDescriptionLine* CDependencyDescription::AddDependency( CComponentPro
     if (pComponentInstance != m_pOwner)
     {
         BEATS_ASSERT(m_dependencyLine.size() == 0 || m_bIsListType);
-        pRet = new CDependencyDescriptionLine(this, m_dependencyLine.size(), pComponentInstance);
+        pRet = new CDependencyDescriptionLine(this, (uint32_t)m_dependencyLine.size(), pComponentInstance);
         m_dependencyLine.push_back(pRet);
         m_changeAction = eDCA_Add;
         m_pChangeActionProxy = pComponentInstance;
@@ -190,7 +190,8 @@ void CDependencyDescription::LoadFromXML( TiXmlElement* pNode )
                     AddDependency(pComponent);
                     if (pComponent == NULL)
                     {
-                        CComponentProxyManager::GetInstance()->AddDependencyResolver(this, m_dependencyLine.size() - 1, uGuid, uId, NULL, m_bIsListType);
+                        BEATS_ASSERT(m_dependencyLine.size() > 1);
+                        CComponentProxyManager::GetInstance()->AddDependencyResolver(this, (uint32_t)m_dependencyLine.size() - 1, uGuid, uId, NULL, m_bIsListType);
                     }
                 }
                 pDependencyNodeElement = pDependencyNodeElement->NextSiblingElement("DependencyNode");

@@ -82,12 +82,12 @@ void CSerializer::SetWritePos(uint32_t offset)
 
 uint32_t CSerializer::GetReadPos() const
 {
-    return static_cast<unsigned char*>(m_pReadPtr) - static_cast<unsigned char*>(m_pBuffer);
+    return (uint32_t)(reinterpret_cast<ptrdiff_t>(m_pReadPtr) - reinterpret_cast<ptrdiff_t>(m_pBuffer));
 }
 
 uint32_t CSerializer::GetWritePos() const
 {
-    return static_cast<unsigned char*>(m_pWritePtr) - static_cast<unsigned char*>(m_pBuffer);
+    return (uint32_t)(reinterpret_cast<ptrdiff_t>(m_pWritePtr)-reinterpret_cast<ptrdiff_t>(m_pBuffer));
 }
 
 void* CSerializer::GetReadPtr() const
@@ -233,13 +233,12 @@ void CSerializer::ValidateBuffer(uint32_t size)
     }
     if (overFlow)
     {
-        uint32_t readCount = static_cast<unsigned char*>(m_pReadPtr) - static_cast<unsigned char*>(m_pBuffer);
         unsigned char* pNewBuffer = new unsigned char[m_size];
         memcpy(pNewBuffer, m_pBuffer, wrottenCount);
         BEATS_SAFE_DELETE_ARRAY(m_pBuffer);
         m_pBuffer = pNewBuffer;
         m_pWritePtr = static_cast<unsigned char*>(m_pBuffer) + wrottenCount;
-        m_pReadPtr = static_cast<unsigned char*>(m_pBuffer) + readCount;
+        m_pReadPtr = static_cast<unsigned char*>(m_pBuffer) + GetReadPos();
     }
     BEATS_ASSERT(m_pBuffer != NULL && m_pWritePtr != NULL && m_pReadPtr != NULL, _T("Invalid serliazer buffer!"));
 }
@@ -268,7 +267,7 @@ void CSerializer::Release()
 void CSerializer::SerializeCharPtr(const char* data)
 {
     BEATS_ASSERT(data != NULL, _T("Data is null to serialize"));
-    uint32_t size = (strlen(data) + 1) * sizeof(char);
+    uint32_t size = (uint32_t)((strlen(data) + 1) * sizeof(char));
     ValidateBuffer(size);
     memcpy(m_pWritePtr, data, size);
     m_pWritePtr = static_cast<unsigned char*>(m_pWritePtr) + size;
@@ -277,7 +276,7 @@ void CSerializer::SerializeCharPtr(const char* data)
 void CSerializer::SerializeWcharPtr(const wchar_t* data)
 {
     BEATS_ASSERT(data != NULL, _T("Data is null to serialize"));
-    uint32_t size = (wcslen(data) + 1) * sizeof(wchar_t);
+    uint32_t size = (uint32_t)((wcslen(data) + 1) * sizeof(wchar_t));
     ValidateBuffer(size);
     memcpy(m_pWritePtr, data, size);
     m_pWritePtr = static_cast<unsigned char*>(m_pWritePtr) + size;

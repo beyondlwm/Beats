@@ -295,8 +295,8 @@ void CComponentManagerBase::CalcSwitchFile(uint32_t uFileId, bool bCloseLoadedFi
             }
             while (directories.size() > 0)
             {
-                uint32_t uFileCount = directories.back()->GetFileList().size();
-                for (uint32_t i = 0; i < uFileCount; ++i)
+                size_t uFileCount = directories.back()->GetFileList().size();
+                for (size_t i = 0; i < uFileCount; ++i)
                 {
                     uint32_t uFileId = directories.back()->GetFileList().at(i);
                     loadFiles.push_back(uFileId);
@@ -338,8 +338,8 @@ void CComponentManagerBase::CalcSwitchFile(uint32_t uFileId, bool bCloseLoadedFi
                     {
                         pCurLoopDirectory = pCurLoopDirectory->FindChild(logicPaths[i].c_str());
                         BEATS_ASSERT(pCurLoopDirectory != NULL);
-                        uint32_t uFileCount = pCurLoopDirectory->GetFileList().size();
-                        for (uint32_t i = 0; i < uFileCount; ++i)
+                        size_t uFileCount = pCurLoopDirectory->GetFileList().size();
+                        for (size_t i = 0; i < uFileCount; ++i)
                         {
                             uint32_t uFileId = pCurLoopDirectory->GetFileList().at(i);
                             loadFiles.push_back(uFileId);
@@ -373,8 +373,8 @@ void CComponentManagerBase::CalcSwitchFile(uint32_t uFileId, bool bCloseLoadedFi
                             {
                                 pCurLoopDirectory = pCurLoopDirectory->FindChild(logicPaths[i].c_str());
                                 BEATS_ASSERT(pCurLoopDirectory != NULL);
-                                uint32_t uFileCount = pCurLoopDirectory->GetFileList().size();
-                                for (uint32_t i = 0; i < uFileCount; ++i)
+                                size_t uFileCount = pCurLoopDirectory->GetFileList().size();
+                                for (size_t i = 0; i < uFileCount; ++i)
                                 {
                                     uint32_t uFileId = pCurLoopDirectory->GetFileList().at(i);
                                     loadFiles.push_back(uFileId);

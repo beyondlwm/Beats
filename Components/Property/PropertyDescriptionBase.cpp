@@ -178,7 +178,7 @@ CPropertyDescriptionBase* CPropertyDescriptionBase::GetChild(uint32_t i) const
 
 uint32_t CPropertyDescriptionBase::GetChildrenCount() const
 {
-    return m_pChildren->size();
+    return (uint32_t)m_pChildren->size();
 }
 
 std::vector<CPropertyDescriptionBase*>& CPropertyDescriptionBase::GetChildren()

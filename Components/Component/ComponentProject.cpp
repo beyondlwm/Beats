@@ -375,7 +375,7 @@ uint32_t CComponentProject::RegisterFile(CComponentProjectDirectory* pDirectory,
     else
     {
         m_pComponentFiles->push_back(strFileName);
-        uFileID = m_pComponentFiles->size() - 1;
+        uFileID = (uint32_t)m_pComponentFiles->size() - 1;
     }
 
     std::map<uint32_t, std::vector<uint32_t> > result;
@@ -636,7 +636,7 @@ void CComponentProject::LoadXMLProject(TiXmlElement* pNode, CComponentProjectDir
             const char* pPath = pElement->Attribute("Path");
             TString strFilePath = CFilePathTool::GetInstance()->MakeAbsolute(m_strProjectFilePath.c_str(), pPath);
             pProjectDirectory->AddFile(strFilePath.c_str(), conflictIdMap);
-            (*m_pFileToDirectoryMap)[m_pComponentFiles->size() - 1] = pProjectDirectory;
+            (*m_pFileToDirectoryMap)[(uint32_t)m_pComponentFiles->size() - 1] = pProjectDirectory;
         }
         else if (strcmp(pText, "StartFile") == 0)
         {

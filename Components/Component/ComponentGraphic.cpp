@@ -42,7 +42,7 @@ void CComponentGraphic::CaculateSize()
     uint32_t bodySize = 0;
     if (m_pOwner->GetDependencies() != NULL)
     {
-        bodySize = m_pOwner->GetDependencies()->size() * DEPENDENCY_HEIGHT;
+        bodySize = (uint32_t)(m_pOwner->GetDependencies()->size() * DEPENDENCY_HEIGHT);
     }    
     // Notice: we only consider graphics width = body width + connection width, dependency width are ignored.
     m_width = MIN_WIDTH + CONNECTION_WIDTH;

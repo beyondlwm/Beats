@@ -90,7 +90,7 @@ bool CSpyCommandGetFileInfo::ExecuteImpl( SharePtr<SSocketContext>&  pSocketCont
     }
     else if (m_type == eFIT_Disk)
     {
-        uint32_t uLogicDriverCount = m_pDiskInfo->m_logicDriverInfo.size();
+        uint32_t uLogicDriverCount = (uint32_t)(m_pDiskInfo->m_logicDriverInfo.size());
         _tprintf(_T("There are %d logic drivers:\n"), uLogicDriverCount);
         for (uint32_t i = 0; i < uLogicDriverCount; ++i)
         {
@@ -107,8 +107,8 @@ bool CSpyCommandGetFileInfo::ExecuteImpl( SharePtr<SSocketContext>&  pSocketCont
     }
     else if (m_type == eFIT_Directory)
     {
-        uint32_t uFileCount = m_pDirectory->m_pFileList->size();
-        uint32_t uDirectoryCount = m_pDirectory->m_pDirectories->size();
+        uint32_t uFileCount = (uint32_t)(m_pDirectory->m_pFileList->size());
+        uint32_t uDirectoryCount = (uint32_t)(m_pDirectory->m_pDirectories->size());
         _tprintf(_T("Directory: %s contains %d files and %d directories:\n"), m_pDirectory->m_szPath.c_str(), uFileCount, uDirectoryCount);
         _tprintf(_T("Directory:\n"));
         for (uint32_t i = 0; i < uDirectoryCount; ++i)
@@ -174,7 +174,7 @@ void CSpyCommandGetFileInfo::Deserialize( CSerializer& serializer )
     else if (m_type == eFIT_Disk)
     {
         BEATS_ASSERT(m_pDiskInfo != NULL);
-        uint32_t uLogicDriverCount = m_pDiskInfo->m_logicDriverInfo.size();
+        uint32_t uLogicDriverCount = (uint32_t)(m_pDiskInfo->m_logicDriverInfo.size());
         serializer << uLogicDriverCount;
         for (uint32_t i = 0; i < uLogicDriverCount; ++i)
         {

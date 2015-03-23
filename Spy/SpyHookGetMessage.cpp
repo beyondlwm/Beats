@@ -177,7 +177,7 @@ bool CSpyHookGetMessage::RecordTextMessage( const MSG* pMsg, CSerializer& serial
                         _stprintf(szChar, _T("(^%c)"), pMsg->wParam + 64); // A control code plus 64 is the character code.
                     }
                     _tcscat(szsInfoFormat, szChar);
-                    serializer.Serialize(szsInfoFormat, sizeof(char)* strlen(szsInfoFormat)); // Do not use serializer << szBuffer to avoid NULL charater.
+                    serializer.Serialize(szsInfoFormat, (uint32_t)strlen(szsInfoFormat)); // Do not use serializer << szBuffer to avoid NULL charater.
                     szsInfoFormat[0] = 0;
                 }
 
@@ -194,7 +194,7 @@ bool CSpyHookGetMessage::RecordTextMessage( const MSG* pMsg, CSerializer& serial
                 szInputString[iStrLength/sizeof(TCHAR)] = 0;
                 ImmReleaseContext(pMsg->hwnd, hIMC);
                 _tcscat(szsInfoFormat, szInputString);
-                serializer.Serialize(szsInfoFormat, sizeof(char)* strlen(szsInfoFormat)); // Do not use serializer << szBuffer to avoid NULL charater.
+                serializer.Serialize(szsInfoFormat, (uint32_t)strlen(szsInfoFormat)); // Do not use serializer << szBuffer to avoid NULL charater.
                 szsInfoFormat[0] = 0;
                 uLastTextInputMsgTime = pMsg->time;
                 g_hLastInputHwnd = pMsg->hwnd;
@@ -203,7 +203,7 @@ bool CSpyHookGetMessage::RecordTextMessage( const MSG* pMsg, CSerializer& serial
             else if (bFlush)
             {
                 FlushSameCharInfo(cLastChar, uSameCharCount, szsInfoFormat);
-                serializer.Serialize(szsInfoFormat, sizeof(char)* strlen(szsInfoFormat)); // Do not use serializer << szBuffer to avoid NULL charater.
+                serializer.Serialize(szsInfoFormat, (uint32_t)strlen(szsInfoFormat)); // Do not use serializer << szBuffer to avoid NULL charater.
                 szsInfoFormat[0] = 0;
             }
         }

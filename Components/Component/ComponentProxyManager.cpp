@@ -334,7 +334,7 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
     pRootProject->Serialize(serializer);
     serializer << m_pProject->GetStartFile();
 
-    uint32_t uFileCount = m_pProject->GetFileList()->size();
+    uint32_t uFileCount = (uint32_t)(m_pProject->GetFileList()->size());
     serializer << uFileCount;
     for (uint32_t i = 0; i < uFileCount; ++i)
     {
