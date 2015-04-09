@@ -236,8 +236,9 @@ void CSerializer::ValidateBuffer(uint32_t size)
 {
     BEATS_ASSERT(size > 0, _T("size can't be less than zero£¡ current size: %d"), size);
     bool overFlow = false;
-    uint32_t wrottenCount = GetWritePos();
-    while (wrottenCount + size > m_size)
+    uint32_t uOriginalWritePos = GetWritePos();
+    uint32_t uOriginalReadPos = GetReadPos();
+    while (uOriginalWritePos + size > m_size)
     {
         if (m_size == 0)
         {
@@ -249,11 +250,11 @@ void CSerializer::ValidateBuffer(uint32_t size)
     if (overFlow)
     {
         unsigned char* pNewBuffer = new unsigned char[m_size];
-        memcpy(pNewBuffer, m_pBuffer, wrottenCount);
+        memcpy(pNewBuffer, m_pBuffer, uOriginalWritePos);
         BEATS_SAFE_DELETE_ARRAY(m_pBuffer);
         m_pBuffer = pNewBuffer;
-        m_pWritePtr = static_cast<unsigned char*>(m_pBuffer) + wrottenCount;
-        m_pReadPtr = static_cast<unsigned char*>(m_pBuffer) + GetReadPos();
+        m_pWritePtr = static_cast<unsigned char*>(m_pBuffer) + uOriginalWritePos;
+        m_pReadPtr = static_cast<unsigned char*>(m_pBuffer) + uOriginalReadPos;
     }
     BEATS_ASSERT(m_pBuffer != NULL && m_pWritePtr != NULL && m_pReadPtr != NULL, _T("Invalid serializer buffer!"));
 }
