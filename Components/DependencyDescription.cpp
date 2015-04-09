@@ -190,7 +190,7 @@ void CDependencyDescription::LoadFromXML( TiXmlElement* pNode )
                     AddDependency(pComponent);
                     if (pComponent == NULL)
                     {
-                        BEATS_ASSERT(m_dependencyLine.size() > 1);
+                        BEATS_ASSERT(m_dependencyLine.size() >= 1);
                         CComponentProxyManager::GetInstance()->AddDependencyResolver(this, (uint32_t)m_dependencyLine.size() - 1, uGuid, uId, NULL, m_bIsListType);
                     }
                 }
