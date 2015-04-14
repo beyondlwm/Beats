@@ -72,11 +72,6 @@ void CComponentBase::Uninitialize()
     m_bInitialize = false;
 }
 
-void CComponentBase::PostInitialize()
-{
-    BEATS_ASSERT(m_bInitialize, _T("Only initialized component can call PostInitialize!"));
-}
-
 void CComponentBase::SetInitializeFlag(bool bFlag)
 {
     m_bInitialize = bFlag;

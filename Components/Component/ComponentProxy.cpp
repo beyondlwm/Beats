@@ -181,12 +181,10 @@ CComponentBase* CComponentProxy::Clone(bool bCloneValue, CSerializer* /*pSeriali
     {
         BEATS_ASSERT(pNewInstance->IsInitialized() == false, _T("Impossible to Initialize compnent twice!"));
         pNewInstance->Initialize();
-        pNewInstance->PostInitialize();
         if (pNewInstance->GetHostComponent() != NULL)
         {
             BEATS_ASSERT(pNewInstance->GetHostComponent()->IsInitialized() == false, _T("Impossible to Initialize comopnent twice!"));
             pNewInstance->m_pHostComponent->Initialize();
-            pNewInstance->m_pHostComponent->PostInitialize();
         }
     }
 

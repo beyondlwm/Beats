@@ -88,7 +88,7 @@ public:
 private:
     void LoadTemplateDataFromXML(const TCHAR* pWorkingPath);
     void LoadTemplateDataFromSerializer(CSerializer& serializer, TCreateComponentEditorProxyFunc func, TCreateGraphicFunc pGraphicFunc);
-
+    void ReSaveFreshFile();
 private:
     bool m_bCreateInstanceWithProxy;
     bool m_bLoadingFilePhase;

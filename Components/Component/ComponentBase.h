@@ -40,7 +40,6 @@ public:
 
     virtual void Initialize();// This method can only be called in main thread, including render operation.
     virtual void Uninitialize();
-    virtual void PostInitialize();// This function will be called when all the components' initialize is called.
     bool IsInitialized() const;
     void SetInitializeFlag(bool bFlag);
 

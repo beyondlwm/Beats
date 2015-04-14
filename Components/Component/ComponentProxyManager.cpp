@@ -146,39 +146,7 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bCloseLoadedF
                 loadedComponents[i]->GetHostComponent()->Initialize();
             }
         }
-        for (uint32_t i = 0; i < loadedComponents.size(); ++i)
-        {
-            uint32_t uComponentId = loadedComponents[i]->GetId();
-            bool bIsReference = m_referenceMap.find(uComponentId) != m_referenceMap.end();
-            if (!bIsReference)
-            {
-                loadedComponents[i]->GetHostComponent()->PostInitialize();
-            }
-        }
-        for (auto iter = m_refreshFileList.begin(); iter != m_refreshFileList.end(); ++iter)
-        {
-            std::map<uint32_t, std::vector<uint32_t> >* pFileToComponentMap = m_pProject->GetFileToComponentMap();
-            auto subIter = pFileToComponentMap->find(*iter);
-            if (subIter != pFileToComponentMap->end())
-            {
-                std::map<uint32_t, std::vector<CComponentProxy*>> guidGroup;
-                for (uint32_t j = 0; j < subIter->second.size(); ++j)
-                {
-                    CComponentProxy* pProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(subIter->second.at(j)));
-                    BEATS_ASSERT(pProxy != NULL);
-                    std::map<uint32_t, std::vector<CComponentProxy*>>::iterator iter = guidGroup.find(pProxy->GetGuid());
-                    if (iter == guidGroup.end())
-                    {
-                        guidGroup[pProxy->GetGuid()] = std::vector<CComponentProxy*>();
-                        iter = guidGroup.find(pProxy->GetGuid());
-                    }
-                    iter->second.push_back(pProxy);
-                }
-                const TString& strFileName = m_pProject->GetComponentFileName(*iter);
-                SaveToFile(strFileName.c_str(), guidGroup);
-            }
-        }
-        m_refreshFileList.clear();
+        ReSaveFreshFile();
         m_bLoadingFilePhase = bRestoreLoadingPhase;
         m_uCurrViewFileId = uFileId;
     }
@@ -393,6 +361,7 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
                         ++uComponentCount;
                     }
                 }
+                ReSaveFreshFile();
                 // Don't call CloseFile, because we have nothing to do with proxy's host component.
                 for (uint32_t j = 0; j < vecComponents.size(); ++j)
                 {
@@ -935,4 +904,32 @@ void CComponentProxyManager::LoadTemplateDataFromSerializer(CSerializer& seriali
         }
         BEATS_ASSERT(serializer.GetReadPos() == curReadPos + totalSize);
     }
+}
+
+void CComponentProxyManager::ReSaveFreshFile()
+{
+    for (auto iter = m_refreshFileList.begin(); iter != m_refreshFileList.end(); ++iter)
+    {
+        std::map<uint32_t, std::vector<uint32_t> >* pFileToComponentMap = m_pProject->GetFileToComponentMap();
+        auto subIter = pFileToComponentMap->find(*iter);
+        if (subIter != pFileToComponentMap->end())
+        {
+            std::map<uint32_t, std::vector<CComponentProxy*>> guidGroup;
+            for (uint32_t j = 0; j < subIter->second.size(); ++j)
+            {
+                CComponentProxy* pProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(subIter->second.at(j)));
+                BEATS_ASSERT(pProxy != NULL);
+                std::map<uint32_t, std::vector<CComponentProxy*>>::iterator guidGroupIter = guidGroup.find(pProxy->GetGuid());
+                if (guidGroupIter == guidGroup.end())
+                {
+                    guidGroup[pProxy->GetGuid()] = std::vector<CComponentProxy*>();
+                    guidGroupIter = guidGroup.find(pProxy->GetGuid());
+                }
+                guidGroupIter->second.push_back(pProxy);
+            }
+            const TString& strFileName = m_pProject->GetComponentFileName(*iter);
+            SaveToFile(strFileName.c_str(), guidGroup);
+        }
+    }
+    m_refreshFileList.clear();
 }
