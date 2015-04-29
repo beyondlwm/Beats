@@ -184,6 +184,7 @@ void CComponentProxyManager::LoadFile(const TCHAR* pszFilePath, std::vector<CCom
                 BEATS_ASSERT(*pStopPos == 0, _T("Guid value %s is not a 0x value at file %s."), pGuidStr, pszFilePath);
                 if (GetComponentTemplate(guid) == NULL)
                 {
+                    CComponentProxyManager::GetInstance()->GetRefreshFileList().insert(uFileId);
                     BEATS_ASSERT(false, _T("Can't create component with GUID 0x%x Name %s, Have you removed this component class."), guid, pComponentElement->Attribute("Name"));
                 }
                 else
@@ -324,11 +325,19 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
                 for (uint32_t j = 0; j < componentsInFile.size(); ++j)
                 {
                     CComponentProxy* pProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(componentsInFile[j]));
-                    // Don't export component reference
-                    if (pProxy->GetProxyId() == pProxy->GetId())
+                    if (pProxy)
                     {
-                        pProxy->Serialize(serializer, eVT_SavedValue);
-                        ++uComponentCount;
+                        // Don't export component reference
+                        if (pProxy->GetProxyId() == pProxy->GetId())
+                        {
+                            pProxy->Serialize(serializer, eVT_SavedValue);
+                            ++uComponentCount;
+                        }
+                    }
+                    else
+                    {
+                        uint32_t uGuid = m_pProject->QueryComponentGuid(componentsInFile[j]);
+                        BEATS_ASSERT(false, _T("Can't find proxy with GUID 0x%x id %d, have you removed that class in code?"), uGuid, componentsInFile[j]);
                     }
                 }
             }
@@ -918,14 +927,16 @@ void CComponentProxyManager::ReSaveFreshFile()
             for (uint32_t j = 0; j < subIter->second.size(); ++j)
             {
                 CComponentProxy* pProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(subIter->second.at(j)));
-                BEATS_ASSERT(pProxy != NULL);
-                std::map<uint32_t, std::vector<CComponentProxy*>>::iterator guidGroupIter = guidGroup.find(pProxy->GetGuid());
-                if (guidGroupIter == guidGroup.end())
+                if (pProxy != NULL) // The proxy may be null when you remove some components in code.
                 {
-                    guidGroup[pProxy->GetGuid()] = std::vector<CComponentProxy*>();
-                    guidGroupIter = guidGroup.find(pProxy->GetGuid());
+                    std::map<uint32_t, std::vector<CComponentProxy*>>::iterator guidGroupIter = guidGroup.find(pProxy->GetGuid());
+                    if (guidGroupIter == guidGroup.end())
+                    {
+                        guidGroup[pProxy->GetGuid()] = std::vector<CComponentProxy*>();
+                        guidGroupIter = guidGroup.find(pProxy->GetGuid());
+                    }
+                    guidGroupIter->second.push_back(pProxy);
                 }
-                guidGroupIter->second.push_back(pProxy);
             }
             const TString& strFileName = m_pProject->GetComponentFileName(*iter);
             SaveToFile(strFileName.c_str(), guidGroup);

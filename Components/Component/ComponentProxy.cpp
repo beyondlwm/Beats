@@ -422,8 +422,7 @@ void CComponentProxy::LoadFromXML( TiXmlElement* pNode )
         const char* pFilePath = pNode->GetDocument()->Value();
         uint32_t uFileId = CComponentProxyManager::GetInstance()->GetProject()->GetComponentFileId(pFilePath);
         BEATS_ASSERT(uFileId != 0xFFFFFFFF);
-        std::set<uint32_t>& fileList = CComponentProxyManager::GetInstance()->GetRefreshFileList();
-        fileList.insert(uFileId);
+        CComponentProxyManager::GetInstance()->GetRefreshFileList().insert(uFileId);
     }
     // Run maintain logic.
     for (uint32_t i = 0; i < unUsedXMLVariableNode.size(); ++i)
