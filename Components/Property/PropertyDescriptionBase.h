@@ -70,6 +70,7 @@ public:
     }
 
     void* GetValue(EValueType type) const;
+    bool CanSyncToHost() const;
     void SetValueWithType(void* pValue, EValueType type, bool bForceUpdateHostComponent = false);
     bool DeserializeBasicInfo(CSerializer& serializer);
 

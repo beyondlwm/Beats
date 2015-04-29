@@ -200,6 +200,16 @@ void* CPropertyDescriptionBase::GetValue( EValueType type ) const
     return m_valueArray[type];
 }
 
+bool CPropertyDescriptionBase::CanSyncToHost() const
+{
+    bool bRet = !m_bNoSyncToHost;
+    if (bRet && GetParent() != NULL)
+    {
+        bRet = GetParent()->CanSyncToHost();
+    }
+    return bRet;
+}
+
 void CPropertyDescriptionBase::Save()
 {
     SetValueWithType(m_valueArray[eVT_CurrentValue], eVT_SavedValue);
@@ -237,7 +247,7 @@ void CPropertyDescriptionBase::SetValueWithType(void* pValue, EValueType type, b
     if (CopyValue(pValue, m_valueArray[type]) || bForceUpdateHostComponent)
     {
         // We need to reflect data when load from xml, at that time, owner is not initialized.
-        if (!m_bNoSyncToHost && type == eVT_CurrentValue && GetOwner())
+        if (CanSyncToHost() && type == eVT_CurrentValue && GetOwner())
         {
             // Some property is not the real property, such as container property.
             CPropertyDescriptionBase* pRealProperty = this;
