@@ -96,3 +96,8 @@ bool CComponentBase::OnDependencyListChange(void* pComponentAddr, enum EDependen
 {
     return false;
 }
+
+void CComponentBase::OnSave()
+{
+    // Do nothing
+}

@@ -327,6 +327,10 @@ bool CComponentProxy::GetTemplateFlag() const
 
 void CComponentProxy::SaveToXML( TiXmlElement* pNode, bool bSaveOnlyNoneNativePart/* = false*/)
 {
+    if (m_pHostComponent != NULL)
+    {
+        m_pHostComponent->OnSave();
+    }
     TiXmlElement* pInstanceElement = new TiXmlElement("Instance");
     pInstanceElement->SetAttribute("Id", (int)GetId());
     int posX = 0;
