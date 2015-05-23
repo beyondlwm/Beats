@@ -204,6 +204,12 @@ void CComponentProxy::Serialize( CSerializer& serializer, EValueType eValueType)
     {
         if ((*m_pSerializeOrder)[i] > 0)
         {
+            // HACK: to avoid trouble, if we are exporting, we MUST serialize eVT_CurrentValue.
+            // We don't care if we have saved, because we must save every property before exporting.
+            if (CComponentProxyManager::GetInstance()->IsExporting())
+            {
+                eValueType = eVT_CurrentValue;
+            }
             (*m_pProperties)[uPropertyCounter]->Serialize(serializer, eValueType);
             ++uPropertyCounter;
         }
