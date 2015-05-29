@@ -78,6 +78,7 @@ public:
     std::map<uint32_t, uint32_t>* GetReferenceMap();
     std::map<uint32_t, CComponentProjectDirectory*>* GetFileToDirectoryMap() const;
     std::map<uint32_t, uint32_t>* GetComponentToFileMap() const;
+    std::map<uint32_t, std::vector<uint32_t> >* GetTypeToComponentMap() const;
 
 private:
     void LoadXMLProject(TiXmlElement* pNode, CComponentProjectDirectory* pProjectDirectory, TString& strStartFilePath, std::map<uint32_t, std::vector<uint32_t> >& conflictIdMap);

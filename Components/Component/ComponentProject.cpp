@@ -357,6 +357,11 @@ std::map<uint32_t, uint32_t>* CComponentProject::GetComponentToFileMap() const
     return m_pComponentToFileMap;
 }
 
+std::map<uint32_t, std::vector<uint32_t> >* CComponentProject::GetTypeToComponentMap() const
+{
+    return m_pTypeToComponentMap;
+}
+
 uint32_t CComponentProject::RegisterFile(CComponentProjectDirectory* pDirectory, const TString& strFileName, std::map<uint32_t, std::vector<uint32_t> >& failedId, uint32_t uSpecifyFileId/* = 0xFFFFFFFF*/)
 {
     uint32_t uFileID = 0xFFFFFFFF;
