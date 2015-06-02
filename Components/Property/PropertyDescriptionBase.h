@@ -76,6 +76,7 @@ public:
 
     virtual void Initialize();
     virtual void Uninitialize();
+    bool IsInitialized() const;
     virtual bool IsContainerProperty();
 
     //Editor mode only

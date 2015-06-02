@@ -45,6 +45,7 @@ CPropertyDescriptionBase::~CPropertyDescriptionBase()
         BEATS_SAFE_DELETE((*m_pChildren)[i]);
     }
     BEATS_SAFE_DELETE(m_pChildren);
+    BEATS_ASSERT(!IsInitialized(), _T("Call uninitialize before delete a CPropertyDescriptionBase"));
 }
 
 EReflectPropertyType CPropertyDescriptionBase::GetType() const
@@ -165,6 +166,7 @@ void CPropertyDescriptionBase::DeleteAllChild()
 {
     for (uint32_t i = 0; i < m_pChildren->size(); ++i)
     {
+        (*m_pChildren)[i]->Uninitialize();
         BEATS_SAFE_DELETE((*m_pChildren)[i]);
     }
     m_pChildren->clear();
@@ -225,6 +227,11 @@ void CPropertyDescriptionBase::Uninitialize()
 {
     BEATS_ASSERT(m_bInitialized, _T("Can't Uninitialize a property twice!"));
     m_bInitialized = false;
+}
+
+bool CPropertyDescriptionBase::IsInitialized() const
+{
+    return m_bInitialized;
 }
 
 bool CPropertyDescriptionBase::IsContainerProperty()
