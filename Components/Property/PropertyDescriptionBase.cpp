@@ -266,9 +266,14 @@ void CPropertyDescriptionBase::SetValueWithType(void* pValue, EValueType type, b
 
             if (pHostComponent && !bIsTemplateProperty)
             {
-                static CSerializer serializer;
+                CSerializer serializer;
                 serializer.Reset();
                 pRealProperty->Serialize(serializer, eVT_CurrentValue);
+
+                // Record the original value to avoid wrong set in recursive call.
+                CPropertyDescriptionBase* pOriginalCheckProperty = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();
+                bool bOriginalCheckFlag = CComponentProxyManager::GetInstance()->GetReflectCheckFlag();
+
                 CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pRealProperty);
                 CComponentProxyManager::GetInstance()->SetReflectCheckFlag(true);
                 pHostComponent->ReflectData(serializer);
@@ -278,8 +283,9 @@ void CPropertyDescriptionBase::SetValueWithType(void* pValue, EValueType type, b
                     serializer.SetReadPos(0);
                     syncComponents[i]->ReflectData(serializer);
                 }
-                CComponentProxyManager::GetInstance()->SetCurrReflectDescription(NULL);
-                CComponentProxyManager::GetInstance()->SetReflectCheckFlag(false);
+                // Restore the content.
+                CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pOriginalCheckProperty);
+                CComponentProxyManager::GetInstance()->SetReflectCheckFlag(bOriginalCheckFlag);
             }
         }
     }
