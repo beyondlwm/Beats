@@ -42,6 +42,10 @@ CPropertyDescriptionBase::~CPropertyDescriptionBase()
     BEATS_SAFE_DELETE(m_pBasicInfo);
     for (uint32_t i = 0; i < m_pChildren->size(); ++i)
     {
+        if ((*m_pChildren)[i]->IsInitialized())
+        {
+            (*m_pChildren)[i]->Uninitialize();
+        }
         BEATS_SAFE_DELETE((*m_pChildren)[i]);
     }
     BEATS_SAFE_DELETE(m_pChildren);
