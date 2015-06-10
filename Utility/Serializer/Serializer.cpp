@@ -23,7 +23,7 @@ CSerializer::CSerializer(uint32_t size, void* data)
 }
 
 CSerializer::CSerializer( const CSerializer& rhs )
-: m_size(0)
+: m_size(rhs.m_size)
 , m_pBuffer(NULL)
 , m_pReadPtr(NULL)
 , m_pWritePtr(NULL)
@@ -156,9 +156,8 @@ bool CSerializer::Serialize( FILE* pFile, uint32_t startPos /*= 0*/, uint32_t da
             fseek(pFile, (long)startPos, SEEK_SET);
             dataLength = ((dataLength != 0) && (uFileSize - startPos > dataLength)) ? dataLength : uFileSize - startPos;
             ValidateBuffer(dataLength);
-            fread(m_pBuffer, 1, dataLength, pFile);
-            BEATS_ASSERT(m_pBuffer);
-            m_pWritePtr = static_cast<unsigned char*>(m_pBuffer) + dataLength;
+            fread(m_pWritePtr, 1, dataLength, pFile);
+            m_pWritePtr = static_cast<unsigned char*>(m_pWritePtr) + dataLength;
             bRet = true;
         }
         fseek(pFile, (long)curPos, SEEK_SET);
@@ -249,7 +248,8 @@ void CSerializer::ValidateBuffer(uint32_t size)
     }
     if (overFlow)
     {
-        unsigned char* pNewBuffer = new unsigned char[m_size];
+        unsigned char* pNewBuffer = new(std::nothrow) unsigned char[m_size];
+        BEATS_ASSERT(pNewBuffer != NULL, _T("Allocate memory failed!"));
         memcpy(pNewBuffer, m_pBuffer, uOriginalWritePos);
         BEATS_SAFE_DELETE_ARRAY(m_pBuffer);
         m_pBuffer = pNewBuffer;
