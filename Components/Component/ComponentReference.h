@@ -16,7 +16,7 @@ public:
     virtual uint32_t GetGuid() const override;
     virtual uint32_t GetParentGuid() const override;
     virtual const TCHAR* GetClassStr() const override;
-
+    virtual void Save() override;
     virtual void SaveToXML(TiXmlElement* pNode, bool bSaveOnlyNoneNativePart = false) override;
     virtual void LoadFromXML(TiXmlElement* pNode) override;
 

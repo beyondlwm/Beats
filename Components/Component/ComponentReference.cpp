@@ -60,6 +60,11 @@ const TCHAR* CComponentReference::GetClassStr() const
     return pszRet;
 }
 
+void CComponentReference::Save()
+{
+    // Do nothing.
+}
+
 void CComponentReference::SaveToXML(TiXmlElement* pNode, bool bSaveOnlyNoneNativePart/* = false*/)
 {
     TiXmlElement* pInstanceElement = new TiXmlElement("Reference");
