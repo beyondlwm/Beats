@@ -30,18 +30,15 @@ CStringPropertyDescription::~CStringPropertyDescription()
 
 bool CStringPropertyDescription::AnalyseUIParameterImpl(const std::vector<TString>& result)
 {
-    static std::vector<TString> m_spaceFilter;
-    if (m_spaceFilter.size() == 0)
-    {
-        m_spaceFilter.push_back(_T(" "));
-    }
+    std::set<TString> spaceFilter;
+    spaceFilter.insert(_T(" "));
     std::vector<TString> cache;
     for (uint32_t i = 0; i < result.size(); ++i)
     {
         cache.clear();
         CStringHelper::GetInstance()->SplitString(result[i].c_str(), PROPERTY_KEYWORD_SPLIT_STR, cache, false);
         // Manually filter the space of keyword because we specify "bIgnoreSpace = false" to SplitString(to avoid filter the space in the string content).
-        cache[0] = CStringHelper::GetInstance()->FilterString(cache[0].c_str(), m_spaceFilter);
+        cache[0] = CStringHelper::GetInstance()->FilterString(cache[0].c_str(), spaceFilter);
         BEATS_ASSERT(cache.size() <= 2);
         if (_tcsicmp(cache[0].c_str(), UIParameterAttrStr[eUIPAT_DefaultValue]) == 0)
         {

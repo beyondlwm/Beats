@@ -1,6 +1,8 @@
 #ifndef BEATS_UTILITY_STRINGHELPER_STRINGHELPER_H__INCLUDE
 #define BEATS_UTILITY_STRINGHELPER_STRINGHELPER_H__INCLUDE
 
+#include <set>
+
 class CStringHelper
 {
     BEATS_DECLARE_SINGLETON(CStringHelper);
@@ -26,12 +28,12 @@ public:
         eSCT_Force32Bit = 0xFFFFFFFF
     };
 public:
-    bool SplitString(const TCHAR* pParameter, const TCHAR* pSpliter, std::vector<TString>& result, bool bIgnoreSpace = true);
+    bool SplitString(const char* pParameter, const char* pSpliter, std::vector<std::string>& result, bool bIgnoreSpace = true);
 
     // Filter and Find
-    TString FilterString(const TCHAR* pData, const std::vector<TString>& filters);
-    int FindFirstString(const TCHAR* pSource, const TCHAR* pTarget,  bool bCaseSensive);
-    int FindLastString(const TCHAR* pSource, const TCHAR* pTarget,  bool bCaseSensive);
+    std::string FilterString(const char* pData, const std::set<std::string>& filters);
+    int FindFirstString(const char* pSource, const char* pTarget, bool bCaseSensive);
+    int FindLastString(const char* pSource, const char* pTarget, bool bCaseSensive);
 
     // Check character.
 #if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)

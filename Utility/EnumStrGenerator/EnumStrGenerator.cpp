@@ -48,9 +48,9 @@ bool CEnumStrGenerator::ScanEnumInFile( const TCHAR* pFileName, const TCHAR* pSp
                 FilterCPlusPlusFileComments(enumName, enumNewName, enumNameLength);
                 BEATS_SAFE_DELETE_ARRAY(enumName);
                 BEATS_ASSERT(serializer.GetReadPos() == endPos);
-                std::vector<TString> filters;
-                filters.push_back(_T("\r\n"));
-                filters.push_back(_T(" "));
+                std::set<TString> filters;
+                filters.insert(_T("\r\n"));
+                filters.insert(_T(" "));
                 TString strEnumName = CStringHelper::GetInstance()->FilterString(enumNewName, filters);
                 BEATS_SAFE_DELETE_ARRAY(enumNewName);
                 std::map<TString, SEnumScanData*>::iterator iter = m_enumStrPool.find(strEnumName.c_str());

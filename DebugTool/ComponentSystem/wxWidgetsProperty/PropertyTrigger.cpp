@@ -146,8 +146,8 @@ STriggerContent* CPropertyTrigger::GenerateContent(const TString& rawString)
 {
     STriggerContent* pRet = NULL;
     CStringHelper* pStringHelper = CStringHelper::GetInstance();
-    std::vector<TString> strFilter;
-    strFilter.push_back(_T(" "));
+    std::set<TString> strFilter;
+    strFilter.insert(_T(" "));
     TString str = pStringHelper->FilterString(rawString.c_str(), strFilter);
     TString refValue;
     TString strPropertyName;
@@ -204,8 +204,8 @@ void CPropertyTrigger::ConvertExpression(const TString& rawString, std::vector<T
 {
     result.clear();
     CStringHelper* pStringHelper = CStringHelper::GetInstance();
-    std::vector<TString> strFilter;
-    strFilter.push_back(_T(" "));
+    std::set<TString> strFilter;
+    strFilter.insert(_T(" "));
     TString str = pStringHelper->FilterString(rawString.c_str(), strFilter);
 
     const uint32_t uStringLength = str.length();

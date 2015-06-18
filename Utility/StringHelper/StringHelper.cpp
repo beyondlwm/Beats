@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "StringHelper.h"
+
 static const uint32_t MAX_CACH_SIZE = 10240;
+static char szStringHelperCacheBuffer[MAX_CACH_SIZE] = { 0 };
 CStringHelper* CStringHelper::m_pInstance = NULL;
 
 CStringHelper::CStringHelper()
@@ -13,86 +15,56 @@ CStringHelper::~CStringHelper()
 
 }
 
-bool CStringHelper::SplitString( const TCHAR* pParameter, const TCHAR* pSpliter, std::vector<TString>& result, bool bIgnoreSpace /*= true*/ )
+bool CStringHelper::SplitString(const char* pParameter, const char* pSpliter, std::vector<std::string>& result, bool bIgnoreSpace /*= true*/)
 {
-    TCHAR cache[MAX_CACH_SIZE] = {0};
-    const TCHAR* pFindStr = _tcsstr(pParameter, pSpliter);
-    const TCHAR* pReader = pParameter;
+    static std::string strIgnoreSpaceParam;
+    if (bIgnoreSpace)
+    {
+        std::set<std::string> filter;
+        filter.insert(" ");
+        strIgnoreSpaceParam = FilterString(pParameter, filter);
+        pParameter = strIgnoreSpaceParam.c_str();
+    }
+    const char* pFindStr = strstr(pParameter, pSpliter);
+    const char* pReader = pParameter;
     while (pFindStr != NULL)
     {
-        if (bIgnoreSpace)
-        {
-            TCHAR* pWriter = cache;
-            for (uint32_t i = 0; i < ((ptrdiff_t)pFindStr - (ptrdiff_t)pReader) / sizeof(TCHAR); ++i)
-            {
-                if (pReader[i] != _T(' '))
-                {
-                    *pWriter = pReader[i];
-                    ++pWriter;
-                    BEATS_ASSERT(pWriter - cache + 32 < MAX_CACH_SIZE, _T("Buffer too small"));
-                    if (pWriter - cache + 32 >= MAX_CACH_SIZE)
-                    {
-                        _tcscpy(pWriter, _T("BEATS_OMIT"));
-                        break;
-                    }
-                }
-            }
-        }
-        else
-        {
-            BEATS_ASSERT((uint32_t)pFindStr - uint32_t(pReader) < MAX_CACH_SIZE);
-            memcpy(cache, pReader, (ptrdiff_t)pFindStr - (ptrdiff_t)pReader);
-        }
-        result.push_back(cache);
-        memset(cache, 0, MAX_CACH_SIZE);
-        pReader = pFindStr + _tcslen(pSpliter);
-        pFindStr = _tcsstr(pReader, pSpliter);
+        BEATS_ASSERT((uint32_t)pFindStr - uint32_t(pReader) < MAX_CACH_SIZE);
+        uint32_t uCount = (ptrdiff_t)pFindStr - (ptrdiff_t)pReader;
+        memcpy(szStringHelperCacheBuffer, pReader, uCount);
+        szStringHelperCacheBuffer[uCount] = 0;
+        result.push_back(szStringHelperCacheBuffer);
+        pReader = pFindStr + strlen(pSpliter);
+        pFindStr = strstr(pReader, pSpliter);
     }
-    memset(cache, 0, MAX_CACH_SIZE);
-    const uint32_t restCount = (const uint32_t)(_tcslen(pReader));
+    const uint32_t restCount = (const uint32_t)(strlen(pReader));
     if (restCount > 0)
     {
-        BEATS_ASSERT(restCount < MAX_CACH_SIZE);
-        if (bIgnoreSpace)
-        {
-            TCHAR* pWriter = cache;
-            for (uint32_t i = 0; i < restCount; ++i)
-            {
-                if (pReader[i] != _T(' '))
-                {
-                    *pWriter = pReader[i];
-                    ++pWriter;
-                    BEATS_ASSERT(pWriter - cache + 32 < MAX_CACH_SIZE, _T("Buffer too small"));
-                    if (pWriter - cache + 32 >= MAX_CACH_SIZE)
-                    {
-                        _tcscpy(pWriter, _T("BEATS_OMIT"));
-                        break;
-                    }
-                }
-            }
-            result.push_back(cache);
-        }
-        else
-        {
-            result.push_back(pReader);
-        }
+        result.push_back(pReader);
     }
 
     return true;
 }
 
-TString CStringHelper::FilterString(const TCHAR* pData, const std::vector<TString>& filters )
+std::string CStringHelper::FilterString(const char* pData, const std::set<std::string>& filters)
 {
-    TString strRet;
-    const TCHAR* pReader = pData;
+    std::string strRet;
+    const char* pReader = pData;
     while (*pReader != 0)
     {
-        for (int i = 0; i < (int)filters.size(); ++i)
+        // Reverse iterate, so the longer string filter will be test first, this can handle filters like : filters = {a,ab,abc} data = abcdefg 
+        // of course will get "defg" not "bcdefg"
+        for (std::set<std::string>::const_reverse_iterator rIter = filters.rbegin(); rIter != filters.rend() && *pReader != 0;)
         {
-            if (memcmp(pReader, filters[i].c_str(), filters[i].length()*sizeof(TCHAR)) == 0)
+            const std::string& strFilter = *rIter;
+            if (memcmp(pReader, strFilter.c_str(), strFilter.length() * sizeof(char)) == 0)
             {
-                pReader += filters[i].length();
-                i = -1; // To reset the whole loop because the pReader is updated.
+                pReader += strFilter.length();
+                rIter = filters.rbegin(); // Re-detect the filter at new pos.
+            }
+            else
+            {
+                ++rIter;
             }
         }
         if (*pReader != 0)
@@ -103,104 +75,28 @@ TString CStringHelper::FilterString(const TCHAR* pData, const std::vector<TStrin
     return strRet;
 }
 
-int CStringHelper::FindFirstString( const TCHAR* pSource, const TCHAR* pTarget, bool bCaseSensive )
+int CStringHelper::FindFirstString( const char* pSource, const char* pTarget, bool bCaseSensive )
 {
-    int iResult = -1;
-    uint32_t uTargetLength = (uint32_t)(_tcslen(pTarget));
-    uint32_t uSourceLength = (uint32_t)(_tcslen(pSource));
-    int iCounter = 0;
+    std::string strSource = pSource;
+    std::string strTarget = pTarget;
     if (!bCaseSensive)
     {
-        TCHAR* pszCache = new TCHAR[uSourceLength + 1];
-        _tcscpy(pszCache, pSource);
-        while (uTargetLength <= uSourceLength - iCounter)
-        {
-            TCHAR lastChar = pszCache[iCounter + uTargetLength];
-            if (lastChar == 0)
-            {
-                break;
-            }
-            pszCache[iCounter + uTargetLength] = 0;
-            bool bMatched = _tcsicmp(pTarget, &pszCache[iCounter]) == 0;
-            if (bMatched)
-            {
-                iResult = iCounter;
-                break;
-            }
-            pszCache[iCounter + uTargetLength] = lastChar;
-            ++iCounter;            
-        }
-        BEATS_SAFE_DELETE_ARRAY(pszCache);
+        std::transform(strSource.begin(), strSource.end(), strSource.begin(), ::toupper);
+        std::transform(strTarget.begin(), strTarget.end(), strTarget.begin(), ::toupper);
     }
-    else
-    {
-        while (uTargetLength <= uSourceLength - iCounter)
-        {
-            if (pSource[iCounter] == pTarget[0])
-            {
-                bool bMatched = memcmp(&pSource[iCounter], pTarget, uTargetLength * sizeof(TCHAR)) == 0;
-                if (bMatched)
-                {
-                    iResult = iCounter;
-                    break;
-                }
-            }
-            ++iCounter;
-        }
-    }
-
-    return iResult;
+    return strSource.find(strTarget);
 }
 
-int CStringHelper::FindLastString( const TCHAR* pSource, const TCHAR* pTarget, bool bCaseSensive )
+int CStringHelper::FindLastString( const char* pSource, const char* pTarget, bool bCaseSensive )
 {
-    int iResult = -1;
-    BEATS_ASSERT(pSource != NULL && pTarget != NULL);
-    uint32_t uTargetLength = uint32_t(_tcslen(pTarget));
-    uint32_t uSourceLength = uint32_t(_tcslen(pSource));
-    BEATS_ASSERT(uTargetLength > 0 && uSourceLength > 0);
-    int iCounter = (int)uSourceLength - (int)uTargetLength;
-    if (iCounter >= 0)
+    std::string strSource = pSource;
+    std::string strTarget = pTarget;
+    if (!bCaseSensive)
     {
-        if (!bCaseSensive)
-        {        
-            TCHAR* pszCache = new TCHAR[uSourceLength + 1];
-            _tcscpy(pszCache, pSource);
-
-            while (iCounter >= 0)
-            {
-                TCHAR lastChar = pszCache[iCounter + uTargetLength];
-                pszCache[iCounter + uTargetLength] = 0;
-                bool bMatched = _tcsicmp(pTarget, &pszCache[iCounter]) == 0;
-                if (bMatched)
-                {
-                    iResult = iCounter;
-                    break;
-                }
-                pszCache[iCounter + uTargetLength] = lastChar;
-                --iCounter;
-            }
-            BEATS_SAFE_DELETE_ARRAY(pszCache);
-        }
-        else
-        {
-            while (iCounter > 0)
-            {
-                if (pSource[iCounter] == pTarget[0])
-                {
-                    bool bMatched = memcmp(&pSource[iCounter], pTarget, uTargetLength * sizeof(TCHAR)) == 0;
-                    if (bMatched)
-                    {
-                        iResult = iCounter;
-                        break;
-                    }
-                }
-                --iCounter;
-            }
-        }
+        std::transform(strSource.begin(), strSource.end(), strSource.begin(), ::toupper);
+        std::transform(strTarget.begin(), strTarget.end(), strTarget.begin(), ::toupper);
     }
-
-    return iResult;
+    return strSource.rfind(strTarget);
 }
 
 #if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
@@ -284,7 +180,7 @@ CStringHelper::EStringCharacterType CStringHelper::GetCharacterType(const char* 
 }
 #endif
 
-bool CStringHelper::WildMatch( const TCHAR* pat, const TCHAR* str )
+bool CStringHelper::WildMatch( const char* pat, const char* str )
 {
     while (*str) 
     {
