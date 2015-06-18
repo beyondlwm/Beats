@@ -3,6 +3,28 @@
 
 static const uint32_t MAX_CACH_SIZE = 10240;
 static char szStringHelperCacheBuffer[MAX_CACH_SIZE] = { 0 };
+static const unsigned char masksUtf8[6] = {
+    (unsigned char)0x80, //10000000
+    (unsigned char)0xE0, //11100000
+    (unsigned char)0xF0, //11110000
+    (unsigned char)0xF8, //11111000
+    (unsigned char)0xFC, //11111100
+    (unsigned char)0xFE, //11111110
+};
+
+static const int bitNums[6] = {
+    7, 11, 16, 21, 26, 31,
+};
+
+static const int masksUnicode[6] = {
+    (int)(0xFFFFFFFFu >> (32 - bitNums[0])),
+    (int)(0xFFFFFFFFu >> (32 - bitNums[1])),
+    (int)(0xFFFFFFFFu >> (32 - bitNums[2])),
+    (int)(0xFFFFFFFFu >> (32 - bitNums[3])),
+    (int)(0xFFFFFFFFu >> (32 - bitNums[4])),
+    (int)(0xFFFFFFFFu >> (32 - bitNums[5])),
+};
+
 CStringHelper* CStringHelper::m_pInstance = NULL;
 
 CStringHelper::CStringHelper()
@@ -99,6 +121,94 @@ int CStringHelper::FindLastString( const char* pSource, const char* pTarget, boo
     return strSource.rfind(strTarget);
 }
 
+uint32_t CStringHelper::Utf8GetByteNum(char byte)
+{
+    uint32_t byteNum = 0;
+    for (uint32_t i = 0; i < 6; ++i)
+    {
+        char mask = masksUtf8[i];
+        if ((byte & mask) == (char)(mask << 1))
+        {
+            byteNum = i + 1;
+            break;
+        }
+    }
+    //not utf8 encoding
+    BEATS_ASSERT(byteNum > 0, _T("Invalid utf8 head byte."));
+    return byteNum;
+}
+
+uint32_t CStringHelper::UnicodeGetByteNumFrom(uint32_t code)
+{
+    uint32_t byteNum = 0;
+    for (uint32_t i = 0; i < 6; ++i)
+    {
+        if ((code & ~masksUnicode[i]) == 0)
+        {
+            byteNum = i + 1;
+            break;
+        }
+    }
+    //not unicode
+    BEATS_ASSERT(byteNum > 0, _T("Invalid unicode character."));
+    return byteNum;
+}
+
+const char* CStringHelper::Utf8ExtractCodePoint(const char* pBuffer, uint32_t& uCode)
+{
+    uCode = 0;
+    uint32_t byteNum = Utf8GetByteNum(*pBuffer);
+    for (uint32_t i = 0; i < byteNum; ++i)
+    {
+        BYTE currByte = pBuffer[i];
+        //not utf8 encoding
+        BEATS_ASSERT(i == 0 || (currByte & 0xC0) == 0x80, _T("Invalid utf8 encoding."));
+        uint32_t shiftNum = i == 0 ? 0 : 6;
+        uCode = uCode << shiftNum;
+        uCode |= currByte & (i == 0 ? ~masksUtf8[byteNum - 1] : 0x3F);
+    }
+    return pBuffer + byteNum;
+}
+
+std::wstring CStringHelper::Utf8ToWString(const char* utf8str)
+{
+    std::wstring result;
+    while (*utf8str)
+    {
+        uint32_t uCodePoint = 0;
+        utf8str = Utf8ExtractCodePoint(utf8str, uCodePoint);
+        wchar_t wchar = (wchar_t)uCodePoint;
+        result.push_back(wchar);
+    }
+    return result;
+}
+
+std::string CStringHelper::WStringToUtf8(const wchar_t* wstr)
+{
+    std::string result;
+    uint32_t i = 0;
+    int c = wstr[i];
+    while (c)
+    {
+        uint32_t byteNum = UnicodeGetByteNumFrom(c);
+        if (byteNum == 1)
+            result.push_back((BYTE)c);
+        else
+        {
+            for (uint32_t j = 0; j < byteNum; ++j)
+            {
+                BYTE byteHead = j == 0 ? masksUtf8[byteNum - 1] << 1 : (BYTE)0x80;
+                int shiftNum = 6 * (byteNum - j - 1);
+                BYTE byteTail = (c >> shiftNum) & 0x3F;
+                BYTE byte = byteHead | byteTail;
+                result.push_back(byte);
+            }
+        }
+        c = wstr[++i];
+    }
+    return result;
+}
+
 #if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
 CStringHelper::EStringCharacterType CStringHelper::GetCharacterType(wchar_t character) const
 {
@@ -178,6 +288,28 @@ CStringHelper::EStringCharacterType CStringHelper::GetCharacterType(const char* 
     MultiByteToWideChar(CP_ACP, 0, pszChar, -1, &buffer, sizeof(wchar_t));
     return GetCharacterType(buffer);
 }
+
+std::string CStringHelper::Utf8ToString(const char* utf8str)
+{
+    char szBuffer[1024];
+    std::wstring wstr = Utf8ToWString(utf8str);
+    WideCharToMultiByte(CP_ACP, 0, (LPWSTR)wstr.c_str(), -1, szBuffer, 1024, NULL, NULL);
+    return szBuffer;
+}
+
+std::string CStringHelper::StringToUtf8(const char* str)
+{
+    std::wstring strWide;
+    int count = MultiByteToWideChar(CP_ACP, 0, str, (int)strlen(str), NULL, 0);
+    if (count > 0)
+    {
+        strWide.resize(count);
+        MultiByteToWideChar(CP_ACP, 0, str, (int)strlen(str),
+            const_cast<wchar_t*>(strWide.data()), (int)strWide.length());
+    }
+    return WStringToUtf8(strWide.c_str());
+}
+
 #endif
 
 bool CStringHelper::WildMatch( const char* pat, const char* str )
