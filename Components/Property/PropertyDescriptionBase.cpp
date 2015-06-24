@@ -162,6 +162,7 @@ bool CPropertyDescriptionBase::DeleteChild(CPropertyDescriptionBase* pProperty, 
             break;
         }
     }
+    pProperty->Uninitialize();
     BEATS_SAFE_DELETE(pProperty);
     return bRet;
 }
