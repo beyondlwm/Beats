@@ -145,6 +145,7 @@ void CComponentInstanceManager::LoadFile(uint32_t uFileId, std::vector<CComponen
             BEATS_ASSERT(uComponentStartPos + uComponentDataSize == m_pSerializer->GetReadPos(), _T("Component Data Not Match!\nGot an error when import data for component %x %s instance id %d\nRequired size: %d, Actual size: %d"), uGuid, pComponent->GetClassStr(), uId, uComponentDataSize, m_pSerializer->GetReadPos() - uComponentStartPos);
             m_pSerializer->SetReadPos(uComponentStartPos + uComponentDataSize);
         }
+        ResolveDependency();
         m_loadedFiles.insert(uFileId);
         BEATS_ASSERT(m_pSerializer->GetReadPos() - uFileStartPos == uFileDataLength, _T("File Data NOT Match!\nGot an error when import data for file %d Required size:%d Actual size %d"), uFileId, uFileDataLength, m_pSerializer->GetReadPos() - uFileStartPos);
     }
