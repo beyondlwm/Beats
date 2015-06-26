@@ -31,8 +31,4 @@ private:
     class AAssetManager* m_pAssetManager;
 #endif
 };
-
-
-
-
 #endif

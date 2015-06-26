@@ -159,23 +159,26 @@ void CComponentInstanceManager::CloseFile(uint32_t uFileId)
     auto iter = pFileToComponentMap->find(uFileId);
     if (iter != pFileToComponentMap->end())
     {
-#ifdef _DEBUG
-        // All components must exists before they call uninitialize.
         for (uint32_t i = 0;i < iter->second.size(); ++i)
         {
             uint32_t uComponentId = iter->second.at(i);
-            CComponentBase* pComponent = CComponentInstanceManager::GetInstance()->GetComponentInstance(uComponentId);
-            BEATS_ASSERT(pComponent != NULL && pComponent->IsInitialized());
-        }
-#endif
-        for (uint32_t i = 0;i < iter->second.size(); ++i)
-        {
-            uint32_t uComponentId = iter->second.at(i);
+            BEATS_ASSERT(uComponentId != 0xFFFFFFFF);
             CComponentBase* pComponentBase = CComponentInstanceManager::GetInstance()->GetComponentInstance(uComponentId);
             // This may be null, because some components can be uninitialized by other component's uninitialize.
-            if (pComponentBase != NULL && pComponentBase->IsInitialized())
+            if (pComponentBase != NULL)
             {
-                pComponentBase->Uninitialize();
+                if (pComponentBase->IsInitialized())
+                {
+                    pComponentBase->Uninitialize();
+                }
+                else
+                {
+                    // Component may not be initialized this moment, for example:
+                    // Close file right after load file, just to fetch some component data, so we don't need to initialize it.
+                    // Even it is not initialized, we still need to unregister the component since register is done in creating component procession.
+                    UnregisterInstance(pComponentBase);
+                    GetIdManager()->RecycleId(uComponentId);
+                }
                 componentToDelete.push_back(pComponentBase);
             }
         }
