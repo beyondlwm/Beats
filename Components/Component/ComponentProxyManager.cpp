@@ -131,8 +131,6 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bCloseLoadedF
                 }
             }
         }
-
-        ResolveDependency();
         for (uint32_t i = 0; i < loadedComponents.size(); ++i)
         {
             loadedComponents[i]->Initialize();
@@ -221,7 +219,7 @@ void CComponentProxyManager::LoadFile(const TCHAR* pszFilePath, std::vector<CCom
         _stprintf(info, _T("Load file :%s Failed! Row: %d Col: %d Reason:%s"), pszFilePath, document.ErrorRow(), document.ErrorCol(), document.ErrorDesc());
         MessageBox(NULL, info, _T("Load File Failed"), MB_OK | MB_ICONERROR);
     }
-
+    ResolveDependency();
     m_bLoadingFilePhase = bRestoreLoadingPhase;
 }
 
@@ -353,7 +351,6 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
                 m_pIdManager->Lock();
                 LoadFile(strFileName.c_str(), &vecComponents);
                 BEATS_ASSERT(m_loadedFiles.find(i) != m_loadedFiles.end());
-                ResolveDependency();
                 // Do serialize and delete operation in separate steps.
                 // Because everything can be ready to serialize after initialize.
                 for (uint32_t j = 0; j < vecComponents.size(); ++j)

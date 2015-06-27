@@ -3,7 +3,7 @@
 
 CIdManager::CIdManager()
 : m_lastId(0)
-, m_bLock(false)
+, uLockCount(0)
 {
 
 }
@@ -15,7 +15,7 @@ CIdManager::~CIdManager()
 
 uint32_t CIdManager::GenerateId()
 {
-    BEATS_ASSERT(!m_bLock, _T("can't Generate id when it is locked!"));
+    BEATS_ASSERT(0 == uLockCount, _T("can't Generate id when it is locked!"));
     uint32_t uRet = 0;
     if (m_freeIdPool.size() > 0)
     {
@@ -32,7 +32,7 @@ uint32_t CIdManager::GenerateId()
 
 void CIdManager::RecycleId( uint32_t id )
 {
-    if (!m_bLock)
+    if (0 == uLockCount)
     {
         BEATS_ASSERT( id < m_lastId, _T("Can't recycle an id which is not reserved."));
         if (id < m_lastId)
@@ -57,7 +57,7 @@ void CIdManager::RecycleId( uint32_t id )
 bool CIdManager::ReserveId( uint32_t id , bool bCheckIsAlreadyRequested/* = true*/)
 {
     bool bRet = true;
-    if (!m_bLock)
+    if (0 == uLockCount)
     {
         bRet = false;
         if (id >= m_lastId)
@@ -98,17 +98,16 @@ bool CIdManager::IsIdFree(uint32_t id)
 
 void CIdManager::Lock()
 {
-    BEATS_ASSERT(!m_bLock, _T("Can't lock id manager twice!"));
-    m_bLock = true;
+    ++uLockCount;
 }
 
 void CIdManager::UnLock()
 {
-    BEATS_ASSERT(m_bLock, _T("Can't unlock id manager twice!"));
-    m_bLock = false;
+    BEATS_ASSERT(uLockCount > 0);
+    --uLockCount;
 }
 
 bool CIdManager::IsLocked() const
 {
-    return m_bLock;
+    return uLockCount > 0;
 }
