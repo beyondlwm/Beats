@@ -12,6 +12,7 @@ class COMPONENTS_DLL_DECL CComponentInstance : public CComponentBase
 public:
     CComponentInstance();
     virtual ~CComponentInstance();
+    virtual void Initialize() override;
     virtual void Uninitialize() override;
 
     void SetDataPos(uint32_t uDataPos);

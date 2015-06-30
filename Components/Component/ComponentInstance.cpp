@@ -24,6 +24,28 @@ CComponentInstance::~CComponentInstance()
     }
 }
 
+void CComponentInstance::Initialize()
+{
+    // For Editor operation, we always call proxy initialize before instance's initialize.
+    // But if we call Initialize manually from code, we need to call proxy initialize.
+    if (m_pProxyComponent != NULL && !m_pProxyComponent->IsInitialized())
+    {
+        m_pProxyComponent->Initialize();
+    }
+    uint32_t uComponentId = GetId();
+    if (uComponentId != 0xFFFFFFFF && CComponentInstanceManager::GetInstance()->GetComponentInstance(uComponentId, GetGuid()) == nullptr)
+    {
+        // We must call RegisterInstance before Initialize (so we can resolve dependency).
+        // But if we call Uninitialize in code and call Initialize again, we have to Register this component again manually.
+        CComponentProxyManager::GetInstance()->GetIdManager()->ReserveId(uComponentId);
+        CComponentProxyManager::GetInstance()->RegisterInstance(m_pProxyComponent);
+        CComponentInstanceManager::GetInstance()->GetIdManager()->ReserveId(uComponentId);
+        CComponentInstanceManager::GetInstance()->RegisterInstance(this);
+    }
+
+    super::Initialize();
+}
+
 void CComponentInstance::Uninitialize()
 {
     super::Uninitialize();
