@@ -53,8 +53,9 @@ bool CFilePathTool::LoadFile(CSerializer* pSerializer, const TCHAR* pszFilePath,
                 AAsset_seek(pFile, uStartPos, SEEK_SET);
 
                 int bytesread = AAsset_read(pFile, pSerializer->GetWritePtr(), uFileSize);
-                pSerializer->SetWritePos(uFileSize);
                 BEATS_ASSERT(uFileSize == bytesread);
+                uint32_t uOriginalPos = pSerializer->GetWritePos();
+                pSerializer->SetWritePos(uOriginalPos + uFileSize);
                 AAsset_close(pFile);
             }
         }
