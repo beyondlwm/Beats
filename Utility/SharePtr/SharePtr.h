@@ -10,7 +10,8 @@
     #endif
 
     #ifdef SHARE_PTR_TRACE
-    #include "StringHelper/StringHelper.h"
+    #include "Utility/StringHelper/StringHelper.h"
+    #include "Utility/FilePath/FilePathTool.h"
     #include <set>
     #endif
 
@@ -45,7 +46,7 @@ public:
     }
 
     SharePtr<ClassType>(ClassType* pObject)
-        : m_pRefCount (NULL)
+        : m_pRefCount(NULL)
         , m_pObject(pObject)
 #ifdef SHARE_PTR_TRACE
         , m_uRefrencePos(0)
@@ -58,7 +59,7 @@ public:
             m_pRefrencePosSet = new std::multiset<uint32_t>;
             uint32_t eBPValue = 0;
             BEATS_ASSI_GET_EBP(eBPValue);
-            m_uRefrencePos = (*(uint32_t*)((uint32_t*)(eBPValue) + 1));//current eip,ignore it.
+            m_uRefrencePos = (*(uint32_t*)((uint32_t*)(eBPValue)+1));//current eip,ignore it.
             uint32_t lastEBPValue = *(uint32_t*)(eBPValue);
             uint32_t ignoreFrameCount = 1;
             bool bMeaningfulFile = false;
@@ -66,9 +67,9 @@ public:
             {
                 if (ignoreFrameCount > 0)
                 {
-                    -- ignoreFrameCount;
+                    --ignoreFrameCount;
                 }
-                if(ignoreFrameCount == 0)
+                if (ignoreFrameCount == 0)
                 {
                     DWORD displacement = 0;
                     IMAGEHLP_LINE info;
@@ -77,8 +78,7 @@ public:
                     bool bGetAddrSuccess = SymGetLineFromAddr(GetCurrentProcess(), m_uRefrencePos, &displacement, &info) == TRUE;
                     if (bGetAddrSuccess)
                     {
-                        const char* pszPathExtension = PathFindExtensionA(info.FileName);
-                        bMeaningfulFile = strlen(pszPathExtension) > 0;
+                        bMeaningfulFile = CFilePathTool::GetInstance()->Extension(info.FileName).length() > 0;
                     }
                     else
                     {
@@ -90,7 +90,7 @@ public:
                     lastEBPValue = *(uint32_t*)(eBPValue);
                     // If the module enable FPO optimize, the address may be invalid.
                     eBPValue = lastEBPValue;
-                    uint32_t* pPtr = (uint32_t*)((uint32_t*)(eBPValue) + 1);
+                    uint32_t* pPtr = (uint32_t*)((uint32_t*)(eBPValue)+1);
                     if (lastEBPValue == 0 || IsBadCodePtr((FARPROC)pPtr))
                     {
                         break;
@@ -99,7 +99,6 @@ public:
                 }
             }
             m_pRefrencePosSet->insert(m_uRefrencePos);
-
 #endif
             m_pRefCount = new long(1);
         }
@@ -136,7 +135,17 @@ public:
 
     const SharePtr<ClassType>&  operator = (const SharePtr<ClassType>& value)
     {
-        return CopyImpl(value);
+        if (value == NULL)
+        {
+            Destroy();
+            m_pRefCount = NULL;
+            m_pObject = NULL;
+        }
+        else
+        {
+            CopyImpl(value);
+        }
+        return *this;
     }
 
     template<class ClassType2>
@@ -209,11 +218,11 @@ public:
             BEATS_ASSERT(*m_pRefCount > 0, _T("Ref count is invalid for share pointer destroy"));
             Beats_AtomicDecrement(m_pRefCount);
 #ifdef SHARE_PTR_TRACE
-            m_lockmutex.lock();
+            sharePtrLockMutex.lock();
             std::multiset<uint32_t>::iterator iter = m_pRefrencePosSet->find(m_uRefrencePos);
             BEATS_ASSERT(iter != m_pRefrencePosSet->end());
             m_pRefrencePosSet->erase(iter);
-            m_lockmutex.unlock();
+            sharePtrLockMutex.unlock();
 #endif 
 
             if (*m_pRefCount == 0)
@@ -236,7 +245,7 @@ public:
 
 private:
     template<class ClassType2>
-    const SharePtr<ClassType>&  CopyImpl (const SharePtr<ClassType2>& value)
+    const SharePtr<ClassType>&  CopyImpl(const SharePtr<ClassType2>& value)
     {
         if (*this != value)
         {
@@ -246,12 +255,7 @@ private:
             }
 #ifdef SHARE_PTR_TRACE
             m_pObject = dynamic_cast<ClassType*>(value.Get());
-            if (m_pObject == NULL)
-            {
-                TCHAR szBuffer[MAX_PATH];
-                CStringHelper::GetInstance()->ConvertToTCHAR(typeid(value).name(), szBuffer, MAX_PATH);
-                BEATS_ASSERT(false, _T("Dynamic cast type failed in SharePtr!\nFunction:\n %s\nwith type of\n %s"), _T(__FUNCTION__), szBuffer);
-            }
+            BEATS_ASSERT(m_pObject != NULL, _T("Dynamic cast type failed in SharePtr!\nFunction:\n %s\nwith type of\n %s"), _T(__FUNCTION__), typeid(value).name());
 #else
             m_pObject = static_cast<ClassType*>(value.Get());
 #endif
@@ -273,16 +277,15 @@ private:
 public:
     uint32_t m_uRefrencePos;
     std::multiset<uint32_t>* m_pRefrencePosSet;
-    static std::mutex m_lockmutex;
 
     void SetRefPos(std::multiset<uint32_t> *refPosSet)
     {
-        m_lockmutex.lock();
+        sharePtrLockMutex.lock();
         m_pRefrencePosSet = refPosSet;
 
         uint32_t eBPValue = 0;
         BEATS_ASSI_GET_EBP(eBPValue);
-        m_uRefrencePos = (*(uint32_t*)((uint32_t*)(eBPValue) + 1));//current eip,ignore it.
+        m_uRefrencePos = (*(uint32_t*)((uint32_t*)(eBPValue)+1));//current eip,ignore it.
         uint32_t lastEBPValue = *(uint32_t*)(eBPValue);
         uint32_t ignoreFrameCount = 2;
         bool bMeaningfulFile = false;
@@ -290,9 +293,9 @@ public:
         {
             if (ignoreFrameCount > 0)
             {
-                -- ignoreFrameCount;
+                --ignoreFrameCount;
             }
-            if(ignoreFrameCount == 0)
+            if (ignoreFrameCount == 0)
             {
                 DWORD displacement = 0;
                 IMAGEHLP_LINE info;
@@ -301,10 +304,11 @@ public:
                 bool bGetAddrSuccess = SymGetLineFromAddr(GetCurrentProcess(), m_uRefrencePos, &displacement, &info) == TRUE;
                 if (bGetAddrSuccess)
                 {
-                    const char* pszPathExtension = PathFindExtensionA(info.FileName);                        
-                    bMeaningfulFile = strlen(pszPathExtension) > 0 && 
-                        _stricmp(PathFindFileNameA(info.FileName), "shareptr.h") != 0 &&
-                        _stricmp(PathFindFileNameA(info.FileName), "resourcemanager.h") != 0;
+                    TString strPathExtension = CFilePathTool::GetInstance()->Extension(info.FileName);
+                    TString strFileName = CFilePathTool::GetInstance()->FileName(info.FileName);
+                    bMeaningfulFile = strPathExtension.length() > 0 &&
+                        _stricmp(strFileName.c_str(), "shareptr.h") != 0 &&
+                        _stricmp(strFileName.c_str(), "resourcemanager.h") != 0;
                 }
                 else
                 {
@@ -316,7 +320,7 @@ public:
                 lastEBPValue = *(uint32_t*)(eBPValue);
                 // If the module enable FPO optimize, the address may be invalid.
                 eBPValue = lastEBPValue;
-                uint32_t* pPtr = (uint32_t*)((uint32_t*)(eBPValue) + 1);
+                uint32_t* pPtr = (uint32_t*)((uint32_t*)(eBPValue)+1);
                 if (lastEBPValue == 0 || IsBadCodePtr((FARPROC)pPtr))
                 {
                     break;
@@ -325,12 +329,13 @@ public:
             }
         }
         m_pRefrencePosSet->insert(m_uRefrencePos);
-        m_lockmutex.unlock();
+        sharePtrLockMutex.unlock();
     }
 
-    void GetReferencePosString(std::string& strOut)
+    TString GetReferencePosString()
     {
-        m_lockmutex.lock();
+        TString strRet;
+        sharePtrLockMutex.lock();
         char szBuffer[MAX_PATH];
         uint32_t uIndex = 0;
         for (std::multiset<uint32_t>::iterator iter = m_pRefrencePosSet->begin(); iter != m_pRefrencePosSet->end(); ++iter)
@@ -345,16 +350,16 @@ public:
             if (bGetAddrSuccess)
             {
                 sprintf_s(szBuffer, "%d.%s Line:%d\n\n", uIndex++, info.FileName, info.LineNumber);
-                strOut.append(szBuffer);
+                strRet.append(szBuffer);
             }
         }
-        m_lockmutex.unlock();
+        sharePtrLockMutex.unlock();
+        return strRet;
     }
 #endif
 };
 
 #ifdef SHARE_PTR_TRACE
-template<class ClassType>
-std::mutex SharePtr<ClassType>::m_lockmutex;
+extern std::mutex sharePtrLockMutex;
 #endif
 #endif

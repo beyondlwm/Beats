@@ -72,6 +72,9 @@
     <ClCompile Include="FilePath\Platform\Win32\FilePathTool_Win32.cpp">
       <Filter>FilePath</Filter>
     </ClCompile>
+    <ClCompile Include="SharePtr\SharePtr.cpp">
+      <Filter>SharePtr</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EnumStrGenerator\EnumStrGenerator.h">

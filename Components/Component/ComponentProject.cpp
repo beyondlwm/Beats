@@ -484,7 +484,7 @@ bool CComponentProject::AnalyseFile(const TString& strFileName, std::map<uint32_
     else
     {
         TCHAR reason[MAX_PATH];
-        _stprintf(reason, _T("%s row : %d col : %d"), document.ErrorDesc(), document.ErrorRow(), document.ErrorCol());
+        _stprintf(reason, _T("%s %s row : %d col : %d"), document.ErrorDesc(), strFileName.c_str(), document.ErrorRow(), document.ErrorCol());
         BEATS_ASSERT(false, _T("Load File :%s Failed!Reason: %s "), strFileName.c_str(), reason);
     }
     return true;

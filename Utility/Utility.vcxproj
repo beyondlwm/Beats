@@ -421,6 +421,7 @@
     <ClCompile Include="MD5\md5.cpp" />
     <ClCompile Include="Serializer\Serializer.cpp" />
     <ClCompile Include="ServiceManager\ServiceManager.cpp" />
+    <ClCompile Include="SharePtr\SharePtr.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
