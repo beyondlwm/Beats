@@ -23,18 +23,18 @@ public:
 
     std::string ToString();
     void Reset();
-    const BYTE* GetData()const;
+    const char* GetData()const;
 
     bool operator == (const CMD5& rRef);
     bool operator < (const CMD5& rRef);
 
 private:
-    void Update(const BYTE *input, uint32_t length);
+    void Update(const char *input, uint32_t length);
     void Digest();
-    void Transform(const BYTE block[64]);
-    void Encode(const uint32_t *input, BYTE *output, uint32_t length);
-    void Decode(const BYTE *input, uint32_t *output, uint32_t length);
-    std::string BytesToHexString(const BYTE *input, uint32_t length);
+    void Transform(const char block[64]);
+    void Encode(const uint32_t *input, char *output, uint32_t length);
+    void Decode(const char *input, uint32_t *output, uint32_t length);
+    std::string charsToHexString(const char *input, uint32_t length);
 
     /* class uncopyable */
     CMD5(const CMD5&);
@@ -43,11 +43,11 @@ private:
 private:
     uint32_t m_magicNumber[4];    /* state (ABCD) */
     uint32_t m_bitsCount[2];    /* number of bits, modulo 2^64 (low-order word first) */
-    BYTE m_inputBuffer[64];    /* input buffer */
-    BYTE m_digest[16];    /* message digest */
+    char m_inputBuffer[64];    /* input buffer */
+    char m_digest[16];    /* message digest */
     bool m_bDigested;        /* calculate finished ? */
 
-    static const BYTE PADDING[64];    /* padding for calculate */
+    static const char PADDING[64];    /* padding for calculate */
     static const char HEX[16];
     static const uint32_t BUFFER_SIZE = 1024 * 1024;
 };

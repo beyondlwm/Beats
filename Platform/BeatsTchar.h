@@ -96,6 +96,10 @@
 #define _ttoi atoi
 #define _tcstoul strtoul
 
+//file operation
+#define _ftelli64 ftello
+#define _fseeki64 fseeko
+
 #endif
 
 #else //HAVE_TCHAR_H
