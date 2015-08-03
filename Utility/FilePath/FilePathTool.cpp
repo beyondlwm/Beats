@@ -26,7 +26,6 @@ bool CFilePathTool::LoadFile(CSerializer* pSerializer, const TCHAR* pszFilePath,
     bool bRet = false;
 #if (BEATS_PLATFORM == BEATS_PLATFORM_ANDROID)
     TString strFilePath(pszFilePath);
-    BEATS_ASSERT(strFilePath[0] != _T('/'));
     if (strFilePath[0] != _T('/'))
     {
         const TCHAR* pszFilePath = strFilePath.c_str();
