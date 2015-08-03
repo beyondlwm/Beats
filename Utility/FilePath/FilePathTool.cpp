@@ -60,14 +60,18 @@ bool CFilePathTool::LoadFile(CSerializer* pSerializer, const TCHAR* pszFilePath,
             }
         }
     }
-#else
-    FILE* pFile = _tfopen(pszFilePath, pszMode);
-    bRet = pFile != NULL;
-    BEATS_ASSERT(pFile != NULL, _T("Can't open file %s"), pszFilePath);
-    if (pFile != NULL)
+    else
     {
-        pSerializer->Serialize(pFile, uStartPos, uDataLength);
-        fclose(pFile);
+#endif
+        FILE* pFile = _tfopen(pszFilePath, pszMode);
+        bRet = pFile != NULL;
+        BEATS_ASSERT(pFile != NULL, _T("Can't open file %s"), pszFilePath);
+        if (pFile != NULL)
+        {
+            pSerializer->Serialize(pFile, uStartPos, uDataLength);
+            fclose(pFile);
+        }
+#if (BEATS_PLATFORM == BEATS_PLATFORM_ANDROID)
     }
 #endif
     return bRet;
