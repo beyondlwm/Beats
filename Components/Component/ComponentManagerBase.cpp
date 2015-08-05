@@ -18,7 +18,6 @@ CComponentManagerBase::CComponentManagerBase()
     m_pComponentTemplateMap = new std::map<uint32_t, CComponentBase*>;
     m_pComponentInstanceMap = new std::map<uint32_t, std::map<uint32_t, CComponentBase*>*>;
     m_pDependencyResolver = new std::vector<SDependencyResolver*>;
-    m_pUninitializedComponents = new std::vector<CComponentBase*>;
 }
 
 CComponentManagerBase::~CComponentManagerBase()
@@ -30,14 +29,12 @@ void CComponentManagerBase::Release()
 {
     BEATS_SAFE_DELETE(m_pIdManager);
     BEATS_SAFE_DELETE(m_pProject);
-    DeleteAllInstance();
     BEATS_SAFE_DELETE(m_pComponentInstanceMap);
     
     typedef std::map<uint32_t, CComponentBase*> TComponentMap;
     BEATS_SAFE_DELETE_MAP((*m_pComponentTemplateMap), TComponentMap);
     BEATS_SAFE_DELETE(m_pComponentTemplateMap);
     BEATS_SAFE_DELETE(m_pDependencyResolver);
-    BEATS_SAFE_DELETE(m_pUninitializedComponents);
 }
 
 bool CComponentManagerBase::RegisterTemplate( CComponentBase* pComponent )
@@ -184,6 +181,11 @@ CComponentBase* CComponentManagerBase::GetComponentInstance( uint32_t uId , uint
     return pResult;
 }
 
+const std::vector<uint32_t>& CComponentManagerBase::GetLoadedFiles() const
+{
+    return m_loadedFiles;
+}
+
 CIdManager* CComponentManagerBase::GetIdManager() const
 {
     return m_pIdManager;
@@ -231,7 +233,7 @@ void CComponentManagerBase::CalcSwitchFile(uint32_t uFileId, bool bCloseLoadedFi
     std::vector<CComponentBase*> loadedComponents;
     bool bLoadThisFile = true;
     // 1. File is in the parent directory (loaded before): just change the content of m_proxyInCurScene
-    if (m_loadedFiles.find(uFileId) != m_loadedFiles.end())
+    if (std::find(m_loadedFiles.begin(), m_loadedFiles.end(), uFileId) != m_loadedFiles.end())
     {
         // Change content will be done at last. So do nothing here.
         bLoadThisFile = false;
@@ -258,7 +260,7 @@ void CComponentManagerBase::CalcSwitchFile(uint32_t uFileId, bool bCloseLoadedFi
                         const std::vector<uint32_t>& fileList = pCurLoopDirectory->GetFileList();
                         for (uint32_t i = 0; i < fileList.size(); ++i)
                         {
-                            BEATS_ASSERT(m_loadedFiles.find(fileList[i]) != m_loadedFiles.end());
+                            BEATS_ASSERT(std::find(m_loadedFiles.begin(), m_loadedFiles.end(), fileList[i]) != m_loadedFiles.end());
                             unloadFiles.push_back(fileList[i]);
                         }
                         pCurLoopDirectory = pCurLoopDirectory->GetParent();
@@ -270,7 +272,7 @@ void CComponentManagerBase::CalcSwitchFile(uint32_t uFileId, bool bCloseLoadedFi
             const std::vector<uint32_t>& fileList = pDirectory->GetFileList();
             for (uint32_t i = 0; i < fileList.size(); ++i)
             {
-                BEATS_ASSERT(m_loadedFiles.find(fileList[i]) != m_loadedFiles.end());
+                BEATS_ASSERT(std::find(m_loadedFiles.begin(), m_loadedFiles.end(), fileList[i]) != m_loadedFiles.end());
                 if (fileList[i] != uFileId)
                 {
                     unloadFiles.push_back(fileList[i]);
@@ -391,23 +393,4 @@ void CComponentManagerBase::CalcSwitchFile(uint32_t uFileId, bool bCloseLoadedFi
     {
         loadFiles.push_back(uFileId);
     }
-}
-
-void CComponentManagerBase::DeleteAllInstance()
-{
-    std::map<uint32_t, std::map<uint32_t, CComponentBase*>*>::iterator iter = m_pComponentInstanceMap->begin();
-    for (; iter != m_pComponentInstanceMap->end(); ++iter)
-    {
-        std::map<uint32_t, CComponentBase*>::iterator subIter = iter->second->begin();
-        for (; subIter != iter->second->end(); ++subIter)
-        {
-            BEATS_SAFE_DELETE(subIter->second);
-        }
-        BEATS_SAFE_DELETE(iter->second);
-    }
-    for (uint32_t i = 0; i < m_pUninitializedComponents->size(); ++i)
-    {
-        BEATS_SAFE_DELETE(m_pUninitializedComponents->at(i));
-    }
-    m_pUninitializedComponents->clear();
 }

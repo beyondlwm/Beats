@@ -77,7 +77,6 @@ public:
     void OnDeleteComponentInScene(CComponentProxy* pProxy);
 
     bool IsExporting() const;
-    const std::set<uint32_t>& GetLoadedFiles() const;
 
     // Useful for exporting, at that phase, no need to create any component instance.
     bool IsEnableCreateInstanceWithProxy() const;

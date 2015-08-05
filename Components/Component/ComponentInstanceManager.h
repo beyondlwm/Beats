@@ -17,12 +17,10 @@ public:
     void LoadFile(uint32_t uFileId, std::vector<CComponentBase*>& loadComponents);
     void CloseFile(uint32_t uFileId);
     CSerializer* GetFileSerializer() const;
-    const std::set<uint32_t>& GetLoadedFiles() const;
     void SetCurLoadFileId(uint32_t uFileId);
     uint32_t GetCurLoadFileId() const;
     bool IsInClonePhase() const;
     void SetClonePhaseFlag(bool bInClonePhase);
-    void UninitializeAllInstance(CComponentProject* pProject, uint32_t uCurrentLoadFile, uint32_t uTotalFileCount);
 
     virtual void ResolveDependency() override;
 

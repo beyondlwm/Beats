@@ -40,7 +40,6 @@ CComponentProxyManager::~CComponentProxyManager()
     BEATS_SAFE_DELETE(m_pComponentInstanceMap);
     BEATS_SAFE_DELETE(m_pComponentTemplateMap);
     BEATS_SAFE_DELETE(m_pDependencyResolver);
-    BEATS_SAFE_DELETE(m_pUninitializedComponents);
     BEATS_SAFE_DELETE(m_pPropertyCreatorMap);
     BEATS_SAFE_DELETE(m_pComponentInheritMap);
 }
@@ -165,8 +164,8 @@ void CComponentProxyManager::LoadFile(const TCHAR* pszFilePath, std::vector<CCom
     {
         uint32_t uFileId = CComponentProxyManager::GetInstance()->GetProject()->GetComponentFileId(pszFilePath);
         BEATS_ASSERT(uFileId != 0xFFFFFFFF);
-        BEATS_ASSERT(m_loadedFiles.find(uFileId) == m_loadedFiles.end());
-        m_loadedFiles.insert(uFileId);
+        BEATS_ASSERT(std::find(m_loadedFiles.begin(), m_loadedFiles.end(), uFileId) == m_loadedFiles.end());
+        m_loadedFiles.push_back(uFileId);
 
         TiXmlElement* pRootElement = document.RootElement();
         TiXmlElement* pComponentListNode = pRootElement->FirstChildElement("Components");
@@ -242,47 +241,52 @@ void CComponentProxyManager::CloseFile(const TCHAR* pszFilePath)
 
 void CComponentProxyManager::CloseFile(uint32_t uFileId)
 {
-    // TODO: Lock id manager, since we will recycle id in component's uninitialize function.
-    // However, we don't want that, so we lock the id manager for now.
-    m_pIdManager->Lock();
-    // query id from the static data: m_pProject.
-    std::map<uint32_t, std::vector<uint32_t> >* pFileToComponentMap = m_pProject->GetFileToComponentMap();
-    std::vector<CComponentBase*> componentToDelete;
-    auto iter = pFileToComponentMap->find(uFileId);
-    if (iter != pFileToComponentMap->end())
+    std::vector<uint32_t>::iterator iterFile = std::find(m_loadedFiles.begin(), m_loadedFiles.end(), uFileId);
+    BEATS_WARNING(iterFile != m_loadedFiles.end(), "Close an unopened file %d, this may be right if we are exiting the program.", uFileId);
+    if (iterFile != m_loadedFiles.end())
     {
+        // TODO: Lock id manager, since we will recycle id in component's uninitialize function.
+        // However, we don't want that, so we lock the id manager for now.
+        m_pIdManager->Lock();
+        // query id from the static data: m_pProject.
+        std::map<uint32_t, std::vector<uint32_t> >* pFileToComponentMap = m_pProject->GetFileToComponentMap();
+        std::vector<CComponentBase*> componentToDelete;
+        auto iter = pFileToComponentMap->find(uFileId);
+        if (iter != pFileToComponentMap->end())
+        {
 #ifdef _DEBUG
-        // All components must exists before they call uninitialize.
-        for (uint32_t i = 0; i < iter->second.size(); ++i)
-        {
-            uint32_t uComponentId = iter->second.at(i);
-            CComponentProxy* pComponentProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(uComponentId));
-            BEATS_ASSERT(pComponentProxy != NULL && pComponentProxy->IsInitialized());
-        }
-#endif
-        for (uint32_t i = 0; i < iter->second.size(); ++i)
-        {
-            uint32_t uComponentId = iter->second.at(i);
-            CComponentProxy* pComponentProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(uComponentId));
-            // This may be null, because some components can be uninitialized by other component's uninitialize.
-            if (pComponentProxy != NULL && pComponentProxy->IsInitialized())
+            // All components must exists before they call uninitialize.
+            for (uint32_t i = 0; i < iter->second.size(); ++i)
             {
-                CComponentBase* pComponent = pComponentProxy;
-                if (pComponentProxy->GetProxyId() == pComponentProxy->GetId())
+                uint32_t uComponentId = iter->second.at(i);
+                CComponentProxy* pComponentProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(uComponentId));
+                BEATS_ASSERT(pComponentProxy != NULL && pComponentProxy->IsInitialized());
+            }
+#endif
+            for (uint32_t i = 0; i < iter->second.size(); ++i)
+            {
+                uint32_t uComponentId = iter->second.at(i);
+                CComponentProxy* pComponentProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(uComponentId));
+                // This may be null, because some components can be uninitialized by other component's uninitialize.
+                if (pComponentProxy != NULL && pComponentProxy->IsInitialized())
                 {
-                    pComponent = pComponentProxy->GetHostComponent();
+                    CComponentBase* pComponent = pComponentProxy;
+                    if (pComponentProxy->GetProxyId() == pComponentProxy->GetId())
+                    {
+                        pComponent = pComponentProxy->GetHostComponent();
+                    }
+                    pComponent->Uninitialize();
+                    componentToDelete.push_back(pComponent);
                 }
-                pComponent->Uninitialize();
-                componentToDelete.push_back(pComponent);
             }
         }
+        for (uint32_t i = 0; i < componentToDelete.size(); ++i)
+        {
+            BEATS_SAFE_DELETE(componentToDelete[i]);
+        }
+        m_loadedFiles.erase(iterFile);
+        m_pIdManager->UnLock();
     }
-    for (uint32_t i = 0; i < componentToDelete.size(); ++i)
-    {
-        BEATS_SAFE_DELETE(componentToDelete[i]);
-    }
-    m_loadedFiles.erase(uFileId);
-    m_pIdManager->UnLock();
 }
 
 const uint32_t CComponentProxyManager::GetCurrentViewFileId() const
@@ -317,7 +321,8 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
         BEATS_ASSERT(iter != pFileToComponent->end(), _T("File: %s\ndoes not have a component!"), strFileName.c_str());
         if (iter != pFileToComponent->end())
         {
-            if (m_loadedFiles.find(i) != m_loadedFiles.end())
+            std::vector<uint32_t>::iterator iterFile = std::find(m_loadedFiles.begin(), m_loadedFiles.end(), i);
+            if (iterFile != m_loadedFiles.end())
             {
                 const std::vector<uint32_t>& componentsInFile = iter->second;
                 for (uint32_t j = 0; j < componentsInFile.size(); ++j)
@@ -350,7 +355,6 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
                 m_bCreateInstanceWithProxy = false;
                 m_pIdManager->Lock();
                 LoadFile(strFileName.c_str(), &vecComponents);
-                BEATS_ASSERT(m_loadedFiles.find(i) != m_loadedFiles.end());
                 // Do serialize and delete operation in separate steps.
                 // Because everything can be ready to serialize after initialize.
                 for (uint32_t j = 0; j < vecComponents.size(); ++j)
@@ -379,7 +383,7 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
                     CComponentProxy* pProxy = vecComponents[j];
                     BEATS_SAFE_DELETE(pProxy);
                 }
-                m_loadedFiles.erase(i);
+                m_loadedFiles.erase(iterFile);
                 m_pIdManager->UnLock();
                 m_bCreateInstanceWithProxy = true;// Restore.
             }
@@ -804,11 +808,6 @@ void CComponentProxyManager::OnDeleteComponentInScene(CComponentProxy* pProxy)
 bool CComponentProxyManager::IsExporting() const
 {
     return m_bExportingPhase;
-}
-
-const std::set<uint32_t>& CComponentProxyManager::GetLoadedFiles() const
-{
-    return m_loadedFiles;
 }
 
 bool CComponentProxyManager::IsEnableCreateInstanceWithProxy() const

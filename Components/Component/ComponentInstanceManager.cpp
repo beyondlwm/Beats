@@ -146,58 +146,57 @@ void CComponentInstanceManager::LoadFile(uint32_t uFileId, std::vector<CComponen
             m_pSerializer->SetReadPos(uComponentStartPos + uComponentDataSize);
         }
         ResolveDependency();
-        m_loadedFiles.insert(uFileId);
+        m_loadedFiles.push_back(uFileId);
         BEATS_ASSERT(m_pSerializer->GetReadPos() - uFileStartPos == uFileDataLength, _T("File Data NOT Match!\nGot an error when import data for file %d Required size:%d Actual size %d"), uFileId, uFileDataLength, m_pSerializer->GetReadPos() - uFileStartPos);
     }
 }
 
 void CComponentInstanceManager::CloseFile(uint32_t uFileId)
 {
-    BEATS_ASSERT(m_loadedFiles.find(uFileId) != m_loadedFiles.end(), _T("Can't close file which is not opened!"));
-    std::vector<CComponentBase*> componentToDelete;
-    std::map<uint32_t, std::vector<uint32_t> >* pFileToComponentMap = m_pProject->GetFileToComponentMap();
-    auto iter = pFileToComponentMap->find(uFileId);
-    if (iter != pFileToComponentMap->end())
+    std::vector<uint32_t>::iterator iterFile = std::find(m_loadedFiles.begin(), m_loadedFiles.end(), uFileId);
+    BEATS_WARNING(iterFile != m_loadedFiles.end(), "Close an unopened file %d, this may be right if we are exiting the program.", uFileId);
+    if (iterFile != m_loadedFiles.end())
     {
-        for (uint32_t i = 0;i < iter->second.size(); ++i)
+        std::vector<CComponentBase*> componentToDelete;
+        std::map<uint32_t, std::vector<uint32_t> >* pFileToComponentMap = m_pProject->GetFileToComponentMap();
+        auto iter = pFileToComponentMap->find(uFileId);
+        if (iter != pFileToComponentMap->end())
         {
-            uint32_t uComponentId = iter->second.at(i);
-            BEATS_ASSERT(uComponentId != 0xFFFFFFFF);
-            CComponentBase* pComponentBase = CComponentInstanceManager::GetInstance()->GetComponentInstance(uComponentId);
-            // This may be null, because some components can be uninitialized by other component's uninitialize.
-            if (pComponentBase != NULL)
+            for (uint32_t i = 0; i < iter->second.size(); ++i)
             {
-                if (pComponentBase->IsInitialized())
+                uint32_t uComponentId = iter->second.at(i);
+                BEATS_ASSERT(uComponentId != 0xFFFFFFFF);
+                CComponentBase* pComponentBase = CComponentInstanceManager::GetInstance()->GetComponentInstance(uComponentId);
+                // This may be null, because some components can be uninitialized by other component's uninitialize.
+                if (pComponentBase != NULL)
                 {
-                    pComponentBase->Uninitialize();
+                    if (pComponentBase->IsInitialized())
+                    {
+                        pComponentBase->Uninitialize();
+                    }
+                    else
+                    {
+                        // Component may not be initialized this moment, for example:
+                        // Close file right after load file, just to fetch some component data, so we don't need to initialize it.
+                        // Even it is not initialized, we still need to unregister the component since register is done in creating component procession.
+                        UnregisterInstance(pComponentBase);
+                        GetIdManager()->RecycleId(uComponentId);
+                    }
+                    componentToDelete.push_back(pComponentBase);
                 }
-                else
-                {
-                    // Component may not be initialized this moment, for example:
-                    // Close file right after load file, just to fetch some component data, so we don't need to initialize it.
-                    // Even it is not initialized, we still need to unregister the component since register is done in creating component procession.
-                    UnregisterInstance(pComponentBase);
-                    GetIdManager()->RecycleId(uComponentId);
-                }
-                componentToDelete.push_back(pComponentBase);
             }
         }
+        for (uint32_t i = 0; i < componentToDelete.size(); ++i)
+        {
+            BEATS_SAFE_DELETE(componentToDelete[i]);
+        }
+        m_loadedFiles.erase(iterFile);
     }
-    for (uint32_t i = 0; i < componentToDelete.size(); ++i)
-    {
-        BEATS_SAFE_DELETE(componentToDelete[i]);
-    }
-    m_loadedFiles.erase(uFileId);
 }
 
 CSerializer* CComponentInstanceManager::GetFileSerializer() const
 {
     return m_pSerializer;
-}
-
-const std::set<uint32_t>& CComponentInstanceManager::GetLoadedFiles() const
-{
-    return m_loadedFiles;
 }
 
 void CComponentInstanceManager::SetCurLoadFileId(uint32_t uFileId)
@@ -255,83 +254,5 @@ void CComponentInstanceManager::LoadDirectoryFiles(CComponentProjectDirectory* p
     {
         uint32_t uFileId = pDirectory->GetFileList().at(i);
         LoadFile(uFileId, loadComponents);
-    }
-}
-
-void CComponentInstanceManager::UninitializeAllInstance(CComponentProject* pProject, uint32_t uCurrentLoadFileId, uint32_t uTotalFileCount)
-{
-    BEATS_ASSERT(pProject != NULL);
-    if (uCurrentLoadFileId != 0xFFFFFFFF) // No File is loaded.
-    {
-        std::map<uint32_t, std::vector<uint32_t> >* pFileToComponentMap = pProject->GetFileToComponentMap();
-        auto fileToComponentIter = pFileToComponentMap->find(uCurrentLoadFileId);
-        BEATS_ASSERT(fileToComponentIter != pFileToComponentMap->end());
-        std::vector<uint32_t> componentsList = fileToComponentIter->second;
-
-        std::map<uint32_t, CComponentProjectDirectory*>* pFileToDirectoryMap = pProject->GetFileToDirectoryMap();
-        auto fileToDirectoryIter = pFileToDirectoryMap->find(uCurrentLoadFileId);
-        BEATS_ASSERT(fileToDirectoryIter != pFileToDirectoryMap->end());
-        CComponentProjectDirectory* pCurrDirectory = fileToDirectoryIter->second;
-        pCurrDirectory = pCurrDirectory->GetParent(); // Don't handle current directory any more.
-#ifdef _DEBUG
-        uint32_t uFileCount = 1;
-#endif
-        // We need to keep the order for uninitialize.
-        while (pCurrDirectory != NULL)
-        {
-            for (auto fileIter = pCurrDirectory->GetFileList().rbegin(); fileIter != pCurrDirectory->GetFileList().rend(); ++fileIter)
-            {
-                uint32_t uFileId = *fileIter;
-                // Only when the file contains no components, this will be pFileToComponentMap->end().
-                BEATS_ASSERT(pFileToComponentMap->find(uFileId) != pFileToComponentMap->end(), _T("File %d contains no components?"), uFileId);
-                if (pFileToComponentMap->find(uFileId) != pFileToComponentMap->end())
-                {
-                    std::vector<uint32_t>& componentsListInFile = pFileToComponentMap->find(uFileId)->second;
-                    componentsList.insert(componentsList.end(), componentsListInFile.begin(), componentsListInFile.end());
-                }
-#ifdef _DEBUG
-                ++uFileCount;
-#endif
-            }
-            pCurrDirectory = pCurrDirectory->GetParent();
-        }
-        (void)uTotalFileCount;
-        BEATS_ASSERT(uFileCount == uTotalFileCount);
-
-#ifdef _DEBUG
-        std::set<uint32_t> componentIdSet;
-        for (uint32_t i = 0; i < componentsList.size(); ++i)
-        {
-            BEATS_ASSERT(componentIdSet.find(componentsList[i]) == componentIdSet.end());
-            componentIdSet.insert(componentsList[i]);
-        }
-        std::map<uint32_t, std::map<uint32_t, CComponentBase*>*>::iterator iter = m_pComponentInstanceMap->begin();
-        for (; iter != m_pComponentInstanceMap->end(); ++iter)
-        {
-            for (auto subIter = iter->second->begin(); subIter != iter->second->end(); ++subIter)
-            {
-                BEATS_ASSERT(componentIdSet.find(subIter->first) != componentIdSet.end());
-                componentIdSet.erase(subIter->first);
-            }
-        }
-        // All left component must be CComponentReference
-        std::map<uint32_t, uint32_t>* pReferenceMap = pProject->GetReferenceMap();
-        for (auto referenceIter = componentIdSet.begin(); referenceIter != componentIdSet.end(); ++referenceIter)
-        {
-            BEATS_ASSERT(pReferenceMap->find(*referenceIter) != pReferenceMap->end());
-        }
-#endif
-
-        std::vector<CComponentInstance*> allComponent;
-        for (uint32_t i = 0; i < componentsList.size(); ++i)
-        {
-            CComponentInstance* pCurrInstance = static_cast<CComponentInstance*>(GetComponentInstance(componentsList[i]));
-            // To avoid one instance is uninitialize by another instance's uninitialize.
-            if (pCurrInstance->IsInitialized())
-            {
-                pCurrInstance->Uninitialize();
-                m_pUninitializedComponents->push_back(pCurrInstance);
-            }
-        }
     }
 }

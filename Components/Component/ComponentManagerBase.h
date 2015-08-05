@@ -65,6 +65,7 @@ public:
     const std::map<uint32_t, CComponentBase*>* GetComponentTemplateMap();
     const std::map<uint32_t, std::map<uint32_t, CComponentBase*>*>* GetComponentInstanceMap();
     CComponentBase* GetComponentInstance(uint32_t uId, uint32_t uGuid = 0xFFFFFFFF);
+    const std::vector<uint32_t>& GetLoadedFiles() const;
 
     CIdManager* GetIdManager() const;
     CComponentProject* GetProject() const;
@@ -87,8 +88,7 @@ protected:
     std::map<uint32_t, CComponentBase*>* m_pComponentTemplateMap;
     std::map<uint32_t, std::map<uint32_t, CComponentBase*>*>* m_pComponentInstanceMap;
     std::vector<SDependencyResolver*>* m_pDependencyResolver;
-    std::vector<CComponentBase*>* m_pUninitializedComponents;
-    std::set<uint32_t> m_loadedFiles;
+    std::vector<uint32_t> m_loadedFiles;
 };
 
 #endif
