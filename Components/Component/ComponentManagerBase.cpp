@@ -3,6 +3,7 @@
 #include "Utility/IdManager/IdManager.h"
 #include "ComponentProject.h"
 #include "ComponentProjectDirectory.h"
+#include <algorithm>
 
 void DefaultAddDependencyFunc(void* pContainer, void* pDependency)
 {

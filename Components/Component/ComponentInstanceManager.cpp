@@ -8,9 +8,9 @@
 #include "Utility/IdManager/IdManager.h"
 #include "ComponentProjectDirectory.h"
 #include "ComponentProject.h"
+#include <algorithm>
 
 CComponentInstanceManager* CComponentInstanceManager::m_pInstance = NULL;
-
 CComponentInstanceManager::CComponentInstanceManager()
     : m_bInClonePhase(false)
 {

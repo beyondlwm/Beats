@@ -14,9 +14,9 @@
 #include "ComponentPublic.h"
 #include "ComponentInstance.h"
 #include "FilePath/FilePathTool.h"
-#include <algorithm>
 #include "ComponentProjectDirectory.h"
 #include "ComponentReference.h"
+#include <algorithm>
 
 CComponentProxyManager* CComponentProxyManager::m_pInstance = NULL;
 
