@@ -56,8 +56,8 @@ Rotation is separate from addition to prevent recomputation.
 }
 
 
-const char CMD5::PADDING[64] = { 0x80 };
-const char CMD5::HEX[16] = 
+const unsigned char CMD5::PADDING[64] = { 0x80 };
+const unsigned char CMD5::HEX[16] = 
 {
     '0', '1', '2', '3',
     '4', '5', '6', '7',
@@ -117,9 +117,9 @@ void CMD5::Reset()
     m_magicNumber[3] = 0x10325476;
 }
 
-const char* CMD5::GetData() const
+const unsigned char* CMD5::GetData() const
 {
-    return (const char*)(&m_digest);
+    return (const unsigned char*)(&m_digest);
 }
 
 // use const_cast to make sure the ref CMD5 has done Digest() operation.
@@ -142,18 +142,18 @@ bool CMD5::operator < (const CMD5& rRef)
 /* Updating the context with a input buffer. */
 void CMD5::Update(const void *input, uint32_t length) 
 {
-    Update((const char*)input, length);
+    Update((const unsigned char*)input, length);
 }
 
 /* Updating the context with a string. */
 void CMD5::Update(const std::string &str) 
 {
-    Update((const char*)str.c_str(), (uint32_t)(str.length() * sizeof(char)));
+    Update((const unsigned char*)str.c_str(), (uint32_t)(str.length() * sizeof(unsigned char)));
 }
 
 void CMD5::Update(const std::wstring &str) 
 {
-    Update((const char*)str.c_str(), (uint32_t)(str.length() * sizeof(wchar_t)));
+    Update((const unsigned char*)str.c_str(), (uint32_t)(str.length() * sizeof(wchar_t)));
 }
 
 /* Updating the context with a file. */
@@ -184,7 +184,7 @@ void CMD5::Update(FILE* in)
         long long uFileSize = _ftelli64(in);
         _fseeki64(in, lastPos, SEEK_SET); // restore pos
         long long counter = 0;
-        char* buffer = new char[BUFFER_SIZE];
+        unsigned char* buffer = new unsigned char[BUFFER_SIZE];
         while (counter < uFileSize)
         {
             uint32_t readCount = (uint32_t)(fread(buffer, 1, BUFFER_SIZE, in));
@@ -200,12 +200,12 @@ void CMD5::Update(FILE* in)
 operation, processing another message block, and updating the
 context.
 */
-void CMD5::Update(const char *input, uint32_t length) 
+void CMD5::Update(const unsigned char *input, uint32_t length) 
 {
     m_bDigested = false;
     uint32_t i, index, partLen;
 
-    /* Compute number of chars mod 64 */
+    /* Compute number of unsigned chars mod 64 */
     index = (uint32_t)((m_bitsCount[0] >> 3) & 0x3f);
 
     /* update number of bits */
@@ -240,7 +240,7 @@ the message _digest and zeroizing the context.
 */
 void CMD5::Digest() 
 {
-    char bits[8];
+    unsigned char bits[8];
     uint32_t oldState[4];
     uint32_t oldCount[2];
     uint32_t index, padLen;
@@ -270,7 +270,7 @@ void CMD5::Digest()
 }
 
 /* MD5 basic transformation. Transforms _state based on block. */
-void CMD5::Transform(const char block[64]) 
+void CMD5::Transform(const unsigned char block[64]) 
 {
     uint32_t a = m_magicNumber[0], b = m_magicNumber[1], c = m_magicNumber[2], d = m_magicNumber[3], x[16];
 
@@ -354,24 +354,24 @@ void CMD5::Transform(const char block[64])
     m_magicNumber[3] += d;
 }
 
-/* Encodes input (uint32_t) into output (char). Assumes length is
+/* Encodes input (uint32_t) into output (unsigned char). Assumes length is
 a multiple of 4.
 */
-void CMD5::Encode(const uint32_t *input, char *output, uint32_t length) 
+void CMD5::Encode(const uint32_t *input, unsigned char *output, uint32_t length) 
 {
     for(uint32_t i=0, j=0; j<length; i++, j+=4) 
     {
-        output[j]= (char)(input[i] & 0xff);
-        output[j+1] = (char)((input[i] >> 8) & 0xff);
-        output[j+2] = (char)((input[i] >> 16) & 0xff);
-        output[j+3] = (char)((input[i] >> 24) & 0xff);
+        output[j]= (unsigned char)(input[i] & 0xff);
+        output[j+1] = (unsigned char)((input[i] >> 8) & 0xff);
+        output[j+2] = (unsigned char)((input[i] >> 16) & 0xff);
+        output[j+3] = (unsigned char)((input[i] >> 24) & 0xff);
     }
 }
 
-/* Decodes input (char) into output (uint32_t). Assumes length is
+/* Decodes input (unsigned char) into output (uint32_t). Assumes length is
 a multiple of 4.
 */
-void CMD5::Decode(const char *input, uint32_t *output, uint32_t length) 
+void CMD5::Decode(const unsigned char *input, uint32_t *output, uint32_t length) 
 {
     for(uint32_t i=0, j=0; j<length; i++, j+=4)
     {    
@@ -380,8 +380,8 @@ void CMD5::Decode(const char *input, uint32_t *output, uint32_t length)
     }
 }
 
-/* Convert char array to hex string. */
-std::string CMD5::charsToHexString(const char *input, uint32_t length)
+/* Convert unsigned char array to hex string. */
+std::string CMD5::charsToHexString(const unsigned char *input, uint32_t length)
 {
     std::string str;
     str.reserve(length << 1);
