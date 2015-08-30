@@ -355,6 +355,8 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
                 m_bCreateInstanceWithProxy = false;
                 m_pIdManager->Lock();
                 LoadFile(strFileName.c_str(), &vecComponents);
+                iterFile = std::find(m_loadedFiles.begin(), m_loadedFiles.end(), i);
+                BEATS_ASSERT(iterFile != m_loadedFiles.end(), _T("Load file index %d failed!"), i);
                 // Do serialize and delete operation in separate steps.
                 // Because everything can be ready to serialize after initialize.
                 for (uint32_t j = 0; j < vecComponents.size(); ++j)
