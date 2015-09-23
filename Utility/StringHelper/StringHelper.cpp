@@ -345,3 +345,16 @@ bool CStringHelper::WildMatch( const char* pat, const char* str )
         ++pat;
     return !*pat;
 }
+
+uint32_t CStringHelper::BKDRHash(const char* str) const
+{
+    unsigned int seed = 131; // it also can be 31 131 1313 13131 131313 etc..
+    unsigned int hash = 0;
+
+    while (*str)
+    {
+        hash = hash * seed + (*str++);
+    }
+
+    return (hash & 0x7FFFFFFF);
+}

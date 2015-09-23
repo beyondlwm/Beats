@@ -40,6 +40,7 @@ public:
     const char *Utf8ExtractCodePoint(const char* pBuffer, uint32_t& code);
     std::wstring Utf8ToWString(const char* utf8str);
     std::string WStringToUtf8(const wchar_t* wstr);
+    uint32_t BKDRHash(const char* strData) const;
 
     // Check character.
 #if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
