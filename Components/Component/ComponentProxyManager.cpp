@@ -241,6 +241,7 @@ void CComponentProxyManager::CloseFile(const TCHAR* pszFilePath)
 
 void CComponentProxyManager::CloseFile(uint32_t uFileId)
 {
+    ReSaveFreshFile(); // the file we are about to close may be in the fresh file list, so we always try to save it before it is closed.
     std::vector<uint32_t>::iterator iterFile = std::find(m_loadedFiles.begin(), m_loadedFiles.end(), uFileId);
     BEATS_WARNING(iterFile != m_loadedFiles.end(), "Close an unopened file %d, this may be right if we are exiting the program.", uFileId);
     if (iterFile != m_loadedFiles.end())
