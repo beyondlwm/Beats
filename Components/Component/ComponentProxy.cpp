@@ -145,50 +145,52 @@ void CComponentProxy::Deserialize( CSerializer& serializer )
 
 CComponentBase* CComponentProxy::Clone(bool bCloneValue, CSerializer* /*pSerializer*/, uint32_t id, bool bCallInitFunc /*= true*/)
 {
-    CComponentProxy* pNewInstance = new CComponentProxy(m_pGraphics->Clone(), m_uGuid, m_uParentGuid, m_strClassName.c_str());
-    pNewInstance->SetDisplayName(m_strDisplayName.c_str());
-    pNewInstance->SetUserDefineDisplayName(m_strUserDefineDisplayName.c_str());
-    pNewInstance->SetCatalogName(m_strCatalogName.c_str());
-    BEATS_ASSERT(pNewInstance->GetGuid() == GetGuid(), _T("Can't assign between two different type (0x%x and 0x%x) of Reflect Base!"), pNewInstance->GetGuid(), GetGuid());
-    pNewInstance->ClearProperty();
+    CComponentProxy* pNewProxy = new CComponentProxy(m_pGraphics->Clone(), m_uGuid, m_uParentGuid, m_strClassName.c_str());
+    pNewProxy->SetDisplayName(m_strDisplayName.c_str());
+    pNewProxy->SetUserDefineDisplayName(m_strUserDefineDisplayName.c_str());
+    pNewProxy->SetCatalogName(m_strCatalogName.c_str());
+    BEATS_ASSERT(pNewProxy->GetGuid() == GetGuid(), _T("Can't assign between two different type (0x%x and 0x%x) of Reflect Base!"), pNewProxy->GetGuid(), GetGuid());
+    pNewProxy->ClearProperty();
     for (uint32_t i = 0; i < (*m_pProperties).size(); ++i)
     {
         CPropertyDescriptionBase* pNewProperty = (*m_pProperties)[i]->Clone(bCloneValue);
-        pNewInstance->AddProperty(pNewProperty);
+        pNewProxy->AddProperty(pNewProperty);
     }
     if (m_pDependenciesDescription != NULL)
     {
         for (uint32_t i = 0; i < m_pDependenciesDescription->size(); ++i)
         {
             CDependencyDescription* pDependency = (*m_pDependenciesDescription)[i];
-            CDependencyDescription* pNewDependency = new CDependencyDescription(pDependency->GetType(), pDependency->GetDependencyGuid(), pNewInstance, (uint32_t)pNewInstance->GetDependencies()->size(), pDependency->IsListType());
+            CDependencyDescription* pNewDependency = new CDependencyDescription(pDependency->GetType(), pDependency->GetDependencyGuid(), pNewProxy, (uint32_t)pNewProxy->GetDependencies()->size(), pDependency->IsListType());
             pNewDependency->SetDisplayName(pDependency->GetDisplayName());
             pNewDependency->SetVariableName(pDependency->GetVariableName());
         }
     }
-    pNewInstance->m_pSerializeOrder->assign(m_pSerializeOrder->begin(), m_pSerializeOrder->end());
-    pNewInstance->GetGraphics()->CaculateSize();
-    pNewInstance->SetId(id);
+    pNewProxy->m_pSerializeOrder->assign(m_pSerializeOrder->begin(), m_pSerializeOrder->end());
+    pNewProxy->GetGraphics()->CaculateSize();
+    pNewProxy->SetId(id);
     if (m_pHostComponent != NULL)
     {
         if (CComponentProxyManager::GetInstance()->IsEnableCreateInstanceWithProxy())
         {
-            CComponentInstance* pNewHostComponent = (CComponentInstance*)CComponentInstanceManager::GetInstance()->CreateComponentByRef(m_pHostComponent, bCloneValue, id == 0xFFFFFFFF, id);
-            pNewInstance->SetHostComponent(pNewHostComponent);
+            // Create an clean host component. sync all value to it from the proxy.
+            CComponentInstance* pNewHostComponent = (CComponentInstance*)CComponentInstanceManager::GetInstance()->CreateComponent(m_pHostComponent->GetGuid(), false, id == 0xFFFFFFFF, id, true, nullptr, false);
+            pNewProxy->SetHostComponent(pNewHostComponent);
+            pNewProxy->UpdateHostComponent();
         }
     }
     if (bCallInitFunc)
     {
-        BEATS_ASSERT(pNewInstance->IsInitialized() == false, _T("Impossible to Initialize compnent twice!"));
-        pNewInstance->Initialize();
-        if (pNewInstance->GetHostComponent() != NULL)
+        BEATS_ASSERT(pNewProxy->IsInitialized() == false, _T("Impossible to Initialize compnent twice!"));
+        pNewProxy->Initialize();
+        if (pNewProxy->GetHostComponent() != NULL)
         {
-            BEATS_ASSERT(pNewInstance->GetHostComponent()->IsInitialized() == false, _T("Impossible to Initialize comopnent twice!"));
-            pNewInstance->m_pHostComponent->Initialize();
+            BEATS_ASSERT(pNewProxy->GetHostComponent()->IsInitialized() == false, _T("Impossible to Initialize comopnent twice!"));
+            pNewProxy->m_pHostComponent->Initialize();
         }
     }
 
-    return pNewInstance;
+    return pNewProxy;
 }
 
 void CComponentProxy::Serialize( CSerializer& serializer, EValueType eValueType)
@@ -308,6 +310,8 @@ void CComponentProxy::UpdateHostComponent()
     // Don't do any update host stuff when exporting, because it's useless and will cause dependency resolve failed.
     if (m_pHostComponent && !bIsExporting)
     {
+        CComponentProxy* pOriginValue = CComponentProxyManager::GetInstance()->GetCurrUpdateProxy();
+        CComponentProxyManager::GetInstance()->SetCurrUpdateProxy(this);
         CSerializer serializer;
         Serialize(serializer, eVT_CurrentValue);
         uint32_t uTotalSize = 0;
@@ -318,6 +322,7 @@ void CComponentProxy::UpdateHostComponent()
         serializer >> uId;
         m_pHostComponent->ReflectData(serializer);
         CComponentInstanceManager::GetInstance()->ResolveDependency();
+        CComponentProxyManager::GetInstance()->SetCurrUpdateProxy(pOriginValue);
     }
 }
 

@@ -43,7 +43,9 @@ public:
     bool IsInitialized() const;
     void SetInitializeFlag(bool bFlag);
 
+    // Game mode only!
     virtual void ReflectData(CSerializer& serializer);
+
     // Editor mode only!
     // The return value means if user has sync the variable manually, or system will do this assign.
     virtual bool OnPropertyChange(void* pVariableAddr, CSerializer* pNewValueToBeSet);

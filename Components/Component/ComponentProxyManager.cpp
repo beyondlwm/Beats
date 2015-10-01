@@ -28,6 +28,7 @@ CComponentProxyManager::CComponentProxyManager()
     , m_uCurrViewFileId(0xFFFFFFFF)
     , m_pCurrReflectPropertyDescription(NULL)
     , m_pCurrReflectDependency(NULL)
+    , m_pCurrUpdateProxy(NULL)
 {
     m_pPropertyCreatorMap = new std::map<uint32_t, TCreatePropertyFunc>();
     m_pComponentInheritMap = new std::map<uint32_t, std::vector<uint32_t> >();
@@ -648,6 +649,16 @@ CDependencyDescription* CComponentProxyManager::GetCurrReflectDependency() const
 void CComponentProxyManager::SetCurrReflectDependency(CDependencyDescription* pDependency)
 {
     m_pCurrReflectDependency = pDependency;
+}
+
+CComponentProxy* CComponentProxyManager::GetCurrUpdateProxy() const
+{
+    return m_pCurrUpdateProxy;
+}
+
+void CComponentProxyManager::SetCurrUpdateProxy(CComponentProxy* pProxy)
+{
+    m_pCurrUpdateProxy = pProxy;
 }
 
 const std::map<uint32_t, TString>& CComponentProxyManager::GetAbstractComponentNameMap() const

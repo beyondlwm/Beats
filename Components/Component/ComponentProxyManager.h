@@ -58,6 +58,9 @@ public:
     CDependencyDescription* GetCurrReflectDependency() const;
     void SetCurrReflectDependency(CDependencyDescription* pDependency);
 
+    CComponentProxy* GetCurrUpdateProxy() const;
+    void SetCurrUpdateProxy(CComponentProxy* pProxy);
+
     const std::map<uint32_t, TString>& GetAbstractComponentNameMap() const;
 
     // We won't call OnPropertyChange when loading files.
@@ -95,6 +98,7 @@ private:
     bool m_bReflectCheckFlag;
 
     uint32_t m_uCurrViewFileId;
+    CComponentProxy* m_pCurrUpdateProxy; //Indicate we are calling CComponentProxy::UpdateHostComponent, so the host components' ptr property will get value from CPropertyDescription::GetInstanceComponent::GetHostComponent.
     CPropertyDescriptionBase* m_pCurrReflectPropertyDescription;
     CDependencyDescription* m_pCurrReflectDependency;
     std::map<uint32_t, TCreatePropertyFunc>* m_pPropertyCreatorMap;
