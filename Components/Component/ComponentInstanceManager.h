@@ -14,8 +14,8 @@ public:
     uint32_t GetVersion();
     CSerializer* Import(const TCHAR* pszFilePath);
     void SwitchFile(uint32_t uFileId);
-    void LoadFile(uint32_t uFileId, std::vector<CComponentBase*>& loadComponents);
-    void CloseFile(uint32_t uFileId);
+    virtual void LoadFile(uint32_t uFileId, std::vector<CComponentBase*>* pLoadComponents) override;
+    virtual void CloseFile(uint32_t uFileId) override;
     CSerializer* GetFileSerializer() const;
     void SetCurLoadFileId(uint32_t uFileId);
     uint32_t GetCurLoadFileId() const;

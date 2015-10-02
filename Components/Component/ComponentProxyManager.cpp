@@ -90,14 +90,12 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bCloseLoadedF
         CalcSwitchFile(uFileId, bCloseLoadedFile, loadFiles, unloadFiles, bNewAddThisFile);
         for (uint32_t i = 0; i < unloadFiles.size(); ++i)
         {
-            const TString& strUnloadFile = m_pProject->GetComponentFileName(unloadFiles[i]);
-            CloseFile(strUnloadFile.c_str());
+            CloseFile(unloadFiles[i]);
         }
-        std::vector<CComponentProxy*> loadedComponents;
+        std::vector<CComponentBase*> loadedComponents;
         for (uint32_t i = 0; i < loadFiles.size(); ++i)
         {
-            const TString& strLoadFile = m_pProject->GetComponentFileName(loadFiles[i]);
-            LoadFile(strLoadFile.c_str(), &loadedComponents);
+            LoadFile(loadFiles[i], &loadedComponents);
         }
         bool bLoadThisFile = loadFiles.size() > 0 && loadFiles.back() == uFileId;
         if (bLoadThisFile)
@@ -141,7 +139,7 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bCloseLoadedF
             bool bIsReference = m_referenceMap.find(uComponentId) != m_referenceMap.end();
             if (!bIsReference)
             {
-                loadedComponents[i]->GetHostComponent()->Initialize();
+                static_cast<CComponentProxy*>(loadedComponents[i])->GetHostComponent()->Initialize();
             }
         }
         ReSaveFreshFile();
@@ -150,21 +148,16 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bCloseLoadedF
     }
 }
 
-void CComponentProxyManager::LoadFile(const TCHAR* pszFilePath, std::vector<CComponentProxy*>* pComponentContainer)
+void CComponentProxyManager::LoadFile(uint32_t uFileId, std::vector<CComponentBase*>* pComponentContainer)
 {
-    std::vector<CComponentProxy*> loadedComponents;
-    if (pComponentContainer == NULL)
-    {
-        pComponentContainer = &loadedComponents;
-    }
     bool bRestoreLoadingPhase = m_bLoadingFilePhase;
     m_bLoadingFilePhase = true;
-    TiXmlDocument document(pszFilePath);
+    const TString& strFilePath = m_pProject->GetComponentFileName(uFileId);
+    BEATS_ASSERT(strFilePath.length() > 0);
+    TiXmlDocument document(strFilePath.c_str());
     bool loadSuccess = document.LoadFile(TIXML_ENCODING_UTF8);
     if (loadSuccess)
     {
-        uint32_t uFileId = CComponentProxyManager::GetInstance()->GetProject()->GetComponentFileId(pszFilePath);
-        BEATS_ASSERT(uFileId != 0xFFFFFFFF);
         BEATS_ASSERT(std::find(m_loadedFiles.begin(), m_loadedFiles.end(), uFileId) == m_loadedFiles.end());
         m_loadedFiles.push_back(uFileId);
 
@@ -179,7 +172,7 @@ void CComponentProxyManager::LoadFile(const TCHAR* pszFilePath, std::vector<CCom
                 const char* pGuidStr = pComponentElement->Attribute("GUID");
                 char* pStopPos = NULL;
                 int guid = strtoul(pGuidStr, &pStopPos, 16);
-                BEATS_ASSERT(*pStopPos == 0, _T("Guid value %s is not a 0x value at file %s."), pGuidStr, pszFilePath);
+                BEATS_ASSERT(*pStopPos == 0, _T("Guid value %s is not a 0x value at file %s."), pGuidStr, strFilePath.c_str());
                 if (GetComponentTemplate(guid) == NULL)
                 {
                     CComponentProxyManager::GetInstance()->GetRefreshFileList().insert(uFileId);
@@ -205,7 +198,10 @@ void CComponentProxyManager::LoadFile(const TCHAR* pszFilePath, std::vector<CCom
                             pComponent = CreateReference(nReferenceId, guid, id);
                         }
                         pComponent->LoadFromXML(pInstanceElement);
-                        pComponentContainer->push_back(pComponent);
+                        if (pComponentContainer != nullptr)
+                        {
+                            pComponentContainer->push_back(pComponent);
+                        }
                         pInstanceElement = pInstanceElement->NextSiblingElement();
                     }
                 }
@@ -216,28 +212,20 @@ void CComponentProxyManager::LoadFile(const TCHAR* pszFilePath, std::vector<CCom
     else
     {
         TCHAR info[MAX_PATH];
-        _stprintf(info, _T("Load file :%s Failed! Row: %d Col: %d Reason:%s"), pszFilePath, document.ErrorRow(), document.ErrorCol(), document.ErrorDesc());
+        _stprintf(info, _T("Load file :%s Failed! Row: %d Col: %d Reason:%s"), strFilePath.c_str(), document.ErrorRow(), document.ErrorCol(), document.ErrorDesc());
         MessageBox(NULL, info, _T("Load File Failed"), MB_OK | MB_ICONERROR);
     }
     ResolveDependency();
     m_bLoadingFilePhase = bRestoreLoadingPhase;
 }
 
-void CComponentProxyManager::LoadFileFromDirectory(CComponentProjectDirectory* pDirectory, std::vector<CComponentProxy*>* pComponentContainer)
+void CComponentProxyManager::LoadFileFromDirectory(CComponentProjectDirectory* pDirectory, std::vector<CComponentBase*>* pComponentContainer)
 {
     const std::vector<uint32_t>& fileList = pDirectory->GetFileList();
     for (uint32_t i = 0; i < fileList.size(); ++i)
     {
-        const TString& strFileName = m_pProject->GetComponentFileName(fileList[i]);
-        LoadFile(strFileName.c_str(), pComponentContainer);
+        LoadFile(fileList[i], pComponentContainer);
     }
-}
-
-void CComponentProxyManager::CloseFile(const TCHAR* pszFilePath)
-{
-    BEATS_ASSERT(_tcslen(pszFilePath) > 0, _T("Can't close empty file!"));
-    uint32_t uFileId = m_pProject->GetComponentFileId(pszFilePath);
-    CloseFile(uFileId);
 }
 
 void CComponentProxyManager::CloseFile(uint32_t uFileId)
@@ -348,27 +336,24 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
             }
             else
             {
-                const TString& strFileName = m_pProject->GetFileList()->at(i);
-                BEATS_ASSERT(m_pProject->GetComponentFileId(strFileName) == i);
-                std::vector<CComponentProxy*> vecComponents;
+                std::vector<CComponentBase*> vecComponents;
                 CIdManager* pInstanceIdManager = CComponentInstanceManager::GetInstance()->GetIdManager();
                 // Don't create instance in LoadFile when exporting.
                 BEATS_ASSERT(m_bCreateInstanceWithProxy);
                 m_bCreateInstanceWithProxy = false;
                 m_pIdManager->Lock();
-                LoadFile(strFileName.c_str(), &vecComponents);
+                LoadFile(i, &vecComponents);
                 iterFile = std::find(m_loadedFiles.begin(), m_loadedFiles.end(), i);
                 BEATS_ASSERT(iterFile != m_loadedFiles.end(), _T("Load file index %d failed!"), i);
                 // Do serialize and delete operation in separate steps.
                 // Because everything can be ready to serialize after initialize.
                 for (uint32_t j = 0; j < vecComponents.size(); ++j)
                 {
-                    CComponentProxy* pProxy = vecComponents[j];
-                    pProxy->Initialize();
+                    vecComponents[j]->Initialize();
                 }
                 for (uint32_t j = 0; j < vecComponents.size(); ++j)
                 {
-                    CComponentProxy* pProxy = vecComponents[j];
+                    CComponentProxy* pProxy = static_cast<CComponentProxy*>(vecComponents[j]);
                     if (pProxy->GetProxyId() == pProxy->GetId())
                     {
                         pProxy->Serialize(serializer, eVT_SavedValue);
@@ -379,13 +364,11 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
                 // Don't call CloseFile, because we have nothing to do with proxy's host component.
                 for (uint32_t j = 0; j < vecComponents.size(); ++j)
                 {
-                    CComponentProxy* pProxy = vecComponents[j];
-                    pProxy->Uninitialize();
+                    vecComponents[j]->Uninitialize();
                 }
                 for (uint32_t j = 0; j < vecComponents.size(); ++j)
                 {
-                    CComponentProxy* pProxy = vecComponents[j];
-                    BEATS_SAFE_DELETE(pProxy);
+                    BEATS_SAFE_DELETE(vecComponents[j]);
                 }
                 m_loadedFiles.erase(iterFile);
                 m_pIdManager->UnLock();

@@ -108,7 +108,7 @@ void CComponentInstanceManager::SwitchFile(uint32_t uFileId)
     std::vector<CComponentBase*> loadedComponents;
     for (uint32_t i = 0; i < loadFiles.size(); ++i)
     {
-        LoadFile(loadFiles[i], loadedComponents);
+        LoadFile(loadFiles[i], &loadedComponents);
     }
     ResolveDependency();
 
@@ -118,7 +118,7 @@ void CComponentInstanceManager::SwitchFile(uint32_t uFileId)
     }
 }
 
-void CComponentInstanceManager::LoadFile(uint32_t uFileId, std::vector<CComponentBase*>& loadComponents)
+void CComponentInstanceManager::LoadFile(uint32_t uFileId, std::vector<CComponentBase*>* pLoadComponents)
 {
     uint32_t uFileStartPos = 0;
     uint32_t uFileDataLength = 0;
@@ -141,7 +141,10 @@ void CComponentInstanceManager::LoadFile(uint32_t uFileId, std::vector<CComponen
             pComponent->SetDataPos(uComponentStartPos);
             pComponent->SetDataSize(uComponentDataSize);
             BEATS_ASSERT(pComponent != NULL);
-            loadComponents.push_back(pComponent);
+            if (pLoadComponents != nullptr)
+            {
+                pLoadComponents->push_back(pComponent);
+            }
             BEATS_ASSERT(uComponentStartPos + uComponentDataSize == m_pSerializer->GetReadPos(), _T("Component Data Not Match!\nGot an error when import data for component %x %s instance id %d\nRequired size: %d, Actual size: %d"), uGuid, pComponent->GetClassStr(), uId, uComponentDataSize, m_pSerializer->GetReadPos() - uComponentStartPos);
             m_pSerializer->SetReadPos(uComponentStartPos + uComponentDataSize);
         }
@@ -253,6 +256,6 @@ void CComponentInstanceManager::LoadDirectoryFiles(CComponentProjectDirectory* p
     for (size_t i = 0; i < uFileCount; ++i)
     {
         uint32_t uFileId = pDirectory->GetFileList().at(i);
-        LoadFile(uFileId, loadComponents);
+        LoadFile(uFileId, &loadComponents);
     }
 }

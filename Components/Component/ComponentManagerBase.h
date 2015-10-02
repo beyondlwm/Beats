@@ -70,6 +70,9 @@ public:
     CIdManager* GetIdManager() const;
     CComponentProject* GetProject() const;
 
+    virtual void LoadFile(uint32_t uFileId, std::vector<CComponentBase*>* pLoadComponents) = 0;
+    virtual void CloseFile(uint32_t uFileId) = 0;
+
     uint32_t GetCurrLoadFileId();
     void CalcSwitchFile(uint32_t uFileId, bool bCloseLoadedFile, std::vector<uint32_t>& loadFiles, std::vector<uint32_t>& unloadFiles, bool& bNewAddFile);
     void SetForbidDependencyResolve(bool bEnable);
