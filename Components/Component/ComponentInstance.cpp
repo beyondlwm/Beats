@@ -8,6 +8,7 @@
 CComponentInstance::CComponentInstance()
     : m_uDataPos(0xFFFFFFFF)
     , m_uDataSize(0xFFFFFFFF)
+    , m_pReflectComponentOwner(nullptr)
     , m_pProxyComponent(NULL)
     , m_pSyncProxyComponent(NULL)
 {
@@ -16,6 +17,18 @@ CComponentInstance::CComponentInstance()
 
 CComponentInstance::~CComponentInstance()
 {
+    if (m_pReflectComponentOwner != nullptr)
+    {
+        m_pReflectComponentOwner->UnregisterReflectComponent(this);
+        m_pReflectComponentOwner = nullptr;
+    }
+    while (m_reflectComponents.size() > 0)//m_reflectComponents size will reduce because when we delete the component, it will call UnregisterReflectComponent.
+    {
+        CComponentInstance* pReflectComponent = *m_reflectComponents.begin();
+        BEATS_ASSERT(pReflectComponent->GetReflectOwner() == this);
+        BEATS_ASSERT(!pReflectComponent->IsLoaded() && !pReflectComponent->IsInitialized());
+        BEATS_SAFE_DELETE(pReflectComponent);
+    }
     SetSyncProxyComponent(NULL);
     if (m_pProxyComponent != NULL)
     {
@@ -26,6 +39,11 @@ CComponentInstance::~CComponentInstance()
 
 void CComponentInstance::Initialize()
 {
+    for (auto iter = m_reflectComponents.begin(); iter != m_reflectComponents.end(); ++iter)
+    {
+        (*iter)->Initialize();
+    }
+
     // For Editor operation, we always call proxy initialize before instance's initialize.
     // But if we call Initialize manually from code, we need to call proxy initialize.
     if (m_pProxyComponent != NULL && !m_pProxyComponent->IsInitialized())
@@ -48,7 +66,10 @@ void CComponentInstance::Initialize()
 
 void CComponentInstance::Uninitialize()
 {
-    super::Uninitialize();
+    for (auto iter = m_reflectComponents.begin(); iter != m_reflectComponents.end(); ++iter)
+    {
+        (*iter)->Uninitialize();
+    }
 
     if (m_pProxyComponent != NULL)
     {
@@ -61,6 +82,31 @@ void CComponentInstance::Uninitialize()
         CComponentInstanceManager::GetInstance()->UnregisterInstance(this);
         CComponentInstanceManager::GetInstance()->GetIdManager()->RecycleId(uComponentId);
     }
+    super::Uninitialize();
+}
+
+bool CComponentInstance::Load()
+{
+    for (auto iter = m_reflectComponents.begin(); iter != m_reflectComponents.end(); ++iter)
+    {
+        if (!(*iter)->IsLoaded())
+        {
+            (*iter)->Load();
+        }
+    }
+    return super::Load();
+}
+
+bool CComponentInstance::Unload()
+{
+    for (auto iter = m_reflectComponents.begin(); iter != m_reflectComponents.end(); ++iter)
+    {
+        if ((*iter)->IsLoaded())
+        {
+            (*iter)->Unload();
+        }
+    }
+    return super::Unload();
 }
 
 void CComponentInstance::SetDataPos(uint32_t uDataPos)
@@ -159,4 +205,35 @@ CComponentBase* CComponentInstance::CloneInstance()
     BEATS_ASSERT(serializer.GetWritePos() == serializer.GetReadPos());
     CComponentInstanceManager::GetInstance()->SetClonePhaseFlag(bOriginState);
     return pNewInstance;
+}
+
+void CComponentInstance::SetReflectOwner(CComponentInstance* pReflectOwner)
+{
+    m_pReflectComponentOwner = pReflectOwner;
+}
+
+CComponentInstance* CComponentInstance::GetReflectOwner() const
+{
+    return m_pReflectComponentOwner;
+}
+
+const std::set<CComponentInstance*>& CComponentInstance::GetReflectComponents() const
+{
+    return m_reflectComponents;
+}
+
+void CComponentInstance::RegisterReflectComponent(CComponentInstance* pComponent)
+{
+    BEATS_ASSERT(m_reflectComponents.find(pComponent) == m_reflectComponents.end());
+    m_reflectComponents.insert(pComponent);
+    BEATS_ASSERT(pComponent->GetReflectOwner() == nullptr && pComponent->GetId() == 0xFFFFFFFF);
+    pComponent->SetReflectOwner(this);
+}
+
+void CComponentInstance::UnregisterReflectComponent(CComponentInstance* pComponent)
+{
+    BEATS_ASSERT(m_reflectComponents.find(pComponent) != m_reflectComponents.end());
+    m_reflectComponents.erase(pComponent);
+    BEATS_ASSERT(pComponent->GetReflectOwner() == this && pComponent->GetId() == 0xFFFFFFFF);
+    pComponent->SetReflectOwner(nullptr);
 }
