@@ -24,6 +24,7 @@ public:
     // param bCloseLoadedFile means if current working file include pFilePath, shall we close those loaded sub file.
     void OpenFile(const TCHAR* pFilePath, bool bCloseLoadedFile = false);
     virtual void LoadFile(uint32_t uFileId, std::vector<CComponentBase*>* pLoadComponents) override;
+    virtual void UnloadFile(uint32_t uFileId, std::vector<CComponentBase*>* pUnloadComponents) override;
     void LoadFileFromDirectory(CComponentProjectDirectory* pDirectory, std::vector<CComponentBase*>* pComponentContainer);
     virtual void CloseFile(uint32_t uFileId) override;
     const uint32_t GetCurrentViewFileId() const;

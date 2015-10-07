@@ -71,6 +71,7 @@ public:
     CComponentProject* GetProject() const;
 
     virtual void LoadFile(uint32_t uFileId, std::vector<CComponentBase*>* pLoadComponents) = 0;
+    virtual void UnloadFile(uint32_t uFileId, std::vector<CComponentBase*>* pLoadComponents) = 0;
     virtual void CloseFile(uint32_t uFileId) = 0;
 
     uint32_t GetCurrLoadFileId();

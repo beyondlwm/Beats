@@ -154,7 +154,7 @@ void CComponentInstanceManager::LoadFile(uint32_t uFileId, std::vector<CComponen
     }
 }
 
-void CComponentInstanceManager::CloseFile(uint32_t uFileId)
+void CComponentInstanceManager::UnloadFile(uint32_t uFileId, std::vector<CComponentBase*>* pUnloadComponents)
 {
     std::vector<uint32_t>::iterator iterFile = std::find(m_loadedFiles.begin(), m_loadedFiles.end(), uFileId);
     BEATS_WARNING(iterFile != m_loadedFiles.end(), "Close an unopened file %d, this may be right if we are exiting the program.", uFileId);
@@ -170,30 +170,32 @@ void CComponentInstanceManager::CloseFile(uint32_t uFileId)
                 uint32_t uComponentId = iter->second.at(i);
                 BEATS_ASSERT(uComponentId != 0xFFFFFFFF);
                 CComponentBase* pComponentBase = CComponentInstanceManager::GetInstance()->GetComponentInstance(uComponentId);
-                // This may be null, because some components can be uninitialized by other component's uninitialize.
+                // This may be null, because some components can be uninitialized by other component's un-initialize.
                 if (pComponentBase != NULL)
                 {
-                    if (pComponentBase->IsInitialized())
-                    {
-                        pComponentBase->Uninitialize();
-                    }
-                    else
-                    {
-                        // Component may not be initialized this moment, for example:
-                        // Close file right after load file, just to fetch some component data, so we don't need to initialize it.
-                        // Even it is not initialized, we still need to unregister the component since register is done in creating component procession.
-                        UnregisterInstance(pComponentBase);
-                        GetIdManager()->RecycleId(uComponentId);
-                    }
-                    componentToDelete.push_back(pComponentBase);
+                    BEATS_ASSERT(pComponentBase->IsLoaded());
+                    pComponentBase->Unload();
+                    pUnloadComponents->push_back(pComponentBase);
                 }
             }
         }
-        for (uint32_t i = 0; i < componentToDelete.size(); ++i)
-        {
-            BEATS_SAFE_DELETE(componentToDelete[i]);
-        }
         m_loadedFiles.erase(iterFile);
+    }
+}
+
+void CComponentInstanceManager::CloseFile(uint32_t uFileId)
+{
+    std::vector<CComponentBase*> componentToDelete;
+    UnloadFile(uFileId, &componentToDelete);
+    for (size_t i = 0; i < componentToDelete.size(); ++i)
+    {
+        CComponentBase* pComponentBase = componentToDelete[i];
+        BEATS_ASSERT(pComponentBase->IsInitialized());
+        pComponentBase->Uninitialize();
+    }
+    for (uint32_t i = 0; i < componentToDelete.size(); ++i)
+    {
+        BEATS_SAFE_DELETE(componentToDelete[i]);
     }
 }
 
