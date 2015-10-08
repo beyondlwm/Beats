@@ -322,7 +322,7 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
                         // Don't export component reference
                         if (pProxy->GetProxyId() == pProxy->GetId())
                         {
-                            pProxy->Serialize(serializer, eVT_SavedValue);
+                            pProxy->ExportDataToHost(serializer, eVT_SavedValue);
                             ++uComponentCount;
                         }
                     }
@@ -355,7 +355,7 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
                     CComponentProxy* pProxy = static_cast<CComponentProxy*>(vecComponents[j]);
                     if (pProxy->GetProxyId() == pProxy->GetId())
                     {
-                        pProxy->Serialize(serializer, eVT_SavedValue);
+                        pProxy->ExportDataToHost(serializer, eVT_SavedValue);
                         ++uComponentCount;
                     }
                 }
@@ -896,7 +896,7 @@ void CComponentProxyManager::LoadTemplateDataFromSerializer(CSerializer& seriali
             BEATS_ASSERT(pInstance != NULL, _T("Cant find a template instance for a proxy to be its host!GUID:0x%x, id:%d"), guid, pComponentEditorProxy->GetId());
             pComponentEditorProxy->SetTemplateFlag(true);
             pComponentEditorProxy->SetHostComponent(pInstance);
-            pComponentEditorProxy->Deserialize(serializer);
+            pComponentEditorProxy->ImportDataFromEDS(serializer);
         }
         else
         {

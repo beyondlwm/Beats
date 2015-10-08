@@ -63,14 +63,15 @@ public:
 
     ///*
     //    We have two ways for interaction:
-    //    1. Serialize && Deserialize, this is for binarize all data which comes from editor, for program running.
+    //    1. ExportDataToHost: Export all value from proxy, which can be read by CComponentInstance.
+    //       ImportDataFromEDS: Read the basic info to create CPropertyDescriptionBase and CDependencyDescription. which comes from REGISTER_COMPONENT.
     //    2. SaveToXML && LoadFromXML, this is for save and load data for editing.
     //*/
 
     virtual void SaveToXML(TiXmlElement* pNode, bool bSaveOnlyNoneNativePart = false);
     virtual void LoadFromXML(TiXmlElement* pNode);
-    virtual void Serialize(CSerializer& serializer, EValueType eValueType);
-    virtual void Deserialize(CSerializer& serializer);
+    virtual void ExportDataToHost(CSerializer& serializer, EValueType eValueType);
+    virtual void ImportDataFromEDS(CSerializer& serializer);
 
     virtual void Initialize() override;
     virtual void Uninitialize() override;

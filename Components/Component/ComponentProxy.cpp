@@ -90,7 +90,7 @@ CComponentProxy::~CComponentProxy()
     }
 }
 
-void CComponentProxy::Deserialize( CSerializer& serializer )
+void CComponentProxy::ImportDataFromEDS( CSerializer& serializer )
 {
     uint32_t nPropertyCount = 0;
     uint32_t nDependencyCount = 0;
@@ -193,7 +193,7 @@ CComponentBase* CComponentProxy::Clone(bool bCloneValue, CSerializer* /*pSeriali
     return pNewProxy;
 }
 
-void CComponentProxy::Serialize( CSerializer& serializer, EValueType eValueType)
+void CComponentProxy::ExportDataToHost( CSerializer& serializer, EValueType eValueType)
 {
     uint32_t startPos = serializer.GetWritePos();
     uint32_t totalSize = 0;
@@ -313,7 +313,7 @@ void CComponentProxy::UpdateHostComponent()
         CComponentProxy* pOriginValue = CComponentProxyManager::GetInstance()->GetCurrUpdateProxy();
         CComponentProxyManager::GetInstance()->SetCurrUpdateProxy(this);
         CSerializer serializer;
-        Serialize(serializer, eVT_CurrentValue);
+        ExportDataToHost(serializer, eVT_CurrentValue);
         uint32_t uTotalSize = 0;
         uint32_t uGuid = 0;
         uint32_t uId = 0;
