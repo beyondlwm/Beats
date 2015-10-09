@@ -131,10 +131,6 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bCloseLoadedF
         }
         for (uint32_t i = 0; i < loadedComponents.size(); ++i)
         {
-            loadedComponents[i]->Initialize();
-        }
-        for (uint32_t i = 0; i < loadedComponents.size(); ++i)
-        {
             uint32_t uComponentId = loadedComponents[i]->GetId();
             bool bIsReference = m_referenceMap.find(uComponentId) != m_referenceMap.end();
             if (!bIsReference)
@@ -165,6 +161,7 @@ void CComponentProxyManager::LoadFile(uint32_t uFileId, std::vector<CComponentBa
         TiXmlElement* pComponentListNode = pRootElement->FirstChildElement("Components");
         if (pComponentListNode != NULL )
         {
+            std::vector<CComponentProxy*> loadedProxyList;
             std::vector<int> reservedId; 
             TiXmlElement* pComponentElement = pComponentListNode->FirstChildElement("Component");
             while (pComponentElement != NULL && loadSuccess)
@@ -186,26 +183,41 @@ void CComponentProxyManager::LoadFile(uint32_t uFileId, std::vector<CComponentBa
                         int id = -1;
                         pInstanceElement->Attribute("Id", &id);
                         BEATS_ASSERT(id != -1);
-                        CComponentProxy* pComponent = NULL;
+                        CComponentProxy* pComponentProxy = NULL;
                         if (strcmp(pInstanceElement->Value(), "Instance") == 0)
                         {
-                            pComponent = (CComponentProxy*)(CreateComponent(guid, false, false, id, false, NULL, false));
+                            pComponentProxy = (CComponentProxy*)(CreateComponent(guid, false, false, id, false, NULL, false));
                         }
                         else if (strcmp(pInstanceElement->Value(), "Reference") == 0)
                         {
                             int nReferenceId = -1;
                             pInstanceElement->Attribute("ReferenceId", &nReferenceId);
-                            pComponent = CreateReference(nReferenceId, guid, id);
+                            pComponentProxy = CreateReference(nReferenceId, guid, id);
                         }
-                        pComponent->LoadFromXML(pInstanceElement);
+                        pComponentProxy->LoadFromXML(pInstanceElement);
+                        loadedProxyList.push_back(pComponentProxy);
                         if (pComponentContainer != nullptr)
                         {
-                            pComponentContainer->push_back(pComponent);
+                            pComponentContainer->push_back(pComponentProxy);
                         }
                         pInstanceElement = pInstanceElement->NextSiblingElement();
                     }
                 }
                 pComponentElement = pComponentElement->NextSiblingElement("Component");
+            }
+            ResolveDependency();
+            // Call component proxy's initialize means we have sync all value to host component, so we call host component's load function.
+            for (size_t i = 0; i < loadedProxyList.size(); ++i)
+            {
+                loadedProxyList[i]->Initialize();
+            }
+            for (size_t i = 0; i < loadedProxyList.size(); ++i)
+            {
+                bool bIsReference = m_referenceMap.find(loadedProxyList[i]->GetId()) != m_referenceMap.end();
+                if (!bIsReference)
+                {
+                    static_cast<CComponentProxy*>(loadedProxyList[i])->GetHostComponent()->Load();
+                }
             }
         }
     }
@@ -215,7 +227,6 @@ void CComponentProxyManager::LoadFile(uint32_t uFileId, std::vector<CComponentBa
         _stprintf(info, _T("Load file :%s Failed! Row: %d Col: %d Reason:%s"), strFilePath.c_str(), document.ErrorRow(), document.ErrorCol(), document.ErrorDesc());
         MessageBox(NULL, info, _T("Load File Failed"), MB_OK | MB_ICONERROR);
     }
-    ResolveDependency();
     m_bLoadingFilePhase = bRestoreLoadingPhase;
 }
 
