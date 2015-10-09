@@ -250,6 +250,7 @@ void CComponentProxyManager::UnloadFile(uint32_t uFileId, std::vector<CComponent
                 CComponentBase* pComponent = pComponentProxy;
                 if (pComponentProxy->GetProxyId() == pComponentProxy->GetId())
                 {
+                    pComponentProxy->Unload();
                     pComponent = pComponentProxy->GetHostComponent();
                 }
                 pComponent->Unload();
