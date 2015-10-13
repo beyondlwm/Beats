@@ -109,26 +109,8 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bCloseLoadedF
         {
             m_uCurLoadFileId = uFileId;
         }
-        // Rebuild the m_proxyInCurScene
-        m_proxyInCurScene.clear();
         uint32_t uCurViewFileId = m_pProject->GetComponentFileId(pFilePath);
-        std::map<uint32_t, std::vector<uint32_t> >* pFileToComponentMap = m_pProject->GetFileToComponentMap();
-        auto fileToComponentIter = pFileToComponentMap->find(uCurViewFileId);
-        if (fileToComponentIter != pFileToComponentMap->end())
-        {
-            std::vector<uint32_t>& componentList = fileToComponentIter->second;
-            for (uint32_t i = 0; i < componentList.size(); ++i)
-            {
-                BEATS_ASSERT(m_proxyInCurScene.find(componentList[i]) == m_proxyInCurScene.end());
-                CComponentProxy* pProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(componentList[i]));
-                // If the component is deleted in code, it is possible that proxy is null.
-                BEATS_ASSERT(pProxy != NULL || GetComponentTemplate(m_pProject->QueryComponentGuid(componentList[i])) == NULL);
-                if (pProxy != NULL)
-                {
-                    m_proxyInCurScene[componentList[i]] = pProxy;
-                }
-            }
-        }
+        RebuildCurrSceneComponents(uCurViewFileId);
         for (uint32_t i = 0; i < loadedComponents.size(); ++i)
         {
             uint32_t uComponentId = loadedComponents[i]->GetId();
@@ -247,14 +229,12 @@ void CComponentProxyManager::UnloadFile(uint32_t uFileId, std::vector<CComponent
                 uint32_t uComponentId = iter->second.at(i);
                 CComponentProxy* pComponentProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(uComponentId));
                 BEATS_ASSERT(pComponentProxy != NULL && pComponentProxy->IsLoaded());
-                CComponentBase* pComponent = pComponentProxy;
-                if (pComponentProxy->GetProxyId() == pComponentProxy->GetId())
+                pComponentProxy->Unload();
+                if (pComponentProxy->GetProxyId() == pComponentProxy->GetId()) // it is not a reference
                 {
-                    pComponentProxy->Unload();
-                    pComponent = pComponentProxy->GetHostComponent();
+                    pComponentProxy->GetHostComponent()->Unload();
                 }
-                pComponent->Unload();
-                pUnloadComponents->push_back(pComponent);
+                pUnloadComponents->push_back(pComponentProxy);
             }
         }
         m_loadedFiles.erase(iterFile);
@@ -276,16 +256,35 @@ void CComponentProxyManager::CloseFile(uint32_t uFileId)
     // TODO: Lock id manager, since we will recycle id in component's un-initialize function.
     // However, we don't want that, so we lock the id manager for now.
     m_pIdManager->Lock();
+    std::vector<CComponentBase*> unloadProxyList;
+    UnloadFile(uFileId, &unloadProxyList);
+    // unloadProxyList contain two types of proxy: CComponentProxy and CComponentReference
+    // 1. If it is a CComponentProxy, we need to un-initialize and delete its host component. because CComponentInstance will un-initialize and delete its proxyComponent.
+    // 2. If it is a ComponentReference, we need to un-initialize and delete it directly, because it should not bind to any CComponentInstance.
     std::vector<CComponentBase*> componentToDelete;
-    UnloadFile(uFileId, &componentToDelete);
-    for (uint32_t i = 0; i < componentToDelete.size(); ++i)
+    for (size_t i = 0; i < unloadProxyList.size(); ++i)
     {
-        BEATS_ASSERT(componentToDelete[i]->IsInitialized());
-        componentToDelete[i]->Uninitialize();
+        CComponentProxy* pProxy = static_cast<CComponentProxy*>(unloadProxyList[i]);
+        if (pProxy->GetProxyId() == pProxy->GetId())//for those not reference
+        {
+            componentToDelete.push_back(pProxy->GetHostComponent());
+        }
+        else
+        {
+            componentToDelete.push_back(pProxy);
+        }
     }
     for (uint32_t i = 0; i < componentToDelete.size(); ++i)
     {
-        BEATS_SAFE_DELETE(componentToDelete[i]);
+        CComponentBase* pComponentBase = componentToDelete[i];
+        BEATS_ASSERT(pComponentBase->IsInitialized() && !pComponentBase->IsLoaded());
+        pComponentBase->Uninitialize();
+    }
+    for (uint32_t i = 0; i < componentToDelete.size(); ++i)
+    {
+        CComponentBase* pComponentBase = componentToDelete[i];
+        BEATS_ASSERT(!pComponentBase->IsInitialized());
+        BEATS_SAFE_DELETE(pComponentBase);
     }
     m_pIdManager->UnLock();
 }
@@ -293,6 +292,29 @@ void CComponentProxyManager::CloseFile(uint32_t uFileId)
 const uint32_t CComponentProxyManager::GetCurrentViewFileId() const
 {
     return m_uCurrViewFileId;
+}
+
+void CComponentProxyManager::RebuildCurrSceneComponents(uint32_t uCurViewFileId)
+{
+    // Rebuild the m_proxyInCurScene
+    m_proxyInCurScene.clear();
+    std::map<uint32_t, std::vector<uint32_t> >* pFileToComponentMap = m_pProject->GetFileToComponentMap();
+    auto fileToComponentIter = pFileToComponentMap->find(uCurViewFileId);
+    if (fileToComponentIter != pFileToComponentMap->end())
+    {
+        std::vector<uint32_t>& componentList = fileToComponentIter->second;
+        for (uint32_t i = 0; i < componentList.size(); ++i)
+        {
+            BEATS_ASSERT(m_proxyInCurScene.find(componentList[i]) == m_proxyInCurScene.end());
+            CComponentProxy* pProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(componentList[i]));
+            // If the component is deleted in code, it is possible that proxy is null.
+            BEATS_ASSERT(pProxy != NULL || GetComponentTemplate(m_pProject->QueryComponentGuid(componentList[i])) == NULL);
+            if (pProxy != NULL)
+            {
+                m_proxyInCurScene[componentList[i]] = pProxy;
+            }
+        }
+    }
 }
 
 void CComponentProxyManager::Export(const TCHAR* pSavePath)

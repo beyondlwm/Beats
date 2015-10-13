@@ -645,19 +645,21 @@ void CComponentProxy::Initialize()
 void CComponentProxy::Uninitialize()
 {
     uint32_t uComponentId = GetId();
-    const std::map<uint32_t, std::vector<CComponentReference*>>& referenceMap = CComponentProxyManager::GetInstance()->GetReferenceIdMap();
-    auto referenceIter = referenceMap.find(uComponentId);
-    if (referenceIter != referenceMap.end())
+    if (uComponentId != GetProxyId()) // If this is not a CComponentReference, we will try to find all reference to it, and delete them
     {
-        std::vector<CComponentReference*> backup = referenceIter->second;
-        for (uint32_t i = 0; i < backup.size(); ++i)
+        const std::map<uint32_t, std::vector<CComponentReference*>>& referenceMap = CComponentProxyManager::GetInstance()->GetReferenceIdMap();
+        auto referenceIter = referenceMap.find(uComponentId);
+        if (referenceIter != referenceMap.end())
         {
-            CComponentReference* pRef = backup.at(i);
-            pRef->Uninitialize();
-            BEATS_SAFE_DELETE(pRef);
+            std::vector<CComponentReference*> backup = referenceIter->second;
+            for (uint32_t i = 0; i < backup.size(); ++i)
+            {
+                CComponentReference* pRef = backup.at(i);
+                pRef->Uninitialize();
+                BEATS_SAFE_DELETE(pRef);
+            }
         }
     }
-
     super::Uninitialize();
     if (uComponentId != 0xFFFFFFFF)
     {

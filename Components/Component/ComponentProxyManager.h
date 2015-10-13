@@ -28,6 +28,7 @@ public:
     void LoadFileFromDirectory(CComponentProjectDirectory* pDirectory, std::vector<CComponentBase*>* pComponentContainer);
     virtual void CloseFile(uint32_t uFileId) override;
     const uint32_t GetCurrentViewFileId() const;
+    void RebuildCurrSceneComponents(uint32_t uCurViewFileId);
 
     void Export(const TCHAR* pSavePath);
 
