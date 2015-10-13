@@ -74,8 +74,7 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bCloseLoadedF
 {
     bool bRestoreLoadingPhase = m_bLoadingFilePhase;
     m_bLoadingFilePhase = true;
-    CComponentProject* pProject = CComponentProxyManager::GetInstance()->GetProject();
-    uint32_t uFileId = pProject->GetComponentFileId(pFilePath);
+    uint32_t uFileId = m_pProject->GetComponentFileId(pFilePath);
     BEATS_ASSERT(uFileId != 0xFFFFFFFF);
     if (uFileId != 0xFFFFFFFF)
     {
@@ -109,8 +108,7 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bCloseLoadedF
         {
             m_uCurLoadFileId = uFileId;
         }
-        uint32_t uCurViewFileId = m_pProject->GetComponentFileId(pFilePath);
-        RebuildCurrSceneComponents(uCurViewFileId);
+        RebuildCurrSceneComponents(uFileId);
         for (uint32_t i = 0; i < loadedComponents.size(); ++i)
         {
             uint32_t uComponentId = loadedComponents[i]->GetId();
@@ -122,7 +120,6 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bCloseLoadedF
         }
         ReSaveFreshFile();
         m_bLoadingFilePhase = bRestoreLoadingPhase;
-        m_uCurrViewFileId = uFileId;
     }
 }
 
@@ -315,6 +312,7 @@ void CComponentProxyManager::RebuildCurrSceneComponents(uint32_t uCurViewFileId)
             }
         }
     }
+    m_uCurrViewFileId = uCurViewFileId;
 }
 
 void CComponentProxyManager::Export(const TCHAR* pSavePath)
@@ -754,7 +752,15 @@ CComponentReference* CComponentProxyManager::CreateReference(uint32_t uProxyId, 
     CComponentProxy* pTemplate = static_cast<CComponentProxy*>(GetComponentTemplate(uReferenceGuid));
     BEATS_ASSERT(pTemplate != NULL);
     CComponentReference* pRet = new CComponentReference(uProxyId, uReferenceGuid, pTemplate->GetGraphics()->Clone());
-    pRet->SetId(uId == 0xFFFFFFFF ? m_pIdManager->GenerateId() : uId);
+    if (uId == 0xFFFFFFFF)
+    {
+        uId = m_pIdManager->GenerateId();
+    }
+    else
+    {
+        m_pIdManager->ReserveId(uId, false);
+    }
+    pRet->SetId(uId);
     RegisterComponentReference(pRet);
     RegisterInstance(pRet);
     return pRet;
