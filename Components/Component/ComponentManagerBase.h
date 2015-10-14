@@ -75,6 +75,8 @@ public:
     virtual void CloseFile(uint32_t uFileId) = 0;
 
     uint32_t GetCurrLoadFileId();
+    void SetCurrLoadFileId(uint32_t uId);
+
     void CalcSwitchFile(uint32_t uFileId, bool bCloseLoadedFile, std::vector<uint32_t>& loadFiles, std::vector<uint32_t>& unloadFiles, bool& bNewAddFile);
     void SetForbidDependencyResolve(bool bEnable);
     bool GetForbidDependencyResolve() const;
@@ -86,7 +88,7 @@ private:
 
 protected:
     bool m_bForbidDependencyResolve;
-    uint32_t m_uCurLoadFileId;
+    uint32_t m_uCurrLoadFileId;
     CIdManager* m_pIdManager;
     CComponentProject* m_pProject;
     std::map<uint32_t, CComponentBase*>* m_pComponentTemplateMap;

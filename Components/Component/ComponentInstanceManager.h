@@ -18,8 +18,6 @@ public:
     virtual void UnloadFile(uint32_t uFileId, std::vector<CComponentBase*>* pUnloadComponents) override;
     virtual void CloseFile(uint32_t uFileId) override;
     CSerializer* GetFileSerializer() const;
-    void SetCurLoadFileId(uint32_t uFileId);
-    uint32_t GetCurLoadFileId() const;
     bool IsInClonePhase() const;
     void SetClonePhaseFlag(bool bInClonePhase);
 

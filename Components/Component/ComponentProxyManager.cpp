@@ -101,12 +101,12 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bCloseLoadedF
         {
             if (!bNewAddThisFile)
             {
-                m_uCurLoadFileId = uFileId;
+                m_uCurrLoadFileId = uFileId;
             }
         }
         if (bCloseLoadedFile && loadFiles.size() == 0) // It means we have load uFileId before, and we return to it with closing other loaded file.
         {
-            m_uCurLoadFileId = uFileId;
+            m_uCurrLoadFileId = uFileId;
         }
         RebuildCurrSceneComponents(uFileId);
         for (uint32_t i = 0; i < loadedComponents.size(); ++i)

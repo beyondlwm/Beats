@@ -12,7 +12,7 @@ void DefaultAddDependencyFunc(void* pContainer, void* pDependency)
 
 CComponentManagerBase::CComponentManagerBase()
     : m_bForbidDependencyResolve(false)
-    , m_uCurLoadFileId(0xFFFFFFFF)
+    , m_uCurrLoadFileId(0xFFFFFFFF)
 {
     m_pIdManager = new CIdManager;
     m_pProject = new CComponentProject;
@@ -199,7 +199,12 @@ CComponentProject* CComponentManagerBase::GetProject() const
 
 uint32_t CComponentManagerBase::GetCurrLoadFileId()
 {
-    return m_uCurLoadFileId;
+    return m_uCurrLoadFileId;
+}
+
+void CComponentManagerBase::SetCurrLoadFileId(uint32_t uId)
+{
+    m_uCurrLoadFileId = uId;
 }
 
 void CComponentManagerBase::SetForbidDependencyResolve(bool bEnable)
@@ -242,7 +247,7 @@ void CComponentManagerBase::CalcSwitchFile(uint32_t uFileId, bool bCloseLoadedFi
         {
             // Close any other loaded + unnecessary file.
             CComponentProjectDirectory* pDirectory = m_pProject->FindProjectDirectoryById(uFileId);
-            CComponentProjectDirectory* pCurDirectory = m_pProject->FindProjectDirectoryById(m_uCurLoadFileId);
+            CComponentProjectDirectory* pCurDirectory = m_pProject->FindProjectDirectoryById(m_uCurrLoadFileId);
 
             BEATS_ASSERT(pDirectory != NULL && pCurDirectory != NULL);
             TString strLogicPath = pDirectory->MakeRelativeLogicPath(pCurDirectory);
@@ -251,7 +256,7 @@ void CComponentManagerBase::CalcSwitchFile(uint32_t uFileId, bool bCloseLoadedFi
             BEATS_ASSERT(logicPaths.size() > 0);
             if (logicPaths.back().compare(_T("..")) == 0)
             {
-                unloadFiles.push_back(m_uCurLoadFileId);
+                unloadFiles.push_back(m_uCurrLoadFileId);
                 CComponentProjectDirectory* pCurLoopDirectory = pCurDirectory->GetParent();
                 logicPaths.pop_back();
                 while (logicPaths.size() > 0)
@@ -287,7 +292,7 @@ void CComponentManagerBase::CalcSwitchFile(uint32_t uFileId, bool bCloseLoadedFi
         BEATS_ASSERT(pDirectory != NULL);
         TString strLogicPath;
         // new open a file.
-        if (m_uCurLoadFileId == 0xFFFFFFFF)
+        if (m_uCurrLoadFileId == 0xFFFFFFFF)
         {
             std::vector<CComponentProjectDirectory*> directories;
             CComponentProjectDirectory* pCurDirectory = pDirectory->GetParent();
@@ -309,14 +314,14 @@ void CComponentManagerBase::CalcSwitchFile(uint32_t uFileId, bool bCloseLoadedFi
         }
         else
         {
-            CComponentProjectDirectory* pCurDirectory = m_pProject->FindProjectDirectoryById(m_uCurLoadFileId);
+            CComponentProjectDirectory* pCurDirectory = m_pProject->FindProjectDirectoryById(m_uCurrLoadFileId);
             BEATS_ASSERT(pCurDirectory != NULL);
             strLogicPath = pDirectory->MakeRelativeLogicPath(pCurDirectory);
 
             // 2. File is at the same directory: close current file and open it.
             if (strLogicPath.empty())
             {
-                unloadFiles.push_back(m_uCurLoadFileId);
+                unloadFiles.push_back(m_uCurrLoadFileId);
             }
             else
             {
@@ -330,7 +335,7 @@ void CComponentManagerBase::CalcSwitchFile(uint32_t uFileId, bool bCloseLoadedFi
                     const std::vector<uint32_t>& fileList = pCurDirectory->GetFileList();
                     for (uint32_t i = 0; i < fileList.size(); ++i)
                     {
-                        if (fileList[i] != m_uCurLoadFileId)
+                        if (fileList[i] != m_uCurrLoadFileId)
                         {
                             loadFiles.push_back(fileList[i]);
                         }
@@ -357,7 +362,7 @@ void CComponentManagerBase::CalcSwitchFile(uint32_t uFileId, bool bCloseLoadedFi
                     bNewAddFile = logicPaths.back().compare(_T("..")) == 0;
                     if (!bNewAddFile)
                     {
-                        unloadFiles.push_back(m_uCurLoadFileId);
+                        unloadFiles.push_back(m_uCurrLoadFileId);
                         CComponentProjectDirectory* pCurLoopDirectory = pCurDirectory->GetParent();
                         BEATS_ASSERT(pCurLoopDirectory != NULL);
                         for (int i = 1; i < (int)logicPaths.size() - 1; ++i)

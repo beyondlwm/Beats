@@ -99,7 +99,7 @@ void CComponentInstanceManager::SwitchFile(uint32_t uFileId)
     bool bLoadThisFile = loadFiles.size() > 0 && loadFiles.back() == uFileId;
     if (bLoadThisFile)
     {
-        m_uCurLoadFileId = uFileId;
+        m_uCurrLoadFileId = uFileId;
     }
     for (uint32_t i = 0; i < unloadFiles.size(); ++i)
     {
@@ -208,16 +208,6 @@ void CComponentInstanceManager::CloseFile(uint32_t uFileId)
 CSerializer* CComponentInstanceManager::GetFileSerializer() const
 {
     return m_pSerializer;
-}
-
-void CComponentInstanceManager::SetCurLoadFileId(uint32_t uFileId)
-{
-    m_uCurLoadFileId = uFileId;
-}
-
-uint32_t CComponentInstanceManager::GetCurLoadFileId() const
-{
-    return m_uCurLoadFileId;
 }
 
 bool CComponentInstanceManager::IsInClonePhase() const
