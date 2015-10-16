@@ -274,8 +274,9 @@ void CPropertyDescriptionBase::SetValueWithType(void* pValue, EValueType type, b
             {
                 pRootProperty = pRootProperty->GetParent();
             }
-            bool bIsTemplateProperty = pRootProperty->GetOwner()->GetId() == 0xFFFFFFFF;
-
+            // Don't reflect for template component because we only want to change the value of it.
+            // Template component will never take effect on logic.
+            bool bIsTemplateProperty = pRootProperty->GetOwner()->GetTemplateFlag();
             if (pHostComponent && !bIsTemplateProperty)
             {
                 CSerializer serializer;

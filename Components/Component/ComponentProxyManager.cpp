@@ -195,7 +195,15 @@ void CComponentProxyManager::LoadFile(uint32_t uFileId, std::vector<CComponentBa
                 bool bIsReference = m_referenceMap.find(loadedProxyList[i]->GetId()) != m_referenceMap.end();
                 if (!bIsReference)
                 {
-                    static_cast<CComponentProxy*>(loadedProxyList[i])->GetHostComponent()->Load();
+                    CComponentInstance* pHostComponent = static_cast<CComponentProxy*>(loadedProxyList[i])->GetHostComponent();
+                    if (pHostComponent != nullptr)
+                    {
+                        pHostComponent->Load();
+                    }
+                    else
+                    {
+                        BEATS_ASSERT(m_bCreateInstanceWithProxy == false, "Only when m_bCreateInstanceWithProxy is set to false, we can't get the host component");
+                    }
                 }
             }
         }
@@ -376,15 +384,10 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
                 LoadFile(i, &vecComponents);
                 iterFile = std::find(m_loadedFiles.begin(), m_loadedFiles.end(), i);
                 BEATS_ASSERT(iterFile != m_loadedFiles.end(), _T("Load file index %d failed!"), i);
-                // Do serialize and delete operation in separate steps.
-                // Because everything can be ready to serialize after initialize.
-                for (uint32_t j = 0; j < vecComponents.size(); ++j)
-                {
-                    vecComponents[j]->Initialize();
-                }
                 for (uint32_t j = 0; j < vecComponents.size(); ++j)
                 {
                     CComponentProxy* pProxy = static_cast<CComponentProxy*>(vecComponents[j]);
+                    BEATS_ASSERT(pProxy->IsInitialized());
                     if (pProxy->GetProxyId() == pProxy->GetId())
                     {
                         pProxy->ExportDataToHost(serializer, eVT_SavedValue);
