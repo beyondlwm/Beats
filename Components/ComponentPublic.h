@@ -2,6 +2,8 @@
 #define BEATS_COMPONENTS_COMPONENTPUBLIC_H__INCLUDE
 
 #include <string>
+#include <algorithm>
+#include "SharePtr/SharePtr.h"
 #include "Property/PropertyPublic.h"
 #include "Utility/StringHelper/StringHelper.h"
 #include "Component/ComponentInstance.h"
@@ -222,8 +224,7 @@ inline void ResizeVector(std::vector<T*>& value, uint32_t uCount)
         {
             CPropertyDescriptionBase* pPropertyDesc = pCurrReflectProperty->GetChild(i);
             BEATS_ASSERT(pPropertyDesc->GetType() == eRPT_Ptr);
-            CPtrPropertyDescription* pPtrPropertyDesc = down_cast<CPtrPropertyDescription*>(pPropertyDesc);
-            allInstance.push_back(pPtrPropertyDesc->GetInstanceComponent()->GetHostComponent());
+            allInstance.push_back(pPropertyDesc->GetInstanceComponent()->GetHostComponent());
         }
 
         for (auto iter = value.begin(); iter != value.end();)

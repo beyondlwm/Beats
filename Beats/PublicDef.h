@@ -128,6 +128,14 @@ private:\
     (p) = NULL;\
 }
 
+#define BEATS_SAFE_DELETE_COMPONENT(p) \
+if ((p) != NULL)\
+{\
+    p->Uninitialize(); \
+    delete (p); \
+    (p) = NULL; \
+}
+
 #define BEATS_SAFE_DELETE_ARRAY(p) if (p!=NULL){delete[] p; p = NULL;}
 
 #define BEATS_SAFE_DELETE_VECTOR(p)\
