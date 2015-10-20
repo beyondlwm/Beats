@@ -149,6 +149,7 @@ void CComponentInstanceManager::LoadFile(uint32_t uFileId, std::vector<CComponen
             BEATS_ASSERT(uComponentStartPos + uComponentDataSize == m_pSerializer->GetReadPos(), _T("Component Data Not Match!\nGot an error when import data for component %x %s instance id %d\nRequired size: %d, Actual size: %d"), uGuid, pComponent->GetClassStr(), uId, uComponentDataSize, m_pSerializer->GetReadPos() - uComponentStartPos);
             m_pSerializer->SetReadPos(uComponentStartPos + uComponentDataSize);
         }
+        BEATS_ASSERT(m_pSerializer->GetReadPos() - uFileStartPos == uFileDataLength, _T("File Data NOT Match!\nGot an error when import data for file %d Required size:%d Actual size %d"), uFileId, uFileDataLength, m_pSerializer->GetReadPos() - uFileStartPos);
         ResolveDependency();
         // After all component instance's value is read, we call each's load function.
         for (size_t i = 0; i < loadComponents.size(); ++i)
@@ -156,7 +157,6 @@ void CComponentInstanceManager::LoadFile(uint32_t uFileId, std::vector<CComponen
             loadComponents[i]->Load();
         }
         m_loadedFiles.push_back(uFileId);
-        BEATS_ASSERT(m_pSerializer->GetReadPos() - uFileStartPos == uFileDataLength, _T("File Data NOT Match!\nGot an error when import data for file %d Required size:%d Actual size %d"), uFileId, uFileDataLength, m_pSerializer->GetReadPos() - uFileStartPos);
     }
 }
 
@@ -166,6 +166,7 @@ void CComponentInstanceManager::UnloadFile(uint32_t uFileId, std::vector<CCompon
     BEATS_WARNING(iterFile != m_loadedFiles.end(), "Close an unopened file %d, this may be right if we are exiting the program.", uFileId);
     if (iterFile != m_loadedFiles.end())
     {
+        m_loadedFiles.erase(iterFile);
         std::vector<CComponentBase*> componentToDelete;
         std::map<uint32_t, std::vector<uint32_t> >* pFileToComponentMap = m_pProject->GetFileToComponentMap();
         auto iter = pFileToComponentMap->find(uFileId);
@@ -185,7 +186,6 @@ void CComponentInstanceManager::UnloadFile(uint32_t uFileId, std::vector<CCompon
                 }
             }
         }
-        m_loadedFiles.erase(iterFile);
     }
 }
 
