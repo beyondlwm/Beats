@@ -101,7 +101,7 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bCloseLoadedF
         std::vector<CComponentBase*> loadedComponents;
         for (uint32_t i = 0; i < loadFiles.size(); ++i)
         {
-            m_strCurrOperateFile = m_pProject->GetComponentFileName(unloadFiles[i]);
+            m_strCurrOperateFile = m_pProject->GetComponentFileName(loadFiles[i]);
             LoadFile(loadFiles[i], &loadedComponents);
             m_uOperateProgress += (uint32_t)(80.f / loadFiles.size());
         }
