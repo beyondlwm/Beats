@@ -25,7 +25,7 @@ CComponentProxyManager::CComponentProxyManager()
     , m_bLoadingFilePhase(false)
     , m_bExportingPhase(false)
     , m_bReflectCheckFlag(false)
-    , m_uExportProgress(0)
+    , m_uOperateProgress(0)
     , m_uCurrViewFileId(0xFFFFFFFF)
     , m_pCurrReflectPropertyDescription(NULL)
     , m_pCurrReflectDependency(NULL)
@@ -73,6 +73,7 @@ void CComponentProxyManager::UninitializeAllTemplate()
 
 void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bCloseLoadedFile/*= false*/)
 {
+    m_uOperateProgress = 0;
     bool bRestoreLoadingPhase = m_bLoadingFilePhase;
     m_bLoadingFilePhase = true;
     uint32_t uFileId = m_pProject->GetComponentFileId(pFilePath);
@@ -88,15 +89,23 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bCloseLoadedF
         std::vector<uint32_t> loadFiles;
         std::vector<uint32_t> unloadFiles;
         CalcSwitchFile(uFileId, bCloseLoadedFile, loadFiles, unloadFiles, bNewAddThisFile);
+        // use 10% for close file.
         for (uint32_t i = 0; i < unloadFiles.size(); ++i)
         {
+            m_strCurrOperateFile = m_pProject->GetComponentFileName(unloadFiles[i]);
             CloseFile(unloadFiles[i]);
+            m_uOperateProgress += (uint32_t)(10.f / unloadFiles.size());
         }
+        m_uOperateProgress = 10;
+        // use 80% for load file.
         std::vector<CComponentBase*> loadedComponents;
         for (uint32_t i = 0; i < loadFiles.size(); ++i)
         {
+            m_strCurrOperateFile = m_pProject->GetComponentFileName(unloadFiles[i]);
             LoadFile(loadFiles[i], &loadedComponents);
+            m_uOperateProgress += (uint32_t)(80.f / loadFiles.size());
         }
+        m_uOperateProgress = 90;
         bool bLoadThisFile = loadFiles.size() > 0 && loadFiles.back() == uFileId;
         if (bLoadThisFile)
         {
@@ -110,6 +119,7 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bCloseLoadedF
             m_uCurrLoadFileId = uFileId;
         }
         RebuildCurrSceneComponents(uFileId);
+        // use 10% for initialize all loaded components.
         for (uint32_t i = 0; i < loadedComponents.size(); ++i)
         {
             uint32_t uComponentId = loadedComponents[i]->GetId();
@@ -118,7 +128,10 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bCloseLoadedF
             {
                 static_cast<CComponentProxy*>(loadedComponents[i])->GetHostComponent()->Initialize();
             }
+            m_uOperateProgress += (uint32_t)(10.f / loadedComponents.size());
         }
+        m_uOperateProgress = 100;
+        m_strCurrOperateFile.clear();
         ReSaveFreshFile();
         m_bLoadingFilePhase = bRestoreLoadingPhase;
     }
@@ -335,13 +348,13 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
     pRootProject->Serialize(serializer);
     serializer << m_pProject->GetStartFile();
 
-    m_uExportProgress = 0;
+    m_uOperateProgress = 0;
     uint32_t uFileCount = (uint32_t)(m_pProject->GetFileList()->size());
     serializer << uFileCount;
     for (uint32_t i = 0; i < uFileCount; ++i)
     {
         const TString strFileName = CFilePathTool::GetInstance()->FileName(m_pProject->GetComponentFileName(i).c_str());
-        m_strCurrExportingFile = strFileName;
+        m_strCurrOperateFile = strFileName;
         serializer << strFileName;
         uint32_t uComponentCount = 0;
         uint32_t uWritePos = serializer.GetWritePos();
@@ -418,10 +431,10 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
             serializer << uComponentCount;
             serializer.SetWritePos(uCurWritePos);
         }
-        m_uExportProgress = uint32_t(i * 100.f / uFileCount);
+        m_uOperateProgress = uint32_t(i * 100.f / uFileCount);
     }
-    BEATS_ASSERT(m_uExportProgress == 100);
-    m_strCurrExportingFile.clear();
+    BEATS_ASSERT(m_uOperateProgress == 100);
+    m_strCurrOperateFile.clear();
     serializer.Deserialize(pSavePath);
     m_bExportingPhase = false;
 }
@@ -870,10 +883,10 @@ std::set<uint32_t>& CComponentProxyManager::GetRefreshFileList()
     return m_refreshFileList;
 }
 
-uint32_t CComponentProxyManager::GetExportProgress(TString& strCurrExportingFile) const
+uint32_t CComponentProxyManager::GetOperateProgress(TString& strCurrOperateFile) const
 {
-    strCurrExportingFile = m_strCurrExportingFile;
-    return m_uExportProgress;
+    strCurrOperateFile = m_strCurrOperateFile;
+    return m_uOperateProgress;
 }
 
 void CComponentProxyManager::LoadTemplateDataFromXML(const TCHAR* pszPath)
