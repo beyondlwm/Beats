@@ -431,7 +431,7 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
             serializer << uComponentCount;
             serializer.SetWritePos(uCurWritePos);
         }
-        m_uOperateProgress = uint32_t(i * 100.f / uFileCount);
+        m_uOperateProgress = uint32_t((i + 1) * 100.f / uFileCount);
     }
     BEATS_ASSERT(m_uOperateProgress == 100);
     m_strCurrOperateFile.clear();
