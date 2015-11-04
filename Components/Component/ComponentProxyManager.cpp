@@ -25,6 +25,7 @@ CComponentProxyManager::CComponentProxyManager()
     , m_bLoadingFilePhase(false)
     , m_bExportingPhase(false)
     , m_bReflectCheckFlag(false)
+    , m_uExportProgress(0)
     , m_uCurrViewFileId(0xFFFFFFFF)
     , m_pCurrReflectPropertyDescription(NULL)
     , m_pCurrReflectDependency(NULL)
@@ -334,11 +335,13 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
     pRootProject->Serialize(serializer);
     serializer << m_pProject->GetStartFile();
 
+    m_uExportProgress = 0;
     uint32_t uFileCount = (uint32_t)(m_pProject->GetFileList()->size());
     serializer << uFileCount;
     for (uint32_t i = 0; i < uFileCount; ++i)
     {
         const TString strFileName = CFilePathTool::GetInstance()->FileName(m_pProject->GetComponentFileName(i).c_str());
+        m_strCurrExportingFile = strFileName;
         serializer << strFileName;
         uint32_t uComponentCount = 0;
         uint32_t uWritePos = serializer.GetWritePos();
@@ -415,7 +418,10 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
             serializer << uComponentCount;
             serializer.SetWritePos(uCurWritePos);
         }
+        m_uExportProgress = uint32_t(i * 100.f / uFileCount);
     }
+    BEATS_ASSERT(m_uExportProgress == 100);
+    m_strCurrExportingFile.clear();
     serializer.Deserialize(pSavePath);
     m_bExportingPhase = false;
 }
@@ -862,6 +868,12 @@ void CComponentProxyManager::SetEnableCreateInstanceWithProxy(bool bFlag)
 std::set<uint32_t>& CComponentProxyManager::GetRefreshFileList()
 {
     return m_refreshFileList;
+}
+
+uint32_t CComponentProxyManager::GetExportProgress(TString& strCurrExportingFile) const
+{
+    strCurrExportingFile = m_strCurrExportingFile;
+    return m_uExportProgress;
 }
 
 void CComponentProxyManager::LoadTemplateDataFromXML(const TCHAR* pszPath)

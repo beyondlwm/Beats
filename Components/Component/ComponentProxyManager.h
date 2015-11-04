@@ -86,6 +86,7 @@ public:
     void SetEnableCreateInstanceWithProxy(bool bFlag);
 
     std::set<uint32_t>& GetRefreshFileList();
+    uint32_t GetExportProgress(TString& strCurrExportingFile) const;
 
 private:
     void LoadTemplateDataFromXML(const TCHAR* pWorkingPath);
@@ -96,7 +97,8 @@ private:
     bool m_bLoadingFilePhase;
     bool m_bExportingPhase;
     bool m_bReflectCheckFlag;
-
+    uint32_t m_uExportProgress;
+    TString m_strCurrExportingFile;
     uint32_t m_uCurrViewFileId;
     CComponentProxy* m_pCurrUpdateProxy; //Indicate we are calling CComponentProxy::UpdateHostComponent, so the host components' ptr property will get value from CPropertyDescription::GetInstanceComponent::GetHostComponent.
     CPropertyDescriptionBase* m_pCurrReflectPropertyDescription;
