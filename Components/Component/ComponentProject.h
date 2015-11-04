@@ -30,6 +30,8 @@ public:
     ~CComponentProject();
 
     CComponentProjectDirectory* LoadProject(const TCHAR* pszProjectFile, std::map<uint32_t, std::vector<uint32_t> >& conflictIdMap);
+    uint32_t GetLoadProjectProgress(TString& strCurrLoadingFile) const;
+
     bool CloseProject();
     void SaveProject();
 
@@ -81,10 +83,15 @@ public:
     std::map<uint32_t, std::vector<uint32_t> >* GetTypeToComponentMap() const;
 
 private:
+    uint32_t GetTotalFileCount(TiXmlElement* pNode) const;
     void LoadXMLProject(TiXmlElement* pNode, CComponentProjectDirectory* pProjectDirectory, TString& strStartFilePath, std::map<uint32_t, std::vector<uint32_t> >& conflictIdMap);
     void SaveProjectFile( TiXmlElement* pParentNode, const CComponentProjectDirectory* p);
 
 private:
+    uint32_t m_uLoadedFileCount; // For progress
+    uint32_t m_uTotalFileCount; //For progress
+    TString m_strCurrLoadingFile; // For progress
+
     CComponentProjectDirectory* m_pProjectDirectory;
     uint32_t m_uStartFileId;
     std::vector<TString>* m_pComponentFiles;
