@@ -332,7 +332,7 @@ public:
         sharePtrLockMutex.unlock();
     }
 
-    TString GetReferencePosString()
+    TString GetReferencePosString() const
     {
         TString strRet;
         sharePtrLockMutex.lock();

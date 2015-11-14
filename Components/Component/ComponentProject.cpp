@@ -10,6 +10,8 @@
 
 CComponentProject::CComponentProject()
     : m_pProjectDirectory(NULL)
+    , m_uLoadedFileCount(0)
+    , m_uTotalFileCount(0)
     , m_uStartFileId(0)
     , m_pComponentFiles(new std::vector<TString>)
     , m_pComponentToTypeMap(new std::map<uint32_t, uint32_t>)
@@ -43,6 +45,9 @@ CComponentProject::~CComponentProject()
 CComponentProjectDirectory* CComponentProject::LoadProject(const TCHAR* pszProjectFile, std::map<uint32_t, std::vector<uint32_t> >& conflictIdMap)
 {
     CloseProject();
+    m_uTotalFileCount = 0;
+    m_uLoadedFileCount = 0;
+    m_strCurrLoadingFile.clear();
     // NOTICE: because in editor mode we focus on CComponentProxyManager's id manager while
     // we focus on CComponentInstanceManager's id manager in game mode.
     // So we don't care and never exam CComponentInstanceManager's id manager in editor's mode. We lock it avoid chaos.
@@ -62,6 +67,7 @@ CComponentProjectDirectory* CComponentProject::LoadProject(const TCHAR* pszProje
         if (bLoadSuccess)
         {
             TiXmlElement* pRootElement = document.RootElement();
+            m_uTotalFileCount = GetTotalFileCount(pRootElement);
             m_pProjectDirectory = new CComponentProjectDirectory(NULL, pRootElement->Value());
             TString strStartFile;
             LoadXMLProject(pRootElement, m_pProjectDirectory, strStartFile, conflictIdMap);
@@ -75,7 +81,20 @@ CComponentProjectDirectory* CComponentProject::LoadProject(const TCHAR* pszProje
             MessageBox(NULL, info, _T("Load File Failed"), MB_OK | MB_ICONERROR);
         }
     }
+    m_strCurrLoadingFile.clear();
+    BEATS_ASSERT(m_uLoadedFileCount == m_uTotalFileCount);
     return m_pProjectDirectory;
+}
+
+uint32_t CComponentProject::GetLoadProjectProgress(TString& strCurrLoadingFile) const
+{
+    uint32_t uRet = 0;
+    if (m_uTotalFileCount > 0)
+    {
+        uRet = (uint32_t)(m_uLoadedFileCount * 100.f / m_uTotalFileCount);
+        strCurrLoadingFile = m_strCurrLoadingFile;
+    }
+    return uRet;
 }
 
 bool CComponentProject::CloseProject()
@@ -623,7 +642,34 @@ uint32_t CComponentProject::QueryFileId(uint32_t uComponentId, bool bOnlyInProje
     return uRet;
 }
 
-void CComponentProject::LoadXMLProject(TiXmlElement* pNode, CComponentProjectDirectory* pProjectDirectory, TString& strFile, std::map<uint32_t, std::vector<uint32_t> >& conflictIdMap)
+uint32_t CComponentProject::GetTotalFileCount(TiXmlElement* pNode) const
+{
+    uint32_t uRet = 0;
+    TiXmlElement* pElement = pNode->FirstChildElement();
+    while (pElement != NULL)
+    {
+        const char* pText = pElement->Value();
+        if (strcmp(pText, "Directory") == 0)
+        {
+            uRet += GetTotalFileCount(pElement);
+        }
+        else if (strcmp(pText, "File") == 0)
+        {
+            uRet += 1;
+        }
+        else if (strcmp(pText, "StartFile") == 0)
+        {
+        }
+        else
+        {
+            BEATS_ASSERT(false);
+        }
+        pElement = pElement->NextSiblingElement();
+    }
+    return uRet;
+}
+
+void CComponentProject::LoadXMLProject(TiXmlElement* pNode, CComponentProjectDirectory* pProjectDirectory, TString& strStartFilePath, std::map<uint32_t, std::vector<uint32_t> >& conflictIdMap)
 {
     BEATS_ASSERT(pProjectDirectory != NULL && pNode != NULL);
     TiXmlElement* pElement = pNode->FirstChildElement();
@@ -634,20 +680,21 @@ void CComponentProject::LoadXMLProject(TiXmlElement* pNode, CComponentProjectDir
         {
             const char* pName = pElement->Attribute("Name");
             CComponentProjectDirectory* pNewProjectFile = new CComponentProjectDirectory(pProjectDirectory, pName);
-            LoadXMLProject(pElement, pNewProjectFile, strFile, conflictIdMap);
+            LoadXMLProject(pElement, pNewProjectFile, strStartFilePath, conflictIdMap);
         }
         else if (strcmp(pText, "File") == 0)
         {
             const char* pPath = pElement->Attribute("Path");
-            TString strFilePath = CFilePathTool::GetInstance()->MakeAbsolute(m_strProjectFilePath.c_str(), pPath);
-            pProjectDirectory->AddFile(strFilePath.c_str(), conflictIdMap);
+            m_strCurrLoadingFile = CFilePathTool::GetInstance()->MakeAbsolute(m_strProjectFilePath.c_str(), pPath);
+            pProjectDirectory->AddFile(m_strCurrLoadingFile.c_str(), conflictIdMap);
+            ++m_uLoadedFileCount;
             (*m_pFileToDirectoryMap)[(uint32_t)m_pComponentFiles->size() - 1] = pProjectDirectory;
         }
         else if (strcmp(pText, "StartFile") == 0)
         {
             const char* pszStartFilePath = pElement->Attribute("FilePath");
             BEATS_ASSERT(pszStartFilePath != NULL);
-            strFile = CFilePathTool::GetInstance()->MakeAbsolute(m_strProjectFilePath.c_str(), pszStartFilePath);
+            strStartFilePath = CFilePathTool::GetInstance()->MakeAbsolute(m_strProjectFilePath.c_str(), pszStartFilePath);
         }
         else
         {
