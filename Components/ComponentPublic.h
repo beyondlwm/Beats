@@ -66,13 +66,13 @@ inline EReflectPropertyType GetEnumType(T& value, CSerializer* pSerializer)
 }
 
 template<typename T>
-inline void SerializeVariable(T& value, CSerializer* pSerializer)
+inline void SerializeVariable(const T& value, CSerializer* pSerializer)
 {
     *pSerializer << value;
 }
 
 template<typename T>
-inline void SerializeVariable(std::vector<T>& value, CSerializer* pSerializer)
+inline void SerializeVariable(const std::vector<T>& value, CSerializer* pSerializer)
 {
     *pSerializer << value.size();
     for (auto iter = value.begin(); iter != value.end(); ++iter)
@@ -82,7 +82,7 @@ inline void SerializeVariable(std::vector<T>& value, CSerializer* pSerializer)
 }
 
 template<typename T1, typename T2>
-inline void SerializeVariable(std::map<T1, T2>& value, CSerializer* pSerializer)
+inline void SerializeVariable(const std::map<T1, T2>& value, CSerializer* pSerializer)
 {
     *pSerializer << value.size();
     for (auto iter = value.begin(); iter != value.end(); ++iter)
