@@ -51,8 +51,15 @@ bool CEnumStrGenerator::ScanEnumInFile( const TCHAR* pFileName, const TCHAR* pSp
                 std::set<TString> filters;
                 filters.insert(_T("\r\n"));
                 filters.insert(_T(" "));
+                filters.insert(_T("\n"));
+                filters.insert(_T("class"));// such as enum class ETest{}
                 TString strEnumName = CStringHelper::GetInstance()->FilterString(enumNewName, filters);
                 BEATS_SAFE_DELETE_ARRAY(enumNewName);
+                int nFindColonPos = CStringHelper::GetInstance()->FindFirstString(strEnumName.c_str(), ":", false);
+                if (nFindColonPos != TString::npos)
+                {
+                    strEnumName = strEnumName.substr(0, nFindColonPos);
+                }
                 std::map<TString, SEnumScanData*>::iterator iter = m_enumStrPool.find(strEnumName.c_str());
                 if (pSpecifyEnumName == NULL || _tcscmp(pSpecifyEnumName, strEnumName.c_str()) == 0)
                 {
