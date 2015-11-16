@@ -241,7 +241,7 @@ void CPtrPropertyDescription::Serialize(CSerializer& serializer, EValueType eVal
     serializer << (bool)(m_pInstance != NULL);
     if (m_pInstance != NULL)
     {
-        m_pInstance->Serialize(serializer, eValueType);
+        m_pInstance->ExportDataToHost(serializer, eValueType);
     }
 }
 
@@ -255,7 +255,7 @@ void CPtrPropertyDescription::Deserialize(CSerializer& serializer, EValueType /*
         {
             CreateInstance();
         }
-        m_pInstance->Deserialize(serializer);
+        m_pInstance->ImportDataFromEDS(serializer);
     }
     else
     {

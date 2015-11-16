@@ -786,18 +786,18 @@ void DeclareProperty(CSerializer& serializer, T& property, const TCHAR* pszPrope
 #endif
 
 #ifdef EDITOR_MODE
-#define UPDATE_PROPERTY_PROXY(component, property)\
+#define UPDATE_PROPERTY_PROXY(component, property, propertyNameStr)\
     {\
         CComponentProxy* pProxy = component->GetProxyComponent(); \
         if (pProxy)\
         {\
-            CPropertyDescriptionBase* pProperty = pProxy->GetPropertyDescription(_T(#property)); \
-            BEATS_ASSERT(pProperty != NULL, _T("Can not find property %s in component %s GUID:0x%x"), _T(#property), component->GetClassStr(), component->GetGuid()); \
+            CPropertyDescriptionBase* pProperty = pProxy->GetPropertyDescription(propertyNameStr); \
+            BEATS_ASSERT(pProperty != NULL, _T("Can not find property %s in component %s GUID:0x%x"), propertyNameStr, component->GetClassStr(), component->GetGuid()); \
             BEATS_ASSERT((pProperty->GetType() >= eRPT_Bool && pProperty->GetType() <= eRPT_Str) || pProperty->GetType() == eRPT_Color || pProperty->GetType() == eRPT_Enum || (pProperty->GetType() >= eRPT_Vec2F && pProperty->GetType() <= eRPT_Vec4F) || pProperty->GetType() == eRPT_Map || pProperty->GetType() == eRPT_List); \
             CSerializer serializer; \
             SerializeVariable(property, &serializer); \
             pProperty->Deserialize(serializer); \
-            pProperty->Save();\
+            pProperty->Save(); \
         }\
     }
 
