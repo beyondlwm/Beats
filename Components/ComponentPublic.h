@@ -220,11 +220,11 @@ inline void ResizeVector(std::vector<T*>& value, uint32_t uCount)
     if (value.size() > uCount)
     {
         CPropertyDescriptionBase* pCurrReflectProperty = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();
-        BEATS_ASSERT(pCurrReflectProperty && pCurrReflectProperty->GetType() == eRPT_List && uCount == pCurrReflectProperty->GetChildrenCount());
+        BEATS_ASSERT(pCurrReflectProperty && pCurrReflectProperty->GetType() == eRPT_List && uCount == pCurrReflectProperty->GetChildren().size());
         std::vector<CComponentBase*> allInstance;
         for (size_t i = 0; i < uCount; ++i)
         {
-            CPropertyDescriptionBase* pPropertyDesc = pCurrReflectProperty->GetChild(i);
+            CPropertyDescriptionBase* pPropertyDesc = pCurrReflectProperty->GetChildren()[i];
             BEATS_ASSERT(pPropertyDesc->GetType() == eRPT_Ptr);
             CComponentBase* pComponentValue = nullptr;
             if (pPropertyDesc->GetInstanceComponent() != nullptr)
@@ -254,7 +254,7 @@ inline void ResizeVector(std::vector<T*>& value, uint32_t uCount)
                 ++iter;
             }
         }
-        BEATS_ASSERT(allInstance.size() == 0 && value.size() == uCount && uCount == pCurrReflectProperty->GetChildrenCount());
+        BEATS_ASSERT(allInstance.size() == 0 && value.size() == uCount && uCount == pCurrReflectProperty->GetChildren().size());
     }
     else
     {
@@ -288,7 +288,7 @@ inline void DeserializeVariable(std::vector<T>& value, CSerializer* pSerializer,
         if (pCurrReflectProperty != NULL && !bUnderPtrReflection)
         {
             BEATS_ASSERT(pCurrReflectProperty->GetType() == eRPT_List);
-            CPropertyDescriptionBase* pSubProperty = pCurrReflectProperty->GetChild(i);
+            CPropertyDescriptionBase* pSubProperty = pCurrReflectProperty->GetChildren()[i];
             BEATS_ASSERT(pSubProperty != NULL);
             CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pSubProperty);
         }
@@ -324,9 +324,9 @@ inline void DeserializeVariable(std::map<T1, T2>& value, CSerializer* pSerialize
         if (pCurrReflectProperty != NULL && !bUnderPtrReflection)
         {
             BEATS_ASSERT(pCurrReflectProperty->GetType() == eRPT_Map);
-            CPropertyDescriptionBase* pSubProperty = pCurrReflectProperty->GetChild(i);
+            CPropertyDescriptionBase* pSubProperty = pCurrReflectProperty->GetChildren()[i];
             BEATS_ASSERT(pSubProperty != NULL);
-            CPropertyDescriptionBase* pKeyProperty = pSubProperty->GetChild(0);
+            CPropertyDescriptionBase* pKeyProperty = pSubProperty->GetChildren()[0];
             BEATS_ASSERT(pKeyProperty != NULL);
             CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pKeyProperty);
         }
@@ -337,8 +337,8 @@ inline void DeserializeVariable(std::map<T1, T2>& value, CSerializer* pSerialize
         if (pCurrReflectProperty != NULL && !bUnderPtrReflection)
         {
             BEATS_ASSERT(pCurrReflectProperty->GetType() == eRPT_Map);
-            CPropertyDescriptionBase* pSubProperty = pCurrReflectProperty->GetChild(i);
-            CPropertyDescriptionBase* pValueProperty = pSubProperty->GetChild(1);
+            CPropertyDescriptionBase* pSubProperty = pCurrReflectProperty->GetChildren()[i];
+            CPropertyDescriptionBase* pValueProperty = pSubProperty->GetChildren()[1];
             BEATS_ASSERT(pValueProperty != NULL);
             CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pValueProperty);
         }

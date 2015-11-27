@@ -37,12 +37,10 @@ public:
     void SetBasicInfo(const SBasicPropertyInfo& info);
     const SharePtr<SBasicPropertyInfo>& GetBasicInfo() const;
 
-    virtual CPropertyDescriptionBase* AddChild(CPropertyDescriptionBase* pProperty);
-    virtual bool DeleteChild(CPropertyDescriptionBase* pProperty, bool bKeepChildOrder = false);
-    virtual void DeleteAllChild();
-    CPropertyDescriptionBase* GetChild(uint32_t i) const;
-    std::vector<CPropertyDescriptionBase*>& GetChildren();
-    uint32_t GetChildrenCount() const;
+    virtual CPropertyDescriptionBase* InsertChild(CPropertyDescriptionBase* pProperty, uint32_t uPreIndex = 0xFFFFFFFF);
+    virtual bool RemoveChild(CPropertyDescriptionBase* pProperty, bool bDelete = true);
+    virtual void RemoveAllChild(bool bDelete = true);
+    const std::vector<CPropertyDescriptionBase*>& GetChildren() const;
     void Save();
     template<typename T>
     void InitializeValue(const T& value)

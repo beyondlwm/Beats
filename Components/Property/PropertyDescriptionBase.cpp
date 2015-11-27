@@ -126,7 +126,7 @@ bool CPropertyDescriptionBase::DeserializeBasicInfo(CSerializer& serializer)
     return true;
 }
 
-CPropertyDescriptionBase* CPropertyDescriptionBase::AddChild(CPropertyDescriptionBase* pProperty)
+CPropertyDescriptionBase* CPropertyDescriptionBase::InsertChild(CPropertyDescriptionBase* pProperty, uint32_t uPreIndex)
 {
 #ifdef _DEBUG
     for (uint32_t i = 0; i < m_pChildren->size(); ++i)
@@ -136,59 +136,48 @@ CPropertyDescriptionBase* CPropertyDescriptionBase::AddChild(CPropertyDescriptio
 #endif
     BEATS_ASSERT(pProperty != NULL);
     pProperty->m_pParent = this;
-    m_pChildren->push_back(pProperty);
+    if (uPreIndex == 0xFFFFFFFF)
+    {
+        m_pChildren->push_back(pProperty);
+    }
+    else
+    {
+        BEATS_ASSERT(uPreIndex < m_pChildren->size());
+        std::vector<CPropertyDescriptionBase*>::iterator preIter = m_pChildren->begin();
+        std::advance(preIter, uPreIndex);
+        m_pChildren->insert(preIter, pProperty);
+    }
     return pProperty;
 }
 
-bool CPropertyDescriptionBase::DeleteChild(CPropertyDescriptionBase* pProperty, bool bKeepChildOrder/* = false*/)
+bool CPropertyDescriptionBase::RemoveChild(CPropertyDescriptionBase* pProperty, bool bDelete)
 {
     bool bRet = false;
-    for (uint32_t i = 0; i < m_pChildren->size(); ++i)
+    auto iter = std::find(m_pChildren->begin(), m_pChildren->end(), pProperty);
+    BEATS_ASSERT(iter != m_pChildren->end());
+    m_pChildren->erase(iter);
+    if (bDelete)
     {
-        if((*m_pChildren)[i] == pProperty)
-        {
-            bRet = true;
-            if (bKeepChildOrder)
-            {
-                std::vector<CPropertyDescriptionBase*>::iterator iter = m_pChildren->begin();
-                advance(iter, i);
-                m_pChildren->erase(iter);
-            }
-            else
-            {
-                (*m_pChildren)[i] = m_pChildren->back();
-                m_pChildren->pop_back();
-            }
-            break;
-        }
+        pProperty->Uninitialize();
+        BEATS_SAFE_DELETE(pProperty);
     }
-    pProperty->Uninitialize();
-    BEATS_SAFE_DELETE(pProperty);
     return bRet;
 }
 
-void CPropertyDescriptionBase::DeleteAllChild()
+void CPropertyDescriptionBase::RemoveAllChild(bool bDelete)
 {
-    for (uint32_t i = 0; i < m_pChildren->size(); ++i)
+    if (bDelete)
     {
-        (*m_pChildren)[i]->Uninitialize();
-        BEATS_SAFE_DELETE((*m_pChildren)[i]);
+        for (uint32_t i = 0; i < m_pChildren->size(); ++i)
+        {
+            (*m_pChildren)[i]->Uninitialize();
+            BEATS_SAFE_DELETE((*m_pChildren)[i]);
+        }
     }
     m_pChildren->clear();
 }
 
-CPropertyDescriptionBase* CPropertyDescriptionBase::GetChild(uint32_t i) const
-{
-    BEATS_ASSERT(i < m_pChildren->size());
-    return (*m_pChildren)[i];
-}
-
-uint32_t CPropertyDescriptionBase::GetChildrenCount() const
-{
-    return (uint32_t)m_pChildren->size();
-}
-
-std::vector<CPropertyDescriptionBase*>& CPropertyDescriptionBase::GetChildren()
+const std::vector<CPropertyDescriptionBase*>& CPropertyDescriptionBase::GetChildren() const
 {
     return *m_pChildren;
 }
