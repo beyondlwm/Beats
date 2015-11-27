@@ -77,7 +77,7 @@ public:
     uint32_t GetCurrLoadFileId();
     void SetCurrLoadFileId(uint32_t uId);
 
-    void CalcSwitchFile(uint32_t uFileId, bool bCloseLoadedFile, std::vector<uint32_t>& loadFiles, std::vector<uint32_t>& unloadFiles, bool& bNewAddFile);
+    void CalcSwitchFile(uint32_t uFileId, std::vector<uint32_t>& loadFiles, std::vector<uint32_t>& unloadFiles, bool& bNewAddFile);
     void SetForbidDependencyResolve(bool bEnable);
     bool GetForbidDependencyResolve() const;
     void AddDependencyResolver( CDependencyDescription* pDescription, uint32_t uIndex, uint32_t uGuid, uint32_t uInstanceId, void* pVariableAddress, bool bIsList, TAddDependencyFunc pFunc = NULL);

@@ -88,13 +88,16 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bCloseLoadedF
         bool bNewAddThisFile = false;
         std::vector<uint32_t> loadFiles;
         std::vector<uint32_t> unloadFiles;
-        CalcSwitchFile(uFileId, bCloseLoadedFile, loadFiles, unloadFiles, bNewAddThisFile);
-        // use 10% for close file.
-        for (uint32_t i = 0; i < unloadFiles.size(); ++i)
+        CalcSwitchFile(uFileId, loadFiles, unloadFiles, bNewAddThisFile);
+        if (bCloseLoadedFile)
         {
-            m_strCurrOperateFile = m_pProject->GetComponentFileName(unloadFiles[i]);
-            CloseFile(unloadFiles[i]);
-            m_uOperateProgress += (uint32_t)(10.f / unloadFiles.size());
+            // use 10% for close file.
+            for (uint32_t i = 0; i < unloadFiles.size(); ++i)
+            {
+                m_strCurrOperateFile = m_pProject->GetComponentFileName(unloadFiles[i]);
+                CloseFile(unloadFiles[i]);
+                m_uOperateProgress += (uint32_t)(10.f / unloadFiles.size());
+            }
         }
         m_uOperateProgress = 10;
         // use 80% for load file.

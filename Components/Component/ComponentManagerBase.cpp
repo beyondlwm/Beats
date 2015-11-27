@@ -233,7 +233,7 @@ void CComponentManagerBase::AddDependencyResolver( CDependencyDescription* pDesc
     }
 }
 
-void CComponentManagerBase::CalcSwitchFile(uint32_t uFileId, bool bCloseLoadedFile, std::vector<uint32_t>& loadFiles, std::vector<uint32_t>& unloadFiles, bool& bNewAddFile)
+void CComponentManagerBase::CalcSwitchFile(uint32_t uFileId, std::vector<uint32_t>& loadFiles, std::vector<uint32_t>& unloadFiles, bool& bNewAddFile)
 {
     BEATS_ASSERT(uFileId != 0xFFFFFFFF);
     std::vector<CComponentBase*> loadedComponents;
@@ -243,46 +243,43 @@ void CComponentManagerBase::CalcSwitchFile(uint32_t uFileId, bool bCloseLoadedFi
     {
         // Change content will be done at last. So do nothing here.
         bLoadThisFile = false;
-        if (bCloseLoadedFile)
-        {
-            // Close any other loaded + unnecessary file.
-            CComponentProjectDirectory* pDirectory = m_pProject->FindProjectDirectoryById(uFileId);
-            CComponentProjectDirectory* pCurDirectory = m_pProject->FindProjectDirectoryById(m_uCurrLoadFileId);
+        // Close any other loaded + unnecessary file.
+        CComponentProjectDirectory* pDirectory = m_pProject->FindProjectDirectoryById(uFileId);
+        CComponentProjectDirectory* pCurDirectory = m_pProject->FindProjectDirectoryById(m_uCurrLoadFileId);
 
-            BEATS_ASSERT(pDirectory != NULL && pCurDirectory != NULL);
-            TString strLogicPath = pDirectory->MakeRelativeLogicPath(pCurDirectory);
-            std::vector<TString> logicPaths;
-            CStringHelper::GetInstance()->SplitString(strLogicPath.c_str(), _T("/"), logicPaths);
-            BEATS_ASSERT(logicPaths.size() > 0);
-            if (logicPaths.back().compare(_T("..")) == 0)
+        BEATS_ASSERT(pDirectory != NULL && pCurDirectory != NULL);
+        TString strLogicPath = pDirectory->MakeRelativeLogicPath(pCurDirectory);
+        std::vector<TString> logicPaths;
+        CStringHelper::GetInstance()->SplitString(strLogicPath.c_str(), _T("/"), logicPaths);
+        BEATS_ASSERT(logicPaths.size() > 0);
+        if (logicPaths.back().compare(_T("..")) == 0)
+        {
+            unloadFiles.push_back(m_uCurrLoadFileId);
+            CComponentProjectDirectory* pCurLoopDirectory = pCurDirectory->GetParent();
+            logicPaths.pop_back();
+            while (logicPaths.size() > 0)
             {
-                unloadFiles.push_back(m_uCurrLoadFileId);
-                CComponentProjectDirectory* pCurLoopDirectory = pCurDirectory->GetParent();
-                logicPaths.pop_back();
-                while (logicPaths.size() > 0)
+                if (logicPaths.back().compare(_T("..")) == 0)
                 {
-                    if (logicPaths.back().compare(_T("..")) == 0)
+                    const std::vector<uint32_t>& fileList = pCurLoopDirectory->GetFileList();
+                    for (uint32_t i = 0; i < fileList.size(); ++i)
                     {
-                        const std::vector<uint32_t>& fileList = pCurLoopDirectory->GetFileList();
-                        for (uint32_t i = 0; i < fileList.size(); ++i)
-                        {
-                            BEATS_ASSERT(std::find(m_loadedFiles.begin(), m_loadedFiles.end(), fileList[i]) != m_loadedFiles.end());
-                            unloadFiles.push_back(fileList[i]);
-                        }
-                        pCurLoopDirectory = pCurLoopDirectory->GetParent();
-                        logicPaths.pop_back();
+                        BEATS_ASSERT(std::find(m_loadedFiles.begin(), m_loadedFiles.end(), fileList[i]) != m_loadedFiles.end());
+                        unloadFiles.push_back(fileList[i]);
                     }
+                    pCurLoopDirectory = pCurLoopDirectory->GetParent();
+                    logicPaths.pop_back();
                 }
-                BEATS_ASSERT(pDirectory == pCurLoopDirectory);
             }
-            const std::vector<uint32_t>& fileList = pDirectory->GetFileList();
-            for (uint32_t i = 0; i < fileList.size(); ++i)
+            BEATS_ASSERT(pDirectory == pCurLoopDirectory);
+        }
+        const std::vector<uint32_t>& fileList = pDirectory->GetFileList();
+        for (uint32_t i = 0; i < fileList.size(); ++i)
+        {
+            BEATS_ASSERT(std::find(m_loadedFiles.begin(), m_loadedFiles.end(), fileList[i]) != m_loadedFiles.end());
+            if (fileList[i] != uFileId)
             {
-                BEATS_ASSERT(std::find(m_loadedFiles.begin(), m_loadedFiles.end(), fileList[i]) != m_loadedFiles.end());
-                if (fileList[i] != uFileId)
-                {
-                    unloadFiles.push_back(fileList[i]);
-                }
+                unloadFiles.push_back(fileList[i]);
             }
         }
     }

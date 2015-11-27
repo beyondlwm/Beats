@@ -94,7 +94,7 @@ void CComponentInstanceManager::SwitchFile(uint32_t uFileId)
     BEATS_ASSERT(uFileId != 0xFFFFFFFF);
     std::vector<uint32_t> loadFiles, unloadFiles;
     bool bNewAddFile = false; // Useless here. Only useful when CComponentProxyManager call CalcSwitchFile.
-    CalcSwitchFile(uFileId, false, loadFiles, unloadFiles, bNewAddFile);
+    CalcSwitchFile(uFileId, loadFiles, unloadFiles, bNewAddFile);
     BEATS_ASSERT(!bNewAddFile, _T("This can't happen in CComponentInstanceManager, it can be true only in CComponentProxyManager"));
     bool bLoadThisFile = loadFiles.size() > 0 && loadFiles.back() == uFileId;
     if (bLoadThisFile)
