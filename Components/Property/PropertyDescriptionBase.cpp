@@ -152,7 +152,6 @@ CPropertyDescriptionBase* CPropertyDescriptionBase::InsertChild(CPropertyDescrip
 
 bool CPropertyDescriptionBase::RemoveChild(CPropertyDescriptionBase* pProperty, bool bDelete)
 {
-    bool bRet = false;
     auto iter = std::find(m_pChildren->begin(), m_pChildren->end(), pProperty);
     BEATS_ASSERT(iter != m_pChildren->end());
     m_pChildren->erase(iter);
@@ -161,7 +160,7 @@ bool CPropertyDescriptionBase::RemoveChild(CPropertyDescriptionBase* pProperty, 
         pProperty->Uninitialize();
         BEATS_SAFE_DELETE(pProperty);
     }
-    return bRet;
+    return true;
 }
 
 void CPropertyDescriptionBase::RemoveAllChild(bool bDelete)
