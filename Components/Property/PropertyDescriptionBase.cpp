@@ -246,8 +246,10 @@ void CPropertyDescriptionBase::SetValueWithType(void* pValue, EValueType type, b
 {
     if (CopyValue(pValue, m_valueArray[type]) || bForceUpdateHostComponent)
     {
-        // We need to reflect data when load from xml, at that time, owner is not initialized.
-        if (CanSyncToHost() && type == eVT_CurrentValue && GetOwner())
+        // We don't need to sync the property in loading phase, since after all components are loaded from XML
+        // we will call CComponentProxy::UpdateHostComponent for total.
+        bool bLoadingPhase = CComponentProxyManager::GetInstance()->IsLoadingFile();
+        if (!bLoadingPhase && CanSyncToHost() && type == eVT_CurrentValue && GetOwner())
         {
             // Some property is not the real property, such as container property.
             CPropertyDescriptionBase* pRealProperty = this;

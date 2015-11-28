@@ -158,7 +158,7 @@ void CComponentInstance::SetSyncProxyComponent(CComponentProxy* pProxy)
 
 void CComponentInstance::Serialize(CSerializer& serializer)
 {
-    // TODO: if we are in editor mode, we get the data from proxy. if we are not in editor mode, we can only get the data from the recrod.
+    // TODO: if we are in editor mode, we get the data from proxy. if we are not in editor mode, we can only get the data from the record.
     if (m_pProxyComponent != NULL)
     {
         m_pProxyComponent->ExportDataToHost(serializer, eVT_CurrentValue);
