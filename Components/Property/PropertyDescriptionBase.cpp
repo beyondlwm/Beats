@@ -269,7 +269,7 @@ void CPropertyDescriptionBase::SetValueWithType(void* pValue, EValueType type, b
             bool bIsTemplateProperty = pRootProperty->GetOwner()->GetTemplateFlag();
             if (pHostComponent && !bIsTemplateProperty)
             {
-                CSerializer serializer;
+                static CSerializer serializer;
                 serializer.Reset();
                 pRealProperty->Serialize(serializer, eVT_CurrentValue);
 

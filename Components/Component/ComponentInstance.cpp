@@ -32,7 +32,6 @@ CComponentInstance::~CComponentInstance()
     SetSyncProxyComponent(NULL);
     if (m_pProxyComponent != NULL)
     {
-        BEATS_ASSERT(m_pProxyComponent->GetHostComponent() == this);
         BEATS_SAFE_DELETE(m_pProxyComponent);
     }
 }
@@ -182,7 +181,8 @@ CComponentBase* CComponentInstance::CloneInstance()
     bool bOriginState = CComponentInstanceManager::GetInstance()->IsInClonePhase();
     CComponentInstanceManager::GetInstance()->SetClonePhaseFlag(true);
     CComponentBase* pNewInstance = Clone(false, NULL, 0xFFFFFFFF, false);
-    CSerializer serializer;
+    static CSerializer serializer;
+    serializer.Reset();
     Serialize(serializer);
 #ifdef _DEBUG
     uint32_t uDataSize, uGuid, uId;

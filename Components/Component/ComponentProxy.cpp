@@ -176,7 +176,6 @@ CComponentBase* CComponentProxy::Clone(bool bCloneValue, CSerializer* /*pSeriali
             // Create an clean host component. sync all value to it from the proxy.
             CComponentInstance* pNewHostComponent = (CComponentInstance*)CComponentInstanceManager::GetInstance()->CreateComponent(m_pHostComponent->GetGuid(), false, id == 0xFFFFFFFF, id, true, nullptr, false);
             pNewProxy->SetHostComponent(pNewHostComponent);
-            pNewProxy->UpdateHostComponent();
         }
     }
     if (bCallInitFunc)
@@ -301,6 +300,7 @@ void CComponentProxy::SetHostComponent(CComponentInstance* pComponent)
 
 CComponentInstance* CComponentProxy::GetHostComponent() const
 {
+    BEATS_ASSERT(IsInitialized(), "proxy should be initialized before use the host component");
     return m_pHostComponent;
 }
 
@@ -313,7 +313,8 @@ void CComponentProxy::UpdateHostComponent()
         BEATS_ASSERT(CComponentProxyManager::GetInstance()->GetReflectCheckFlag() == false, "Reflect check flag MUST be false, or we can not refresh all property!");
         CComponentProxy* pOriginValue = CComponentProxyManager::GetInstance()->GetCurrUpdateProxy();
         CComponentProxyManager::GetInstance()->SetCurrUpdateProxy(this);
-        CSerializer serializer;
+        static CSerializer serializer;
+        serializer.Reset();
         ExportDataToHost(serializer, eVT_CurrentValue);
         uint32_t uTotalSize = 0;
         uint32_t uGuid = 0;

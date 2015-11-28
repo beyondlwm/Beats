@@ -344,7 +344,8 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
 {
     m_bExportingPhase = true;
     BEATS_ASSERT(pSavePath != NULL);
-    CSerializer serializer;
+    static CSerializer serializer;
+    serializer.Reset();
     serializer << COMPONENT_SYSTEM_VERSION;
     serializer << GetComponentTemplateMap()->size();
     CComponentProjectDirectory* pRootProject = m_pProject->GetRootDirectory();
