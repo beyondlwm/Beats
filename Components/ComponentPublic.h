@@ -121,7 +121,7 @@ inline void DeserializeVariable(T*& value, CSerializer* pSerializer, CComponentI
     *pSerializer >> bHasInstance;
     bool bCloneAble = false;
     *pSerializer >> bCloneAble;
-    if(bHasInstance)
+    if (bHasInstance)
     {
         uint32_t uStartPos = pSerializer->GetReadPos();
 #ifdef EDITOR_MODE
@@ -184,6 +184,8 @@ inline void DeserializeVariable(T*& value, CSerializer* pSerializer, CComponentI
             else
             {
 #ifdef EDITOR_MODE
+                // Try to remove all these code.
+                BEATS_ASSERT(false, "It seems we will never reach here!");
                 CPropertyDescriptionBase* pProperty = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();
                 BEATS_ASSERT(pProperty != NULL && pProperty->GetType() == eRPT_Ptr && pProperty->GetInstanceComponent() != NULL &&  pProperty->GetInstanceComponent()->GetHostComponent() == value);
                 bool bReflectCheckFlag = CComponentProxyManager::GetInstance()->GetReflectCheckFlag();
@@ -207,79 +209,17 @@ inline void DeserializeVariable(T*& value, CSerializer* pSerializer, CComponentI
 #endif
 }
 
-#ifdef EDITOR_MODE
-template<typename T>
-inline void ResizeVector(std::vector<T>& value, uint32_t uCount)
-{
-    value.resize(uCount);
-}
-
-template<typename T>
-inline void ResizeVector(std::vector<T*>& value, uint32_t uCount)
-{
-    if (value.size() > uCount)
-    {
-        CPropertyDescriptionBase* pCurrReflectProperty = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();
-        BEATS_ASSERT(pCurrReflectProperty && pCurrReflectProperty->GetType() == eRPT_List && uCount == pCurrReflectProperty->GetChildren().size());
-        std::vector<CComponentBase*> allInstance;
-        for (size_t i = 0; i < uCount; ++i)
-        {
-            CPropertyDescriptionBase* pPropertyDesc = pCurrReflectProperty->GetChildren()[i];
-            BEATS_ASSERT(pPropertyDesc->GetType() == eRPT_Ptr);
-            CComponentBase* pComponentValue = nullptr;
-            if (pPropertyDesc->GetInstanceComponent() != nullptr)
-            {
-                pComponentValue = pPropertyDesc->GetInstanceComponent()->GetHostComponent();
-            }
-            allInstance.push_back(pComponentValue);
-        }
-
-        for (auto iter = value.begin(); iter != value.end();)
-        {
-            T* ptrValue = *iter;
-            auto subIter = std::find(allInstance.begin(), allInstance.end(), ptrValue);
-            if (subIter == allInstance.end())
-            {
-                if (ptrValue != nullptr)
-                {
-                    CComponentBase* pComponent = dynamic_cast<CComponentBase*>(ptrValue);
-                    BEATS_ASSERT(pComponent != nullptr);
-                    BEATS_SAFE_DELETE_COMPONENT(pComponent);
-                }
-                iter = value.erase(iter);
-            }
-            else
-            {
-                allInstance.erase(subIter);
-                ++iter;
-            }
-        }
-        BEATS_ASSERT(allInstance.size() == 0 && value.size() == uCount && uCount == pCurrReflectProperty->GetChildren().size());
-    }
-    else
-    {
-        value.resize(uCount);
-    }
-}
-
-template<typename T1, typename T2>
-inline void ClearMap(std::map<T1, T2>& value)
-{
-    value.clear();
-}
-
-#endif
-
 template<typename T>
 inline void DeserializeVariable(std::vector<T>& value, CSerializer* pSerializer, CComponentInstance* pOwner)
 {
     uint32_t childCount = 0;
     *pSerializer >> childCount;
 #ifdef EDITOR_MODE
-    ResizeVector(value, childCount);
+    value.clear();
 #else
-    value.resize(childCount);
+    BEATS_ASSERT(value.size() == 0, _T("vector should be empty when deserialize!"));
 #endif
+    value.resize(childCount);
     for (uint32_t i = 0; i < childCount; ++i)
     {
 #ifdef EDITOR_MODE
@@ -311,7 +251,7 @@ inline void DeserializeVariable(std::map<T1, T2>& value, CSerializer* pSerialize
     *pSerializer >> valueType;
     *pSerializer >> childCount;
 #ifdef EDITOR_MODE
-    ClearMap(value);
+    value.clear();
 #else
     BEATS_ASSERT(value.size() == 0, _T("map should be empty when deserialize!"));
 #endif
@@ -471,7 +411,7 @@ inline const TCHAR* GenEnumParamStr(const TCHAR* enumStringArray[], const TCHAR*
     static TString strEnumParam;
     strEnumParam.clear();
     strEnumParam.append(UIParameterAttrStr[eUIPAT_EnumStringArray]).append(PROPERTY_KEYWORD_SPLIT_STR);
-    uint32_t uCount = sizeof(enumStringArray);
+    uint32_t uCount = sizeof(enumStringArray) / sizeof(TCHAR*);
     BEATS_ASSERT(uCount > 0, _T("Enum string array is empty!"));
     for (uint32_t i = 0; i < uCount; ++i)
     {
@@ -585,198 +525,198 @@ void DeclareProperty(CSerializer& serializer, T& property, const TCHAR* pszPrope
 
 #else
 
-    template<typename T>
-    bool DeclareProperty(CSerializer& serializer, CComponentInstance* pComponent, T& property, const TCHAR* pszPropertyStr)
+template<typename T>
+bool DeclareProperty(CSerializer& serializer, CComponentInstance* pComponent, T& property, const TCHAR* pszPropertyStr)
+{
+    bool bStopHandle = false;
+    CDependencyDescription* pDependencyDescription = CComponentProxyManager::GetInstance()->GetCurrReflectDependency();
+    if (pDependencyDescription == NULL)
     {
-        bool bStopHandle = false;
-        CDependencyDescription* pDependencyDescription = CComponentProxyManager::GetInstance()->GetCurrReflectDependency();
-        if (pDependencyDescription == NULL)
+        CPropertyDescriptionBase* pDescriptionBase = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();
+        bool bReflectCheckFlag = CComponentProxyManager::GetInstance()->GetReflectCheckFlag();
+        if (!bReflectCheckFlag || pDescriptionBase->GetBasicInfo()->m_variableName.compare(pszPropertyStr) == 0)
         {
-            CPropertyDescriptionBase* pDescriptionBase = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();
-            bool bReflectCheckFlag = CComponentProxyManager::GetInstance()->GetReflectCheckFlag();
-            if (!bReflectCheckFlag || pDescriptionBase->GetBasicInfo()->m_variableName.compare(pszPropertyStr) == 0)
+            bool bNeedHandleSync = true;
+            if (pDescriptionBase != NULL && !CComponentProxyManager::GetInstance()->IsLoadingFile())
             {
-                bool bNeedHandleSync = true;
-                if (pDescriptionBase != NULL && !CComponentProxyManager::GetInstance()->IsLoadingFile())
+                bNeedHandleSync = !pComponent->OnPropertyChange(&property, &serializer);
+            }
+            if (bNeedHandleSync)
+            {
+                CComponentProxyManager::GetInstance()->SetReflectCheckFlag(false);
+                DeserializeVariable(property, &serializer, pComponent);
+                CComponentProxyManager::GetInstance()->SetReflectCheckFlag(bReflectCheckFlag);
+            }
+            if (pDescriptionBase != NULL && bReflectCheckFlag)
+            {
+                bStopHandle = true;
+            }
+        }
+    }
+    return bStopHandle;
+}
+#define DECLARE_PROPERTY(serializer, property, editable, color, displayName, catalog, tip, parameter) \
+    {\
+        if (serializer.GetWritePos() == serializer.GetReadPos() || DeclareProperty(serializer, this, property, _T(#property))) return;\
+    }
+
+template<typename T>
+bool DeclareDependency(CSerializer& serializer, CComponentBase* pComponent, T& ptrProperty, const TCHAR* pszPropertyStr)
+{
+    bool bStopHandle = false;
+    if (CComponentInstanceManager::GetInstance()->GetForbidDependencyResolve())
+    {
+        uint32_t uLineCount, uInstanceId, uGuid;
+        serializer >> uLineCount;
+        for (uint32_t i = 0; i < uLineCount; ++i)
+            serializer >> uInstanceId >> uGuid;
+    }
+    else
+    {
+        CPropertyDescriptionBase* pDescriptionBase = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();
+        CDependencyDescription* pDependency = CComponentProxyManager::GetInstance()->GetCurrReflectDependency();
+        bool bReflectCheckFlag = CComponentProxyManager::GetInstance()->GetReflectCheckFlag();
+        if (!bReflectCheckFlag || pDescriptionBase == NULL)
+        {
+            if (!bReflectCheckFlag || pDependency == NULL || _tcscmp(pDependency->GetVariableName(), pszPropertyStr) == 0)
+            {
+                uint32_t uLineCount = 0;
+                serializer >> uLineCount;
+                BEATS_ASSERT(uLineCount <= 1, _T("Data error:We want a dependency data, but got %d line count!"), uLineCount);
+                if (uLineCount == 1)
                 {
-                    bNeedHandleSync = !pComponent->OnPropertyChange(&property, &serializer);
+                    uint32_t uInstanceId, uGuid;
+                    serializer >> uInstanceId >> uGuid;
+                    bool bNeedSnyc = true;
+                    if (pDependency != NULL && !CComponentProxyManager::GetInstance()->IsLoadingFile())
+                    {
+                        EDependencyChangeAction action;
+                        CComponentProxy* pOperateProxy = NULL;
+                        pDependency->GetCurrActionParam(action, pOperateProxy);
+                        if (pOperateProxy->IsInitialized())
+                        {
+                            BEATS_ASSERT(CComponentInstanceManager::GetInstance()->GetComponentInstance(uInstanceId, uGuid) == pOperateProxy->GetHostComponent());
+                            bNeedSnyc = !pComponent->OnDependencyChange(&ptrProperty, pOperateProxy->GetHostComponent());
+                        }
+                    }
+                    if (bNeedSnyc)
+                    {
+                        ptrProperty = NULL;
+                        uint32_t uDepGuid = ptrProperty->REFLECT_GUID;
+                        bool bIsParent = CComponentProxyManager::GetInstance()->IsParent(uDepGuid, uGuid);
+                        BEATS_ASSERT(bIsParent,
+                            _T("GUID mismatched. GUID of dependency:0x%x, GUID in datafile:0x%x"),
+                            uDepGuid, uGuid);
+                        if (bIsParent)
+                        {
+                            CComponentInstanceManager::GetInstance()->AddDependencyResolver(NULL, 0, uGuid, uInstanceId, &ptrProperty, false);
+                        }
+                    }
                 }
-                if (bNeedHandleSync)
+                else
                 {
-                    CComponentProxyManager::GetInstance()->SetReflectCheckFlag(false);
-                    DeserializeVariable(property, &serializer, pComponent);
-                    CComponentProxyManager::GetInstance()->SetReflectCheckFlag(bReflectCheckFlag);
+                    if (ptrProperty != NULL && !CComponentProxyManager::GetInstance()->IsLoadingFile())
+                    {
+                        pComponent->OnDependencyChange(&ptrProperty, NULL);
+                    }
+                    ptrProperty = NULL;
                 }
-                if (pDescriptionBase != NULL && bReflectCheckFlag)
+                if (pDependency != NULL && bReflectCheckFlag)
                 {
                     bStopHandle = true;
                 }
             }
         }
-        return bStopHandle;
     }
-#define DECLARE_PROPERTY(serializer, property, editable, color, displayName, catalog, tip, parameter) \
+    return bStopHandle;
+}
+#define DECLARE_DEPENDENCY(serializer, ptrProperty, displayName, dependencyType)\
     {\
-        if (DeclareProperty(serializer, this, property, _T(#property))) return;\
+        if (serializer.GetWritePos() == serializer.GetReadPos() || DeclareDependency(serializer, this, ptrProperty, _T(#ptrProperty))) return;\
     }
 
-    template<typename T>
-    bool DeclareDependency(CSerializer& serializer, CComponentBase* pComponent, T& ptrProperty, const TCHAR* pszPropertyStr)
+template<typename T>
+bool DeclareDependencyList(CSerializer& serializer, CComponentBase* pComponent, T& ptrProperty, const TCHAR* pszPropertyStr)
+{
+    bool bStopHandle = false;
+    if (CComponentInstanceManager::GetInstance()->GetForbidDependencyResolve())
     {
-        bool bStopHandle = false;
-        if (CComponentInstanceManager::GetInstance()->GetForbidDependencyResolve())
+        uint32_t uLineCount, uInstanceId, uGuid;
+        serializer >> uLineCount;
+        for (uint32_t i = 0; i < uLineCount; ++i)
+            serializer >> uInstanceId >> uGuid;
+    }
+    else
+    {
+        CPropertyDescriptionBase* pDescriptionBase = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();
+        CDependencyDescription* pDependencyList = CComponentProxyManager::GetInstance()->GetCurrReflectDependency();
+        bool bReflectCheckFlag = CComponentProxyManager::GetInstance()->GetReflectCheckFlag();
+        if (!bReflectCheckFlag || pDescriptionBase == NULL)
         {
-            uint32_t uLineCount, uInstanceId, uGuid;
-            serializer >> uLineCount;
-            for (uint32_t i = 0; i < uLineCount; ++i)
-                serializer >> uInstanceId >> uGuid;
-        }
-        else
-        {
-            CPropertyDescriptionBase* pDescriptionBase = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();
-            CDependencyDescription* pDependency = CComponentProxyManager::GetInstance()->GetCurrReflectDependency();
-            bool bReflectCheckFlag = CComponentProxyManager::GetInstance()->GetReflectCheckFlag();
-            if (!bReflectCheckFlag || pDescriptionBase  == NULL)
+            if (!bReflectCheckFlag || pDependencyList == NULL || _tcscmp(pDependencyList->GetVariableName(), pszPropertyStr) == 0)
             {
-                if (!bReflectCheckFlag || pDependency == NULL || _tcscmp(pDependency->GetVariableName(), pszPropertyStr) == 0)
+                uint32_t uLineCount = 0;
+                serializer >> uLineCount;
+                bool bNeedSnyc = true;
+                if (pDependencyList != NULL && !CComponentProxyManager::GetInstance()->IsLoadingFile())
                 {
-                    uint32_t uLineCount = 0;
-                    serializer >> uLineCount;
-                    BEATS_ASSERT(uLineCount <= 1, _T("Data error:We want a dependency data, but got %d line count!"), uLineCount);
-                    if (uLineCount == 1)
+                    EDependencyChangeAction action;
+                    CComponentProxy* pOperateProxy = NULL;
+                    pDependencyList->GetCurrActionParam(action, pOperateProxy);
+                    if ((pOperateProxy->IsInitialized() || action == eDCA_Delete) && action != eDCA_Ordered)
                     {
-                        uint32_t uInstanceId, uGuid;
-                        serializer >> uInstanceId >> uGuid;
-                        bool bNeedSnyc = true;
-                        if (pDependency != NULL && !CComponentProxyManager::GetInstance()->IsLoadingFile())
-                        {
-                            EDependencyChangeAction action;
-                            CComponentProxy* pOperateProxy = NULL;
-                            pDependency->GetCurrActionParam(action, pOperateProxy);
-                            if(pOperateProxy->IsInitialized())
-                            {
-                                BEATS_ASSERT(CComponentInstanceManager::GetInstance()->GetComponentInstance(uInstanceId, uGuid) == pOperateProxy->GetHostComponent());
-                                bNeedSnyc = !pComponent->OnDependencyChange(&ptrProperty, pOperateProxy->GetHostComponent());
-                            }
-                        }
-                        if (bNeedSnyc)
-                        {
-                            ptrProperty = NULL;
-                            uint32_t uDepGuid = ptrProperty->REFLECT_GUID;
-                            bool bIsParent = CComponentProxyManager::GetInstance()->IsParent(uDepGuid, uGuid);
-                            BEATS_ASSERT(bIsParent,
-                                _T("GUID mismatched. GUID of dependency:0x%x, GUID in datafile:0x%x"),
-                                uDepGuid, uGuid);
-                            if (bIsParent)
-                            {
-                                CComponentInstanceManager::GetInstance()->AddDependencyResolver(NULL, 0 , uGuid, uInstanceId, &ptrProperty, false);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (ptrProperty != NULL && !CComponentProxyManager::GetInstance()->IsLoadingFile())
-                        {
-                            pComponent->OnDependencyChange(&ptrProperty, NULL);
-                        }
-                        ptrProperty = NULL;
-                    }
-                    if (pDependency != NULL && bReflectCheckFlag)
-                    {
-                        bStopHandle = true;
+                        bNeedSnyc = !pComponent->OnDependencyListChange(&ptrProperty, action, pOperateProxy->GetHostComponent());
                     }
                 }
-            }
-        }
-        return bStopHandle;
-    }
-    #define DECLARE_DEPENDENCY(serializer, ptrProperty, displayName, dependencyType)\
-    {\
-        if (DeclareDependency(serializer, this, ptrProperty, _T(#ptrProperty))) return;\
-    }
-
-    template<typename T>
-    bool DeclareDependencyList(CSerializer& serializer, CComponentBase* pComponent, T& ptrProperty, const TCHAR* pszPropertyStr)
-    {
-        bool bStopHandle = false;
-        if (CComponentInstanceManager::GetInstance()->GetForbidDependencyResolve())
-        {
-            uint32_t uLineCount, uInstanceId, uGuid;
-            serializer >> uLineCount;
-            for (uint32_t i = 0; i < uLineCount; ++i)
-                serializer >> uInstanceId >> uGuid;
-        }
-        else
-        {
-            CPropertyDescriptionBase* pDescriptionBase = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();
-            CDependencyDescription* pDependencyList = CComponentProxyManager::GetInstance()->GetCurrReflectDependency();
-            bool bReflectCheckFlag = CComponentProxyManager::GetInstance()->GetReflectCheckFlag();
-            if (!bReflectCheckFlag || pDescriptionBase == NULL)
-            {
-                if (!bReflectCheckFlag || pDependencyList == NULL || _tcscmp(pDependencyList->GetVariableName(), pszPropertyStr) == 0)
+                if (bNeedSnyc)
                 {
-                    uint32_t uLineCount = 0;
-                    serializer >> uLineCount;
-                    bool bNeedSnyc = true;
-                    if (pDependencyList != NULL && !CComponentProxyManager::GetInstance()->IsLoadingFile())
+                    // Clear all nodes which is a dependency component.
+                    for (auto iter = ptrProperty.begin(); iter != ptrProperty.end();)
                     {
-                        EDependencyChangeAction action;
-                        CComponentProxy* pOperateProxy = NULL;
-                        pDependencyList->GetCurrActionParam(action, pOperateProxy);
-                        if((pOperateProxy->IsInitialized() || action == eDCA_Delete) && action != eDCA_Ordered)
+                        if ((*iter)->GetId() != 0xFFFFFFFF)
                         {
-                            bNeedSnyc = !pComponent->OnDependencyListChange(&ptrProperty, action, pOperateProxy->GetHostComponent());
-                        }
-                    }
-                    if (bNeedSnyc)
-                    {
-                        // Clear all nodes which is a dependency component.
-                        for (auto iter = ptrProperty.begin(); iter != ptrProperty.end(); )
-                        {
-                            if ((*iter)->GetId() != 0xFFFFFFFF)
-                            {
-                                iter = ptrProperty.erase(iter);
-                            }
-                            else
-                            {
-                                ++iter;
-                            }
-                        }
-                        uint32_t uDepGuid = 0xFFFFFFFF;
-                        if (ptrProperty.size() == 0)
-                        {
-                            ptrProperty.resize(1);
-                            uDepGuid = ptrProperty[0]->REFLECT_GUID;
-                            ptrProperty.clear();
+                            iter = ptrProperty.erase(iter);
                         }
                         else
                         {
-                            uDepGuid = ptrProperty[0]->REFLECT_GUID;
-                        }
-                        BEATS_ASSERT(uDepGuid != 0xFFFFFFFF);
-                        for (uint32_t i = 0; i < uLineCount; ++i)
-                        {
-                            uint32_t uInstanceId, uGuid;
-                            serializer >> uInstanceId >> uGuid;
-                            bool bIsParent = CComponentProxyManager::GetInstance()->IsParent(uDepGuid, uGuid);
-                            BEATS_ASSERT(bIsParent,
-                                _T("GUID mismatched. GUID of dependency:0x%x, GUID in datafile:0x%x"),
-                                uDepGuid, uGuid);
-                            if (bIsParent)
-                            {
-                                CComponentInstanceManager::GetInstance()->AddDependencyResolver(NULL, i , uGuid, uInstanceId, &ptrProperty, true);
-                            }
+                            ++iter;
                         }
                     }
-                    if (pDependencyList != NULL && bReflectCheckFlag)
+                    uint32_t uDepGuid = 0xFFFFFFFF;
+                    if (ptrProperty.size() == 0)
                     {
-                        bStopHandle = true;
+                        ptrProperty.resize(1);
+                        uDepGuid = ptrProperty[0]->REFLECT_GUID;
+                        ptrProperty.clear();
                     }
+                    else
+                    {
+                        uDepGuid = ptrProperty[0]->REFLECT_GUID;
+                    }
+                    BEATS_ASSERT(uDepGuid != 0xFFFFFFFF);
+                    for (uint32_t i = 0; i < uLineCount; ++i)
+                    {
+                        uint32_t uInstanceId, uGuid;
+                        serializer >> uInstanceId >> uGuid;
+                        bool bIsParent = CComponentProxyManager::GetInstance()->IsParent(uDepGuid, uGuid);
+                        BEATS_ASSERT(bIsParent,
+                            _T("GUID mismatched. GUID of dependency:0x%x, GUID in datafile:0x%x"),
+                            uDepGuid, uGuid);
+                        if (bIsParent)
+                        {
+                            CComponentInstanceManager::GetInstance()->AddDependencyResolver(NULL, i, uGuid, uInstanceId, &ptrProperty, true);
+                        }
+                    }
+                }
+                if (pDependencyList != NULL && bReflectCheckFlag)
+                {
+                    bStopHandle = true;
                 }
             }
         }
-        return bStopHandle;
     }
+    return bStopHandle;
+}
 
 #define DECLARE_DEPENDENCY_LIST(serializer, ptrProperty, displayName, dependencyType)\
     {\
@@ -786,18 +726,24 @@ void DeclareProperty(CSerializer& serializer, T& property, const TCHAR* pszPrope
 #endif
 
 #ifdef EDITOR_MODE
-#define UPDATE_PROPERTY_PROXY(component, property, propertyNameStr)\
-    {\
+#define UPDATE_PROXY_PROPERTY(propertyDesc, value)\
+            {\
+                CSerializer serializer; \
+                SerializeVariable(value, &serializer); \
+                propertyDesc->Deserialize(serializer); \
+                propertyDesc->Save();\
+                CEngineCenter::GetInstance()->m_editorPropertyGridSyncList.insert(propertyDesc); \
+            }
+
+#define UPDATE_PROXY_PROPERTY_BY_NAME(component, value, propertyNameStr)\
+        {\
         CComponentProxy* pProxy = component->GetProxyComponent(); \
         if (pProxy)\
         {\
-            CPropertyDescriptionBase* pProperty = pProxy->GetPropertyDescription(propertyNameStr); \
-            BEATS_ASSERT(pProperty != NULL, _T("Can not find property %s in component %s GUID:0x%x"), propertyNameStr, component->GetClassStr(), component->GetGuid()); \
-            BEATS_ASSERT((pProperty->GetType() >= eRPT_Bool && pProperty->GetType() <= eRPT_Str) || pProperty->GetType() == eRPT_Color || pProperty->GetType() == eRPT_Enum || (pProperty->GetType() >= eRPT_Vec2F && pProperty->GetType() <= eRPT_Vec4F) || pProperty->GetType() == eRPT_Map || pProperty->GetType() == eRPT_List); \
-            CSerializer serializer; \
-            SerializeVariable(property, &serializer); \
-            pProperty->Deserialize(serializer); \
-            pProperty->Save(); \
+            CPropertyDescriptionBase* pPropertyDesc = pProxy->GetPropertyDescription(propertyNameStr); \
+            BEATS_ASSERT(pPropertyDesc != NULL, _T("Can not find property %s in component %s GUID:0x%x"), propertyNameStr, component->GetClassStr(), component->GetGuid()); \
+            BEATS_ASSERT((pPropertyDesc->GetType() >= eRPT_Bool && pPropertyDesc->GetType() <= eRPT_Str) || pPropertyDesc->GetType() == eRPT_Color || pPropertyDesc->GetType() == eRPT_Enum || (pPropertyDesc->GetType() >= eRPT_Vec2F && pPropertyDesc->GetType() <= eRPT_Vec4F) || pPropertyDesc->GetType() == eRPT_Map || pPropertyDesc->GetType() == eRPT_List); \
+            UPDATE_PROXY_PROPERTY(pPropertyDesc, value)\
         }\
     }
 
@@ -806,15 +752,15 @@ void DeclareProperty(CSerializer& serializer, T& property, const TCHAR* pszPrope
     CPropertyDescriptionBase* pDescriptionBase = CComponentProxyManager::GetInstance()->GetCurrReflectDescription(); \
     CDependencyDescription* pDependencyList = CComponentProxyManager::GetInstance()->GetCurrReflectDependency(); \
     if (pDescriptionBase == NULL && pDependencyList == NULL)\
-    {\
+            {\
         CComponentProxy* pProxy = GetProxyComponent(); \
         if (pProxy)\
-        {\
+                        {\
             CPropertyDescriptionBase* pProperty = pProxy->GetPropertyDescription(_T(#property)); \
             BEATS_ASSERT(pProperty != NULL, _T("Can not find property %s in component %s GUID:0x%x"), _T(#property), this->GetClassStr(), this->GetGuid()); \
             pProperty->SetHide(true); \
-        }\
-    }\
+                        }\
+            }\
     }
 
 #define REINTERPRET_PTR(property, derivedGuid)\
@@ -851,16 +797,14 @@ void DeclareProperty(CSerializer& serializer, T& property, const TCHAR* pszPrope
                     pPtrProperty->SetPtrGuid(derivedGuid); \
                 }\
             }\
-        }\
-    }\
     }
 #else
-#define UPDATE_PROPERTY_PROXY(component, property)
+#define UPDATE_PROXY_PROPERTY_BY_NAME(component, property, propertyNameStr)
 #define HIDE_PROPERTY(property)
 #define REINTERPRET_PTR(property, derivedGuid)
 #endif
 
 
-    #define GET_VAR_NAME(var) (var, _T(#var))
+#define GET_VAR_NAME(var) (var, _T(#var))
 
 #endif

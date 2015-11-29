@@ -177,7 +177,7 @@ CComponentInstance* CComponentInstance::CloneInstance()
     }
 #ifdef _DEBUG
     uint32_t uDataSize, uGuid, uId;
-    serializer >> uDataSize >> uGuid >> uId;
+    (*pSerializer) >> uDataSize >> uGuid >> uId;
     BEATS_ASSERT(uGuid == GetGuid() && uId == GetId());
 #else
     serializer.SetReadPos(12);
