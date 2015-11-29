@@ -236,6 +236,7 @@ void CComponentInstanceManager::ResolveDependency()
             }
             else
             {
+                BEATS_ASSERT(*(ptrdiff_t*)pDependencyResolver->pVariableAddress == 0, "the variable of address should be cleared.");
                 *(ptrdiff_t*)pDependencyResolver->pVariableAddress = (ptrdiff_t)pComponentToBeLink;
             }
         }

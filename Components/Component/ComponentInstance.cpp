@@ -155,35 +155,26 @@ void CComponentInstance::SetSyncProxyComponent(CComponentProxy* pProxy)
     }
 }
 
-void CComponentInstance::Serialize(CSerializer& serializer)
-{
-    // TODO: if we are in editor mode, we get the data from proxy. if we are not in editor mode, we can only get the data from the record.
-    if (m_pProxyComponent != NULL)
-    {
-        m_pProxyComponent->ExportDataToHost(serializer, eVT_CurrentValue);
-        BEATS_ASSERT(m_uDataSize == 0xFFFFFFFF && m_uDataPos == 0xFFFFFFFF);
-    }
-    else
-    {
-        BEATS_ASSERT( m_uDataPos != 0xFFFFFFFF && m_uDataSize != 0xFFFFFFFF, _T("Can't clone a component which is not created by data"));
-        CSerializer* pSerializer = CComponentInstanceManager::GetInstance()->GetFileSerializer();
-        if (m_uDataPos != 0xFFFFFFFF && m_uDataSize != 0xFFFFFFFF)
-        {
-            pSerializer->SetReadPos(m_uDataPos);
-            serializer.Serialize(*pSerializer, m_uDataSize);
-        }
-    }
-}
-
-CComponentBase* CComponentInstance::CloneInstance()
+CComponentInstance* CComponentInstance::CloneInstance()
 {
     // Use bOriginState to avoid logic mistake when nested call.
     bool bOriginState = CComponentInstanceManager::GetInstance()->IsInClonePhase();
     CComponentInstanceManager::GetInstance()->SetClonePhaseFlag(true);
-    CComponentBase* pNewInstance = Clone(false, NULL, 0xFFFFFFFF, false);
+    CSerializer* pSerializer = CComponentInstanceManager::GetInstance()->GetFileSerializer();
     static CSerializer serializer;
-    serializer.Reset();
-    Serialize(serializer);
+    // If we are in editor mode, we get the data from proxy. if we are not in editor mode, we can only get the data from the record.
+    if (m_pProxyComponent != NULL)
+    {
+        serializer.Reset();
+        m_pProxyComponent->ExportDataToHost(serializer, eVT_CurrentValue);
+        BEATS_ASSERT(m_uDataSize == 0xFFFFFFFF && m_uDataPos == 0xFFFFFFFF);
+        pSerializer = &serializer;
+    }
+    else
+    {
+        BEATS_ASSERT(m_uDataPos != 0xFFFFFFFF && m_uDataSize != 0xFFFFFFFF, _T("Can't clone a component which is not created by data"));
+        pSerializer->SetReadPos(m_uDataPos);
+    }
 #ifdef _DEBUG
     uint32_t uDataSize, uGuid, uId;
     serializer >> uDataSize >> uGuid >> uId;
@@ -191,6 +182,8 @@ CComponentBase* CComponentInstance::CloneInstance()
 #else
     serializer.SetReadPos(12);
 #endif
+    // Forbid to resolve the dependency for the new component instance
+    // to avoid both the old and new instance link to the same component.
     CComponentInstanceManager::GetInstance()->SetForbidDependencyResolve(true);
     CDependencyDescription* pCurReflectDependency = CComponentProxyManager::GetInstance()->GetCurrReflectDependency();
     CComponentProxyManager::GetInstance()->SetCurrReflectDependency(NULL);
@@ -198,14 +191,13 @@ CComponentBase* CComponentInstance::CloneInstance()
     CComponentProxyManager::GetInstance()->SetReflectCheckFlag(false);
     CPropertyDescriptionBase* pCurRelfectProperty = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();
     CComponentProxyManager::GetInstance()->SetCurrReflectDescription(NULL);
-    pNewInstance->ReflectData(serializer);
+    CComponentBase* pNewInstance = Clone(false, pSerializer, 0xFFFFFFFF, false);
     CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pCurRelfectProperty);
     CComponentProxyManager::GetInstance()->SetReflectCheckFlag(bIgnoreReflect);
     CComponentProxyManager::GetInstance()->SetCurrReflectDependency(pCurReflectDependency);
     CComponentInstanceManager::GetInstance()->SetForbidDependencyResolve(false);
-    BEATS_ASSERT(serializer.GetWritePos() == serializer.GetReadPos());
     CComponentInstanceManager::GetInstance()->SetClonePhaseFlag(bOriginState);
-    return pNewInstance;
+    return static_cast<CComponentInstance*>(pNewInstance);
 }
 
 void CComponentInstance::SetReflectOwner(CComponentInstance* pReflectOwner)

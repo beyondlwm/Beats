@@ -12,6 +12,7 @@
 static TCHAR szBeatsDialogBuffer[10240] = {0};
 #ifdef _DEBUG
     #if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
+        extern HWND BEYONDENGINE_HWND;
         #define BEATS_ASSERT(condition, ...)\
         if (!(condition))\
         {\
@@ -25,7 +26,7 @@ static TCHAR szBeatsDialogBuffer[10240] = {0};
             _tcscat_s(szBeatsDialogBuffer, errorInfo);\
             _tcscat_s(szBeatsDialogBuffer, _T("Condition: "));\
             _tcscat_s(szBeatsDialogBuffer, _T(#condition));\
-            int iRet = MessageBox(NULL, szBeatsDialogBuffer, _T("Beats assert"), MB_ABORTRETRYIGNORE | MB_ICONERROR);\
+            int iRet = MessageBox(BEYONDENGINE_HWND, szBeatsDialogBuffer, _T("Beats assert"), MB_ABORTRETRYIGNORE | MB_ICONERROR);\
             if(iRet == IDABORT)\
             {\
                 __debugbreak();\

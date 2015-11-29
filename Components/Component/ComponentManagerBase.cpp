@@ -7,7 +7,9 @@
 
 void DefaultAddDependencyFunc(void* pContainer, void* pDependency)
 {
-    ((std::vector<void*>*)(pContainer))->push_back((void*)pDependency);
+    std::vector<void*>* pVector = (std::vector<void*>*)pContainer;
+    BEATS_ASSERT(std::find(pVector->begin(), pVector->end(), pDependency) == pVector->end(), "component repeated in the same dependency list");
+    pVector->push_back((void*)pDependency);
 }
 
 CComponentManagerBase::CComponentManagerBase()
@@ -226,6 +228,22 @@ void CComponentManagerBase::AddDependencyResolver( CDependencyDescription* pDesc
         pDependencyResovler->uIndex = uIndex;
         pDependencyResovler->uGuid = uGuid;
         pDependencyResovler->uInstanceId = uInstanceId;
+#ifdef _DEBUG
+        // pVariableAddress is always null for CComponentProxyManager
+        if (pVariableAddress)
+        {
+            if (bIsList)
+            {
+                std::vector<void*>* pVector = (std::vector<void*>*)pVariableAddress;
+                // pVariableAddress is always null for CComponentProxyManager
+                BEATS_ASSERT(pVector->size() == 0, "the variable of address should be cleared.");
+            }
+            else
+            {
+                BEATS_ASSERT(*(ptrdiff_t*)pVariableAddress == 0, "the variable of address should be cleared.");
+            }
+        }
+#endif
         pDependencyResovler->pVariableAddress = pVariableAddress;
         pDependencyResovler->bIsList = bIsList;
         pDependencyResovler->pAddFunc = pFunc == NULL ? DefaultAddDependencyFunc : pFunc;

@@ -648,6 +648,7 @@ void CComponentProxyManager::ResolveDependency()
         CComponentBase* pComponentToBeLink = GetComponentInstance(pDependencyResolver->uInstanceId, pDependencyResolver->uGuid);
         BEATS_ASSERT(pComponentToBeLink != NULL, _T("Resolve dependency failed, Comopnent id %d guid 0x%x doesn't exist!"), pDependencyResolver->uInstanceId, pDependencyResolver->uGuid);
         BEATS_ASSERT(pDependencyResolver->pDescription != NULL);
+        BEATS_ASSERT(pDependencyResolver->pVariableAddress == NULL, "pVariableAddress should be null in proxy mode");
         BEATS_ASSERT(pComponentToBeLink != NULL, 
             _T("Component %s id %d can't resolve its dependency %s to component guid 0x%x id %d, have you deleted that component recently?"),
             pDependencyResolver->pDescription->GetOwner()->GetClassStr(), 
