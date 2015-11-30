@@ -52,8 +52,6 @@ public:
 
     CPropertyDescriptionBase* GetCurrReflectDescription() const;
     void SetCurrReflectDescription(CPropertyDescriptionBase* pPropertyDescription);
-    void SetReflectCheckFlag(bool bFlag);
-    bool GetReflectCheckFlag() const;
 
     CDependencyDescription* GetCurrReflectDependency() const;
     void SetCurrReflectDependency(CDependencyDescription* pDependency);
@@ -96,7 +94,6 @@ private:
     bool m_bCreateInstanceWithProxy;
     bool m_bLoadingFilePhase;
     bool m_bExportingPhase;
-    bool m_bReflectCheckFlag;
     uint32_t m_uOperateProgress;
     TString m_strCurrOperateFile;
     uint32_t m_uCurrViewFileId;

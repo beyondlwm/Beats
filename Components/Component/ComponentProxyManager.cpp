@@ -24,7 +24,6 @@ CComponentProxyManager::CComponentProxyManager()
     : m_bCreateInstanceWithProxy(true)
     , m_bLoadingFilePhase(false)
     , m_bExportingPhase(false)
-    , m_bReflectCheckFlag(false)
     , m_uOperateProgress(0)
     , m_uCurrViewFileId(0xFFFFFFFF)
     , m_pCurrReflectPropertyDescription(NULL)
@@ -669,17 +668,8 @@ CPropertyDescriptionBase* CComponentProxyManager::GetCurrReflectDescription() co
 
 void CComponentProxyManager::SetCurrReflectDescription(CPropertyDescriptionBase* pPropertyDescription)
 {
+    BEATS_ASSERT(pPropertyDescription == nullptr || m_pCurrReflectDependency == nullptr, "Reflect property and dependency can't both be set value");
     m_pCurrReflectPropertyDescription = pPropertyDescription;
-}
-
-void CComponentProxyManager::SetReflectCheckFlag(bool bFlag)
-{
-    m_bReflectCheckFlag = bFlag;
-}
-
-bool CComponentProxyManager::GetReflectCheckFlag() const
-{
-    return m_bReflectCheckFlag;
 }
 
 CDependencyDescription* CComponentProxyManager::GetCurrReflectDependency() const
@@ -689,6 +679,7 @@ CDependencyDescription* CComponentProxyManager::GetCurrReflectDependency() const
 
 void CComponentProxyManager::SetCurrReflectDependency(CDependencyDescription* pDependency)
 {
+    BEATS_ASSERT(pDependency == nullptr || m_pCurrReflectPropertyDescription == nullptr, "Reflect property and dependency can't both be set value");
     m_pCurrReflectDependency = pDependency;
 }
 

@@ -310,7 +310,8 @@ void CComponentProxy::UpdateHostComponent()
     // Don't do any update host stuff when exporting, because it's useless and will cause dependency resolve failed.
     if (m_pHostComponent && !bIsExporting)
     {
-        BEATS_ASSERT(CComponentProxyManager::GetInstance()->GetReflectCheckFlag() == false, "Reflect check flag MUST be false, or we can not refresh all property!");
+        BEATS_ASSERT(CComponentProxyManager::GetInstance()->GetCurrReflectDependency() == nullptr && CComponentProxyManager::GetInstance()->GetCurrReflectDescription() == nullptr,
+                    "Reflect check flag MUST be false, or we can not refresh all property!");
         CComponentProxy* pOriginValue = CComponentProxyManager::GetInstance()->GetCurrUpdateProxy();
         CComponentProxyManager::GetInstance()->SetCurrUpdateProxy(this);
         static CSerializer serializer;

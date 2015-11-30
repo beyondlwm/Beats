@@ -180,20 +180,17 @@ CComponentInstance* CComponentInstance::CloneInstance()
     (*pSerializer) >> uDataSize >> uGuid >> uId;
     BEATS_ASSERT(uGuid == GetGuid() && uId == GetId());
 #else
-    serializer.SetReadPos(12);
+    pSerializer->SetReadPos(12);
 #endif
     // Forbid to resolve the dependency for the new component instance
     // to avoid both the old and new instance link to the same component.
     CComponentInstanceManager::GetInstance()->SetForbidDependencyResolve(true);
     CDependencyDescription* pCurReflectDependency = CComponentProxyManager::GetInstance()->GetCurrReflectDependency();
     CComponentProxyManager::GetInstance()->SetCurrReflectDependency(NULL);
-    bool bIgnoreReflect = CComponentProxyManager::GetInstance()->GetReflectCheckFlag();
-    CComponentProxyManager::GetInstance()->SetReflectCheckFlag(false);
     CPropertyDescriptionBase* pCurRelfectProperty = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();
     CComponentProxyManager::GetInstance()->SetCurrReflectDescription(NULL);
     CComponentBase* pNewInstance = Clone(false, pSerializer, 0xFFFFFFFF, false);
     CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pCurRelfectProperty);
-    CComponentProxyManager::GetInstance()->SetReflectCheckFlag(bIgnoreReflect);
     CComponentProxyManager::GetInstance()->SetCurrReflectDependency(pCurReflectDependency);
     CComponentInstanceManager::GetInstance()->SetForbidDependencyResolve(false);
     CComponentInstanceManager::GetInstance()->SetClonePhaseFlag(bOriginState);

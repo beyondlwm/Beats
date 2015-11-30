@@ -269,16 +269,12 @@ void CPropertyDescriptionBase::SetValueWithType(void* pValue, EValueType type, b
             bool bIsTemplateProperty = pRootProperty->GetOwner()->GetTemplateFlag();
             if (pHostComponent && !bIsTemplateProperty)
             {
+                // Record the original value to avoid wrong set in recursive call.
+                CPropertyDescriptionBase* pOriginalCheckProperty = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();
+                CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pRealProperty);
                 static CSerializer serializer;
                 serializer.Reset();
                 pRealProperty->Serialize(serializer, eVT_CurrentValue);
-
-                // Record the original value to avoid wrong set in recursive call.
-                CPropertyDescriptionBase* pOriginalCheckProperty = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();
-                bool bOriginalCheckFlag = CComponentProxyManager::GetInstance()->GetReflectCheckFlag();
-
-                CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pRealProperty);
-                CComponentProxyManager::GetInstance()->SetReflectCheckFlag(true);
                 pHostComponent->ReflectData(serializer);
                 const std::vector<CComponentInstance*>& syncComponents = pRealProperty->GetOwner()->GetSyncComponents();
                 for (uint32_t i = 0; i < syncComponents.size(); ++i)
@@ -288,7 +284,6 @@ void CPropertyDescriptionBase::SetValueWithType(void* pValue, EValueType type, b
                 }
                 // Restore the content.
                 CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pOriginalCheckProperty);
-                CComponentProxyManager::GetInstance()->SetReflectCheckFlag(bOriginalCheckFlag);
             }
         }
     }

@@ -331,14 +331,11 @@ void CDependencyDescription::OnDependencyChanged()
                 serializer.Reset();
                 Serialize(serializer);
                 CDependencyDescription* pOriginalReflectDependency = CComponentProxyManager::GetInstance()->GetCurrReflectDependency();
-                bool bOriginalReflectCheckFlag = CComponentProxyManager::GetInstance()->GetReflectCheckFlag();
                 CComponentProxyManager::GetInstance()->SetCurrReflectDependency(this);
                 BEATS_ASSERT(CComponentProxyManager::GetInstance()->GetCurrReflectDescription() == NULL);
-                CComponentProxyManager::GetInstance()->SetReflectCheckFlag(true);
                 GetOwner()->GetHostComponent()->ReflectData(serializer);
                 CComponentInstanceManager::GetInstance()->ResolveDependency();
                 // Restore the content.
-                CComponentProxyManager::GetInstance()->SetReflectCheckFlag(bOriginalReflectCheckFlag);
                 CComponentProxyManager::GetInstance()->SetCurrReflectDependency(pOriginalReflectDependency);
             }
         }
