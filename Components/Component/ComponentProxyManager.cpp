@@ -228,7 +228,7 @@ void CComponentProxyManager::LoadFile(uint32_t uFileId, std::vector<CComponentBa
     {
         TCHAR info[MAX_PATH];
         _stprintf(info, _T("Load file :%s Failed! Row: %d Col: %d Reason:%s"), strFilePath.c_str(), document.ErrorRow(), document.ErrorCol(), document.ErrorDesc());
-        MessageBox(NULL, info, _T("Load File Failed"), MB_OK | MB_ICONERROR);
+        MessageBox(BEYONDENGINE_HWND, info, _T("Load File Failed"), MB_OK | MB_ICONERROR);
     }
     m_bLoadingFilePhase = bRestoreLoadingPhase;
 }
@@ -843,7 +843,7 @@ void CComponentProxyManager::OnDeleteComponentInScene(CComponentProxy* pProxy)
                 _stprintf(szBuffer, _T("%d. %s\n"), nCounter++, strFilePath.c_str());
                 strInfo.append(szBuffer);
             }
-            MessageBox(NULL, strInfo.c_str(), _T("无法删除"), MB_OK);
+            MessageBox(BEYONDENGINE_HWND, strInfo.c_str(), _T("无法删除"), MB_OK);
         }
         else
         {

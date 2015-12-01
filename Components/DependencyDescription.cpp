@@ -138,7 +138,7 @@ void CDependencyDescription::SaveToXML( TiXmlElement* pParentNode )
         {
             TCHAR szInfo[10240];
             _stprintf(szInfo, _T("Component %s with Id:%d, Unset strong dependency!"), m_pOwner->GetClassStr(), m_pOwner->GetId());
-            MessageBox(NULL, szInfo, _T("Unset strong dependency"), MB_OK);
+            MessageBox(BEYONDENGINE_HWND, szInfo, _T("Unset strong dependency"), MB_OK);
         }
     }
     else

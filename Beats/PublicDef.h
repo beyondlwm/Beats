@@ -5,6 +5,8 @@
 #include "BeatsTchar.h"
 #if (BEATS_PLATFORM == BEATS_PLATFORM_ANDROID)
 #include <android/log.h>
+#elif (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
+extern HWND BEYONDENGINE_HWND;
 #endif
 //////////////////////////////////////////////////////////////////////////
 //Assert
@@ -12,7 +14,6 @@
 static TCHAR szBeatsDialogBuffer[10240] = {0};
 #ifdef _DEBUG
     #if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
-        extern HWND BEYONDENGINE_HWND;
         #define BEATS_ASSERT(condition, ...)\
         if (!(condition))\
         {\

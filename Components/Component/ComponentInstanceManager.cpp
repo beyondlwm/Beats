@@ -36,7 +36,7 @@ CSerializer* CComponentInstanceManager::Import(const TCHAR* pszFilePath)
     {
         TCHAR szInfo[256];
         _stprintf(szInfo, _T("Data version is %d while our program version is %d"), uVersion, COMPONENT_SYSTEM_VERSION);
-        MessageBox(NULL, szInfo, _T("Verion Not Match!"), MB_OK | MB_ICONERROR);
+        MessageBox(BEYONDENGINE_HWND, szInfo, _T("Verion Not Match!"), MB_OK | MB_ICONERROR);
     }
     else
     {

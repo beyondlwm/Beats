@@ -78,7 +78,7 @@ CComponentProjectDirectory* CComponentProject::LoadProject(const TCHAR* pszProje
         {
             TCHAR info[MAX_PATH];
             _stprintf(info, _T("Load File :%s Failed! Row:%d Col:%d Reason:%s"), pszProjectFile, document.ErrorRow(), document.ErrorCol(), document.ErrorDesc());
-            MessageBox(NULL, info, _T("Load File Failed"), MB_OK | MB_ICONERROR);
+            MessageBox(BEYONDENGINE_HWND, info, _T("Load File Failed"), MB_OK | MB_ICONERROR);
         }
     }
     m_strCurrLoadingFile.clear();
@@ -241,7 +241,7 @@ void CComponentProject::ResolveIdForFile(uint32_t uFileId, uint32_t idToResolve,
         {
             TCHAR info[MAX_PATH];
             _stprintf(info, _T("Load File :%s Failed!Row: %d Col: %d Reason: %s"), strFileName.c_str(), document.ErrorRow(), document.ErrorCol(), document.ErrorDesc());
-            MessageBox(NULL, info, _T("Load File Failed"), MB_OK | MB_ICONERROR);
+            MessageBox(BEYONDENGINE_HWND, info, _T("Load File Failed"), MB_OK | MB_ICONERROR);
         }
     }
 }

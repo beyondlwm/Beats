@@ -466,7 +466,7 @@ void CComponentProxy::LoadFromXML( TiXmlElement* pNode )
                 pszFilePath,
                 this->GetClassStr(),
                 this->GetGuid());
-            int iRet = MessageBox(NULL, szInform, _T("Maintain data"), MB_YESNO);
+            int iRet = MessageBox(BEYONDENGINE_HWND, szInform, _T("Maintain data"), MB_YESNO);
             if (iRet == IDYES)
             {
                 pProject->RegisterPropertyMaintainInfo(this->GetGuid(), szVariableName, _T(""));
@@ -479,7 +479,7 @@ void CComponentProxy::LoadFromXML( TiXmlElement* pNode )
                     _stprintf(szInform, _T("Reallocate %s to %s?"), szVariableName, strVariableName.c_str());
                     TCHAR szTitle[MAX_PATH];
                     _stprintf(szTitle, _T("Reallocate data %d/%d"), j + 1, matchTypeProperties.size());
-                    int iRet = MessageBox(NULL, szInform, szTitle, MB_YESNO);
+                    int iRet = MessageBox(BEYONDENGINE_HWND, szInform, szTitle, MB_YESNOCANCEL);
                     if (iRet == IDYES)
                     {
                         matchTypeProperties[j]->LoadFromXML(unUsedXMLVariableNode[i]);
@@ -487,12 +487,17 @@ void CComponentProxy::LoadFromXML( TiXmlElement* pNode )
                         pProject->RegisterPropertyMaintainInfo(this->GetGuid(), szVariableName, strVariableName);
                         break;
                     }
-                    else
+                    else if (iRet == IDNO)
                     {
                         if (++j == matchTypeProperties.size())
                         {
                             j = 0;
                         }
+                    }
+                    else
+                    {
+                        BEATS_ASSERT(iRet = IDCANCEL);
+                        break;
                     }
                 }
             }
