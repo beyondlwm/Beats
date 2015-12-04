@@ -26,12 +26,14 @@ CComponentProxyManager::CComponentProxyManager()
     , m_bExportingPhase(false)
     , m_uOperateProgress(0)
     , m_uCurrViewFileId(0xFFFFFFFF)
-    , m_pCurrReflectPropertyDescription(NULL)
+    , m_pCurrReflectProperty(NULL)
     , m_pCurrReflectDependency(NULL)
     , m_pCurrUpdateProxy(NULL)
+    , m_pRemoveChildInfo(nullptr)
 {
     m_pPropertyCreatorMap = new std::map<uint32_t, TCreatePropertyFunc>();
     m_pComponentInheritMap = new std::map<uint32_t, std::vector<uint32_t> >();
+    m_pRemoveChildInfo = new CSerializer;
 }
 
 CComponentProxyManager::~CComponentProxyManager()
@@ -43,6 +45,7 @@ CComponentProxyManager::~CComponentProxyManager()
     BEATS_SAFE_DELETE(m_pDependencyResolver);
     BEATS_SAFE_DELETE(m_pPropertyCreatorMap);
     BEATS_SAFE_DELETE(m_pComponentInheritMap);
+    BEATS_SAFE_DELETE(m_pRemoveChildInfo);
 }
 
 void CComponentProxyManager::InitializeAllTemplate()
@@ -661,15 +664,26 @@ void CComponentProxyManager::ResolveDependency()
     BEATS_SAFE_DELETE_VECTOR(*m_pDependencyResolver);
 }
 
-CPropertyDescriptionBase* CComponentProxyManager::GetCurrReflectDescription() const
+CPropertyDescriptionBase* CComponentProxyManager::GetCurrReflectProperty(EReflectOperationType* pOperateType) const
 {
-    return m_pCurrReflectPropertyDescription;
+    if (pOperateType != nullptr)
+    {
+        *pOperateType = m_reflectOperateType;
+    }
+    return m_pCurrReflectProperty;
 }
 
-void CComponentProxyManager::SetCurrReflectDescription(CPropertyDescriptionBase* pPropertyDescription)
+void CComponentProxyManager::SetCurrReflectProperty(CPropertyDescriptionBase* pPropertyDescription, EReflectOperationType operateType)
 {
     BEATS_ASSERT(pPropertyDescription == nullptr || m_pCurrReflectDependency == nullptr, "Reflect property and dependency can't both be set value");
-    m_pCurrReflectPropertyDescription = pPropertyDescription;
+    m_pCurrReflectProperty = pPropertyDescription;
+    m_reflectOperateType = operateType;
+}
+
+CSerializer& CComponentProxyManager::GetRemoveChildInfo()
+{
+    BEATS_ASSERT(m_pCurrReflectProperty != nullptr && m_pCurrReflectProperty->IsContainerProperty());
+    return *m_pRemoveChildInfo;
 }
 
 CDependencyDescription* CComponentProxyManager::GetCurrReflectDependency() const
@@ -679,7 +693,7 @@ CDependencyDescription* CComponentProxyManager::GetCurrReflectDependency() const
 
 void CComponentProxyManager::SetCurrReflectDependency(CDependencyDescription* pDependency)
 {
-    BEATS_ASSERT(pDependency == nullptr || m_pCurrReflectPropertyDescription == nullptr, "Reflect property and dependency can't both be set value");
+    BEATS_ASSERT(pDependency == nullptr || m_pCurrReflectProperty == nullptr, "Reflect property and dependency can't both be set value");
     m_pCurrReflectDependency = pDependency;
 }
 

@@ -128,7 +128,7 @@ inline void DeserializeVariable(T*& value, CSerializer* pSerializer, CComponentI
         // If we are calling CComponentProxy::UpdateHostComponent, it means all ptr value are ready, it is CPtrPropertyDescription::GetInstanceComponent()->GetHostComponent.
         // Which the value will be pack in CPtrPropertyDescription::Serialize.
         CComponentProxy* pCurrUpdateProxy = CComponentProxyManager::GetInstance()->GetCurrUpdateProxy();
-        CPropertyDescriptionBase* pCurrReflectProperty = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();
+        CPropertyDescriptionBase* pCurrReflectProperty = CComponentProxyManager::GetInstance()->GetCurrReflectProperty();
         if (pCurrUpdateProxy != nullptr || pCurrReflectProperty != nullptr)
         {
             uint32_t uHostComponentAddress = 0;
@@ -152,6 +152,9 @@ inline void DeserializeVariable(T*& value, CSerializer* pSerializer, CComponentI
                 }
                 else
                 {
+#ifdef EDITOR_MODE
+                    BEATS_ASSERT(CComponentInstanceManager::GetInstance()->IsInClonePhase());
+#endif
                     value = dynamic_cast<T*>(CComponentInstanceManager::GetInstance()->CreateComponent(uGuid, false, true, 0xFFFFFFFF, false, pSerializer, false));
                     BEATS_ASSERT(pOwner != nullptr);
                     pOwner->RegisterReflectComponent(value);
@@ -179,69 +182,177 @@ inline void DeserializeVariable(T*& value, CSerializer* pSerializer, CComponentI
 template<typename T>
 inline void DeserializeVariable(std::vector<T>& value, CSerializer* pSerializer, CComponentInstance* pOwner)
 {
-    uint32_t childCount = 0;
-    *pSerializer >> childCount;
 #ifdef EDITOR_MODE
-    value.clear();
-#else
-    BEATS_ASSERT(value.size() == 0, _T("vector should be empty when deserialize!"));
-#endif
-    value.resize(childCount);
-    for (uint32_t i = 0; i < childCount; ++i)
+    EReflectOperationType operateType;
+    CPropertyDescriptionBase* pCurrReflectProperty = CComponentProxyManager::GetInstance()->GetCurrReflectProperty(&operateType);
+    if (pCurrReflectProperty != nullptr)
     {
-        BEATS_ASSERT(typeid(T) != typeid(bool), _T("std::vector<bool> is not supported! it's a very specific version of stl, it's not a container!"));
-        DeserializeVariable(value[i], pSerializer, pOwner);
+        if (operateType == EReflectOperationType::ChangeValue)
+        {
+            uint32_t uElementIndex = 0;
+            *pSerializer >> uElementIndex;
+            BEATS_ASSERT(uElementIndex < value.size());
+            DeserializeVariable(value[uElementIndex], pSerializer, pOwner);
+        }
+        else if (operateType == EReflectOperationType::AddChild)
+        {
+            if (pSerializer->GetReadPos() == (uint32_t)pSerializer->GetUserData())
+            {
+                uint32_t uData = 0;
+                *pSerializer >> uData;
+                auto iter = value.begin();
+                std::advance(iter, uData);
+                T tmpData;
+                value.insert(iter, tmpData);
+                CComponentProxyManager::GetInstance()->SetCurrReflectProperty(nullptr, EReflectOperationType::ChangeValue);
+                DeserializeVariable(value[uData], pSerializer, pOwner);
+                CComponentProxyManager::GetInstance()->SetCurrReflectProperty(pCurrReflectProperty, EReflectOperationType::AddChild);
+            }
+            else
+            {
+                uint32_t uData = 0;
+                *pSerializer >> uData;
+                BEATS_ASSERT(uData < value.size());
+                DeserializeVariable(value[uData], pSerializer, pOwner);
+            }
+        }
+        else if (operateType == EReflectOperationType::RemoveChild)
+        {
+            if (pSerializer->GetReadPos() == (uint32_t)pSerializer->GetUserData())
+            {
+                bool bRemoveAll = false;
+                *pSerializer >> bRemoveAll;
+                if (!bRemoveAll)
+                {
+                    uint32_t uRemovePos = 0;
+                    *pSerializer >> uRemovePos;
+                    auto iter = value.begin();
+                    std::advance(iter, uRemovePos);
+                    value.erase(iter);
+                }
+                else
+                {
+                    value.clear();
+                }
+            }
+            else
+            {
+                uint32_t uElementIndex = 0;
+                *pSerializer >> uElementIndex;
+                BEATS_ASSERT(uElementIndex < value.size());
+                DeserializeVariable(value[uElementIndex], pSerializer, pOwner);
+            }
+        }
     }
+    else
+    {
+#endif
+        uint32_t childCount = 0;
+        *pSerializer >> childCount;
+#ifdef EDITOR_MODE
+        value.clear();
+#else
+        BEATS_ASSERT(value.size() == 0, _T("vector should be empty when deserialize!"));
+#endif
+        value.resize(childCount);
+        for (uint32_t i = 0; i < childCount; ++i)
+        {
+            BEATS_ASSERT(typeid(T) != typeid(bool), _T("std::vector<bool> is not supported! it's a very specific version of stl, it's not a container!"));
+            DeserializeVariable(value[i], pSerializer, pOwner);
+        }
+#ifdef EDITOR_MODE
+    }
+#endif
 }
 
 template<typename T1, typename T2>
 inline void DeserializeVariable(std::map<T1, T2>& value, CSerializer* pSerializer, CComponentInstance* pOwner)
 {
-    EReflectPropertyType keyType;
-    EReflectPropertyType valueType;
-    uint32_t childCount = 0;
-    *pSerializer >> keyType;
-    *pSerializer >> valueType;
-    *pSerializer >> childCount;
 #ifdef EDITOR_MODE
-    value.clear();
-#else
-    BEATS_ASSERT(value.size() == 0, _T("map should be empty when deserialize!"));
-#endif
-    for (uint32_t i = 0; i < childCount; ++i)
+    EReflectOperationType operateType;
+    CPropertyDescriptionBase* pCurrReflectProperty = CComponentProxyManager::GetInstance()->GetCurrReflectProperty(&operateType);
+    if (pCurrReflectProperty != nullptr)
     {
-        T1 key = T1();
-#ifdef EDITOR_MODE
-        CPropertyDescriptionBase* pCurrReflectProperty = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();
-        if (pCurrReflectProperty != NULL)
+        if (operateType == EReflectOperationType::ChangeValue)
         {
-            BEATS_ASSERT(pCurrReflectProperty->GetType() == eRPT_Map);
-            CPropertyDescriptionBase* pSubProperty = pCurrReflectProperty->GetChildren()[i];
-            BEATS_ASSERT(pSubProperty != NULL);
-            CPropertyDescriptionBase* pKeyProperty = pSubProperty->GetChildren()[0];
-            BEATS_ASSERT(pKeyProperty != NULL);
-            CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pKeyProperty);
+            T1 key;
+            DeserializeVariable(key, pSerializer, pOwner);
+            BEATS_ASSERT(value.find(key) != value.end());
+            DeserializeVariable(value[key], pSerializer, pOwner);
         }
-#endif
-        DeserializeVariable(key, pSerializer, pOwner);
-        T2 myValue = T2();
-#ifdef EDITOR_MODE
-        if (pCurrReflectProperty != NULL)
+        else if (operateType == EReflectOperationType::AddChild)
         {
-            BEATS_ASSERT(pCurrReflectProperty->GetType() == eRPT_Map);
-            CPropertyDescriptionBase* pSubProperty = pCurrReflectProperty->GetChildren()[i];
-            CPropertyDescriptionBase* pValueProperty = pSubProperty->GetChildren()[1];
-            BEATS_ASSERT(pValueProperty != NULL);
-            CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pValueProperty);
+            T1 key;
+            DeserializeVariable(key, pSerializer, pOwner);
+            if (pSerializer->GetReadPos() == (uint32_t)pSerializer->GetUserData())
+            {
+                CComponentProxyManager::GetInstance()->SetCurrReflectProperty(nullptr, EReflectOperationType::ChangeValue);
+                T2 mapValue;
+                DeserializeVariable(mapValue, pSerializer, pOwner);
+                CComponentProxyManager::GetInstance()->SetCurrReflectProperty(pCurrReflectProperty, EReflectOperationType::AddChild);
+                BEATS_ASSERT(value.find(key) == value.end());
+                value[key] = mapValue;
+            }
+            else
+            {
+                BEATS_ASSERT(value.find(key) != value.end());
+                DeserializeVariable(value[key], pSerializer, pOwner);
+            }
         }
-#endif
-        DeserializeVariable(myValue, pSerializer, pOwner);
-        BEATS_ASSERT(value.find(key) == value.end() || CComponentProxyManager::GetInstance()->IsLoadingFile(), _T("A map can't have two same key value!"));
-        value[key] = myValue;
-#ifdef EDITOR_MODE
-        CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pCurrReflectProperty);
-#endif
+        else if (operateType == EReflectOperationType::RemoveChild)
+        {
+            if (pSerializer->GetReadPos() == (uint32_t)pSerializer->GetUserData())
+            {
+                bool bRemoveAll = false;
+                *pSerializer >> bRemoveAll;
+                if (!bRemoveAll)
+                {
+                    T1 key;
+                    DeserializeVariable(key, pSerializer, pOwner);
+                    BEATS_ASSERT(value.find(key) != value.end());
+                    value.erase(key);
+                }
+                else
+                {
+                    value.clear();
+                }
+            }
+            else
+            {
+                T1 key;
+                DeserializeVariable(key, pSerializer, pOwner);
+                BEATS_ASSERT(value.find(key) != value.end());
+                DeserializeVariable(value[key], pSerializer, pOwner);
+            }
+        }
     }
+    else
+    {
+#endif
+        EReflectPropertyType keyType;
+        EReflectPropertyType valueType;
+        uint32_t childCount = 0;
+        *pSerializer >> keyType;
+        *pSerializer >> valueType;
+        *pSerializer >> childCount;
+#ifdef EDITOR_MODE
+        value.clear();
+#else
+        BEATS_ASSERT(value.size() == 0, _T("map should be empty when deserialize!"));
+#endif
+        for (uint32_t i = 0; i < childCount; ++i)
+        {
+            T1 key = T1();
+            DeserializeVariable(key, pSerializer, pOwner);
+            T2 myValue = T2();
+            DeserializeVariable(myValue, pSerializer, pOwner);
+            BEATS_ASSERT(value.find(key) == value.end() || CComponentProxyManager::GetInstance()->IsLoadingFile(), _T("A map can't have two same key value!"));
+            value[key] = myValue;
+        }
+
+#ifdef EDITOR_MODE
+    }
+#endif
 }
 
 template<>
@@ -481,26 +592,26 @@ template<typename T>
 bool DeclareProperty(CSerializer& serializer, CComponentInstance* pComponent, T& property, const TCHAR* pszPropertyStr)
 {
     bool bStopHandle = false;
-    CDependencyDescription* pDependencyDescription = CComponentProxyManager::GetInstance()->GetCurrReflectDependency();
-    if (pDependencyDescription == nullptr)
+    bool bInClonePhase = CComponentInstanceManager::GetInstance()->IsInClonePhase();
+    bool bInLoadingPhase = CComponentProxyManager::GetInstance()->IsLoadingFile();
+    bool bNeedHandleSync = bInClonePhase || bInLoadingPhase;
+    if (!bNeedHandleSync)
     {
-        CPropertyDescriptionBase* pDescriptionBase = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();
-        if (pDescriptionBase == nullptr || pDescriptionBase->GetBasicInfo()->m_variableName.compare(pszPropertyStr) == 0)
+        CPropertyDescriptionBase* pDescriptionBase = CComponentProxyManager::GetInstance()->GetCurrReflectProperty();
+        BEATS_ASSERT(CComponentProxyManager::GetInstance()->GetCurrReflectDependency() != nullptr || pDescriptionBase != nullptr);
+        if (pDescriptionBase != nullptr)
         {
-            bool bNeedHandleSync = true;
-            if (pDescriptionBase != nullptr && !CComponentProxyManager::GetInstance()->IsLoadingFile())
+            BEATS_ASSERT(CComponentProxyManager::GetInstance()->GetCurrReflectDependency() == nullptr);
+            if (pDescriptionBase->GetBasicInfo()->m_variableName.compare(pszPropertyStr) == 0)
             {
                 bNeedHandleSync = !pComponent->OnPropertyChange(&property, &serializer);
-            }
-            if (bNeedHandleSync)
-            {
-                DeserializeVariable(property, &serializer, pComponent);
-            }
-            if (pDescriptionBase != nullptr)
-            {
                 bStopHandle = true;
             }
         }
+    }
+    if (bNeedHandleSync)
+    {
+        DeserializeVariable(property, &serializer, pComponent);
     }
     return bStopHandle;
 }
@@ -513,19 +624,23 @@ template<typename T>
 bool DeclareDependency(CSerializer& serializer, CComponentBase* pComponent, T& ptrProperty, const TCHAR* pszPropertyStr)
 {
     bool bStopHandle = false;
-    if (CComponentInstanceManager::GetInstance()->GetForbidDependencyResolve())
+    bool bInClonePhase = CComponentInstanceManager::GetInstance()->IsInClonePhase();
+    // In clone phase, we don't need to resolve anything(avoid resolve the existing component), just copy all property description.
+    if (bInClonePhase)
     {
         uint32_t uLineCount, uInstanceId, uGuid;
         serializer >> uLineCount;
-        for (uint32_t i = 0; i < uLineCount; ++i)
+        if (uLineCount > 0)
+        {
+            BEATS_ASSERT(uLineCount == 1, _T("Data error:We want a dependency data, but got %d line count!"), uLineCount);
             serializer >> uInstanceId >> uGuid;
+        }
     }
     else
     {
-        CPropertyDescriptionBase* pDescriptionBase = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();
-        CDependencyDescription* pDependency = CComponentProxyManager::GetInstance()->GetCurrReflectDependency();
-        if (pDescriptionBase == NULL)
+        if (CComponentProxyManager::GetInstance()->GetCurrReflectProperty() == NULL)
         {
+            CDependencyDescription* pDependency = CComponentProxyManager::GetInstance()->GetCurrReflectDependency();
             if (pDependency == NULL || _tcscmp(pDependency->GetVariableName(), pszPropertyStr) == 0)
             {
                 uint32_t uLineCount = 0;
@@ -587,7 +702,9 @@ template<typename T>
 bool DeclareDependencyList(CSerializer& serializer, CComponentBase* pComponent, T& ptrProperty, const TCHAR* pszPropertyStr)
 {
     bool bStopHandle = false;
-    if (CComponentInstanceManager::GetInstance()->GetForbidDependencyResolve())
+    bool bInClonePhase = CComponentInstanceManager::GetInstance()->IsInClonePhase();
+    // In clone phase, we don't need to resolve anything(avoid resolve the existing component), just copy all property description.
+    if (bInClonePhase)
     {
         uint32_t uLineCount, uInstanceId, uGuid;
         serializer >> uLineCount;
@@ -596,7 +713,7 @@ bool DeclareDependencyList(CSerializer& serializer, CComponentBase* pComponent, 
     }
     else
     {
-        CPropertyDescriptionBase* pDescriptionBase = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();
+        CPropertyDescriptionBase* pDescriptionBase = CComponentProxyManager::GetInstance()->GetCurrReflectProperty();
         CDependencyDescription* pDependencyList = CComponentProxyManager::GetInstance()->GetCurrReflectDependency();
         if (pDescriptionBase == NULL)
         {
@@ -666,9 +783,9 @@ bool DeclareDependencyList(CSerializer& serializer, CComponentBase* pComponent, 
 }
 
 #define DECLARE_DEPENDENCY_LIST(serializer, ptrProperty, displayName, dependencyType)\
-    {\
+{\
     if (DeclareDependencyList(serializer, this, ptrProperty, _T(#ptrProperty))) return; \
-    }
+}
 #endif
 #endif
 

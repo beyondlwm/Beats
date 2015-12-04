@@ -184,15 +184,7 @@ CComponentInstance* CComponentInstance::CloneInstance()
 #endif
     // Forbid to resolve the dependency for the new component instance
     // to avoid both the old and new instance link to the same component.
-    CComponentInstanceManager::GetInstance()->SetForbidDependencyResolve(true);
-    CDependencyDescription* pCurReflectDependency = CComponentProxyManager::GetInstance()->GetCurrReflectDependency();
-    CComponentProxyManager::GetInstance()->SetCurrReflectDependency(NULL);
-    CPropertyDescriptionBase* pCurRelfectProperty = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();
-    CComponentProxyManager::GetInstance()->SetCurrReflectDescription(NULL);
     CComponentBase* pNewInstance = Clone(false, pSerializer, 0xFFFFFFFF, false);
-    CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pCurRelfectProperty);
-    CComponentProxyManager::GetInstance()->SetCurrReflectDependency(pCurReflectDependency);
-    CComponentInstanceManager::GetInstance()->SetForbidDependencyResolve(false);
     CComponentInstanceManager::GetInstance()->SetClonePhaseFlag(bOriginState);
     return static_cast<CComponentInstance*>(pNewInstance);
 }

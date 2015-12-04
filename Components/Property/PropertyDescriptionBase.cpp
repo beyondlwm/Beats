@@ -232,6 +232,19 @@ bool CPropertyDescriptionBase::IsContainerProperty()
     return false;
 }
 
+void CPropertyDescriptionBase::SerializeContainerElementLocation(CSerializer& serializer, CPropertyDescriptionBase* pChildProperty)
+{
+    BEATS_ASSERT(IsContainerProperty(), "Can't call this function for a non-container property!");
+    uint32_t uChildIndex = GetChildIndex(pChildProperty);
+    BEATS_ASSERT(uChildIndex != 0xFFFFFFFF);
+    serializer << uChildIndex;
+}
+
+bool CPropertyDescriptionBase::OnChildChanged(uint32_t uChildIndex)
+{
+    return false;
+}
+
 void CPropertyDescriptionBase::SetValueList(const std::vector<TString>& /*valueList*/)
 {
     // Do nothing.
@@ -251,14 +264,51 @@ void CPropertyDescriptionBase::SetValueWithType(void* pValue, EValueType type, b
         bool bLoadingPhase = CComponentProxyManager::GetInstance()->IsLoadingFile();
         if (!bLoadingPhase && CanSyncToHost() && type == eVT_CurrentValue && GetOwner())
         {
-            // Some property is not the real property, such as container property.
-            CPropertyDescriptionBase* pRealProperty = this;
-            while (pRealProperty->GetParent() != NULL && pRealProperty->GetOwner() == pRealProperty->GetParent()->GetOwner())
+            CPropertyDescriptionBase* pDataProperty = this; // the property which can be deserialized as the minimal unit, for example: CVec3 is ok, but CVec3::x is not ok.
+            EReflectOperationType reflectOperateType = EReflectOperationType::ChangeValue;
+            CPropertyDescriptionBase* pCurrReflectProperty = CComponentProxyManager::GetInstance()->GetCurrReflectProperty(&reflectOperateType);
+            if (pCurrReflectProperty != nullptr)
             {
-                pRealProperty = pRealProperty->GetParent();
+                BEATS_ASSERT(reflectOperateType != EReflectOperationType::ChangeValue);
+                BEATS_ASSERT(this->IsContainerProperty());
+                if (reflectOperateType == EReflectOperationType::AddChild || reflectOperateType == EReflectOperationType::RemoveChild)
+                {
+                    pDataProperty = pCurrReflectProperty; // in Add/RemoveChild mode, current reflect property is the child to be added.
+                }
             }
 
-            CComponentBase* pHostComponent = pRealProperty->GetOwner()->GetHostComponent();
+            // Some property is not the real property, such as container property.
+            CPropertyDescriptionBase* pReflectProperty = this; // the property we inform user in OnPropertyChanged.
+            std::vector<CPropertyDescriptionBase*> m_containerElementProperties;// contains the location of pDataProperty in pReflectProperty, can be nested.
+            // Example: std::vector<std::vector<CVec3>> m_testData.
+            // If I change the x value of m_testData:
+            // this will be the float property description of CVec3::x.
+            // CVec3 will be the pDataProperty.
+            // m_testData will be the pReflectProperty.
+            // if m_containerElementIndexInfo == {10, 15}, it means I changed m_testDat[10][15].x
+            CPropertyDescriptionBase* pParentProperty = GetParent();
+            std::vector<CPropertyDescriptionBase*> refreshPropertyList;
+            static CSerializer serializer;
+            serializer.Reset();
+            while (pParentProperty != NULL && pReflectProperty->GetOwner() == pParentProperty->GetOwner())
+            {
+                if (pParentProperty->IsContainerProperty())
+                {
+                    m_containerElementProperties.push_back(pReflectProperty);
+                }
+                else
+                {
+                    if (pDataProperty == this && reflectOperateType != EReflectOperationType::RemoveChild) // the data property must be the current reflect property in remove child mode.
+                    {
+                        pDataProperty = pParentProperty;
+                    }
+                }
+                refreshPropertyList.push_back(pParentProperty);
+                pReflectProperty = pParentProperty;
+                pParentProperty = pParentProperty->GetParent();
+            }
+
+            CComponentBase* pHostComponent = pReflectProperty->GetOwner()->GetHostComponent();
             CPropertyDescriptionBase* pRootProperty = this;
             while (pRootProperty->GetParent() != NULL)
             {
@@ -270,20 +320,51 @@ void CPropertyDescriptionBase::SetValueWithType(void* pValue, EValueType type, b
             if (pHostComponent && !bIsTemplateProperty)
             {
                 // Record the original value to avoid wrong set in recursive call.
-                CPropertyDescriptionBase* pOriginalCheckProperty = CComponentProxyManager::GetInstance()->GetCurrReflectDescription();
-                CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pRealProperty);
-                static CSerializer serializer;
-                serializer.Reset();
-                pRealProperty->Serialize(serializer, eVT_CurrentValue);
+                CComponentProxyManager::GetInstance()->SetCurrReflectProperty(pReflectProperty, reflectOperateType);
+                for (auto rIter = m_containerElementProperties.rbegin(); rIter != m_containerElementProperties.rend(); ++rIter)
+                {
+                    CPropertyDescriptionBase* pParent = (*rIter)->GetParent();
+                    BEATS_ASSERT(pParent != nullptr && pParent->IsContainerProperty());
+                    pParent->SerializeContainerElementLocation(serializer, *rIter);
+                }
+                if (reflectOperateType == EReflectOperationType::AddChild)
+                {
+                    serializer.SetUserData((void*)serializer.GetWritePos());
+                    BEATS_ASSERT(pDataProperty->GetParent() != nullptr);
+                    serializer << pDataProperty->GetParent()->GetChildIndex(pDataProperty); // The pos to add.
+                }
+                else if (reflectOperateType == EReflectOperationType::RemoveChild)
+                {
+                    serializer.SetUserData((void*)serializer.GetWritePos());
+                    CSerializer& removeChildInfo = CComponentProxyManager::GetInstance()->GetRemoveChildInfo();
+                    serializer.Serialize(removeChildInfo);
+                    removeChildInfo.Reset();
+                }
+                pDataProperty->Serialize(serializer, eVT_CurrentValue);
                 pHostComponent->ReflectData(serializer);
-                const std::vector<CComponentInstance*>& syncComponents = pRealProperty->GetOwner()->GetSyncComponents();
+                const std::vector<CComponentInstance*>& syncComponents = pReflectProperty->GetOwner()->GetSyncComponents();
                 for (uint32_t i = 0; i < syncComponents.size(); ++i)
                 {
                     serializer.SetReadPos(0);
                     syncComponents[i]->ReflectData(serializer);
                 }
-                // Restore the content.
-                CComponentProxyManager::GetInstance()->SetCurrReflectDescription(pOriginalCheckProperty);
+                CComponentProxyManager::GetInstance()->SetCurrReflectProperty(nullptr, EReflectOperationType::ChangeValue);//Reset to default operation type
+                for (size_t i = 0; i < refreshPropertyList.size(); ++i)
+                {
+                    uint32_t uIndex = 0;
+                    if (i == 0)
+                    {
+                        uIndex = refreshPropertyList[i]->GetChildIndex(pDataProperty);
+                    }
+                    else
+                    {
+                        uIndex = refreshPropertyList[i]->GetChildIndex(refreshPropertyList[i - 1]);
+                    }
+                    if (refreshPropertyList[i]->OnChildChanged(uIndex))
+                    {
+                        break;
+                    }
+                }
             }
         }
     }
@@ -292,4 +373,18 @@ void CPropertyDescriptionBase::SetValueWithType(void* pValue, EValueType type, b
 void CPropertyDescriptionBase::SetNoSyncHost(bool bValue)
 {
     m_bNoSyncToHost = bValue;
+}
+
+uint32_t CPropertyDescriptionBase::GetChildIndex(const CPropertyDescriptionBase* pChildProperty) const
+{
+    uint32_t uRet = 0xFFFFFFFF;
+    for (size_t i = 0; i < m_pChildren->size(); ++i)
+    {
+        if (pChildProperty == m_pChildren->at(i))
+        {
+            uRet = i;
+            break;
+        }
+    }
+    return uRet;
 }

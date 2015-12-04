@@ -78,8 +78,6 @@ public:
     void SetCurrLoadFileId(uint32_t uId);
 
     void CalcSwitchFile(uint32_t uFileId, std::vector<uint32_t>& loadFiles, std::vector<uint32_t>& unloadFiles, bool& bNewAddFile);
-    void SetForbidDependencyResolve(bool bEnable);
-    bool GetForbidDependencyResolve() const;
     void AddDependencyResolver( CDependencyDescription* pDescription, uint32_t uIndex, uint32_t uGuid, uint32_t uInstanceId, void* pVariableAddress, bool bIsList, TAddDependencyFunc pFunc = NULL);
     virtual void ResolveDependency() = 0;
 
@@ -87,7 +85,6 @@ private:
     void DeleteAllInstance();
 
 protected:
-    bool m_bForbidDependencyResolve;
     uint32_t m_uCurrLoadFileId;
     CIdManager* m_pIdManager;
     CComponentProject* m_pProject;

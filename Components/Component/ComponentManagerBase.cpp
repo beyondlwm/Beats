@@ -13,8 +13,7 @@ void DefaultAddDependencyFunc(void* pContainer, void* pDependency)
 }
 
 CComponentManagerBase::CComponentManagerBase()
-    : m_bForbidDependencyResolve(false)
-    , m_uCurrLoadFileId(0xFFFFFFFF)
+    : m_uCurrLoadFileId(0xFFFFFFFF)
 {
     m_pIdManager = new CIdManager;
     m_pProject = new CComponentProject;
@@ -209,46 +208,33 @@ void CComponentManagerBase::SetCurrLoadFileId(uint32_t uId)
     m_uCurrLoadFileId = uId;
 }
 
-void CComponentManagerBase::SetForbidDependencyResolve(bool bEnable)
-{
-    m_bForbidDependencyResolve = bEnable;
-}
-
-bool CComponentManagerBase::GetForbidDependencyResolve() const
-{
-    return m_bForbidDependencyResolve;
-}
-
 void CComponentManagerBase::AddDependencyResolver( CDependencyDescription* pDescription, uint32_t uIndex, uint32_t uGuid, uint32_t uInstanceId , void* pVariableAddress, bool bIsList, TAddDependencyFunc pFunc /*= NULL*/)
 {
-    if (!m_bForbidDependencyResolve)
-    {
-        SDependencyResolver* pDependencyResovler = new SDependencyResolver;
-        pDependencyResovler->pDescription = pDescription;
-        pDependencyResovler->uIndex = uIndex;
-        pDependencyResovler->uGuid = uGuid;
-        pDependencyResovler->uInstanceId = uInstanceId;
+    SDependencyResolver* pDependencyResovler = new SDependencyResolver;
+    pDependencyResovler->pDescription = pDescription;
+    pDependencyResovler->uIndex = uIndex;
+    pDependencyResovler->uGuid = uGuid;
+    pDependencyResovler->uInstanceId = uInstanceId;
 #ifdef _DEBUG
-        // pVariableAddress is always null for CComponentProxyManager
-        if (pVariableAddress)
+    // pVariableAddress is always null for CComponentProxyManager
+    if (pVariableAddress)
+    {
+        if (bIsList)
         {
-            if (bIsList)
-            {
-                std::vector<void*>* pVector = (std::vector<void*>*)pVariableAddress;
-                // pVariableAddress is always null for CComponentProxyManager
-                BEATS_ASSERT(pVector->size() == 0, "the variable of address should be cleared.");
-            }
-            else
-            {
-                BEATS_ASSERT(*(ptrdiff_t*)pVariableAddress == 0, "the variable of address should be cleared.");
-            }
+            std::vector<void*>* pVector = (std::vector<void*>*)pVariableAddress;
+            // pVariableAddress is always null for CComponentProxyManager
+            BEATS_ASSERT(pVector->size() == 0, "the variable of address should be cleared.");
         }
-#endif
-        pDependencyResovler->pVariableAddress = pVariableAddress;
-        pDependencyResovler->bIsList = bIsList;
-        pDependencyResovler->pAddFunc = pFunc == NULL ? DefaultAddDependencyFunc : pFunc;
-        m_pDependencyResolver->push_back(pDependencyResovler);
+        else
+        {
+            BEATS_ASSERT(*(ptrdiff_t*)pVariableAddress == 0, "the variable of address should be cleared.");
+        }
     }
+#endif
+    pDependencyResovler->pVariableAddress = pVariableAddress;
+    pDependencyResovler->bIsList = bIsList;
+    pDependencyResovler->pAddFunc = pFunc == NULL ? DefaultAddDependencyFunc : pFunc;
+    m_pDependencyResolver->push_back(pDependencyResovler);
 }
 
 void CComponentManagerBase::CalcSwitchFile(uint32_t uFileId, std::vector<uint32_t>& loadFiles, std::vector<uint32_t>& unloadFiles, bool& bNewAddFile)

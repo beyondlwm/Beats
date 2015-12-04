@@ -332,7 +332,7 @@ void CDependencyDescription::OnDependencyChanged()
                 Serialize(serializer);
                 CDependencyDescription* pOriginalReflectDependency = CComponentProxyManager::GetInstance()->GetCurrReflectDependency();
                 CComponentProxyManager::GetInstance()->SetCurrReflectDependency(this);
-                BEATS_ASSERT(CComponentProxyManager::GetInstance()->GetCurrReflectDescription() == NULL);
+                BEATS_ASSERT(CComponentProxyManager::GetInstance()->GetCurrReflectProperty() == NULL);
                 GetOwner()->GetHostComponent()->ReflectData(serializer);
                 CComponentInstanceManager::GetInstance()->ResolveDependency();
                 // Restore the content.

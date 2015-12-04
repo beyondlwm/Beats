@@ -10,7 +10,6 @@ class TiXmlElement;
 template<typename T>
 class SharePtr;
 
-
 class COMPONENTS_DLL_DECL CPropertyDescriptionBase
 {
 public:
@@ -76,8 +75,11 @@ public:
     virtual void Uninitialize();
     bool IsInitialized() const;
     virtual bool IsContainerProperty();
+    virtual void SerializeContainerElementLocation(CSerializer& serializer, CPropertyDescriptionBase* pChildProperty);
 
     //Editor mode only
+    virtual bool OnChildChanged(uint32_t uChildIndex);
+
     virtual void SetValueList(const std::vector<TString>& valueList);
     virtual CComponentProxy* GetInstanceComponent() const;
 
@@ -103,6 +105,7 @@ public:
     virtual bool CopyValue(void* pSourceValue, void* pTargetValue) = 0;
 
     void SetNoSyncHost(bool bValue);
+    uint32_t GetChildIndex(const CPropertyDescriptionBase* pChildProperty) const;
 
 protected:
     bool m_bInitialized;

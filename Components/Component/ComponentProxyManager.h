@@ -12,6 +12,14 @@ class CComponentProjectDirectory;
 typedef CComponentProxy* (*TCreateComponentEditorProxyFunc)(CComponentGraphic* pGraphics, uint32_t guid, uint32_t parentGuid, TCHAR* className);
 typedef CComponentGraphic* (*TCreateGraphicFunc)();
 
+enum class EReflectOperationType
+{
+    ChangeValue,
+    AddChild,
+    RemoveChild,
+    SwapChildOrder
+};
+
 class CComponentProxyManager : public CComponentManagerBase
 {
     typedef CComponentManagerBase super;
@@ -50,11 +58,12 @@ public:
                                 TCreateGraphicFunc pGraphicFunc);
     virtual void ResolveDependency() override;
 
-    CPropertyDescriptionBase* GetCurrReflectDescription() const;
-    void SetCurrReflectDescription(CPropertyDescriptionBase* pPropertyDescription);
+    CPropertyDescriptionBase* GetCurrReflectProperty(EReflectOperationType* pOperateType = nullptr) const;
+    void SetCurrReflectProperty(CPropertyDescriptionBase* pPropertyDescription, EReflectOperationType operateType);
 
     CDependencyDescription* GetCurrReflectDependency() const;
     void SetCurrReflectDependency(CDependencyDescription* pDependency);
+    CSerializer& GetRemoveChildInfo();
 
     CComponentProxy* GetCurrUpdateProxy() const;
     void SetCurrUpdateProxy(CComponentProxy* pProxy);
@@ -98,8 +107,11 @@ private:
     TString m_strCurrOperateFile;
     uint32_t m_uCurrViewFileId;
     CComponentProxy* m_pCurrUpdateProxy; //Indicate we are calling CComponentProxy::UpdateHostComponent, so the host components' ptr property will get value from CPropertyDescription::GetInstanceComponent::GetHostComponent.
-    CPropertyDescriptionBase* m_pCurrReflectPropertyDescription;
+    EReflectOperationType m_reflectOperateType;
+    CPropertyDescriptionBase* m_pCurrReflectProperty;
+    CSerializer* m_pRemoveChildInfo;
     CDependencyDescription* m_pCurrReflectDependency;
+
     std::map<uint32_t, TCreatePropertyFunc>* m_pPropertyCreatorMap;
     std::map<uint32_t, TString> m_abstractComponentNameMap;
     // This map save the inherit relationship for all components. so when we instance a component pointer, we can decide which instance to generate.
