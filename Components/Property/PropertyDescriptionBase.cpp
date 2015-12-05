@@ -330,15 +330,18 @@ void CPropertyDescriptionBase::SetValueWithType(void* pValue, EValueType type, b
                 if (reflectOperateType == EReflectOperationType::AddChild)
                 {
                     serializer.SetUserData((void*)serializer.GetWritePos());
-                    BEATS_ASSERT(pDataProperty->GetParent() != nullptr);
-                    serializer << pDataProperty->GetParent()->GetChildIndex(pDataProperty); // The pos to add.
+                    BEATS_ASSERT(pDataProperty->GetParent() != nullptr&& pDataProperty->GetParent()->IsContainerProperty());
+                    pDataProperty->GetParent()->SerializeContainerElementLocation(serializer, pDataProperty);
                 }
                 else if (reflectOperateType == EReflectOperationType::RemoveChild)
                 {
                     serializer.SetUserData((void*)serializer.GetWritePos());
                     CSerializer& removeChildInfo = CComponentProxyManager::GetInstance()->GetRemoveChildInfo();
-                    serializer.Serialize(removeChildInfo);
-                    removeChildInfo.Reset();
+                    if (removeChildInfo.GetWritePos() != removeChildInfo.GetReadPos())
+                    {
+                        serializer.Serialize(removeChildInfo);
+                        removeChildInfo.Reset();
+                    }
                 }
                 pDataProperty->Serialize(serializer, eVT_CurrentValue);
                 pHostComponent->ReflectData(serializer);
