@@ -333,7 +333,7 @@ void CPropertyDescriptionBase::SetValueWithType(void* pValue, EValueType type, b
                     BEATS_ASSERT(pDataProperty->GetParent() != nullptr&& pDataProperty->GetParent()->IsContainerProperty());
                     pDataProperty->GetParent()->SerializeContainerElementLocation(serializer, pDataProperty);
                 }
-                else if (reflectOperateType == EReflectOperationType::RemoveChild)
+                else if (reflectOperateType == EReflectOperationType::RemoveChild || reflectOperateType == EReflectOperationType::ChangeListOrder)
                 {
                     serializer.SetUserData((void*)serializer.GetWritePos());
                     CSerializer& removeChildInfo = CComponentProxyManager::GetInstance()->GetRemoveChildInfo();
@@ -355,14 +355,8 @@ void CPropertyDescriptionBase::SetValueWithType(void* pValue, EValueType type, b
                 for (size_t i = 0; i < refreshPropertyList.size(); ++i)
                 {
                     uint32_t uIndex = 0;
-                    if (i == 0)
-                    {
-                        uIndex = refreshPropertyList[i]->GetChildIndex(pDataProperty);
-                    }
-                    else
-                    {
-                        uIndex = refreshPropertyList[i]->GetChildIndex(refreshPropertyList[i - 1]);
-                    }
+                    CPropertyDescriptionBase* pChildProperty = i == 0 ? pDataProperty : refreshPropertyList[i - 1];
+                    uIndex = refreshPropertyList[i]->GetChildIndex(pChildProperty);
                     if (refreshPropertyList[i]->OnChildChanged(uIndex))
                     {
                         break;

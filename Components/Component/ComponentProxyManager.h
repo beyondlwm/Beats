@@ -17,7 +17,7 @@ enum class EReflectOperationType
     ChangeValue,
     AddChild,
     RemoveChild,
-    SwapChildOrder
+    ChangeListOrder
 };
 
 class CComponentProxyManager : public CComponentManagerBase
