@@ -145,6 +145,8 @@ void CComponentProxy::ImportDataFromEDS( CSerializer& serializer )
 
 CComponentBase* CComponentProxy::Clone(bool bCloneValue, CSerializer* /*pSerializer*/, uint32_t id, bool bCallInitFunc /*= true*/)
 {
+    bool bOriginClonePhase = CComponentInstanceManager::GetInstance()->IsInClonePhase();
+    CComponentInstanceManager::GetInstance()->SetClonePhaseFlag(true);
     CComponentProxy* pNewProxy = new CComponentProxy(m_pGraphics->Clone(), m_uGuid, m_uParentGuid, m_strClassName.c_str());
     pNewProxy->SetDisplayName(m_strDisplayName.c_str());
     pNewProxy->SetUserDefineDisplayName(m_strUserDefineDisplayName.c_str());
@@ -188,7 +190,7 @@ CComponentBase* CComponentProxy::Clone(bool bCloneValue, CSerializer* /*pSeriali
             pNewProxy->m_pHostComponent->Initialize();
         }
     }
-
+    CComponentInstanceManager::GetInstance()->SetClonePhaseFlag(bOriginClonePhase);//restore
     return pNewProxy;
 }
 

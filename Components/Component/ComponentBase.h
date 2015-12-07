@@ -3,10 +3,27 @@
 
 #include "../expdef.h"
 #include "DependencyDescription.h"
+#include "ComponentInstanceManager.h"
 #define DECLARE_REFLECT_GUID(className, guid, parentClassName)\
     DECLARE_REFLECT_GUID_ABSTRACT(className, guid, parentClassName)\
     public:\
-    virtual CComponentBase* Clone(bool /*bCloneFromTemplate*/, CSerializer* pSerializer, uint32_t id, bool bCallInitFunc = true){BEATS_ASSERT(typeid(className) == typeid(*this), _T("Define wrong class type: define %s"), _T(#className));CComponentBase* pNewInstance = new className; pNewInstance->SetId(id); if (pSerializer != NULL){pNewInstance->ReflectData(*pSerializer);if(bCallInitFunc){pNewInstance->Initialize();}} return pNewInstance;}\
+    virtual CComponentBase* Clone(bool /*bCloneFromTemplate*/, CSerializer* pSerializer, uint32_t id, bool bCallInitFunc = true)\
+    {\
+        CComponentInstanceManager::GetInstance()->SetClonePhaseFlag(true);\
+        BEATS_ASSERT(typeid(className) == typeid(*this), _T("Define wrong class type: define %s"), _T(#className));\
+        CComponentBase* pNewInstance = new className;\
+        pNewInstance->SetId(id);\
+        if (pSerializer != NULL)\
+        {\
+            pNewInstance->ReflectData(*pSerializer);\
+            if(bCallInitFunc)\
+            {\
+                pNewInstance->Initialize();\
+            }\
+        }\
+        CComponentInstanceManager::GetInstance()->SetClonePhaseFlag(false); \
+        return pNewInstance; \
+    }\
     private:
 
 #define DECLARE_REFLECT_GUID_ABSTRACT(className, guid, parentClassName)\

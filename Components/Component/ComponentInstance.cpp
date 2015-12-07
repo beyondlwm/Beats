@@ -157,9 +157,6 @@ void CComponentInstance::SetSyncProxyComponent(CComponentProxy* pProxy)
 
 CComponentInstance* CComponentInstance::CloneInstance()
 {
-    // Use bOriginState to avoid logic mistake when nested call.
-    bool bOriginState = CComponentInstanceManager::GetInstance()->IsInClonePhase();
-    CComponentInstanceManager::GetInstance()->SetClonePhaseFlag(true);
     CSerializer* pSerializer = CComponentInstanceManager::GetInstance()->GetFileSerializer();
     static CSerializer serializer;
     // If we are in editor mode, we get the data from proxy. if we are not in editor mode, we can only get the data from the record.
@@ -182,10 +179,7 @@ CComponentInstance* CComponentInstance::CloneInstance()
 #else
     pSerializer->SetReadPos(12);
 #endif
-    // Forbid to resolve the dependency for the new component instance
-    // to avoid both the old and new instance link to the same component.
     CComponentBase* pNewInstance = Clone(false, pSerializer, 0xFFFFFFFF, false);
-    CComponentInstanceManager::GetInstance()->SetClonePhaseFlag(bOriginState);
     return static_cast<CComponentInstance*>(pNewInstance);
 }
 
