@@ -30,6 +30,7 @@ CComponentProxyManager::CComponentProxyManager()
     , m_pCurrReflectDependency(NULL)
     , m_pCurrUpdateProxy(NULL)
     , m_pRemoveChildInfo(nullptr)
+    , m_reflectOperateType(EReflectOperationType::ChangeValue)
 {
     m_pPropertyCreatorMap = new std::map<uint32_t, TCreatePropertyFunc>();
     m_pComponentInheritMap = new std::map<uint32_t, std::vector<uint32_t> >();
@@ -670,7 +671,8 @@ CPropertyDescriptionBase* CComponentProxyManager::GetCurrReflectProperty(EReflec
     {
         *pOperateType = m_reflectOperateType;
     }
-    return m_pCurrReflectProperty;
+    // When we are in clone state or loading file state, we don't allow to reflect sync single property
+    return !CComponentInstanceManager::GetInstance()->IsInClonePhase() && !IsLoadingFile() ? m_pCurrReflectProperty : nullptr;
 }
 
 void CComponentProxyManager::SetCurrReflectProperty(CPropertyDescriptionBase* pPropertyDescription, EReflectOperationType operateType)
@@ -688,7 +690,8 @@ CSerializer& CComponentProxyManager::GetRemoveChildInfo()
 
 CDependencyDescription* CComponentProxyManager::GetCurrReflectDependency() const
 {
-    return m_pCurrReflectDependency;
+    // When we are in clone state or loading file state, we don't allow to reflect sync single dependency
+    return !CComponentInstanceManager::GetInstance()->IsInClonePhase() && !IsLoadingFile() ? m_pCurrReflectDependency : nullptr;
 }
 
 void CComponentProxyManager::SetCurrReflectDependency(CDependencyDescription* pDependency)

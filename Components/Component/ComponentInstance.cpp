@@ -157,6 +157,8 @@ void CComponentInstance::SetSyncProxyComponent(CComponentProxy* pProxy)
 
 CComponentInstance* CComponentInstance::CloneInstance()
 {
+    bool bOriginalValue = CComponentInstanceManager::GetInstance()->IsInClonePhase();
+    CComponentInstanceManager::GetInstance()->SetClonePhaseFlag(true);
     CSerializer* pSerializer = CComponentInstanceManager::GetInstance()->GetFileSerializer();
     static CSerializer serializer;
     // If we are in editor mode, we get the data from proxy. if we are not in editor mode, we can only get the data from the record.
@@ -180,6 +182,7 @@ CComponentInstance* CComponentInstance::CloneInstance()
     pSerializer->SetReadPos(12);
 #endif
     CComponentBase* pNewInstance = Clone(false, pSerializer, 0xFFFFFFFF, false);
+    CComponentInstanceManager::GetInstance()->SetClonePhaseFlag(bOriginalValue);
     return static_cast<CComponentInstance*>(pNewInstance);
 }
 
