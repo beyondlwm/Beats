@@ -22,7 +22,6 @@ CComponentProxyManager* CComponentProxyManager::m_pInstance = NULL;
 
 CComponentProxyManager::CComponentProxyManager()
     : m_bCreateInstanceWithProxy(true)
-    , m_bLoadingFilePhase(false)
     , m_bExportingPhase(false)
     , m_uOperateProgress(0)
     , m_uCurrViewFileId(0xFFFFFFFF)
@@ -77,7 +76,6 @@ void CComponentProxyManager::UninitializeAllTemplate()
 void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bCloseLoadedFile/*= false*/)
 {
     m_uOperateProgress = 0;
-    bool bRestoreLoadingPhase = m_bLoadingFilePhase;
     uint32_t uFileId = m_pProject->GetComponentFileId(pFilePath);
     BEATS_ASSERT(uFileId != 0xFFFFFFFF);
     if (uFileId != 0xFFFFFFFF)
@@ -102,7 +100,6 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bCloseLoadedF
             }
         }
         m_uOperateProgress = 10;
-        m_bLoadingFilePhase = true;
         // use 80% for load file.
         std::vector<CComponentBase*> loadedComponents;
         for (uint32_t i = 0; i < loadFiles.size(); ++i)
@@ -139,14 +136,11 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bCloseLoadedF
         m_uOperateProgress = 100;
         m_strCurrOperateFile.clear();
         ReSaveFreshFile();
-        m_bLoadingFilePhase = bRestoreLoadingPhase;
     }
 }
 
 void CComponentProxyManager::LoadFile(uint32_t uFileId, std::vector<CComponentBase*>* pComponentContainer)
 {
-    bool bRestoreLoadingPhase = m_bLoadingFilePhase;
-    m_bLoadingFilePhase = true;
     const TString& strFilePath = m_pProject->GetComponentFileName(uFileId);
     BEATS_ASSERT(strFilePath.length() > 0);
     TiXmlDocument document(strFilePath.c_str());
@@ -160,6 +154,8 @@ void CComponentProxyManager::LoadFile(uint32_t uFileId, std::vector<CComponentBa
         TiXmlElement* pComponentListNode = pRootElement->FirstChildElement("Components");
         if (pComponentListNode != NULL )
         {
+            bool bRestoreLoadingPhase = IsInLoadingPhase();
+            SetLoadPhaseFlag(true);
             std::vector<CComponentProxy*> loadedProxyList;
             std::vector<int> reservedId; 
             TiXmlElement* pComponentElement = pComponentListNode->FirstChildElement("Component");
@@ -205,6 +201,7 @@ void CComponentProxyManager::LoadFile(uint32_t uFileId, std::vector<CComponentBa
                 pComponentElement = pComponentElement->NextSiblingElement("Component");
             }
             ResolveDependency();
+            SetLoadPhaseFlag(bRestoreLoadingPhase);
             // Call component proxy's initialize means we have sync all value to host component, so we call host component's load function.
             for (size_t i = 0; i < loadedProxyList.size(); ++i)
             {
@@ -234,7 +231,6 @@ void CComponentProxyManager::LoadFile(uint32_t uFileId, std::vector<CComponentBa
         _stprintf(info, _T("Load file :%s Failed! Row: %d Col: %d Reason:%s"), strFilePath.c_str(), document.ErrorRow(), document.ErrorCol(), document.ErrorDesc());
         MessageBox(BEYONDENGINE_HWND, info, _T("Load File Failed"), MB_OK | MB_ICONERROR);
     }
-    m_bLoadingFilePhase = bRestoreLoadingPhase;
 }
 
 void CComponentProxyManager::UnloadFile(uint32_t uFileId, std::vector<CComponentBase*>* pUnloadComponents)
@@ -672,7 +668,7 @@ CPropertyDescriptionBase* CComponentProxyManager::GetCurrReflectProperty(EReflec
         *pOperateType = m_reflectOperateType;
     }
     // When we are in clone state or loading file state, we don't allow to reflect sync single property
-    return !CComponentInstanceManager::GetInstance()->IsInClonePhase() && !IsLoadingFile() ? m_pCurrReflectProperty : nullptr;
+    return !CComponentInstanceManager::GetInstance()->IsInClonePhase() && !IsInLoadingPhase() ? m_pCurrReflectProperty : nullptr;
 }
 
 void CComponentProxyManager::SetCurrReflectProperty(CPropertyDescriptionBase* pPropertyDescription, EReflectOperationType operateType)
@@ -691,7 +687,7 @@ CSerializer& CComponentProxyManager::GetRemoveChildInfo()
 CDependencyDescription* CComponentProxyManager::GetCurrReflectDependency() const
 {
     // When we are in clone state or loading file state, we don't allow to reflect sync single dependency
-    return !CComponentInstanceManager::GetInstance()->IsInClonePhase() && !IsLoadingFile() ? m_pCurrReflectDependency : nullptr;
+    return !CComponentInstanceManager::GetInstance()->IsInClonePhase() && !IsInLoadingPhase() ? m_pCurrReflectDependency : nullptr;
 }
 
 void CComponentProxyManager::SetCurrReflectDependency(CDependencyDescription* pDependency)
@@ -713,11 +709,6 @@ void CComponentProxyManager::SetCurrUpdateProxy(CComponentProxy* pProxy)
 const std::map<uint32_t, TString>& CComponentProxyManager::GetAbstractComponentNameMap() const
 {
     return m_abstractComponentNameMap;
-}
-
-bool CComponentProxyManager::IsLoadingFile() const
-{
-    return m_bLoadingFilePhase;
 }
 
 bool CComponentProxyManager::IsParent(uint32_t uParentGuid, uint32_t uChildGuid) const

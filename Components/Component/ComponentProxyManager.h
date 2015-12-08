@@ -70,9 +70,6 @@ public:
 
     const std::map<uint32_t, TString>& GetAbstractComponentNameMap() const;
 
-    // We won't call OnPropertyChange when loading files.
-    bool IsLoadingFile() const;
-
     bool IsParent(uint32_t uParentGuid, uint32_t uChildGuid) const;
 
     void RegisterComponentReference(CComponentReference* pReference);
@@ -101,7 +98,6 @@ private:
     void ReSaveFreshFile();
 private:
     bool m_bCreateInstanceWithProxy;
-    bool m_bLoadingFilePhase;
     bool m_bExportingPhase;
     uint32_t m_uOperateProgress;
     TString m_strCurrOperateFile;

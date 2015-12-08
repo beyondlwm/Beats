@@ -261,7 +261,7 @@ void CPropertyDescriptionBase::SetValueWithType(void* pValue, EValueType type, b
     {
         // We don't need to sync the property in loading phase, since after all components are loaded from XML
         // we will call CComponentProxy::UpdateHostComponent for total.
-        bool bLoadingPhase = CComponentProxyManager::GetInstance()->IsLoadingFile();
+        bool bLoadingPhase = CComponentProxyManager::GetInstance()->IsInLoadingPhase();
         if (!bLoadingPhase && CanSyncToHost() && type == eVT_CurrentValue && GetOwner())
         {
             CPropertyDescriptionBase* pDataProperty = this; // the property which can be deserialized as the minimal unit, for example: CVec3 is ok, but CVec3::x is not ok.

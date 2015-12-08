@@ -18,15 +18,11 @@ public:
     virtual void UnloadFile(uint32_t uFileId, std::vector<CComponentBase*>* pUnloadComponents) override;
     virtual void CloseFile(uint32_t uFileId) override;
     CSerializer* GetFileSerializer() const;
-    bool IsInClonePhase() const;
-    void SetClonePhaseFlag(bool bInClonePhase);
-
     virtual void ResolveDependency() override;
 
 private:
     void LoadDirectoryFiles(CComponentProjectDirectory* pDirectory, std::vector<CComponentBase*>& loadComponents);
 private:
-    bool m_bInClonePhase;
     CSerializer* m_pSerializer;
 };
 

@@ -12,7 +12,6 @@
 
 CComponentInstanceManager* CComponentInstanceManager::m_pInstance = NULL;
 CComponentInstanceManager::CComponentInstanceManager()
-    : m_bInClonePhase(false)
 {
     m_pSerializer = new CSerializer;
 }
@@ -132,6 +131,8 @@ void CComponentInstanceManager::LoadFile(uint32_t uFileId, std::vector<CComponen
         BEATS_ASSERT(uFileStartPosRead == uFileStartPos && uFileDataLengthRead == uFileDataLength);
         uint32_t uComponentCount = 0;
         *m_pSerializer >> uComponentCount;
+        bool bOriginalLoadPhase = IsInLoadingPhase();
+        SetLoadPhaseFlag(true);
         for (uint32_t j = 0; j < uComponentCount; ++j)
         {
             uint32_t uComponentDataSize, uGuid, uId;
@@ -151,6 +152,7 @@ void CComponentInstanceManager::LoadFile(uint32_t uFileId, std::vector<CComponen
         }
         BEATS_ASSERT(m_pSerializer->GetReadPos() - uFileStartPos == uFileDataLength, _T("File Data NOT Match!\nGot an error when import data for file %d Required size:%d Actual size %d"), uFileId, uFileDataLength, m_pSerializer->GetReadPos() - uFileStartPos);
         ResolveDependency();
+        SetLoadPhaseFlag(bOriginalLoadPhase);
         // After all component instance's value is read, we call each's load function.
         for (size_t i = 0; i < loadComponents.size(); ++i)
         {
@@ -208,16 +210,6 @@ void CComponentInstanceManager::CloseFile(uint32_t uFileId)
 CSerializer* CComponentInstanceManager::GetFileSerializer() const
 {
     return m_pSerializer;
-}
-
-bool CComponentInstanceManager::IsInClonePhase() const
-{
-    return m_bInClonePhase;
-}
-
-void CComponentInstanceManager::SetClonePhaseFlag(bool bInClonePhase)
-{
-    m_bInClonePhase = bInClonePhase;
 }
 
 void CComponentInstanceManager::ResolveDependency()

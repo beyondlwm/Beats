@@ -81,10 +81,17 @@ public:
     void AddDependencyResolver( CDependencyDescription* pDescription, uint32_t uIndex, uint32_t uGuid, uint32_t uInstanceId, void* pVariableAddress, bool bIsList, TAddDependencyFunc pFunc = NULL);
     virtual void ResolveDependency() = 0;
 
+    bool IsInClonePhase() const;
+    void SetClonePhaseFlag(bool bInClonePhase);
+    bool IsInLoadingPhase() const;
+    void SetLoadPhaseFlag(bool bInLoadPhase);
+
 private:
     void DeleteAllInstance();
 
 protected:
+    bool m_bInClonePhase;
+    bool m_bInLoadingPhase;
     uint32_t m_uCurrLoadFileId;
     CIdManager* m_pIdManager;
     CComponentProject* m_pProject;
