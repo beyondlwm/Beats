@@ -78,7 +78,6 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bCloseLoadedF
 {
     m_uOperateProgress = 0;
     bool bRestoreLoadingPhase = m_bLoadingFilePhase;
-    m_bLoadingFilePhase = true;
     uint32_t uFileId = m_pProject->GetComponentFileId(pFilePath);
     BEATS_ASSERT(uFileId != 0xFFFFFFFF);
     if (uFileId != 0xFFFFFFFF)
@@ -103,6 +102,7 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bCloseLoadedF
             }
         }
         m_uOperateProgress = 10;
+        m_bLoadingFilePhase = true;
         // use 80% for load file.
         std::vector<CComponentBase*> loadedComponents;
         for (uint32_t i = 0; i < loadFiles.size(); ++i)

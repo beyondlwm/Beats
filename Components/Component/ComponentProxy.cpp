@@ -302,7 +302,6 @@ void CComponentProxy::SetHostComponent(CComponentInstance* pComponent)
 
 CComponentInstance* CComponentProxy::GetHostComponent() const
 {
-    BEATS_ASSERT(GetTemplateFlag() || IsInitialized(), "proxy should be initialized before use the host component");
     return m_pHostComponent;
 }
 
