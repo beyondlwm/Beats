@@ -92,6 +92,8 @@ public:
     std::set<uint32_t>& GetRefreshFileList();
     uint32_t GetOperateProgress(TString& strCurrOperateFile) const;
 
+    void CheckForUnInvokedGuid(std::set<uint32_t>& uninvokeGuidList);
+
 private:
     void LoadTemplateDataFromXML(const TCHAR* pWorkingPath);
     void LoadTemplateDataFromSerializer(CSerializer& serializer, TCreateComponentEditorProxyFunc func, TCreateGraphicFunc pGraphicFunc);

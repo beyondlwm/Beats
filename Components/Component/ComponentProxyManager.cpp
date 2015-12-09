@@ -893,6 +893,139 @@ uint32_t CComponentProxyManager::GetOperateProgress(TString& strCurrOperateFile)
     return m_uOperateProgress;
 }
 
+static void CollectPropertyInvokeGuid(CPropertyDescriptionBase* pPropertyDescription, std::set<uint32_t>& invokedList)
+{
+    if (pPropertyDescription->GetType() == eRPT_Ptr)
+    {
+        uint32_t uReflectGuid = pPropertyDescription->HACK_GetPtrReflectGuid();
+        BEATS_ASSERT(uReflectGuid != 0);
+        invokedList.insert(uReflectGuid);
+    }
+    for (size_t i = 0; i < pPropertyDescription->GetChildren().size(); ++i)
+    {
+        CollectPropertyInvokeGuid(pPropertyDescription->GetChildren().at(i), invokedList);
+    }
+}
+
+void CComponentProxyManager::CheckForUnInvokedGuid(std::set<uint32_t>& uninvokeGuidList)
+{
+    m_bExportingPhase = true;
+    uninvokeGuidList.clear();
+    std::set<uint32_t> invokedGuidList;
+    uint32_t uFileCount = (uint32_t)(m_pProject->GetFileList()->size());
+    for (uint32_t i = 0; i < uFileCount; ++i)
+    {
+        const TString strFileName = CFilePathTool::GetInstance()->FileName(m_pProject->GetComponentFileName(i).c_str());
+        uint32_t uComponentCount = 0;
+        std::map<uint32_t, std::vector<uint32_t> >* pFileToComponent = m_pProject->GetFileToComponentMap();
+        std::map<uint32_t, std::vector<uint32_t> >::iterator iter = pFileToComponent->find(i);
+        BEATS_ASSERT(iter != pFileToComponent->end(), _T("File: %s\ndoes not have a component!"), strFileName.c_str());
+        if (iter != pFileToComponent->end())
+        {
+            std::vector<uint32_t>::iterator iterFile = std::find(m_loadedFiles.begin(), m_loadedFiles.end(), i);
+            if (iterFile != m_loadedFiles.end())
+            {
+                const std::vector<uint32_t>& componentsInFile = iter->second;
+                for (uint32_t j = 0; j < componentsInFile.size(); ++j)
+                {
+                    CComponentProxy* pProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(componentsInFile[j]));
+                    BEATS_ASSERT(pProxy != nullptr, _T("Can't find proxy with GUID 0x%x id %d, have you removed that class in code?"), m_pProject->QueryComponentGuid(componentsInFile[j]), componentsInFile[j]);
+
+                    if (pProxy)
+                    {
+                        if (pProxy->GetProxyId() == pProxy->GetId())//It's not a reference.
+                        {
+                            for (size_t k = 0; k < pProxy->GetPropertyPool()->size(); ++k)
+                            {
+                                CPropertyDescriptionBase* pProperty = pProxy->GetPropertyPool()->at(k);
+                                CollectPropertyInvokeGuid(pProperty, invokedGuidList);
+                            }
+                            for (size_t k = 0; k < pProxy->GetDependencies()->size(); ++k)
+                            {
+                                CDependencyDescription* pDependency = pProxy->GetDependency(k);
+                                invokedGuidList.insert(pDependency->GetDependencyGuid());
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                std::vector<CComponentBase*> vecComponents;
+                CIdManager* pInstanceIdManager = CComponentInstanceManager::GetInstance()->GetIdManager();
+                // Don't create instance in LoadFile when exporting.
+                BEATS_ASSERT(m_bCreateInstanceWithProxy);
+                m_bCreateInstanceWithProxy = false;
+                m_pIdManager->Lock();
+                LoadFile(i, &vecComponents);
+                iterFile = std::find(m_loadedFiles.begin(), m_loadedFiles.end(), i);
+                BEATS_ASSERT(iterFile != m_loadedFiles.end(), _T("Load file index %d failed!"), i);
+                for (uint32_t j = 0; j < vecComponents.size(); ++j)
+                {
+                    CComponentProxy* pProxy = static_cast<CComponentProxy*>(vecComponents[j]);
+                    BEATS_ASSERT(pProxy->IsInitialized());
+                    if (pProxy->GetProxyId() == pProxy->GetId())
+                    {
+                        for (size_t k = 0; k < pProxy->GetPropertyPool()->size(); ++k)
+                        {
+                            CPropertyDescriptionBase* pProperty = pProxy->GetPropertyPool()->at(k);
+                            CollectPropertyInvokeGuid(pProperty, invokedGuidList);
+                        }
+                        for (size_t k = 0; k < pProxy->GetDependencies()->size(); ++k)
+                        {
+                            CDependencyDescription* pDependency = pProxy->GetDependency(k);
+                            invokedGuidList.insert(pDependency->GetDependencyGuid());
+                        }
+                    }
+                }
+                ReSaveFreshFile();
+                // Don't call CloseFile, because we have nothing to do with proxy's host component.
+                for (uint32_t j = 0; j < vecComponents.size(); ++j)
+                {
+                    vecComponents[j]->Uninitialize();
+                }
+                for (uint32_t j = 0; j < vecComponents.size(); ++j)
+                {
+                    BEATS_SAFE_DELETE(vecComponents[j]);
+                }
+                m_loadedFiles.erase(iterFile);
+                m_pIdManager->UnLock();
+                m_bCreateInstanceWithProxy = true;// Restore.
+            }
+        }
+    }
+    const std::map<uint32_t, CComponentBase*>* pTemplateMap = GetComponentTemplateMap();
+    for (auto iter = pTemplateMap->begin(); iter != pTemplateMap->end(); ++iter)
+    {
+        BEATS_ASSERT(uninvokeGuidList.find(iter->first) == uninvokeGuidList.end());
+        uninvokeGuidList.insert(iter->first);
+    }
+    for (auto iter = m_abstractComponentNameMap.begin(); iter != m_abstractComponentNameMap.end(); ++iter)
+    {
+        BEATS_ASSERT(uninvokeGuidList.find(iter->first) == uninvokeGuidList.end());
+        uninvokeGuidList.insert(iter->first);
+    }
+    for (auto iter = invokedGuidList.begin(); iter != invokedGuidList.end(); ++iter)
+    {
+        uninvokeGuidList.erase(*iter);
+        if (m_abstractComponentNameMap.find (*iter) != m_abstractComponentNameMap.end())
+        {
+            // TODO: how to handle abstract class's super class?
+        }
+        else
+        {
+            CComponentProxy* pProxy = static_cast<CComponentProxy*>(GetComponentTemplate(*iter));
+            BEATS_ASSERT(pProxy != nullptr);
+            while (pProxy && pProxy->GetParentGuid() != pProxy->GetGuid())
+            {
+                uninvokeGuidList.erase(pProxy->GetParentGuid());
+                pProxy = static_cast<CComponentProxy*>(GetComponentTemplate(pProxy->GetParentGuid()));
+            }
+        }
+    }
+    m_bExportingPhase = false;
+}
+
 void CComponentProxyManager::LoadTemplateDataFromXML(const TCHAR* pszPath)
 {
     TiXmlDocument document(pszPath);

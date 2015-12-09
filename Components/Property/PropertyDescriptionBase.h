@@ -82,6 +82,7 @@ public:
 
     virtual void SetValueList(const std::vector<TString>& valueList);
     virtual CComponentProxy* GetInstanceComponent() const;
+    virtual uint32_t HACK_GetPtrReflectGuid() const;
 
     virtual CPropertyDescriptionBase* Clone(bool bCloneValue);
     virtual CPropertyDescriptionBase* CreateNewInstance() = 0;
