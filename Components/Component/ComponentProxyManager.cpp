@@ -33,6 +33,7 @@ CComponentProxyManager::CComponentProxyManager()
 {
     m_pPropertyCreatorMap = new std::map<uint32_t, TCreatePropertyFunc>();
     m_pComponentInheritMap = new std::map<uint32_t, std::vector<uint32_t> >();
+    m_pComponentBaseClassMap = new std::map<uint32_t, uint32_t>();
     m_pRemoveChildInfo = new CSerializer;
 }
 
@@ -45,6 +46,7 @@ CComponentProxyManager::~CComponentProxyManager()
     BEATS_SAFE_DELETE(m_pDependencyResolver);
     BEATS_SAFE_DELETE(m_pPropertyCreatorMap);
     BEATS_SAFE_DELETE(m_pComponentInheritMap);
+    BEATS_SAFE_DELETE(m_pComponentBaseClassMap);
     BEATS_SAFE_DELETE(m_pRemoveChildInfo);
 }
 
@@ -464,6 +466,17 @@ void CComponentProxyManager::QueryDerivedClass(uint32_t uBaseClassGuid, std::vec
     }
 }
 
+uint32_t CComponentProxyManager::QueryBaseClase(uint32_t uGuid) const
+{
+    uint32_t uRet = 0xFFFFFFFF;
+    auto iter = m_pComponentBaseClassMap->find(uGuid);
+    if (iter != m_pComponentBaseClassMap->end())
+    {
+        uRet = iter->second;
+    }
+    return uRet;
+}
+
 void CComponentProxyManager::RegisterClassInheritInfo( uint32_t uDerivedClassGuid, uint32_t uBaseClassGuid )
 {
     std::map<uint32_t, std::vector<uint32_t> >::iterator iter = m_pComponentInheritMap->find(uBaseClassGuid);
@@ -474,6 +487,8 @@ void CComponentProxyManager::RegisterClassInheritInfo( uint32_t uDerivedClassGui
     }
     BEATS_ASSERT(iter != m_pComponentInheritMap->end());
     iter->second.push_back(uDerivedClassGuid);
+    BEATS_ASSERT(m_pComponentBaseClassMap->find(uDerivedClassGuid) == m_pComponentBaseClassMap->end());
+    (*m_pComponentBaseClassMap)[uDerivedClassGuid] = uBaseClassGuid;
 }
 
 TString CComponentProxyManager::QueryComponentName(uint32_t uGuid) const
@@ -935,6 +950,7 @@ void CComponentProxyManager::CheckForUnInvokedGuid(std::set<uint32_t>& uninvokeG
                     {
                         if (pProxy->GetProxyId() == pProxy->GetId())//It's not a reference.
                         {
+                            invokedGuidList.insert(pProxy->GetGuid());
                             for (size_t k = 0; k < pProxy->GetPropertyPool()->size(); ++k)
                             {
                                 CPropertyDescriptionBase* pProperty = pProxy->GetPropertyPool()->at(k);
@@ -966,6 +982,7 @@ void CComponentProxyManager::CheckForUnInvokedGuid(std::set<uint32_t>& uninvokeG
                     BEATS_ASSERT(pProxy->IsInitialized());
                     if (pProxy->GetProxyId() == pProxy->GetId())
                     {
+                        invokedGuidList.insert(pProxy->GetGuid());
                         for (size_t k = 0; k < pProxy->GetPropertyPool()->size(); ++k)
                         {
                             CPropertyDescriptionBase* pProperty = pProxy->GetPropertyPool()->at(k);
@@ -1007,20 +1024,13 @@ void CComponentProxyManager::CheckForUnInvokedGuid(std::set<uint32_t>& uninvokeG
     }
     for (auto iter = invokedGuidList.begin(); iter != invokedGuidList.end(); ++iter)
     {
-        uninvokeGuidList.erase(*iter);
-        if (m_abstractComponentNameMap.find (*iter) != m_abstractComponentNameMap.end())
+        uint32_t uGuid = *iter;
+        uninvokeGuidList.erase(uGuid);
+        uint32_t uBaseClassGuid = QueryBaseClase(uGuid);
+        while (uBaseClassGuid != 0xFFFFFFFF)
         {
-            // TODO: how to handle abstract class's super class?
-        }
-        else
-        {
-            CComponentProxy* pProxy = static_cast<CComponentProxy*>(GetComponentTemplate(*iter));
-            BEATS_ASSERT(pProxy != nullptr);
-            while (pProxy && pProxy->GetParentGuid() != pProxy->GetGuid())
-            {
-                uninvokeGuidList.erase(pProxy->GetParentGuid());
-                pProxy = static_cast<CComponentProxy*>(GetComponentTemplate(pProxy->GetParentGuid()));
-            }
+            uninvokeGuidList.erase(uBaseClassGuid);
+            uBaseClassGuid = QueryBaseClase(uBaseClassGuid);
         }
     }
     m_bExportingPhase = false;
