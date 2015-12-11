@@ -16,7 +16,7 @@ CComponentProject::CComponentProject()
     , m_pComponentFiles(new std::vector<TString>)
     , m_pComponentToTypeMap(new std::map<uint32_t, uint32_t>)
     , m_pComponentToFileMap(new std::map<uint32_t, uint32_t>)
-    , m_pFileToComponentMap(new std::map<uint32_t, std::vector<uint32_t> >)
+    , m_pFileToComponentMap(new std::map<uint32_t, std::map<uint32_t, std::set<uint32_t> > >)
     , m_pFileToDirectoryMap(new std::map<uint32_t, CComponentProjectDirectory*>)
     , m_pTypeToComponentMap(new std::map<uint32_t, std::vector<uint32_t> >)
     , m_pPropertyMaintainMap(new std::map<uint32_t, std::map<TString, TString> >)
@@ -351,7 +351,7 @@ uint32_t CComponentProject::QueryComponentGuid(uint32_t uId)
     return iter->second;
 }
 
-std::map<uint32_t, std::vector<uint32_t> >* CComponentProject::GetFileToComponentMap() const
+std::map<uint32_t, std::map<uint32_t, std::set<uint32_t> > >* CComponentProject::GetFileToComponentMap() const
 {
     return m_pFileToComponentMap;
 }
@@ -513,41 +513,46 @@ bool CComponentProject::UnregisterFile(uint32_t uFileId)
 {
     bool bRet = true;
     (*m_pComponentFiles)[uFileId].clear(); // Don't erase it, we must keep the order un-change.
-    std::vector<uint32_t>& componentIds = (*m_pFileToComponentMap)[uFileId];
+    std::map<uint32_t, std::set<uint32_t>>& componentIds = (*m_pFileToComponentMap)[uFileId];
     CIdManager* pIdManager = CComponentProxyManager::GetInstance()->GetIdManager();
-    for (uint32_t i = 0; i < componentIds.size(); ++i)
+    for (auto iter = componentIds.begin(); iter != componentIds.end(); ++iter)
     {
-        uint32_t uComponentId = componentIds[i];
-        if (!pIdManager->IsIdFree(uComponentId))
+        uint32_t uGuid = iter->first;
+        for (auto idIter = iter->second.begin(); idIter != iter->second.end(); ++idIter)
         {
-            pIdManager->RecycleId(uComponentId);
-        }
-        uint32_t uGuid = (*m_pComponentToTypeMap)[uComponentId];
-        std::vector<uint32_t>& componentIdsOfType = (*m_pTypeToComponentMap)[uGuid];
-        m_pComponentToFileMap->erase(uComponentId);
-        m_pComponentToTypeMap->erase(uComponentId);
-        for (uint32_t i = 0; i < componentIdsOfType.size(); ++i)
-        {
-            if (componentIdsOfType[i] == uComponentId)
+            uint32_t uComponentId = *idIter;
+            if (!pIdManager->IsIdFree(uComponentId))
             {
-                componentIdsOfType[i] = componentIdsOfType.back();
-                componentIdsOfType.pop_back();
-                break;
+                pIdManager->RecycleId(uComponentId);
             }
-        }
-        auto refIter = m_pReferenceToIdMap->find(uComponentId);
-        bool bIsReferenceComponent = refIter != m_pReferenceToIdMap->end();
-        if (bIsReferenceComponent)
-        {
-            uint32_t uProxyId = refIter->second;
-            auto refListIter = m_pIdToReferenceMap->find(uProxyId);
-            BEATS_ASSERT(refListIter != m_pIdToReferenceMap->end() && refListIter->second.find(uComponentId) != refListIter->second.end());
-            refListIter->second.erase(uComponentId);
-            if (refListIter->second.size() == 0)
+            m_pComponentToFileMap->erase(uComponentId);
+            m_pComponentToTypeMap->erase(uComponentId);
+            std::vector<uint32_t>& componentIdsOfType = (*m_pTypeToComponentMap)[uGuid];
+            m_pComponentToFileMap->erase(uComponentId);
+            m_pComponentToTypeMap->erase(uComponentId);
+            for (uint32_t i = 0; i < componentIdsOfType.size(); ++i)
             {
-                m_pIdToReferenceMap->erase(uProxyId);
+                if (componentIdsOfType[i] == uComponentId)
+                {
+                    componentIdsOfType[i] = componentIdsOfType.back();
+                    componentIdsOfType.pop_back();
+                    break;
+                }
             }
-            m_pReferenceToIdMap->erase(uComponentId);
+            auto refIter = m_pReferenceToIdMap->find(uComponentId);
+            bool bIsReferenceComponent = refIter != m_pReferenceToIdMap->end();
+            if (bIsReferenceComponent)
+            {
+                uint32_t uProxyId = refIter->second;
+                auto refListIter = m_pIdToReferenceMap->find(uProxyId);
+                BEATS_ASSERT(refListIter != m_pIdToReferenceMap->end() && refListIter->second.find(uComponentId) != refListIter->second.end());
+                refListIter->second.erase(uComponentId);
+                if (refListIter->second.size() == 0)
+                {
+                    m_pIdToReferenceMap->erase(uProxyId);
+                }
+                m_pReferenceToIdMap->erase(uComponentId);
+            }
         }
     }
     m_pFileToComponentMap->erase(uFileId);
@@ -730,9 +735,10 @@ void CComponentProject::RegisterComponent(uint32_t uFileID, uint32_t uComponentG
         // 4. Add in file - > component map.
         if (m_pFileToComponentMap->find(uFileID) == m_pFileToComponentMap->end())
         {
-            (*m_pFileToComponentMap)[uFileID] = std::vector<uint32_t>();
+            (*m_pFileToComponentMap)[uFileID] = std::map<uint32_t, std::set<uint32_t> >();
         }
-        (*m_pFileToComponentMap)[uFileID].push_back(uComponentId);
+        BEATS_ASSERT((*m_pFileToComponentMap)[uFileID][uComponentGuid].find(uComponentId) == (*m_pFileToComponentMap)[uFileID][uComponentGuid].end());
+        (*m_pFileToComponentMap)[uFileID][uComponentGuid].insert(uComponentId);
     }
 }
 
@@ -744,25 +750,19 @@ void CComponentProject::UnregisterComponent(uint32_t uComponentId)
 
     if (bFindFileRecord)
     {
+        std::map<uint32_t, uint32_t>::iterator componentToTypeiter = m_pComponentToTypeMap->find(uComponentId);
+        uint32_t uGuid = componentToTypeiter->second;
+
         uint32_t uFileId = iter->second;
         // 1. Erase in component -> file map.
         m_pComponentToFileMap->erase(iter);
 
         // 2. Erase in File -> component map.
-        std::vector<uint32_t>& idInFile = (*m_pFileToComponentMap)[uFileId];
-        for (uint32_t i = 0; i < idInFile.size(); ++i)
-        {
-            if (idInFile[i] == uComponentId)
-            {
-                idInFile[i] = idInFile.back();
-                idInFile.pop_back();
-                break;
-            }
-        }
+        std::map<uint32_t, std::set<uint32_t> >& idInFile = (*m_pFileToComponentMap)[uFileId];
+        BEATS_ASSERT(idInFile.find(uGuid) != idInFile.end() && idInFile[uGuid].find(uComponentId) != idInFile[uGuid].end());
+        idInFile[uGuid].erase(uComponentId);
 
         // 3. Erase in component -> type map.
-        std::map<uint32_t, uint32_t>::iterator componentToTypeiter = m_pComponentToTypeMap->find(uComponentId);
-        uint32_t uGuid = componentToTypeiter->second;
         BEATS_ASSERT(componentToTypeiter != m_pComponentToTypeMap->end(), _T("Can't find component id %d in Component To type map!"), uComponentId);
         m_pComponentToTypeMap->erase(componentToTypeiter);
 

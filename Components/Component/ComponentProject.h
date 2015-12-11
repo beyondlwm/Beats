@@ -75,7 +75,7 @@ public:
 
     uint32_t QueryComponentGuid(uint32_t uId);
 
-    std::map<uint32_t, std::vector<uint32_t> >* GetFileToComponentMap() const;
+    std::map<uint32_t, std::map<uint32_t, std::set<uint32_t> > >* GetFileToComponentMap() const;
     std::map<uint32_t, std::set<uint32_t>>* GetIdToReferenceMap() const;
     std::map<uint32_t, uint32_t>* GetReferenceMap();
     std::map<uint32_t, CComponentProjectDirectory*>* GetFileToDirectoryMap() const;
@@ -97,7 +97,7 @@ private:
     std::vector<TString>* m_pComponentFiles;
     std::map<uint32_t, uint32_t>* m_pComponentToTypeMap;
     std::map<uint32_t, uint32_t>* m_pComponentToFileMap;
-    std::map<uint32_t, std::vector<uint32_t> >* m_pFileToComponentMap;
+    std::map<uint32_t, std::map<uint32_t, std::set<uint32_t> > >* m_pFileToComponentMap;
     std::map<uint32_t, CComponentProjectDirectory*>* m_pFileToDirectoryMap;
     std::map<uint32_t, std::vector<uint32_t> >* m_pTypeToComponentMap;
     // Store property replace info, uint32_t is the guid of component, map is the old property name and new property name.
