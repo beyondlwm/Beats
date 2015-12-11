@@ -170,21 +170,24 @@ void CComponentInstanceManager::UnloadFile(uint32_t uFileId, std::vector<CCompon
     {
         m_loadedFiles.erase(iterFile);
         std::vector<CComponentBase*> componentToDelete;
-        std::map<uint32_t, std::vector<uint32_t> >* pFileToComponentMap = m_pProject->GetFileToComponentMap();
+        std::map<uint32_t, std::map<uint32_t, std::set<uint32_t> > >* pFileToComponentMap = m_pProject->GetFileToComponentMap();
         auto iter = pFileToComponentMap->find(uFileId);
         if (iter != pFileToComponentMap->end())
         {
-            for (uint32_t i = 0; i < iter->second.size(); ++i)
+            for (auto subIter = iter->second.begin(); subIter != iter->second.end(); ++subIter)
             {
-                uint32_t uComponentId = iter->second.at(i);
-                BEATS_ASSERT(uComponentId != 0xFFFFFFFF);
-                CComponentBase* pComponentBase = CComponentInstanceManager::GetInstance()->GetComponentInstance(uComponentId);
-                // This may be null, because some components can be uninitialized by other component's un-initialize.
-                if (pComponentBase != NULL)
+                for (auto idIter = subIter->second.begin(); idIter != subIter->second.end(); ++idIter)
                 {
-                    BEATS_ASSERT(pComponentBase->IsLoaded());
-                    pComponentBase->Unload();
-                    pUnloadComponents->push_back(pComponentBase);
+                    uint32_t uComponentId = *idIter;
+                    BEATS_ASSERT(uComponentId != 0xFFFFFFFF);
+                    CComponentBase* pComponentBase = CComponentInstanceManager::GetInstance()->GetComponentInstance(uComponentId);
+                    // This may be null, because some components can be uninitialized by other component's un-initialize.
+                    if (pComponentBase != NULL)
+                    {
+                        BEATS_ASSERT(pComponentBase->IsLoaded());
+                        pComponentBase->Unload();
+                        pUnloadComponents->push_back(pComponentBase);
+                    }
                 }
             }
         }

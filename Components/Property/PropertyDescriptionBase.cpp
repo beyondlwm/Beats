@@ -147,6 +147,10 @@ CPropertyDescriptionBase* CPropertyDescriptionBase::InsertChild(CPropertyDescrip
         std::advance(preIter, uPreIndex);
         m_pChildren->insert(preIter, pProperty);
     }
+    if (IsContainerProperty())
+    {
+        pProperty->SetOwner(m_pOwner);
+    }
     return pProperty;
 }
 
@@ -291,10 +295,11 @@ void CPropertyDescriptionBase::SetValueWithType(void* pValue, EValueType type, b
             // CVec3 will be the pDataProperty.
             // m_testData will be the pReflectProperty.
             // if m_containerElementIndexInfo == {10, 15}, it means I changed m_testDat[10][15].x
-            CPropertyDescriptionBase* pParentProperty = GetParent();
+            CPropertyDescriptionBase* pParentProperty = this->GetParent();
             std::vector<CPropertyDescriptionBase*> refreshPropertyList;
             static CSerializer serializer;
             serializer.Reset();
+            serializer.SetUserData(0);
             while (pParentProperty != NULL && pReflectProperty->GetOwner() == pParentProperty->GetOwner())
             {
                 if (pParentProperty->IsContainerProperty())
