@@ -3,7 +3,6 @@
 #include "ComponentProjectDirectory.h"
 #include "ComponentProxyManager.h"
 #include "Utility/StringHelper/StringHelper.h"
-#include "Utility/TinyXML/tinyxml.h"
 #include "Utility/IdManager/IdManager.h"
 #include "Utility/UtilityManager.h"
 #include "FilePath/FilePathTool.h"
@@ -61,23 +60,24 @@ CComponentProjectDirectory* CComponentProject::LoadProject(const TCHAR* pszProje
         m_strProjectFilePath = CFilePathTool::GetInstance()->ParentPath(pszProjectFile);
         m_strProjectFileName = CFilePathTool::GetInstance()->FileName(pszProjectFile);
 
-        TiXmlDocument document;
-        bool bLoadSuccess = document.LoadFile(pszProjectFile, TIXML_ENCODING_UTF8);
-        BEATS_ASSERT(bLoadSuccess, _T("Load file %s failed!"), pszProjectFile);
-        if (bLoadSuccess)
+        rapidxml::file<> fdoc(pszProjectFile);
+        rapidxml::xml_document<> doc;
+        try
         {
-            TiXmlElement* pRootElement = document.RootElement();
-            m_uTotalFileCount = GetTotalFileCount(pRootElement);
-            m_pProjectDirectory = new CComponentProjectDirectory(NULL, pRootElement->Value());
+            doc.parse<0>(fdoc.data());
+
+            rapidxml::xml_node<>* pRoot = doc.first_node();
+            m_uTotalFileCount = GetTotalFileCount(pRoot);
+            m_pProjectDirectory = new CComponentProjectDirectory(NULL, pRoot->value());
             TString strStartFile;
-            LoadXMLProject(pRootElement, m_pProjectDirectory, strStartFile, conflictIdMap);
+            LoadXMLProject(pRoot, m_pProjectDirectory, strStartFile, conflictIdMap);
             m_uStartFileId = GetComponentFileId(strStartFile);
             BEATS_ASSERT(m_uStartFileId != 0xFFFFFFFF);
         }
-        else
+        catch (rapidxml::parse_error &e)
         {
             TCHAR info[MAX_PATH];
-            _stprintf(info, _T("Load File :%s Failed! Row:%d Col:%d Reason:%s"), pszProjectFile, document.ErrorRow(), document.ErrorCol(), document.ErrorDesc());
+            _stprintf(info, _T("Load File :%s Failed! error: %s"), pszProjectFile, e.what());
             MessageBox(BEYONDENGINE_HWND, info, _T("Load File Failed"), MB_OK | MB_ICONERROR);
         }
     }
@@ -125,31 +125,33 @@ bool CComponentProject::CloseProject()
 
 void CComponentProject::SaveProject()
 {
-    TiXmlDocument document;
-    TiXmlDeclaration* pDeclaration = new TiXmlDeclaration("1.0","","");
-    document.LinkEndChild(pDeclaration);
-    TiXmlElement* pRootElement = new TiXmlElement("Root");
-    document.LinkEndChild(pRootElement);
-    TiXmlElement* pStartDirectoryNode = new TiXmlElement("StartFile");
+    rapidxml::xml_document<> doc;
+    rapidxml::xml_node<>* rot = doc.allocate_node(rapidxml::node_pi, doc.allocate_string("xml version='1.0' "));
+    doc.append_node(rot);
+    rapidxml::xml_node<>* pRootElement = doc.allocate_node(rapidxml::node_element, "Root");
+    doc.append_node(pRootElement);
+    rapidxml::xml_node<>* pStartDirectoryNode = doc.allocate_node(rapidxml::node_element, "StartFile");
     TString strRelativePath = CFilePathTool::GetInstance()->MakeRelative(m_strProjectFilePath.c_str(), GetComponentFileName(m_uStartFileId).c_str());
-    pStartDirectoryNode->SetAttribute("FilePath", strRelativePath.c_str());
-    pRootElement->LinkEndChild(pStartDirectoryNode);
+    pStartDirectoryNode->append_attribute(doc.allocate_attribute("FilePath", strRelativePath.c_str()));
+    pRootElement->append_node(pStartDirectoryNode);
 
     SaveProjectFile(pRootElement, m_pProjectDirectory);
     TString strFullPath = m_strProjectFilePath;
     strFullPath.append(_T("/")).append(m_strProjectFileName);
-    document.SaveFile(strFullPath.c_str());
+    std::ofstream out(strFullPath.c_str());
+    out.close();
 }
 
-void CComponentProject::SaveProjectFile( TiXmlElement* pParentNode, const CComponentProjectDirectory* p)
+void CComponentProject::SaveProjectFile(rapidxml::xml_node<>* pParentNode, const CComponentProjectDirectory* p)
 {
     //Root doesn't need to save/load.
-    TiXmlElement* pNewDirectoryElement = pParentNode;
+    rapidxml::xml_node<>* pNewDirectoryElement = pParentNode;
     if (p != m_pProjectDirectory)
     {
-        pNewDirectoryElement = new TiXmlElement("Directory");
-        pNewDirectoryElement->SetAttribute("Name", p->GetName().c_str());
-        pParentNode->LinkEndChild(pNewDirectoryElement);
+        rapidxml::xml_document<> doc;
+        pNewDirectoryElement = doc.allocate_node(rapidxml::node_element, "Directory");
+        pNewDirectoryElement->append_attribute(doc.allocate_attribute("Name", p->GetName().c_str()));
+        pParentNode->append_node(pNewDirectoryElement);
     }
 
     const std::vector<CComponentProjectDirectory*>& children = p->GetChildren();
@@ -162,12 +164,13 @@ void CComponentProject::SaveProjectFile( TiXmlElement* pParentNode, const CCompo
 
     for (std::vector<uint32_t>::const_iterator iter = files.begin(); iter != files.end(); ++iter)
     {
-        TiXmlElement* pNewFileElement = new TiXmlElement("File");
+        rapidxml::xml_document<> doc;
+        rapidxml::xml_node<>* pNewFileElement = doc.allocate_node(rapidxml::node_element, "File");
         uint32_t uFileNameId = *iter;
 
         TString strRelativePath = CFilePathTool::GetInstance()->MakeRelative(m_strProjectFilePath.c_str(), GetComponentFileName(uFileNameId).c_str());
-        pNewFileElement->SetAttribute("Path", strRelativePath.c_str());
-        pNewDirectoryElement->LinkEndChild(pNewFileElement);
+        pNewFileElement->append_attribute(doc.allocate_attribute("Path", strRelativePath.c_str()));
+        pNewDirectoryElement->append_node(pNewFileElement);
     }
 }
 
@@ -187,60 +190,63 @@ void CComponentProject::ResolveIdForFile(uint32_t uFileId, uint32_t idToResolve,
     else
     {
         TString strFileName = GetComponentFileName(uFileId);
-        TiXmlDocument document(strFileName.c_str());
-        bool loadSuccess = document.LoadFile(TIXML_ENCODING_UTF8);
-        if (loadSuccess)
+        rapidxml::file<> fdoc(strFileName.c_str());
+        rapidxml::xml_document<> doc;
+        try
         {
+            doc.parse<0>(fdoc.data());
+
             int iNewID = CComponentProxyManager::GetInstance()->GetIdManager()->GenerateId();
-            TiXmlElement* pRootElement = document.RootElement();
-            TiXmlElement* pComponentListNode = pRootElement->FirstChildElement("Components");
+            rapidxml::xml_node<>* pRootElement = doc.first_node();
+            rapidxml::xml_node<>* pComponentListNode = pRootElement->first_node("Components");
             std::vector<CComponentProxy*> copyOpenComponents;
-            if (pComponentListNode != NULL )
+            if (pComponentListNode != NULL)
             {
-                TiXmlElement* pComponentElement = pComponentListNode->FirstChildElement("Component");
-                const char* pszGuidStr = pComponentElement->Attribute("GUID");
+                rapidxml::xml_node<>* pComponentElement = pComponentListNode->first_node("Component");
+                const char* pszGuidStr = (char*)pComponentElement->first_attribute("GUID");
                 char* pStopPos = NULL;
                 uint32_t uComponentGuid = strtoul(pszGuidStr, &pStopPos, 16);
                 BEATS_ASSERT(*pStopPos == 0, _T("Guid value %s is not a 0x value at file %s."), pszGuidStr, strFileName.c_str());
                 RegisterComponent(uFileId, uComponentGuid, iNewID);
                 while (pComponentElement != NULL)
                 {
-                    TiXmlElement* pInstanceElement = pComponentElement->FirstChildElement("Instance");
+                    rapidxml::xml_node<>* pInstanceElement = pComponentElement->first_node("Instance");
                     while (pInstanceElement != NULL)
                     {
                         int id = -1;
-                        pInstanceElement->Attribute("Id", &id);
+                        id = atoi((char*)pInstanceElement->first_attribute("Id"));
                         BEATS_ASSERT(id != -1);
-                        if (id  == (int)idToResolve)
+                        if (id == (int)idToResolve)
                         {
-                            pInstanceElement->SetAttribute("Id", iNewID);
+                            iNewID = atoi((char*)pInstanceElement->first_attribute("Id"));
                         }
-                        TiXmlElement* pDependency = pInstanceElement->FirstChildElement("Dependency");
+                        rapidxml::xml_node<>* pDependency = pInstanceElement->first_node("Dependency");
                         while (pDependency != NULL)
                         {
-                            TiXmlElement* pDependencyNode = pDependency->FirstChildElement("DependencyNode");
+                            rapidxml::xml_node<>* pDependencyNode = pDependency->first_node("DependencyNode");
                             while (pDependencyNode != NULL)
                             {
-                                pDependencyNode->Attribute("Id", &id);
+                                id = atoi((char*)pDependencyNode->first_attribute("Id"));
                                 if (id == (int)idToResolve)
                                 {
-                                    pDependencyNode->SetAttribute("Id", iNewID);
+                                    iNewID = atoi((char*)pDependencyNode->first_attribute("Id"));
                                 }
-                                pDependencyNode = pDependencyNode->NextSiblingElement("DependencyNode");
+                                pDependencyNode = pDependencyNode->next_sibling("DependencyNode");
                             }
-                            pDependency = pDependency->NextSiblingElement("Dependency");
+                            pDependency = pDependency->next_sibling("Dependency");
                         }
-                        pInstanceElement = pInstanceElement->NextSiblingElement("Instance");
+                        pInstanceElement = pInstanceElement->next_sibling("Instance");
                     }
-                    pComponentElement = pComponentElement->NextSiblingElement("Component");
+                    pComponentElement = pComponentElement->next_sibling("Component");
                 }
             }
-            document.SaveFile();
+            std::ofstream out(doc.value());
+            out.close();
         }
-        else
+        catch (rapidxml::parse_error &e)
         {
             TCHAR info[MAX_PATH];
-            _stprintf(info, _T("Load File :%s Failed!Row: %d Col: %d Reason: %s"), strFileName.c_str(), document.ErrorRow(), document.ErrorCol(), document.ErrorDesc());
+            _stprintf(info, _T("Load File :%s Failed!error: %s"), strFileName.c_str(), e.what());
             MessageBox(BEYONDENGINE_HWND, info, _T("Load File Failed"), MB_OK | MB_ICONERROR);
         }
     }
@@ -447,18 +453,19 @@ uint32_t CComponentProject::RegisterFile(CComponentProjectDirectory* pDirectory,
 bool CComponentProject::AnalyseFile(const TString& strFileName, std::map<uint32_t, std::vector<uint32_t> >& outResult)
 {
     outResult.clear();
-    TiXmlDocument document(strFileName.c_str());
-    bool bLoadSuccess = document.LoadFile(TIXML_ENCODING_UTF8);
-    if (bLoadSuccess)
+    rapidxml::file<> fdoc(strFileName.c_str());
+    rapidxml::xml_document<> doc;
+    try
     {
-        TiXmlElement* pRootElement = document.RootElement();
-        TiXmlElement* pComponentListNode = pRootElement->FirstChildElement("Components");
-        if (pComponentListNode != NULL )
+        doc.parse<0>(fdoc.data());
+        rapidxml::xml_node<>* pRootElement = doc.first_node();
+        rapidxml::xml_node<>* pComponentListNode = pRootElement->first_node("Components");
+        if (pComponentListNode != NULL)
         {
-            TiXmlElement* pComponentElement = pComponentListNode->FirstChildElement("Component");
+            rapidxml::xml_node<>* pComponentElement = pComponentListNode->first_node("Component");
             while (pComponentElement != NULL)
             {
-                const char* pszGuidStr = pComponentElement->Attribute("GUID");
+                const char* pszGuidStr = (char*)pComponentElement->first_attribute("GUID");
                 char* pStopPos = NULL;
                 uint32_t uComponentGuid = strtoul(pszGuidStr, &pStopPos, 16);
                 BEATS_ASSERT(*pStopPos == 0, _T("Guid value %s is not a 0x value at file %s."), pszGuidStr, strFileName.c_str());
@@ -467,22 +474,22 @@ bool CComponentProject::AnalyseFile(const TString& strFileName, std::map<uint32_
                     outResult[uComponentGuid] = std::vector<uint32_t>();
                 }
                 std::vector<uint32_t>& idList = outResult[uComponentGuid];
-                TiXmlElement* pInstanceElement = pComponentElement->FirstChildElement();
+                rapidxml::xml_node<>* pInstanceElement = pComponentElement->first_node();
                 while (pInstanceElement != NULL)
                 {
-                    bool bIsReference = strcmp(pInstanceElement->Value(), "Reference") == 0;
-                    bool bFindProxy = strcmp(pInstanceElement->Value(), "Instance") == 0 || bIsReference;
+                    bool bIsReference = strcmp(pInstanceElement->value(), "Reference") == 0;
+                    bool bFindProxy = strcmp(pInstanceElement->value(), "Instance") == 0 || bIsReference;
                     BEATS_ASSERT(bFindProxy, _T("Read invalid data!"));
                     if (bFindProxy)
                     {
                         int id = -1;
-                        pInstanceElement->Attribute("Id", &id);
+                        id = atoi((char*)pInstanceElement->first_attribute("Id"));
                         BEATS_ASSERT(id != -1);
                         idList.push_back(id);
                         if (bIsReference)
                         {
                             int proxyId = -1;
-                            pInstanceElement->Attribute("ReferenceId", &proxyId);
+                            proxyId = atoi((char*)pInstanceElement->first_attribute("ReferenceId"));
                             BEATS_ASSERT(proxyId != -1);
                             if (m_pIdToReferenceMap->find(proxyId) == m_pIdToReferenceMap->end())
                             {
@@ -494,17 +501,17 @@ bool CComponentProject::AnalyseFile(const TString& strFileName, std::map<uint32_
                             (*m_pReferenceToIdMap)[id] = proxyId;
                         }
                     }
-                    pInstanceElement = pInstanceElement->NextSiblingElement();
+                    pInstanceElement = pInstanceElement->next_sibling();
                 }
-                pComponentElement = pComponentElement->NextSiblingElement("Component");
+                pComponentElement = pComponentElement->next_sibling("Component");
             }
         }
     }
-    else
+    catch (rapidxml::parse_error &e)
     {
-        TCHAR reason[MAX_PATH];
-        _stprintf(reason, _T("%s %s row : %d col : %d"), document.ErrorDesc(), strFileName.c_str(), document.ErrorRow(), document.ErrorCol());
-        BEATS_ASSERT(false, _T("Load File :%s Failed!Reason: %s "), strFileName.c_str(), reason);
+        TCHAR info[MAX_PATH];
+        _stprintf(info, _T("Load File :%s Failed!error: %s"), strFileName.c_str(), e.what());
+        MessageBox(BEYONDENGINE_HWND, info, _T("Load File Failed"), MB_OK | MB_ICONERROR);
     }
     return true;
 }
@@ -642,13 +649,13 @@ uint32_t CComponentProject::QueryFileId(uint32_t uComponentId, bool bOnlyInProje
     return uRet;
 }
 
-uint32_t CComponentProject::GetTotalFileCount(TiXmlElement* pNode) const
+uint32_t CComponentProject::GetTotalFileCount(rapidxml::xml_node<>* pNode) const
 {
     uint32_t uRet = 0;
-    TiXmlElement* pElement = pNode->FirstChildElement();
+    rapidxml::xml_node<>* pElement = pNode->first_node();
     while (pElement != NULL)
     {
-        const char* pText = pElement->Value();
+        const char* pText = pElement->value();
         if (strcmp(pText, "Directory") == 0)
         {
             uRet += GetTotalFileCount(pElement);
@@ -664,27 +671,27 @@ uint32_t CComponentProject::GetTotalFileCount(TiXmlElement* pNode) const
         {
             BEATS_ASSERT(false);
         }
-        pElement = pElement->NextSiblingElement();
+        pElement = pElement->next_sibling();
     }
     return uRet;
 }
 
-void CComponentProject::LoadXMLProject(TiXmlElement* pNode, CComponentProjectDirectory* pProjectDirectory, TString& strStartFilePath, std::map<uint32_t, std::vector<uint32_t> >& conflictIdMap)
+void CComponentProject::LoadXMLProject(rapidxml::xml_node<>* pNode, CComponentProjectDirectory* pProjectDirectory, TString& strStartFilePath, std::map<uint32_t, std::vector<uint32_t> >& conflictIdMap)
 {
     BEATS_ASSERT(pProjectDirectory != NULL && pNode != NULL);
-    TiXmlElement* pElement = pNode->FirstChildElement();
+    rapidxml::xml_node<>* pElement = pNode->first_node();
     while (pElement != NULL)
     {
-        const char* pText = pElement->Value();
+        const char* pText = pElement->value();
         if (strcmp(pText, "Directory") == 0)
         {
-            const char* pName = pElement->Attribute("Name");
+            const char* pName = (char*)pElement->first_attribute("Name");
             CComponentProjectDirectory* pNewProjectFile = new CComponentProjectDirectory(pProjectDirectory, pName);
             LoadXMLProject(pElement, pNewProjectFile, strStartFilePath, conflictIdMap);
         }
         else if (strcmp(pText, "File") == 0)
         {
-            const char* pPath = pElement->Attribute("Path");
+            const char* pPath = (char*)pElement->first_attribute("Path");
             m_strCurrLoadingFile = CFilePathTool::GetInstance()->MakeAbsolute(m_strProjectFilePath.c_str(), pPath);
             pProjectDirectory->AddFile(m_strCurrLoadingFile.c_str(), conflictIdMap);
             ++m_uLoadedFileCount;
@@ -692,7 +699,7 @@ void CComponentProject::LoadXMLProject(TiXmlElement* pNode, CComponentProjectDir
         }
         else if (strcmp(pText, "StartFile") == 0)
         {
-            const char* pszStartFilePath = pElement->Attribute("FilePath");
+            const char* pszStartFilePath = (char*)pElement->first_attribute("FilePath");
             BEATS_ASSERT(pszStartFilePath != NULL);
             strStartFilePath = CFilePathTool::GetInstance()->MakeAbsolute(m_strProjectFilePath.c_str(), pszStartFilePath);
         }
@@ -700,7 +707,7 @@ void CComponentProject::LoadXMLProject(TiXmlElement* pNode, CComponentProjectDir
         {
             BEATS_ASSERT(false);
         }
-        pElement = pElement->NextSiblingElement();
+        pElement = pElement->next_sibling();
     }
 }
 

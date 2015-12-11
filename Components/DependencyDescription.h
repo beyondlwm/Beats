@@ -2,10 +2,11 @@
 #define BEATS_COMPONENTS_DEPENDENCYDESCRIPTION_H__INCLUDE
 
 #include "expdef.h"
+#include "Utility/RapidXML/rapidxml.hpp"
+#include "RapidXML/rapidxml_utils.hpp"
 
 class CDependencyDescriptionLine;
 class CComponentProxy;
-class TiXmlElement;
 class CSerializer;
 
 template class COMPONENTS_DLL_DECL std::allocator<CDependencyDescriptionLine*>;
@@ -58,8 +59,8 @@ public:
     void RemoveDependencyByIndex(uint32_t uIndex);
     void SwapLineOrder(uint32_t uSourceIndex, uint32_t uTargetIndex);
     bool IsInDependency(CComponentProxy* pComponentInstance);
-    void SaveToXML(TiXmlElement* pParentNode);
-    void LoadFromXML(TiXmlElement* pNode);
+    void SaveToXML(rapidxml::xml_node<>* pParentNode);
+    void LoadFromXML(rapidxml::xml_node<>* pNode);
     EDependencyType GetType();
     uint32_t GetSelectedDependencyIndex() const;
     void SetSelectedDependencyIndex(uint32_t index);

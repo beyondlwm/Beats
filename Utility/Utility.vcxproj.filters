@@ -148,6 +148,18 @@
     <ClInclude Include="FilePath\FilePathTool.h">
       <Filter>FilePath</Filter>
     </ClInclude>
+    <ClInclude Include="RapidXML\rapidxml.hpp">
+      <Filter>RapidXML</Filter>
+    </ClInclude>
+    <ClInclude Include="RapidXML\rapidxml_iterators.hpp">
+      <Filter>RapidXML</Filter>
+    </ClInclude>
+    <ClInclude Include="RapidXML\rapidxml_print.hpp">
+      <Filter>RapidXML</Filter>
+    </ClInclude>
+    <ClInclude Include="RapidXML\rapidxml_utils.hpp">
+      <Filter>RapidXML</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="EnumStrGenerator">
@@ -188,6 +200,9 @@
     </Filter>
     <Filter Include="FilePath">
       <UniqueIdentifier>{ec5db718-4d7b-4a4c-b3b8-7abef9c37168}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RapidXML">
+      <UniqueIdentifier>{a35b22cc-6550-449f-acb0-a974b502c651}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
