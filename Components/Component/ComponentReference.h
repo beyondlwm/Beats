@@ -2,8 +2,6 @@
 #define BEATS_COMPONENTS_COMPONENT_COMPONENTREFERENCE_H__INCLUDE
 
 #include "ComponentProxy.h"
-#include "Utility/RapidXML/rapidxml.hpp"
-#include "RapidXML/rapidxml_utils.hpp"
 
 class CComponentReference : public CComponentProxy
 {
@@ -19,8 +17,8 @@ public:
     virtual uint32_t GetParentGuid() const override;
     virtual const TCHAR* GetClassStr() const override;
     virtual void Save() override;
-    virtual void SaveToXML(rapidxml::xml_node<>* pNode, bool bSaveOnlyNoneNativePart = false) override;
-    virtual void LoadFromXML(rapidxml::xml_node<>* pNode) override;
+    virtual void SaveToXML(TiXmlElement* pNode, bool bSaveOnlyNoneNativePart = false) override;
+    virtual void LoadFromXML(TiXmlElement* pNode) override;
 
     virtual void Initialize() override;
     virtual void Uninitialize() override;

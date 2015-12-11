@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ComponentProxy.h"
 #include "Utility/Serializer/Serializer.h"
+#include "Utility/TinyXML/tinyxml.h"
 #include "Utility/StringHelper/StringHelper.h"
 #include "Utility/IdManager/IdManager.h"
 #include "Property/PropertyDescriptionBase.h"
@@ -339,26 +340,25 @@ bool CComponentProxy::GetTemplateFlag() const
     return m_bIsTemplate;
 }
 
-void CComponentProxy::SaveToXML(rapidxml::xml_node<>* pNode, bool bSaveOnlyNoneNativePart/* = false*/)
+void CComponentProxy::SaveToXML( TiXmlElement* pNode, bool bSaveOnlyNoneNativePart/* = false*/)
 {
     if (m_pHostComponent != NULL)
     {
         m_pHostComponent->OnSave();
     }
-    rapidxml::xml_document<> doc;
-    rapidxml::xml_node<>* pInstanceElement = doc.allocate_node(rapidxml::node_element, "Instance");
-    pInstanceElement->append_attribute(doc.allocate_attribute("Id", std::to_string(GetId()).c_str()));
+    TiXmlElement* pInstanceElement = new TiXmlElement("Instance");
+    pInstanceElement->SetAttribute("Id", (int)GetId());
     int posX = 0;
     int posY = 0;
     if (m_pGraphics)
     {
         m_pGraphics->GetPosition(&posX, &posY);
     }
-    pInstanceElement->append_attribute(doc.allocate_attribute("PosX", std::to_string(posX).c_str()));
-    pInstanceElement->append_attribute(doc.allocate_attribute("PosY", std::to_string(posY).c_str()));
+    pInstanceElement->SetAttribute("PosX", posX);
+    pInstanceElement->SetAttribute("PosY", posY);
     if (m_strUserDefineDisplayName.length() > 0)
     {
-        pInstanceElement->append_attribute(doc.allocate_attribute("UserDefineName", m_strUserDefineDisplayName.c_str()));
+        pInstanceElement->SetAttribute("UserDefineName", m_strUserDefineDisplayName.c_str());
     }
     for (uint32_t i = 0; i < m_pProperties->size(); ++i)
     {
@@ -376,20 +376,18 @@ void CComponentProxy::SaveToXML(rapidxml::xml_node<>* pNode, bool bSaveOnlyNoneN
     {
         (*m_pDependenciesDescription)[i]->SaveToXML(pInstanceElement);
     }
-    pNode->append_node(pInstanceElement);
+    pNode->LinkEndChild(pInstanceElement);
 }
 
-void CComponentProxy::LoadFromXML(rapidxml::xml_node<>* pNode)
+void CComponentProxy::LoadFromXML( TiXmlElement* pNode )
 {
     int x = 0;
-    int y = 0; 
-    x = atoi((char*)pNode->first_attribute("PosX"));
-    y = atoi((char*)pNode->first_attribute("PosY"));
-    if (x && y)
+    int y = 0;
+    if (pNode->Attribute("PosX", &x) && pNode->Attribute("PosY", &y))
     {
         m_pGraphics->SetPosition(x, y);
     }
-    const char* pszUserDefineName = (char*)pNode->first_attribute("UserDefineName");
+    const char* pszUserDefineName = pNode->Attribute("UserDefineName");
     if (pszUserDefineName != NULL)
     {
         m_strUserDefineDisplayName.assign(pszUserDefineName);
@@ -398,17 +396,18 @@ void CComponentProxy::LoadFromXML(rapidxml::xml_node<>* pNode)
     for (uint32_t k = 0; k < m_pProperties->size(); ++k)
     {
         BEATS_ASSERT(unInitializedproperties.find((*m_pProperties)[k]->GetBasicInfo()->m_variableName) == unInitializedproperties.end(),
-            _T("It's impossible to find more than one property which has same name: %s in component %s id %d"),
-            (*m_pProperties)[k]->GetBasicInfo()->m_variableName.c_str(), GetClassStr(), GetId());
+                    _T("It's impossible to find more than one property which has same name: %s in component %s id %d"),
+                    (*m_pProperties)[k]->GetBasicInfo()->m_variableName.c_str(), GetClassStr(), GetId());
         unInitializedproperties[(*m_pProperties)[k]->GetBasicInfo()->m_variableName] = (*m_pProperties)[k];
     }
-    rapidxml::xml_node<>* pVarElement = pNode->first_node("VariableNode");
-    std::vector<rapidxml::xml_node<>*> unUsedXMLVariableNode;
+    TiXmlElement* pVarElement = pNode->FirstChildElement("VariableNode");
+    std::vector<TiXmlElement*> unUsedXMLVariableNode;
     CComponentProject* pProject = CComponentProxyManager::GetInstance()->GetProject();
     while (pVarElement != NULL)
     {
-        EReflectPropertyType propertyType = (EReflectPropertyType)atoi((char*)pVarElement->first_attribute("Type"));
-        const char* szVariableName = (char*)pVarElement->first_attribute("Variable");
+        EReflectPropertyType propertyType;
+        pVarElement->Attribute("Type", (int*)&propertyType);
+        const char* szVariableName = pVarElement->Attribute("Variable");
         BEATS_ASSERT(szVariableName != NULL);
         bool bNeedMaintain = true;
         std::map<TString, CPropertyDescriptionBase*>::iterator iter = unInitializedproperties.find(szVariableName);
@@ -417,7 +416,7 @@ void CComponentProxy::LoadFromXML(rapidxml::xml_node<>* pNode)
         {
             TString strReplacePropertyName;
             bNeedMaintain = !pProject->GetReplacePropertyName(this->GetGuid(), szVariableName, strReplacePropertyName);
-            if (!bNeedMaintain &&
+            if (!bNeedMaintain && 
                 strReplacePropertyName.length() > 0)
             {
                 iter = unInitializedproperties.find(strReplacePropertyName);
@@ -430,16 +429,16 @@ void CComponentProxy::LoadFromXML(rapidxml::xml_node<>* pNode)
             iter->second->LoadFromXML(pVarElement);
             unInitializedproperties.erase(iter);
         }
-        else if (bNeedMaintain)
+        else if(bNeedMaintain)
         {
             unUsedXMLVariableNode.push_back(pVarElement);
         }
-        pVarElement = pVarElement->next_sibling("VariableNode");
+        pVarElement = pVarElement->NextSiblingElement("VariableNode");
     }
     if (unUsedXMLVariableNode.size() > 0)
     {
         // Save the XML file to overwrite the old property data.
-        const char* pFilePath = pNode->document()->value();
+        const char* pFilePath = pNode->GetDocument()->Value();
         uint32_t uFileId = CComponentProxyManager::GetInstance()->GetProject()->GetComponentFileId(pFilePath);
         BEATS_ASSERT(uFileId != 0xFFFFFFFF);
         CComponentProxyManager::GetInstance()->GetRefreshFileList().insert(uFileId);
@@ -447,8 +446,9 @@ void CComponentProxy::LoadFromXML(rapidxml::xml_node<>* pNode)
     // Run maintain logic.
     for (uint32_t i = 0; i < unUsedXMLVariableNode.size(); ++i)
     {
-        EReflectPropertyType propertyType = (EReflectPropertyType)atoi((char*)unUsedXMLVariableNode[i]->first_attribute("Type"));
-        const char* szVariableName = (char*)unUsedXMLVariableNode[i]->first_attribute("Variable");
+        EReflectPropertyType propertyType;
+        unUsedXMLVariableNode[i]->Attribute("Type", (int*)&propertyType);
+        const char* szVariableName = unUsedXMLVariableNode[i]->Attribute("Variable");
 
         std::vector<CPropertyDescriptionBase*> matchTypeProperties;
         for (std::map<TString, CPropertyDescriptionBase*>::iterator iter = unInitializedproperties.begin(); iter != unInitializedproperties.end(); ++iter)
@@ -460,7 +460,7 @@ void CComponentProxy::LoadFromXML(rapidxml::xml_node<>* pNode)
         }
         if (matchTypeProperties.size() > 0)
         {
-            const char* pszFilePath = pNode->document()->value();
+            const char* pszFilePath = pNode->GetDocument()->Value();
             TCHAR szInform[1024];
             _stprintf(szInform, _T("Data:%s (In file\n%s\nComponent %s GUID:0x%x)is no longer valid in this version, contact developer for more information!\nTo Ignore click\"Yes\"\nReallocate click\"No\"\n"),
                 szVariableName,
@@ -474,7 +474,7 @@ void CComponentProxy::LoadFromXML(rapidxml::xml_node<>* pNode)
             }
             else
             {
-                for (uint32_t j = 0; j < matchTypeProperties.size();)
+                for (uint32_t j = 0; j < matchTypeProperties.size(); )
                 {
                     const TString& strVariableName = matchTypeProperties[j]->GetBasicInfo()->m_variableName;
                     _stprintf(szInform, _T("Reallocate %s to %s?"), szVariableName, strVariableName.c_str());

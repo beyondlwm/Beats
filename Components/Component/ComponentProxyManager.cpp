@@ -2,6 +2,7 @@
 #include "ComponentProxyManager.h"
 #include "ComponentInstanceManager.h"
 #include "ComponentProject.h"
+#include "Utility/TinyXML/tinyxml.h"
 #include "Utility/Serializer/Serializer.h"
 #include "Utility/StringHelper/StringHelper.h"
 #include "Utility/UtilityManager.h"
@@ -16,8 +17,6 @@
 #include "ComponentProjectDirectory.h"
 #include "ComponentReference.h"
 #include <algorithm>
-#include "Utility/RapidXML/rapidxml.hpp"
-#include "RapidXML/rapidxml_utils.hpp"
 
 CComponentProxyManager* CComponentProxyManager::m_pInstance = NULL;
 
@@ -146,52 +145,50 @@ void CComponentProxyManager::LoadFile(uint32_t uFileId, std::vector<CComponentBa
 {
     const TString& strFilePath = m_pProject->GetComponentFileName(uFileId);
     BEATS_ASSERT(strFilePath.length() > 0);
-    rapidxml::file<> fdoc(strFilePath.c_str());
-    rapidxml::xml_document<> doc;
-    try
+    TiXmlDocument document(strFilePath.c_str());
+    bool loadSuccess = document.LoadFile(TIXML_ENCODING_UTF8);
+    if (loadSuccess)
     {
-        doc.parse<0>(fdoc.data());
-
         BEATS_ASSERT(std::find(m_loadedFiles.begin(), m_loadedFiles.end(), uFileId) == m_loadedFiles.end());
         m_loadedFiles.push_back(uFileId);
 
-        rapidxml::xml_node<>* pRootElement = doc.first_node();
-        rapidxml::xml_node<>* pComponentListNode = pRootElement->first_node("Components");
-        if (pComponentListNode != NULL)
+        TiXmlElement* pRootElement = document.RootElement();
+        TiXmlElement* pComponentListNode = pRootElement->FirstChildElement("Components");
+        if (pComponentListNode != NULL )
         {
             bool bRestoreLoadingPhase = IsInLoadingPhase();
             SetLoadPhaseFlag(true);
             std::vector<CComponentProxy*> loadedProxyList;
-            std::vector<int> reservedId;
-            rapidxml::xml_node<>* pComponentElement = pComponentListNode->first_node("Component");
-            while (pComponentElement != NULL)
+            std::vector<int> reservedId; 
+            TiXmlElement* pComponentElement = pComponentListNode->FirstChildElement("Component");
+            while (pComponentElement != NULL && loadSuccess)
             {
-                const char* pGuidStr = (char*)pComponentElement->first_attribute("GUID");
+                const char* pGuidStr = pComponentElement->Attribute("GUID");
                 char* pStopPos = NULL;
                 int guid = strtoul(pGuidStr, &pStopPos, 16);
                 BEATS_ASSERT(*pStopPos == 0, _T("Guid value %s is not a 0x value at file %s."), pGuidStr, strFilePath.c_str());
                 if (GetComponentTemplate(guid) == NULL)
                 {
                     CComponentProxyManager::GetInstance()->GetRefreshFileList().insert(uFileId);
-                    BEATS_ASSERT(false, _T("Can't create component with GUID 0x%x Name %s, Have you removed this component class."), guid, pComponentElement->first_attribute("Name"));
+                    BEATS_ASSERT(false, _T("Can't create component with GUID 0x%x Name %s, Have you removed this component class."), guid, pComponentElement->Attribute("Name"));
                 }
                 else
                 {
-                    rapidxml::xml_node<>* pInstanceElement = pComponentElement->first_node();
-                    while (pInstanceElement != NULL)
+                    TiXmlElement* pInstanceElement = pComponentElement->FirstChildElement();
+                    while (pInstanceElement != NULL && loadSuccess)
                     {
                         int id = -1;
-                        id = atoi((char*)pInstanceElement->first_attribute("Id"));
+                        pInstanceElement->Attribute("Id", &id);
                         BEATS_ASSERT(id != -1);
                         CComponentProxy* pComponentProxy = NULL;
-                        if (strcmp(pInstanceElement->value(), "Instance") == 0)
+                        if (strcmp(pInstanceElement->Value(), "Instance") == 0)
                         {
                             pComponentProxy = (CComponentProxy*)(CreateComponent(guid, false, false, id, false, NULL, false));
                         }
-                        else if (strcmp(pInstanceElement->value(), "Reference") == 0)
+                        else if (strcmp(pInstanceElement->Value(), "Reference") == 0)
                         {
                             int nReferenceId = -1;
-                            nReferenceId = atoi((char*)pInstanceElement->first_attribute("ReferenceId"));
+                            pInstanceElement->Attribute("ReferenceId", &nReferenceId);
                             pComponentProxy = CreateReference(nReferenceId, guid, id);
                         }
                         pComponentProxy->LoadFromXML(pInstanceElement);
@@ -200,10 +197,10 @@ void CComponentProxyManager::LoadFile(uint32_t uFileId, std::vector<CComponentBa
                         {
                             pComponentContainer->push_back(pComponentProxy);
                         }
-                        pInstanceElement = pInstanceElement->next_sibling();
+                        pInstanceElement = pInstanceElement->NextSiblingElement();
                     }
                 }
-                pComponentElement = pComponentElement->next_sibling("Component");
+                pComponentElement = pComponentElement->NextSiblingElement("Component");
             }
             ResolveDependency();
             SetLoadPhaseFlag(bRestoreLoadingPhase);
@@ -230,10 +227,10 @@ void CComponentProxyManager::LoadFile(uint32_t uFileId, std::vector<CComponentBa
             }
         }
     }
-    catch (rapidxml::parse_error &e)
+    else
     {
         TCHAR info[MAX_PATH];
-        _stprintf(info, _T("Load file :%s Failed! error: %s"), strFilePath.c_str(), e.what());
+        _stprintf(info, _T("Load file :%s Failed! Row: %d Col: %d Reason:%s"), strFilePath.c_str(), document.ErrorRow(), document.ErrorCol(), document.ErrorDesc());
         MessageBox(BEYONDENGINE_HWND, info, _T("Load File Failed"), MB_OK | MB_ICONERROR);
     }
 }
@@ -525,38 +522,37 @@ TString CComponentProxyManager::QueryComponentName(uint32_t uGuid) const
 
 void CComponentProxyManager::SaveTemplate(const TCHAR* pszFilePath)
 {
-    rapidxml::xml_document<> doc;
-    rapidxml::xml_node<>* pDeclaration = doc.allocate_node(rapidxml::node_pi, doc.allocate_string("xml version='1.0' "));
-    doc.append_node(pDeclaration);
-    rapidxml::xml_node<>* pRootElement = doc.allocate_node(rapidxml::node_element, "Root");
-    doc.append_node(pRootElement);
+    TiXmlDocument document;
+    TiXmlDeclaration* pDeclaration = new TiXmlDeclaration("1.0","","");
+    document.LinkEndChild(pDeclaration);
+    TiXmlElement* pRootElement = new TiXmlElement("Root");
+    document.LinkEndChild(pRootElement);
 
-    rapidxml::xml_node<>* pComponentListElement = doc.allocate_node(rapidxml::node_element, "Components");
+    TiXmlElement* pComponentListElement = new TiXmlElement("Components");
     const std::map<uint32_t, CComponentBase*>* pInstanceMap = GetComponentTemplateMap();
     std::map<uint32_t, CComponentBase*>::const_iterator iter = pInstanceMap->begin();
     for (; iter != pInstanceMap->end(); ++iter)
     {
-        rapidxml::xml_node<>* pComponentElement = doc.allocate_node(rapidxml::node_element, "Component");
-        char szGUIDHexStr[32] = { 0 };
+        TiXmlElement* pComponentElement = new TiXmlElement("Component");
+        char szGUIDHexStr[32] = {0};
         sprintf(szGUIDHexStr, "0x%lx", iter->first);
-        pComponentElement->append_attribute(doc.allocate_attribute("GUID", szGUIDHexStr));
-        pComponentElement->append_attribute(doc.allocate_attribute("Name", GetComponentTemplate(iter->first)->GetClassStr()));
+        pComponentElement->SetAttribute("GUID", szGUIDHexStr);
+        pComponentElement->SetAttribute("Name", GetComponentTemplate(iter->first)->GetClassStr());
         static_cast<CComponentProxy*>(iter->second)->SaveToXML(pComponentElement, true);
         // No property is saved, so don't save this template.
-        rapidxml::xml_node<>* pInstanceNode = pComponentElement->first_node("Instance");
+        TiXmlElement* pInstanceNode = pComponentElement->FirstChildElement("Instance");
         BEATS_ASSERT(pInstanceNode != NULL);
-        if (pInstanceNode->first_node("VariableNode") == 0)
+        if (pInstanceNode->FirstChildElement("VariableNode") == 0)
         {
             BEATS_SAFE_DELETE(pComponentElement);
         }
         else
         {
-            pComponentListElement->append_node(pComponentElement);
+            pComponentListElement->LinkEndChild(pComponentElement);
         }
     }
-    pRootElement->append_node(pComponentListElement);
-    std::ofstream out(pszFilePath);
-    out.close();
+    pRootElement->LinkEndChild(pComponentListElement);
+    document.SaveFile(pszFilePath);
 }
 
 void CComponentProxyManager::SaveCurFile()
@@ -591,21 +587,21 @@ void CComponentProxyManager::SaveCurFile()
 
 void CComponentProxyManager::SaveToFile(const TCHAR* pszFileName, std::map<uint32_t, std::vector<CComponentProxy*>>& components)
 {
-    rapidxml::xml_document<> doc;
-    rapidxml::xml_node<>* pDeclaration = doc.allocate_node(rapidxml::node_pi, doc.allocate_string("xml version='1.0' "));
-    doc.append_node(pDeclaration);
-    rapidxml::xml_node<>* pRootElement = doc.allocate_node(rapidxml::node_element, "Root");
-    doc.append_node(pRootElement);
+    TiXmlDocument document;
+    TiXmlDeclaration* pDeclaration = new TiXmlDeclaration("1.0","","");
+    document.LinkEndChild(pDeclaration);
+    TiXmlElement* pRootElement = new TiXmlElement("Root");
+    document.LinkEndChild(pRootElement);
 
-    rapidxml::xml_node<>* pComponentListElement = doc.allocate_node(rapidxml::node_element, "Components");
+    TiXmlElement* pComponentListElement = new TiXmlElement("Components");
     for (std::map<uint32_t, std::vector<CComponentProxy*>>::iterator iter = components.begin(); iter != components.end(); ++iter)
     {
-        rapidxml::xml_node<>* pComponentElement = doc.allocate_node(rapidxml::node_element, "Component");
-        char szGUIDHexStr[32] = { 0 };
+        TiXmlElement* pComponentElement = new TiXmlElement("Component");
+        char szGUIDHexStr[32] = {0};
         sprintf(szGUIDHexStr, "0x%lx", iter->first);
-        pComponentElement->append_attribute(doc.allocate_attribute("GUID", szGUIDHexStr));
-        pComponentElement->append_attribute(doc.allocate_attribute("Name", GetComponentTemplate(iter->first)->GetClassStr()));
-        pComponentListElement->append_node(pComponentElement);
+        pComponentElement->SetAttribute("GUID", szGUIDHexStr);
+        pComponentElement->SetAttribute("Name", GetComponentTemplate(iter->first)->GetClassStr());
+        pComponentListElement->LinkEndChild(pComponentElement);
         for (uint32_t i = 0; i < iter->second.size(); ++i)
         {
             CComponentProxy* pProxy = static_cast<CComponentProxy*>(iter->second.at(i));
@@ -613,9 +609,8 @@ void CComponentProxyManager::SaveToFile(const TCHAR* pszFileName, std::map<uint3
             pProxy->SaveToXML(pComponentElement, false);
         }
     }
-    pRootElement->append_node(pComponentListElement);
-    std::ofstream out(pszFileName);
-    out.close();
+    pRootElement->LinkEndChild(pComponentListElement);
+    document.SaveFile(pszFileName);
 }
 
 void CComponentProxyManager::RegisterPropertyCreator( uint32_t enumType, TCreatePropertyFunc func )
@@ -1057,26 +1052,25 @@ void CComponentProxyManager::CheckForUnInvokedGuid(std::set<uint32_t>& uninvokeG
 
 void CComponentProxyManager::LoadTemplateDataFromXML(const TCHAR* pszPath)
 {
-    rapidxml::file<> fdoc(pszPath);
-    rapidxml::xml_document<> doc;
-    try
+    TiXmlDocument document(pszPath);
+    bool loadSuccess = document.LoadFile(TIXML_ENCODING_UTF8);
+    if (loadSuccess)
     {
-        doc.parse<0>(fdoc.data());
-        rapidxml::xml_node<>* pRootElement = doc.first_node();
-        rapidxml::xml_node<>* pComponentListNode = pRootElement->first_node("Components");
-        if (pComponentListNode != NULL)
+        TiXmlElement* pRootElement = document.RootElement();
+        TiXmlElement* pComponentListNode = pRootElement->FirstChildElement("Components");
+        if (pComponentListNode != NULL )
         {
-            rapidxml::xml_node<>* pComponentElement = pComponentListNode->first_node("Component");
+            TiXmlElement* pComponentElement = pComponentListNode->FirstChildElement("Component");
             while (pComponentElement != NULL)
             {
-                const char* pGuidStr = (char*)pComponentElement->first_attribute("GUID");
+                const char* pGuidStr = pComponentElement->Attribute("GUID");
                 char* pStopPos = NULL;
                 int guid = strtoul(pGuidStr, &pStopPos, 16);
-                rapidxml::xml_node<>* pInstanceElement = pComponentElement->first_node("Instance");
+                TiXmlElement* pInstanceElement = pComponentElement->FirstChildElement("Instance");
                 while (pInstanceElement != NULL)
                 {
                     int id = -1;
-                    id = atoi((char*)pInstanceElement->first_attribute("Id"));
+                    pInstanceElement->Attribute("Id", &id);
                     CComponentProxy* pComponent = static_cast<CComponentProxy*>(GetComponentTemplate(guid));
                     if (pComponent != NULL)
                     {
@@ -1086,17 +1080,11 @@ void CComponentProxyManager::LoadTemplateDataFromXML(const TCHAR* pszPath)
                     {
                         BEATS_PRINT(_T("Component (guid 0x%x) doesn't exist, have you deleted it recently?\n"), guid);
                     }
-                    pInstanceElement = pInstanceElement->next_sibling("Instance");
+                    pInstanceElement = pInstanceElement->NextSiblingElement("Instance");
                 }
-                pComponentElement = pComponentElement->next_sibling("Component");
+                pComponentElement = pComponentElement->NextSiblingElement("Component");
             }
         }
-    }
-    catch (rapidxml::parse_error &e)
-    {
-        TCHAR info[MAX_PATH];
-        _stprintf(info, _T("Load file :%s Failed! error: %s"), pszPath, e.what());
-        MessageBox(BEYONDENGINE_HWND, info, _T("Load File Failed"), MB_OK | MB_ICONERROR);
     }
 }
 

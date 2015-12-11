@@ -4,6 +4,7 @@
 #include "../../../Components/Component/ComponentProxy.h"
 #include "../../../Utility/Serializer/Serializer.h"
 #include "../../../Utility/StringHelper/StringHelper.h"
+#include "../../../Utility/TinyXML/tinyxml.h"
 
 CWxwidgetsPropertyBase::CWxwidgetsPropertyBase(EReflectPropertyType type)
 : super(type)
@@ -154,26 +155,25 @@ void CWxwidgetsPropertyBase::SetValueList(const std::vector<TString>& valueList)
     }
 }
 
-void CWxwidgetsPropertyBase::SaveToXML( xml_node<>* pParentNode )
+void CWxwidgetsPropertyBase::SaveToXML( TiXmlElement* pParentNode )
 {
-    rapidxml::xml_document<> doc;
-    xml_node<>* pVariableElement = doc.allocate_node(node_element, "VariableNode");
-    pVariableElement->append_attribute(doc.allocate_attribute("Type", std::to_string(m_type).c_str()));
-    pVariableElement->append_attribute(doc.allocate_attribute("Variable", GetBasicInfo()->m_variableName.c_str()));
+    TiXmlElement* pVariableElement = new TiXmlElement("VariableNode");
+    pVariableElement->SetAttribute("Type", m_type);
+    pVariableElement->SetAttribute("Variable", GetBasicInfo()->m_variableName.c_str());
     char szValue[102400];
     GetValueAsChar(eVT_CurrentValue, szValue);
-    pVariableElement->append_attribute(doc.allocate_attribute("SavedValue", szValue));
-    pParentNode->append_node(pVariableElement);
+    pVariableElement->SetAttribute("SavedValue", szValue);
+    pParentNode->LinkEndChild(pVariableElement);
     for (uint32_t i = 0; i < m_pChildren->size(); ++i)
     {
         (*m_pChildren)[i]->SaveToXML(pVariableElement);
     }
 }
 
-void CWxwidgetsPropertyBase::LoadFromXML( xml_node<>* pNode )
+void CWxwidgetsPropertyBase::LoadFromXML( TiXmlElement* pNode )
 {
     BEATS_ASSERT(pNode != NULL);
-    const char* pValue = (char*)pNode->first_attribute("SavedValue");
+    const char* pValue = pNode->Attribute("SavedValue");
     GetValueByTChar(pValue, m_valueArray[eVT_CurrentValue]);
     GetValueByTChar(pValue, m_valueArray[eVT_SavedValue]);
 }

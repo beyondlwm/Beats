@@ -2,12 +2,11 @@
 #define BEATS_COMPONENTS_COMPONENT_COMPONENTPROXY_H__INCLUDE
 
 #include "../expdef.h"
+
 #include "Property/PropertyPublic.h"
 #include "ComponentBase.h"
-#include "Utility/RapidXML/rapidxml.hpp"
-#include "RapidXML/rapidxml_utils.hpp"
-
 class CComponentGraphic;
+class TiXmlElement;
 class CDependencyDescription;
 class CDependencyDescriptionLine;
 class CPropertyDescriptionBase;
@@ -69,8 +68,8 @@ public:
     //    2. SaveToXML && LoadFromXML, this is for save and load data for editing.
     //*/
 
-    virtual void SaveToXML(rapidxml::xml_node<>* pNode, bool bSaveOnlyNoneNativePart = false);
-    virtual void LoadFromXML(rapidxml::xml_node<>* pNode);
+    virtual void SaveToXML(TiXmlElement* pNode, bool bSaveOnlyNoneNativePart = false);
+    virtual void LoadFromXML(TiXmlElement* pNode);
     virtual void ExportDataToHost(CSerializer& serializer, EValueType eValueType);
     virtual void ImportDataFromEDS(CSerializer& serializer);
 

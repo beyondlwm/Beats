@@ -4,6 +4,7 @@
 #include "Component/ComponentProxy.h"
 #include "DependencyDescription.h"
 #include "DependencyDescriptionLine.h"
+#include "Utility/TinyXML/tinyxml.h"
 #include "Utility/StringHelper/StringHelper.h"
 #include "Utility/Serializer/Serializer.h"
 #include "Component/ComponentInstance.h"
@@ -129,7 +130,7 @@ void CDependencyDescription::SwapLineOrder(uint32_t uSourceIndex, uint32_t uTarg
     OnDependencyChanged();
 }
 
-void CDependencyDescription::SaveToXML( rapidxml::xml_node<>* pParentNode )
+void CDependencyDescription::SaveToXML( TiXmlElement* pParentNode )
 {
     if (m_dependencyLine.size() == 0)
     {
@@ -142,45 +143,44 @@ void CDependencyDescription::SaveToXML( rapidxml::xml_node<>* pParentNode )
     }
     else
     {
-        rapidxml::xml_document<> doc;
-        rapidxml::xml_node<>* pDependencyElement = doc.allocate_node(rapidxml::node_element, "Dependency");
-        pDependencyElement->append_attribute(doc.allocate_attribute("VariableName", m_variableName.c_str()));
+        TiXmlElement* pDependencyElement = new TiXmlElement("Dependency");
+        pDependencyElement->SetAttribute("VariableName", m_variableName.c_str());
 
         for (uint32_t i = 0; i < m_dependencyLine.size(); ++i)
         {
             // Most of the time, we need to get the real connected component of the reference, as if the reference doesn't exists.
             // However, we need the reference info when we save the component info.
-            rapidxml::xml_node<>* pDependencyNodeElement = doc.allocate_node(rapidxml::node_element, "DependencyNode");
+            TiXmlElement* pDependencyNodeElement = new TiXmlElement("DependencyNode");
             CComponentProxy* pProxy = m_dependencyLine[i]->GetConnectedComponent(false);
-            pDependencyNodeElement->append_attribute(doc.allocate_attribute("Id", std::to_string(pProxy->GetId()).c_str()));
-            char szGUIDHexStr[32] = { 0 };
+            pDependencyNodeElement->SetAttribute("Id", (int)pProxy->GetId());
+            char szGUIDHexStr[32] = {0};
             sprintf(szGUIDHexStr, "0x%lx", pProxy->GetGuid());
-            pDependencyNodeElement->append_attribute(doc.allocate_attribute("Guid", szGUIDHexStr));
-            pDependencyElement->append_node(pDependencyNodeElement);
+            pDependencyNodeElement->SetAttribute("Guid", szGUIDHexStr);
+            pDependencyElement->LinkEndChild(pDependencyNodeElement);
         }
-        pParentNode->append_node(pDependencyElement);
+        pParentNode->LinkEndChild(pDependencyElement);
     }
 }
 
-void CDependencyDescription::LoadFromXML( rapidxml::xml_node<>* pNode )
+void CDependencyDescription::LoadFromXML( TiXmlElement* pNode )
 {
-    rapidxml::xml_node<>* pDependencyElement = pNode->first_node("Dependency");
+    TiXmlElement* pDependencyElement = pNode->FirstChildElement("Dependency");
     while (pDependencyElement != NULL)
     {
-        const char* szVariableName = (char*)pDependencyElement->first_attribute("VariableName");
+        const char* szVariableName = pDependencyElement->Attribute("VariableName");
         if (_tcscmp(szVariableName, m_variableName.c_str()) != 0)
         {
-            pDependencyElement = pDependencyElement->next_sibling("Dependency");
+            pDependencyElement = pDependencyElement->NextSiblingElement("Dependency");
         }
         else
         {
-            rapidxml::xml_node<>* pDependencyNodeElement = pDependencyElement->first_node("DependencyNode");
+            TiXmlElement* pDependencyNodeElement = pDependencyElement->FirstChildElement("DependencyNode");
             while (pDependencyNodeElement != NULL)
             {
-                const char* szGuid = (char*)pDependencyNodeElement->first_attribute("Guid");
+                const char* szGuid = pDependencyNodeElement->Attribute("Guid");
                 char* pEnd = NULL;
                 uint32_t uGuid = strtoul(szGuid, &pEnd, 16);
-                const char* szId = (char*)pDependencyNodeElement->first_attribute("Id");
+                const char* szId = pDependencyNodeElement->Attribute("Id");
                 uint32_t uId = (uint32_t)atoi(szId);
                 bool bIsParent = CComponentProxyManager::GetInstance()->IsParent(m_uDependencyGuid, uGuid);
                 BEATS_ASSERT(bIsParent, _T("Dependency Not match in component %d"), m_pOwner->GetId());
@@ -194,7 +194,7 @@ void CDependencyDescription::LoadFromXML( rapidxml::xml_node<>* pNode )
                         CComponentProxyManager::GetInstance()->AddDependencyResolver(this, (uint32_t)m_dependencyLine.size() - 1, uGuid, uId, NULL, m_bIsListType);
                     }
                 }
-                pDependencyNodeElement = pDependencyNodeElement->next_sibling("DependencyNode");
+                pDependencyNodeElement = pDependencyNodeElement->NextSiblingElement("DependencyNode");
             }
             break;
         }
