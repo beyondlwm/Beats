@@ -337,15 +337,14 @@ void CPropertyDescriptionBase::SetValueWithType(void* pValue, EValueType type, b
                     BEATS_ASSERT(pParent != nullptr && pParent->IsContainerProperty());
                     pParent->SerializeContainerElementLocation(serializer, *rIter);
                 }
+                serializer.SetUserData((void*)serializer.GetWritePos());
                 if (reflectOperateType == EReflectOperationType::AddChild)
                 {
-                    serializer.SetUserData((void*)serializer.GetWritePos());
                     BEATS_ASSERT(pDataProperty->GetParent() != nullptr&& pDataProperty->GetParent()->IsContainerProperty());
                     pDataProperty->GetParent()->SerializeContainerElementLocation(serializer, pDataProperty);
                 }
                 else if (reflectOperateType == EReflectOperationType::RemoveChild || reflectOperateType == EReflectOperationType::ChangeListOrder)
                 {
-                    serializer.SetUserData((void*)serializer.GetWritePos());
                     CSerializer& removeChildInfo = CComponentProxyManager::GetInstance()->GetRemoveChildInfo();
                     if (removeChildInfo.GetWritePos() != removeChildInfo.GetReadPos())
                     {
