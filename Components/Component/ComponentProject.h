@@ -3,7 +3,6 @@
 
 #include "../expdef.h"
 
-class TiXmlElement;
 class CComponentProjectDirectory;
 struct SFileDataLayout
 {
@@ -83,9 +82,9 @@ public:
     std::map<uint32_t, std::vector<uint32_t> >* GetTypeToComponentMap() const;
 
 private:
-    uint32_t GetTotalFileCount(TiXmlElement* pNode) const;
-    void LoadXMLProject(TiXmlElement* pNode, CComponentProjectDirectory* pProjectDirectory, TString& strStartFilePath, std::map<uint32_t, std::vector<uint32_t> >& conflictIdMap);
-    void SaveProjectFile( TiXmlElement* pParentNode, const CComponentProjectDirectory* p);
+    uint32_t GetTotalFileCount(rapidxml::xml_node<>* pNode) const;
+    void LoadXMLProject(rapidxml::xml_node<>* pNode, CComponentProjectDirectory* pProjectDirectory, TString& strStartFilePath, std::map<uint32_t, std::vector<uint32_t> >& conflictIdMap);
+    void SaveProjectFile(rapidxml::xml_node<>* pParentNode, const CComponentProjectDirectory* p);
 
 private:
     uint32_t m_uLoadedFileCount; // For progress

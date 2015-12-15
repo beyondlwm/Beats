@@ -256,7 +256,7 @@ namespace rapidxml
     //! and using the flag will disable it.
     //! <br><br>
     //! See xml_document::parse() function.
-    const int parse_default = 0;
+    const int parse_default = parse_declaration_node;
     
     //! A combination of parse flags that forbids any modifications of the source text. 
     //! This also results in faster parsing. However, note that the following will occur:
@@ -1359,10 +1359,11 @@ namespace rapidxml
     {
     
     public:
-
+        const Ch* m_pszFilePath;
         //! Constructs empty XML document
         xml_document()
             : xml_node<Ch>(node_document)
+            , m_pszFilePath(nullptr)
         {
         }
 
