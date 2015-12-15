@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "ComponentReference.h"
-#include "Utility/TinyXML/tinyxml.h"
 #include "ComponentGraphic.h"
 
 CComponentReference::CComponentReference(uint32_t uProxyId, uint32_t uProxyGuid, CComponentGraphic* pGraphics)
@@ -65,39 +64,36 @@ void CComponentReference::Save()
     // Do nothing.
 }
 
-void CComponentReference::SaveToXML(TiXmlElement* pNode, bool bSaveOnlyNoneNativePart/* = false*/)
+void CComponentReference::SaveToXML(rapidxml::xml_node<>* pNode, bool bSaveOnlyNoneNativePart/* = false*/)
 {
-    TiXmlElement* pInstanceElement = new TiXmlElement("Reference");
-    pInstanceElement->SetAttribute("Id", (int)GetId());
+    rapidxml::xml_document<>* doc = pNode->document();
+    rapidxml::xml_node<>* pInstanceElement = doc->allocate_node(rapidxml::node_element, "Reference");
+    pInstanceElement->append_attribute(doc->allocate_attribute("Id", doc->allocate_string(std::to_string(GetId()).c_str())));
     int posX = 0;
     int posY = 0;
     if (GetGraphics())
     {
         GetGraphics()->GetPosition(&posX, &posY);
     }
-    pInstanceElement->SetAttribute("PosX", posX);
-    pInstanceElement->SetAttribute("PosY", posY);
-    pInstanceElement->SetAttribute("ReferenceId", m_uReferenceId);
+    pInstanceElement->append_attribute(doc->allocate_attribute("PosX", doc->allocate_string(std::to_string(posX).c_str())));
+    pInstanceElement->append_attribute(doc->allocate_attribute("PosY", doc->allocate_string(std::to_string(posY).c_str())));
+    pInstanceElement->append_attribute(doc->allocate_attribute("ReferenceId", doc->allocate_string(std::to_string(m_uReferenceId).c_str())));
     if (GetUserDefineDisplayName().length() > 0)
     {
-        pInstanceElement->SetAttribute("UserDefineName", GetUserDefineDisplayName().c_str());
+        pInstanceElement->append_attribute(doc->allocate_attribute("UserDefineName", doc->allocate_string(GetUserDefineDisplayName().c_str())));
     }
-    pNode->LinkEndChild(pInstanceElement);
+    pNode->append_node(pInstanceElement);
 }
 
-void CComponentReference::LoadFromXML(TiXmlElement* pNode)
+void CComponentReference::LoadFromXML(rapidxml::xml_node<>* pNode)
 {
-    int x = 0;
-    int y = 0;
-    if (pNode->Attribute("PosX", &x) && pNode->Attribute("PosY", &y))
+    if (pNode->first_attribute("PosX") && pNode->first_attribute("PosY"))
     {
-        GetGraphics()->SetPosition(x, y);
+        GetGraphics()->SetPosition(atoi(pNode->first_attribute("PosX")->value()), atoi(pNode->first_attribute("PosY")->value()));
     }
-
-    const char* pszUserDefineName = pNode->Attribute("UserDefineName");
-    if (pszUserDefineName != NULL)
+    if (pNode->first_attribute("UserDefineName") != nullptr)
     {
-        SetUserDefineDisplayName(pszUserDefineName);
+        SetUserDefineDisplayName(pNode->first_attribute("UserDefineName")->value());
     }
 }
 

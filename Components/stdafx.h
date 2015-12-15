@@ -33,6 +33,9 @@
 #include <vector>
 #include <map>
 #include <set>
+#include "Utility/RapidXML/rapidxml.hpp"
+#include "Utility/RapidXML/rapidxml_print.hpp"
+#include "Utility/RapidXML/rapidxml_utils.hpp"
 #include "Beats/PublicDef.h"
 #include "ComponentPublic.h"
 #include "Utility/SharePtr/SharePtr.h"
