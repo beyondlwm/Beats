@@ -569,7 +569,10 @@ void DeclareProperty(CSerializer& serializer, T& property, const TCHAR* pszPrope
         {\
             uint32_t uInstanceId, uGuid;\
             serializer >> uInstanceId >> uGuid;\
-            CComponentInstanceManager::GetInstance()->AddDependencyResolver(NULL, 0 , uGuid, uInstanceId, &ptrProperty, false);\
+            if (GetId() != 0xFFFFFFFF)\
+            {\
+                CComponentInstanceManager::GetInstance()->AddDependencyResolver(NULL, 0, uGuid, uInstanceId, &ptrProperty, false); \
+            }\
         }\
     }
 
@@ -582,7 +585,10 @@ void DeclareProperty(CSerializer& serializer, T& property, const TCHAR* pszPrope
         {\
             uint32_t uInstanceId, uGuid;\
             serializer >> uInstanceId >> uGuid;\
-            CComponentInstanceManager::GetInstance()->AddDependencyResolver(NULL, i , uGuid, uInstanceId, &ptrProperty, true);\
+            if (GetId() != 0xFFFFFFFF)\
+            {\
+                CComponentInstanceManager::GetInstance()->AddDependencyResolver(NULL, i, uGuid, uInstanceId, &ptrProperty, true); \
+            }\
         }\
     }
 
