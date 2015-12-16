@@ -946,6 +946,25 @@ static void CollectPropertyInvokeGuid(CPropertyDescriptionBase* pPropertyDescrip
     }
 }
 
+static void CollectInvokeGuid(CComponentProxy* pProxy)
+{
+    BEATS_ASSERT(pProxy != nullptr);
+    if (pProxy->GetProxyId() == pProxy->GetId())//It's not a reference.
+    {
+        invokedGuidList.insert(pProxy->GetGuid());
+        for (size_t k = 0; k < pProxy->GetPropertyPool()->size(); ++k)
+        {
+            CPropertyDescriptionBase* pProperty = pProxy->GetPropertyPool()->at(k);
+            CollectPropertyInvokeGuid(pProperty, invokedGuidList);
+        }
+        for (size_t k = 0; k < pProxy->GetDependencies()->size(); ++k)
+        {
+            CDependencyDescription* pDependency = pProxy->GetDependency(k);
+            invokedGuidList.insert(pDependency->GetDependencyGuid());
+        }
+    }
+}
+
 void CComponentProxyManager::CheckForUnInvokedGuid(std::set<uint32_t>& uninvokeGuidList)
 {
     m_bExportingPhase = true;
@@ -972,23 +991,9 @@ void CComponentProxyManager::CheckForUnInvokedGuid(std::set<uint32_t>& uninvokeG
                         uint32_t uComponentId = *idIter;
                         CComponentProxy* pProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(uComponentId));
                         BEATS_ASSERT(pProxy != nullptr, _T("Can't find proxy with GUID 0x%x id %d, have you removed that class in code?"), m_pProject->QueryComponentGuid(uComponentId), uComponentId);
-
                         if (pProxy)
                         {
-                            if (pProxy->GetProxyId() == pProxy->GetId())//It's not a reference.
-                            {
-                                invokedGuidList.insert(pProxy->GetGuid());
-                                for (size_t k = 0; k < pProxy->GetPropertyPool()->size(); ++k)
-                                {
-                                    CPropertyDescriptionBase* pProperty = pProxy->GetPropertyPool()->at(k);
-                                    CollectPropertyInvokeGuid(pProperty, invokedGuidList);
-                                }
-                                for (size_t k = 0; k < pProxy->GetDependencies()->size(); ++k)
-                                {
-                                    CDependencyDescription* pDependency = pProxy->GetDependency(k);
-                                    invokedGuidList.insert(pDependency->GetDependencyGuid());
-                                }
-                            }
+                            CollectInvokeGuid(pProxy);
                         }
                     }
                 }
@@ -1002,26 +1007,12 @@ void CComponentProxyManager::CheckForUnInvokedGuid(std::set<uint32_t>& uninvokeG
                 m_bCreateInstanceWithProxy = false;
                 m_pIdManager->Lock();
                 LoadFile(i, &vecComponents);
-                iterFile = std::find(m_loadedFiles.begin(), m_loadedFiles.end(), i);
-                BEATS_ASSERT(iterFile != m_loadedFiles.end(), _T("Load file index %d failed!"), i);
+                BEATS_ASSERT(std::find(m_loadedFiles.begin(), m_loadedFiles.end(), i) != m_loadedFiles.end(), _T("Load file index %d failed!"), i);
                 for (uint32_t j = 0; j < vecComponents.size(); ++j)
                 {
                     CComponentProxy* pProxy = static_cast<CComponentProxy*>(vecComponents[j]);
                     BEATS_ASSERT(pProxy->IsInitialized());
-                    if (pProxy->GetProxyId() == pProxy->GetId())
-                    {
-                        invokedGuidList.insert(pProxy->GetGuid());
-                        for (size_t k = 0; k < pProxy->GetPropertyPool()->size(); ++k)
-                        {
-                            CPropertyDescriptionBase* pProperty = pProxy->GetPropertyPool()->at(k);
-                            CollectPropertyInvokeGuid(pProperty, invokedGuidList);
-                        }
-                        for (size_t k = 0; k < pProxy->GetDependencies()->size(); ++k)
-                        {
-                            CDependencyDescription* pDependency = pProxy->GetDependency(k);
-                            invokedGuidList.insert(pDependency->GetDependencyGuid());
-                        }
-                    }
+                    CollectInvokeGuid(pProxy);
                 }
                 ReSaveFreshFile();
                 // Don't call CloseFile, because we have nothing to do with proxy's host component.
