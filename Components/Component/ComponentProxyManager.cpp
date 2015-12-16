@@ -946,7 +946,7 @@ static void CollectPropertyInvokeGuid(CPropertyDescriptionBase* pPropertyDescrip
     }
 }
 
-static void CollectInvokeGuid(CComponentProxy* pProxy)
+static void CollectInvokeGuid(CComponentProxy* pProxy, std::set<uint32_t>& invokedGuidList)
 {
     BEATS_ASSERT(pProxy != nullptr);
     if (pProxy->GetProxyId() == pProxy->GetId())//It's not a reference.
@@ -993,7 +993,7 @@ void CComponentProxyManager::CheckForUnInvokedGuid(std::set<uint32_t>& uninvokeG
                         BEATS_ASSERT(pProxy != nullptr, _T("Can't find proxy with GUID 0x%x id %d, have you removed that class in code?"), m_pProject->QueryComponentGuid(uComponentId), uComponentId);
                         if (pProxy)
                         {
-                            CollectInvokeGuid(pProxy);
+                            CollectInvokeGuid(pProxy, invokedGuidList);
                         }
                     }
                 }
@@ -1012,7 +1012,7 @@ void CComponentProxyManager::CheckForUnInvokedGuid(std::set<uint32_t>& uninvokeG
                 {
                     CComponentProxy* pProxy = static_cast<CComponentProxy*>(vecComponents[j]);
                     BEATS_ASSERT(pProxy->IsInitialized());
-                    CollectInvokeGuid(pProxy);
+                    CollectInvokeGuid(pProxy, invokedGuidList);
                 }
                 ReSaveFreshFile();
                 // Don't call CloseFile, because we have nothing to do with proxy's host component.
