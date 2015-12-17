@@ -180,7 +180,7 @@ void CComponentProxyManager::LoadFile(uint32_t uFileId, std::vector<CComponentBa
                 if (GetComponentTemplate(guid) == NULL)
                 {
                     CComponentProxyManager::GetInstance()->GetRefreshFileList().insert(uFileId);
-                    BEATS_ASSERT(false, _T("Can't create component with GUID 0x%x Name %s, Have you removed this component class."), guid, pComponentElement->first_attribute("Name")->value());
+                    BEATS_ASSERT(false, _T("Can't create component with \nGUID 0x%x\nName %s\nHave you removed this component class?"), guid, pComponentElement->first_attribute("Name")->value());
                 }
                 else
                 {
