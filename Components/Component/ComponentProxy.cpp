@@ -341,7 +341,7 @@ bool CComponentProxy::GetTemplateFlag() const
 
 void CComponentProxy::SaveToXML(rapidxml::xml_node<>* pNode, bool bSaveOnlyNoneNativePart/* = false*/)
 {
-    if (m_pHostComponent != NULL)
+    if (m_pHostComponent != NULL && !GetTemplateFlag())
     {
         m_pHostComponent->OnSave();
     }
