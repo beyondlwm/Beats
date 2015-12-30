@@ -152,7 +152,8 @@ void CDependencyDescription::SaveToXML(rapidxml::xml_node<>* pParentNode)
             // However, we need the reference info when we save the component info.
             rapidxml::xml_node<>* pDependencyNodeElement = pDoc->allocate_node(rapidxml::node_element, "DependencyNode");
             CComponentProxy* pProxy = m_dependencyLine[i]->GetConnectedComponent(false);
-            pDependencyNodeElement->append_attribute(pDoc->allocate_attribute("Id", pDoc->allocate_string(std::to_string(pProxy->GetId()).c_str())));
+            _stprintf(szBeatsDialogBuffer, "%d", pProxy->GetId());
+            pDependencyNodeElement->append_attribute(pDoc->allocate_attribute("Id", pDoc->allocate_string(szBeatsDialogBuffer)));
             char szGUIDHexStr[32] = { 0 };
             sprintf(szGUIDHexStr, "0x%lx", pProxy->GetGuid());
             pDependencyNodeElement->append_attribute(pDoc->allocate_attribute("Guid", pDoc->allocate_string(szGUIDHexStr)));

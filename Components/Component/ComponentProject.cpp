@@ -142,8 +142,10 @@ void CComponentProject::SaveProject()
     TString strFullPath = m_strProjectFilePath;
     strFullPath.append(_T("/")).append(m_strProjectFileName);
     TString strOut;
-    rapidxml::print(std::back_inserter(strOut), doc, 0);
     std::ofstream out(strFullPath.c_str());
+#if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
+    rapidxml::print(std::back_inserter(strOut), doc, 0);
+#endif
     out << strOut;
     out.close();
 }
@@ -225,7 +227,8 @@ void CComponentProject::ResolveIdForFile(uint32_t uFileId, uint32_t idToResolve,
                             BEATS_ASSERT(id != -1);
                             if (id == (int)idToResolve)
                             {
-                                pIdAttribute->value(doc.allocate_string(std::to_string(iNewID).c_str()));
+                                _stprintf(szBeatsDialogBuffer, "%d", iNewID);
+                                pIdAttribute->value(doc.allocate_string(szBeatsDialogBuffer));
                             }
                             rapidxml::xml_node<>* pDependency = pInstanceElement->first_node("Dependency");
                             while (pDependency != NULL)
@@ -238,7 +241,8 @@ void CComponentProject::ResolveIdForFile(uint32_t uFileId, uint32_t idToResolve,
                                     id = atoi(pIdAttribute->value());
                                     if (id == (int)idToResolve)
                                     {
-                                        pIdAttribute->value(doc.allocate_string(std::to_string(iNewID).c_str()));
+                                        _stprintf(szBeatsDialogBuffer, "%d", iNewID);
+                                        pIdAttribute->value(doc.allocate_string(szBeatsDialogBuffer));
                                     }
                                     pDependencyNode = pDependencyNode->next_sibling("DependencyNode");
                                 }
@@ -250,7 +254,9 @@ void CComponentProject::ResolveIdForFile(uint32_t uFileId, uint32_t idToResolve,
                     }
                 }
                 TString strOut;
+#if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
                 rapidxml::print(std::back_inserter(strOut), doc, 0);
+#endif
                 std::ofstream out(strFileName.c_str());
                 out << strOut;
                 out.close();
@@ -524,6 +530,7 @@ bool CComponentProject::AnalyseFile(const TString& strFileName, std::map<uint32_
         }
         catch (rapidxml::parse_error &e)
         {
+            (void)e;
             BEATS_ASSERT(false, _T("Load File :%s Failed!Reason: %s "), strFileName.c_str(), e.what());
         }
         

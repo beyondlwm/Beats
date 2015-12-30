@@ -349,15 +349,18 @@ void CComponentProxy::SaveToXML(rapidxml::xml_node<>* pNode, bool bSaveOnlyNoneN
     BEATS_ASSERT(pDoc);
     rapidxml::xml_node<>* pInstanceElement = pDoc->allocate_node(rapidxml::node_element, "Instance");
     pNode->append_node(pInstanceElement);
-    pInstanceElement->append_attribute(pDoc->allocate_attribute("Id", pDoc->allocate_string(std::to_string(GetId()).c_str())));
+    _stprintf(szBeatsDialogBuffer, "%d", GetId());
+    pInstanceElement->append_attribute(pDoc->allocate_attribute("Id", pDoc->allocate_string(szBeatsDialogBuffer)));
     int posX = 0;
     int posY = 0;
     if (m_pGraphics)
     {
         m_pGraphics->GetPosition(&posX, &posY);
     }
-    pInstanceElement->append_attribute(pDoc->allocate_attribute("PosX", pDoc->allocate_string(std::to_string(posX).c_str())));
-    pInstanceElement->append_attribute(pDoc->allocate_attribute("PosY", pDoc->allocate_string(std::to_string(posY).c_str())));
+    _stprintf(szBeatsDialogBuffer, "%d", posX);
+    pInstanceElement->append_attribute(pDoc->allocate_attribute("PosX", pDoc->allocate_string(szBeatsDialogBuffer)));
+    _stprintf(szBeatsDialogBuffer, "%d", posY);
+    pInstanceElement->append_attribute(pDoc->allocate_attribute("PosY", pDoc->allocate_string(szBeatsDialogBuffer)));
     if (m_strUserDefineDisplayName.length() > 0)
     {
         pInstanceElement->append_attribute(pDoc->allocate_attribute("UserDefineName", pDoc->allocate_string(m_strUserDefineDisplayName.c_str())));
@@ -475,6 +478,7 @@ void CComponentProxy::LoadFromXML(rapidxml::xml_node<>* pNode)
             }
             else
             {
+#if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
                 for (uint32_t j = 0; j < matchTypeProperties.size(); )
                 {
                     const TString& strVariableName = matchTypeProperties[j]->GetBasicInfo()->m_variableName;
@@ -502,6 +506,7 @@ void CComponentProxy::LoadFromXML(rapidxml::xml_node<>* pNode)
                         break;
                     }
                 }
+#endif
             }
         }
     }

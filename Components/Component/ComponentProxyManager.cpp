@@ -168,6 +168,7 @@ void CComponentProxyManager::LoadFile(uint32_t uFileId, std::vector<CComponentBa
         {
             bool bRestoreLoadingPhase = IsInLoadingPhase();
             SetLoadPhaseFlag(true);
+            CComponentInstanceManager::GetInstance()->SetLoadPhaseFlag(true);
             std::vector<CComponentProxy*> loadedProxyList;
             std::vector<int> reservedId;
             rapidxml::xml_node<>* pComponentElement = pComponentListNode->first_node("Component");
@@ -214,6 +215,7 @@ void CComponentProxyManager::LoadFile(uint32_t uFileId, std::vector<CComponentBa
             }
             ResolveDependency();
             SetLoadPhaseFlag(bRestoreLoadingPhase);
+            CComponentInstanceManager::GetInstance()->SetLoadPhaseFlag(bRestoreLoadingPhase);
             // Call component proxy's initialize means we have sync all value to host component, so we call host component's load function.
             for (size_t i = 0; i < loadedProxyList.size(); ++i)
             {
@@ -556,7 +558,9 @@ void CComponentProxyManager::SaveTemplate(const TCHAR* pszFilePath)
         }
     }
     TString strOut;
+#if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
     rapidxml::print(std::back_inserter(strOut), doc, 0);
+#endif
     std::ofstream out(pszFilePath);
     out << strOut;
     out.close();
@@ -621,7 +625,9 @@ void CComponentProxyManager::SaveToFile(const TCHAR* pszFileName, std::map<uint3
     }
 
     TString strOut;
+#if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
     rapidxml::print(std::back_inserter(strOut), doc, 0);
+#endif
     std::ofstream out(pszFileName);
     out << strOut;
     out.close();
