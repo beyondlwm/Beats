@@ -14,9 +14,6 @@ void DefaultAddDependencyFunc(void* pContainer, void* pDependency)
 
 CComponentManagerBase::CComponentManagerBase()
     : m_uCurrLoadFileId(0xFFFFFFFF)
-    , m_bInClonePhase(false)
-    , m_bInLoadingPhase(false)
-
 {
     m_pIdManager = new CIdManager;
     m_pProject = new CComponentProject;
@@ -213,7 +210,7 @@ void CComponentManagerBase::SetCurrLoadFileId(uint32_t uId)
 
 void CComponentManagerBase::AddDependencyResolver( CDependencyDescription* pDescription, uint32_t uIndex, uint32_t uGuid, uint32_t uInstanceId , void* pVariableAddress, bool bIsList, TAddDependencyFunc pFunc /*= NULL*/)
 {
-    if (!IsInClonePhase() || IsInLoadingPhase())
+    if (!CComponentInstanceManager::GetInstance()->IsInClonePhase() || CComponentInstanceManager::GetInstance()->IsInLoadingPhase())
     {
         SDependencyResolver* pDependencyResovler = new SDependencyResolver;
         pDependencyResovler->pDescription = pDescription;
@@ -409,24 +406,4 @@ void CComponentManagerBase::CalcSwitchFile(uint32_t uFileId, std::vector<uint32_
     {
         loadFiles.push_back(uFileId);
     }
-}
-
-bool CComponentManagerBase::IsInClonePhase() const
-{
-    return m_bInClonePhase;
-}
-
-void CComponentManagerBase::SetClonePhaseFlag(bool bInClonePhase)
-{
-    m_bInClonePhase = bInClonePhase;
-}
-
-bool CComponentManagerBase::IsInLoadingPhase() const
-{
-    return m_bInLoadingPhase;
-}
-
-void CComponentManagerBase::SetLoadPhaseFlag(bool bInLoadPhase)
-{
-    m_bInLoadingPhase = bInLoadPhase;
 }

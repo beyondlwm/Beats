@@ -239,6 +239,26 @@ void CComponentInstanceManager::ResolveDependency()
     BEATS_SAFE_DELETE_VECTOR(*m_pDependencyResolver);
 }
 
+bool CComponentInstanceManager::IsInClonePhase() const
+{
+    return m_bInClonePhase;
+}
+
+void CComponentInstanceManager::SetClonePhaseFlag(bool bInClonePhase)
+{
+    m_bInClonePhase = bInClonePhase;
+}
+
+bool CComponentInstanceManager::IsInLoadingPhase() const
+{
+    return m_bInLoadingPhase;
+}
+
+void CComponentInstanceManager::SetLoadPhaseFlag(bool bInLoadPhase)
+{
+    m_bInLoadingPhase = bInLoadPhase;
+}
+
 uint32_t CComponentInstanceManager::GetVersion()
 {
     return COMPONENT_SYSTEM_VERSION;

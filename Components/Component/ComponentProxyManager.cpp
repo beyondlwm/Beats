@@ -166,8 +166,7 @@ void CComponentProxyManager::LoadFile(uint32_t uFileId, std::vector<CComponentBa
         rapidxml::xml_node<>* pComponentListNode = pRootElement->first_node("Components");
         if (pComponentListNode != NULL)
         {
-            bool bRestoreLoadingPhase = IsInLoadingPhase();
-            SetLoadPhaseFlag(true);
+            bool bRestoreLoadingPhase = CComponentInstanceManager::GetInstance()->IsInLoadingPhase();
             CComponentInstanceManager::GetInstance()->SetLoadPhaseFlag(true);
             std::vector<CComponentProxy*> loadedProxyList;
             std::vector<int> reservedId;
@@ -214,7 +213,6 @@ void CComponentProxyManager::LoadFile(uint32_t uFileId, std::vector<CComponentBa
                 pComponentElement = pComponentElement->next_sibling("Component");
             }
             ResolveDependency();
-            SetLoadPhaseFlag(bRestoreLoadingPhase);
             CComponentInstanceManager::GetInstance()->SetLoadPhaseFlag(bRestoreLoadingPhase);
             // Call component proxy's initialize means we have sync all value to host component, so we call host component's load function.
             for (size_t i = 0; i < loadedProxyList.size(); ++i)
@@ -713,7 +711,7 @@ CPropertyDescriptionBase* CComponentProxyManager::GetCurrReflectProperty(EReflec
         *pOperateType = m_reflectOperateType;
     }
     // When we are in clone state or loading file state, we don't allow to reflect sync single property
-    return !CComponentInstanceManager::GetInstance()->IsInClonePhase() && !IsInLoadingPhase() ? m_pCurrReflectProperty : nullptr;
+    return !CComponentInstanceManager::GetInstance()->IsInClonePhase() && !CComponentInstanceManager::GetInstance()->IsInLoadingPhase() ? m_pCurrReflectProperty : nullptr;
 }
 
 void CComponentProxyManager::SetCurrReflectProperty(CPropertyDescriptionBase* pPropertyDescription, EReflectOperationType operateType)
@@ -732,7 +730,7 @@ CSerializer& CComponentProxyManager::GetRemoveChildInfo()
 CDependencyDescription* CComponentProxyManager::GetCurrReflectDependency() const
 {
     // When we are in clone state or loading file state, we don't allow to reflect sync single dependency
-    return !CComponentInstanceManager::GetInstance()->IsInClonePhase() && !IsInLoadingPhase() ? m_pCurrReflectDependency : nullptr;
+    return !CComponentInstanceManager::GetInstance()->IsInClonePhase() && !CComponentInstanceManager::GetInstance()->IsInLoadingPhase() ? m_pCurrReflectDependency : nullptr;
 }
 
 void CComponentProxyManager::SetCurrReflectDependency(CDependencyDescription* pDependency)

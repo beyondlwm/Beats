@@ -19,10 +19,16 @@ public:
     virtual void CloseFile(uint32_t uFileId) override;
     CSerializer* GetFileSerializer() const;
     virtual void ResolveDependency() override;
+    bool IsInClonePhase() const;
+    void SetClonePhaseFlag(bool bInClonePhase);
+    bool IsInLoadingPhase() const;
+    void SetLoadPhaseFlag(bool bInLoadPhase);
 
 private:
     void LoadDirectoryFiles(CComponentProjectDirectory* pDirectory, std::vector<CComponentBase*>& loadComponents);
 private:
+    bool m_bInClonePhase = false;
+    bool m_bInLoadingPhase = false;
     CSerializer* m_pSerializer;
 };
 
