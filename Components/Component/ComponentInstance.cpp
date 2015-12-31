@@ -179,7 +179,7 @@ CComponentInstance* CComponentInstance::CloneInstance()
     (*pSerializer) >> uDataSize >> uGuid >> uId;
     BEATS_ASSERT(uGuid == GetGuid() && uId == GetId());
 #else
-    pSerializer->SetReadPos(12);
+    pSerializer->SetReadPos(pSerializer->GetReadPos() + 12);
 #endif
     CComponentBase* pNewInstance = Clone(false, pSerializer, 0xFFFFFFFF, false);
     CComponentInstanceManager::GetInstance()->SetClonePhaseFlag(bOriginalValue);
