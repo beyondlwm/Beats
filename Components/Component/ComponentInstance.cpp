@@ -159,6 +159,7 @@ CComponentInstance* CComponentInstance::CloneInstance()
 {
     bool bOriginalValue = CComponentInstanceManager::GetInstance()->IsInClonePhase();
     CComponentInstanceManager::GetInstance()->SetClonePhaseFlag(true);
+    CComponentInstanceManager::GetInstance()->GetFileSerializerMutex().lock();
     CSerializer* pSerializer = CComponentInstanceManager::GetInstance()->GetFileSerializer();
     static CSerializer serializer;
     // If we are in editor mode, we get the data from proxy. if we are not in editor mode, we can only get the data from the record.
@@ -183,6 +184,7 @@ CComponentInstance* CComponentInstance::CloneInstance()
 #endif
     CComponentBase* pNewInstance = Clone(false, pSerializer, 0xFFFFFFFF, false);
     CComponentInstanceManager::GetInstance()->SetClonePhaseFlag(bOriginalValue);
+    CComponentInstanceManager::GetInstance()->GetFileSerializerMutex().unlock();
     return static_cast<CComponentInstance*>(pNewInstance);
 }
 

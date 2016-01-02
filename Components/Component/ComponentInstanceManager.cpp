@@ -124,6 +124,7 @@ void CComponentInstanceManager::LoadFile(uint32_t uFileId, std::vector<CComponen
     BEATS_ASSERT(bRet, _T("Query file layout info failed! file id %d"), uFileId);
     if (bRet)
     {
+        m_fileSerializerMutex.lock();
         std::vector<CComponentInstance*> loadComponents;
         m_pSerializer->SetReadPos(uFileStartPos);
         uint32_t uFileStartPosRead, uFileDataLengthRead;
@@ -151,6 +152,7 @@ void CComponentInstanceManager::LoadFile(uint32_t uFileId, std::vector<CComponen
             m_pSerializer->SetReadPos(uComponentStartPos + uComponentDataSize);
         }
         BEATS_ASSERT(m_pSerializer->GetReadPos() - uFileStartPos == uFileDataLength, _T("File Data NOT Match!\nGot an error when import data for file %d Required size:%d Actual size %d"), uFileId, uFileDataLength, m_pSerializer->GetReadPos() - uFileStartPos);
+        m_fileSerializerMutex.unlock();
         ResolveDependency();
         SetLoadPhaseFlag(bOriginalLoadPhase);
         // After all component instance's value is read, we call each's load function.
@@ -257,6 +259,11 @@ bool CComponentInstanceManager::IsInLoadingPhase() const
 void CComponentInstanceManager::SetLoadPhaseFlag(bool bInLoadPhase)
 {
     m_bInLoadingPhase = bInLoadPhase;
+}
+
+std::mutex& CComponentInstanceManager::GetFileSerializerMutex()
+{
+    return m_fileSerializerMutex;
 }
 
 uint32_t CComponentInstanceManager::GetVersion()
