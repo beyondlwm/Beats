@@ -16,7 +16,7 @@ bool CFilePathTool::Exists(const TCHAR* pszPath)
 {
     BEATS_ASSERT(pszPath != NULL && _tcslen(pszPath) > 0);
     bool bFound = false;
-    TString strFilePath(pszPath);
+    TString strFilePath = ConvertToUnixPath(pszPath);
     // Check whether file exists in apk.
     if (strFilePath[0] != _T('/'))
     {

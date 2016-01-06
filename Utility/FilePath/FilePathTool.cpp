@@ -24,11 +24,11 @@ bool CFilePathTool::LoadFile(CSerializer* pSerializer, const TCHAR* pszFilePath,
     BEATS_ASSERT(pszFilePath != NULL, _T("File path is NULL!"));
     BEATS_ASSERT(_tcslen(pszFilePath) > 0, _T("File path is empty!"));
     bool bRet = false;
+    TString strFilePath = ConvertToUnixPath(pszFilePath);
+    pszFilePath = strFilePath.c_str();
 #if (BEATS_PLATFORM == BEATS_PLATFORM_ANDROID)
-    TString strFilePath(pszFilePath);
     if (strFilePath[0] != _T('/'))
     {
-        const TCHAR* pszFilePath = strFilePath.c_str();
         // Found "assets/" at the beginning of the path and we don't want it
         if (strFilePath.find(ASSET_ROOT_PATH) == 0)
         {

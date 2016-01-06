@@ -6,6 +6,8 @@
 bool CFilePathTool::Exists(const TCHAR* pszPath)
 {
     BEATS_ASSERT(pszPath && pszPath[0]);
+    TString unixPath = ConvertToUnixPath(pszPath);
+    pszPath = unixPath.c_str();
     return [[NSFileManager defaultManager] fileExistsAtPath:[NSString stringWithUTF8String:pszPath]];
 }
 
