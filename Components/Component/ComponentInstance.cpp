@@ -218,3 +218,28 @@ void CComponentInstance::UnregisterReflectComponent(CComponentInstance* pCompone
     BEATS_ASSERT(pComponent->GetReflectOwner() == this && pComponent->GetId() == 0xFFFFFFFF);
     pComponent->SetReflectOwner(nullptr);
 }
+
+bool CComponentInstance::OnPropertyChange(void* /*pVariableAddr*/, CSerializer* /*pNewValueToBeSet*/)
+{
+    return false;
+}
+
+bool CComponentInstance::OnDependencyChange(void* pComponentAddr, CComponentBase* pComponent)
+{
+    return false;
+}
+
+bool CComponentInstance::OnDependencyListChange(void* pComponentAddr, enum EDependencyChangeAction action, CComponentBase* pComponent)
+{
+    return false;
+}
+
+void CComponentInstance::OnSave()
+{
+    // Do nothing
+}
+
+void CComponentInstance::OnExport()
+{
+    // Do nothing
+}

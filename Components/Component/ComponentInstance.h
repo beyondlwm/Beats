@@ -36,6 +36,14 @@ public:
     void RegisterReflectComponent(CComponentInstance* pComponent);
     void UnregisterReflectComponent(CComponentInstance* pComponent);
 
+    // Editor mode only!
+    // The return value means if user has sync the variable manually, or system will do this assign.
+    virtual bool OnPropertyChange(void* pVariableAddr, CSerializer* pNewValueToBeSet);
+    virtual bool OnDependencyChange(void* pComponentAddr, CComponentBase* pComponent);
+    virtual bool OnDependencyListChange(void* pComponentAddr, EDependencyChangeAction action, CComponentBase* pComponent);
+    virtual void OnSave();
+    virtual void OnExport();
+
 private:
     uint32_t m_uDataPos;
     uint32_t m_uDataSize;

@@ -81,28 +81,3 @@ void CComponentBase::ReflectData(CSerializer& /*serializer*/)
 {
 
 }
-
-bool CComponentBase::OnPropertyChange(void* /*pVariableAddr*/, CSerializer* /*pNewValueToBeSet*/)
-{
-    return false;
-}
-
-bool CComponentBase::OnDependencyChange(void* pComponentAddr, CComponentBase* pComponent)
-{
-    return false;
-}
-
-bool CComponentBase::OnDependencyListChange(void* pComponentAddr, enum EDependencyChangeAction action, CComponentBase* pComponent)
-{
-    return false;
-}
-
-void CComponentBase::OnSave()
-{
-    // Do nothing
-}
-
-void CComponentBase::OnExport()
-{
-    // Do nothing
-}
