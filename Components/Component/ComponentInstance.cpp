@@ -238,8 +238,3 @@ void CComponentInstance::OnSave()
 {
     // Do nothing
 }
-
-void CComponentInstance::OnExport()
-{
-    // Do nothing
-}
