@@ -396,6 +396,7 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
                             // Don't export component reference
                             if (pProxy->GetProxyId() == pProxy->GetId())
                             {
+                                pProxy->GetHostComponent()->OnExport();
                                 pProxy->ExportDataToHost(serializer, eVT_SavedValue);
                                 ++uComponentCount;
                             }
@@ -425,6 +426,7 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
                     BEATS_ASSERT(pProxy->IsInitialized());
                     if (pProxy->GetProxyId() == pProxy->GetId())
                     {
+                        pProxy->GetHostComponent()->OnExport();
                         pProxy->ExportDataToHost(serializer, eVT_SavedValue);
                         ++uComponentCount;
                     }

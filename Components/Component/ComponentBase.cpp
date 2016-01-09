@@ -101,3 +101,8 @@ void CComponentBase::OnSave()
 {
     // Do nothing
 }
+
+void CComponentBase::OnExport()
+{
+    // Do nothing
+}

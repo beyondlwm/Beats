@@ -71,7 +71,7 @@ public:
     virtual bool OnDependencyChange(void* pComponentAddr, CComponentBase* pComponent);
     virtual bool OnDependencyListChange(void* pComponentAddr, EDependencyChangeAction action, CComponentBase* pComponent);
     virtual void OnSave();
-
+    virtual void OnExport();
 private:
     bool m_bLoaded;
     bool m_bInitialize;
