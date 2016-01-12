@@ -1011,7 +1011,8 @@ void CComponentProxyManager::CheckForUnInvokedGuid(std::set<uint32_t>& uninvokeG
                 m_bCreateInstanceWithProxy = false;
                 m_pIdManager->Lock();
                 LoadFile(i, &vecComponents);
-                BEATS_ASSERT(std::find(m_loadedFiles.begin(), m_loadedFiles.end(), i) != m_loadedFiles.end(), _T("Load file index %d failed!"), i);
+                iterFile = std::find(m_loadedFiles.begin(), m_loadedFiles.end(), i);
+                BEATS_ASSERT(iterFile != m_loadedFiles.end(), _T("Load file index %d failed!"), i);
                 for (uint32_t j = 0; j < vecComponents.size(); ++j)
                 {
                     CComponentProxy* pProxy = static_cast<CComponentProxy*>(vecComponents[j]);
