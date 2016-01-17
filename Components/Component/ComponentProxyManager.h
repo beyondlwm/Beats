@@ -80,7 +80,7 @@ public:
 
     CComponentReference* CreateReference(uint32_t uProxyId, uint32_t uReferenceGuid, uint32_t uId = 0xFFFFFFFF);
 
-    const std::map<uint32_t, CComponentProxy*>& GetComponentsInCurScene() const;
+    std::map<uint32_t, CComponentProxy*>& GetComponentsInCurScene();
     void OnCreateComponentInScene(CComponentProxy* pProxy);
     void OnDeleteComponentInScene(CComponentProxy* pProxy);
 

@@ -835,7 +835,7 @@ CComponentReference* CComponentProxyManager::CreateReference(uint32_t uProxyId, 
     return pRet;
 }
 
-const std::map<uint32_t, CComponentProxy*>& CComponentProxyManager::GetComponentsInCurScene() const
+std::map<uint32_t, CComponentProxy*>& CComponentProxyManager::GetComponentsInCurScene() 
 {
     return m_proxyInCurScene;
 }
