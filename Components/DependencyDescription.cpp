@@ -295,6 +295,8 @@ void CDependencyDescription::Serialize(CSerializer& serializer)
 {
     uint32_t uLineCount = this->GetDependencyLineCount();
     serializer << uLineCount;
+    BEATS_ASSERT(uLineCount > 0 || m_type != eDT_Strong, "Strong Dependency of component %d %s is not connected!", m_pOwner->GetId(), m_pOwner->GetClassStr());
+    BEATS_ASSERT(uLineCount <= 1 || m_bIsListType, "none-list dependency can only get one conection in component %d %s.", m_pOwner->GetId(), m_pOwner->GetClassStr());
     for (uint32_t j = 0; j < uLineCount; ++j)
     {
         // No matter if we get proxy or reference, it doesn't matter, so we get the proxy exactly.
