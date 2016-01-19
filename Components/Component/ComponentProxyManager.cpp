@@ -352,7 +352,7 @@ void CComponentProxyManager::RebuildCurrSceneComponents(uint32_t uCurViewFileId)
     m_uCurrViewFileId = uCurViewFileId;
 }
 
-void CComponentProxyManager::Export(const TCHAR* pSavePath)
+void CComponentProxyManager::Export(const TCHAR* pSavePath, std::function<void(CComponentProxy*)> exportCallback)
 {
     m_bExportingPhase = true;
     BEATS_ASSERT(pSavePath != NULL);
@@ -393,10 +393,8 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
                         CComponentProxy* pProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(uComponentId));
                         if (pProxy)
                         {
-                            // Don't export component reference
-                            if (pProxy->GetProxyId() == pProxy->GetId())
+                            if (ExportComponentProxy(pProxy, serializer, exportCallback))
                             {
-                                pProxy->ExportDataToHost(serializer, eVT_SavedValue);
                                 ++uComponentCount;
                             }
                         }
@@ -422,10 +420,8 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath)
                 for (uint32_t j = 0; j < vecComponents.size(); ++j)
                 {
                     CComponentProxy* pProxy = static_cast<CComponentProxy*>(vecComponents[j]);
-                    BEATS_ASSERT(pProxy->IsInitialized());
-                    if (pProxy->GetProxyId() == pProxy->GetId())
+                    if (ExportComponentProxy(pProxy, serializer, exportCallback))
                     {
-                        pProxy->ExportDataToHost(serializer, eVT_SavedValue);
                         ++uComponentCount;
                     }
                 }
@@ -1188,4 +1184,20 @@ void CComponentProxyManager::ReSaveFreshFile()
         }
     }
     m_refreshFileList.clear();
+}
+
+bool CComponentProxyManager::ExportComponentProxy(CComponentProxy* pProxy, CSerializer& serializer, std::function<void(CComponentProxy*)> exportCallback)
+{
+    BEATS_ASSERT(pProxy->IsInitialized());
+    // Don't export component reference
+    bool bRet = pProxy->GetProxyId() == pProxy->GetId();
+    if (bRet)
+    {
+        if (exportCallback != nullptr)
+        {
+            exportCallback(pProxy);
+        }
+        pProxy->ExportDataToHost(serializer, eVT_SavedValue);
+    }
+    return bRet;
 }
