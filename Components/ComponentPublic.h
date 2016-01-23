@@ -27,7 +27,7 @@
 #define COMPONENT_FILE_EXTENSION _T(".bcf")
 #define COMPONENT_FILE_EXTENSION_FILTER _T("Beats Component File(*.bcf)\0*.bcf\0\0")
 #define COMPONENT_PROJECT_EXTENSION _T("Beats Component Project File(*.bcp)\0*.bcp\0\0")
-#define BINARIZE_FILE_NAME _T("AIData.bin")
+#define BINARIZE_FILE_NAME _T("aidata.bin")
 #define BINARIZE_FILE_EXTENSION _T(".bin")
 #define BINARIZE_FILE_EXTENSION_FILTER _T("Beats binaray File(*.bin)\0*.bin\0\0")
 #define PROPERTY_PARAM_SPLIT_STR _T(",")
@@ -184,10 +184,6 @@ inline void DeserializeVariable(T*& value, CSerializer* pSerializer, CComponentI
 #ifdef EDITOR_MODE
     else
     {
-        if (value != nullptr)
-        {
-            pOwner->UnregisterReflectComponent(value);
-        }
         value = NULL;
     }
 #endif
@@ -390,12 +386,7 @@ inline void DeserializeVariable(std::map<T1, T2>& value, CSerializer* pSerialize
     else
     {
 #endif
-        EReflectPropertyType keyType;
-        EReflectPropertyType valueType;
         uint32_t childCount = 0;
-        *pSerializer >> keyType;
-        *pSerializer >> valueType;
-        BEATS_ASSERT(valueType != eRPT_Invalid && keyType != eRPT_Invalid);
         *pSerializer >> childCount;
 #ifdef EDITOR_MODE
         value.clear();
@@ -689,7 +680,7 @@ bool DeclareProperty(CSerializer& serializer, CComponentInstance* pComponent, T&
     }
 
 template<typename T>
-bool DeclareDependency(CSerializer& serializer, CComponentBase* pComponent, T& ptrProperty, const TCHAR* pszPropertyStr)
+bool DeclareDependency(CSerializer& serializer, CComponentInstance* pComponent, T& ptrProperty, const TCHAR* pszPropertyStr)
 {
     bool bStopHandle = false;
     bool bInClonePhase = CComponentInstanceManager::GetInstance()->IsInClonePhase();
@@ -768,7 +759,7 @@ bool DeclareDependency(CSerializer& serializer, CComponentBase* pComponent, T& p
     }
 
 template<typename T>
-bool DeclareDependencyList(CSerializer& serializer, CComponentBase* pComponent, T& ptrProperty, const TCHAR* pszPropertyStr)
+bool DeclareDependencyList(CSerializer& serializer, CComponentInstance* pComponent, T& ptrProperty, const TCHAR* pszPropertyStr)
 {
     bool bStopHandle = false;
     bool bInClonePhase = CComponentInstanceManager::GetInstance()->IsInClonePhase();
