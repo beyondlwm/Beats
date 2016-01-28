@@ -19,8 +19,7 @@ public:
     bool IsLocked() const;
 private:
     uint32_t uLockCount;
-    uint32_t m_lastId;
-    std::set<uint32_t> m_freeIdPool;
+    std::set<uint32_t> m_reservedIdPool;
 };
 
 
