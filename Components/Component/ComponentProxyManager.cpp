@@ -499,7 +499,7 @@ void CComponentProxyManager::RegisterClassInheritInfo( uint32_t uDerivedClassGui
         iter = m_pComponentInheritMap->find(uBaseClassGuid);
     }
     BEATS_ASSERT(iter != m_pComponentInheritMap->end());
-    BEATS_ASSERT(iter->second.find(uDerivedClassGuid) != iter->second.end());
+    BEATS_ASSERT(iter->second.find(uDerivedClassGuid) == iter->second.end());
     iter->second.insert(uDerivedClassGuid);
     BEATS_ASSERT(m_pComponentBaseClassMap->find(uDerivedClassGuid) == m_pComponentBaseClassMap->end());
     (*m_pComponentBaseClassMap)[uDerivedClassGuid] = uBaseClassGuid;
