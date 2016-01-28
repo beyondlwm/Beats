@@ -40,7 +40,7 @@ public:
 
     void Export(const TCHAR* pSavePath, std::function<void(CComponentProxy*)> exportCallback = nullptr);
 
-    void QueryDerivedClass(uint32_t uBaseClassGuid, std::vector<uint32_t>& result, bool bRecurse) const;
+    void QueryDerivedClass(uint32_t uBaseClassGuid, std::set<uint32_t>& result, bool bRecurse) const;
     uint32_t QueryBaseClase(uint32_t uGuid) const;
     void RegisterClassInheritInfo(uint32_t uDerivedClassGuid, uint32_t uBaseClassGuid);
     TString QueryComponentName(uint32_t uGuid) const;
@@ -116,7 +116,7 @@ private:
     std::map<uint32_t, TCreatePropertyFunc>* m_pPropertyCreatorMap;
     std::map<uint32_t, TString> m_abstractComponentNameMap;
     // This map save the inherit relationship for all components. so when we instance a component pointer, we can decide which instance to generate.
-    std::map<uint32_t, std::vector<uint32_t> >* m_pComponentInheritMap;
+    std::map<uint32_t, std::set<uint32_t> >* m_pComponentInheritMap;
     // key is the class guid to query, value is it's base class.
     std::map<uint32_t, uint32_t>* m_pComponentBaseClassMap;
 
@@ -130,7 +130,4 @@ private:
     // This list saves the file need to be re-save after loaded, because of property maintain logic.
     std::set<uint32_t> m_refreshFileList;
 };
-
-
-
 #endif

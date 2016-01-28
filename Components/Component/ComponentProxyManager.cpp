@@ -31,7 +31,7 @@ CComponentProxyManager::CComponentProxyManager()
     , m_reflectOperateType(EReflectOperationType::ChangeValue)
 {
     m_pPropertyCreatorMap = new std::map<uint32_t, TCreatePropertyFunc>();
-    m_pComponentInheritMap = new std::map<uint32_t, std::vector<uint32_t> >();
+    m_pComponentInheritMap = new std::map<uint32_t, std::set<uint32_t> >();
     m_pComponentBaseClassMap = new std::map<uint32_t, uint32_t>();
     m_pRemoveChildInfo = new CSerializer;
 }
@@ -454,22 +454,25 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath, std::function<void(C
     m_bExportingPhase = false;
 }
 
-void CComponentProxyManager::QueryDerivedClass(uint32_t uBaseClassGuid, std::vector<uint32_t>& result, bool bRecurse ) const
+void CComponentProxyManager::QueryDerivedClass(uint32_t uBaseClassGuid, std::set<uint32_t>& result, bool bRecurse ) const
 {
     result.clear();
-    std::map<uint32_t, std::vector<uint32_t> >::iterator iter = m_pComponentInheritMap->find(uBaseClassGuid);
+    std::map<uint32_t, std::set<uint32_t> >::iterator iter = m_pComponentInheritMap->find(uBaseClassGuid);
     if (iter != m_pComponentInheritMap->end())
     {
         result = iter->second;
         if (bRecurse)
         {
-            for (uint32_t i = 0; i < iter->second.size(); ++i)
+            for (auto subIter = iter->second.begin(); subIter != iter->second.end(); ++subIter)
             {
-                std::vector<uint32_t> subResult;
-                QueryDerivedClass(iter->second[i], subResult, true);
-                for (uint32_t j = 0; j < subResult.size(); ++j)
+                uint32_t uCurrGuid = *subIter;
+                std::set<uint32_t> subResult;
+                QueryDerivedClass(uCurrGuid, subResult, true);
+                for (auto retIter = subResult.begin(); retIter != subResult.end(); ++retIter)
                 {
-                    result.push_back(subResult[j]);
+                    uint32_t uRetGuid = *retIter;
+                    BEATS_ASSERT(result.find(uRetGuid) == result.end());
+                    result.insert(uRetGuid);
                 }
             }
         }
@@ -489,14 +492,15 @@ uint32_t CComponentProxyManager::QueryBaseClase(uint32_t uGuid) const
 
 void CComponentProxyManager::RegisterClassInheritInfo( uint32_t uDerivedClassGuid, uint32_t uBaseClassGuid )
 {
-    std::map<uint32_t, std::vector<uint32_t> >::iterator iter = m_pComponentInheritMap->find(uBaseClassGuid);
+    std::map<uint32_t, std::set<uint32_t> >::iterator iter = m_pComponentInheritMap->find(uBaseClassGuid);
     if (iter == m_pComponentInheritMap->end())
     {
-        (*m_pComponentInheritMap)[uBaseClassGuid] = std::vector<uint32_t>();
+        (*m_pComponentInheritMap)[uBaseClassGuid] = std::set<uint32_t>();
         iter = m_pComponentInheritMap->find(uBaseClassGuid);
     }
     BEATS_ASSERT(iter != m_pComponentInheritMap->end());
-    iter->second.push_back(uDerivedClassGuid);
+    BEATS_ASSERT(iter->second.find(uDerivedClassGuid) != iter->second.end());
+    iter->second.insert(uDerivedClassGuid);
     BEATS_ASSERT(m_pComponentBaseClassMap->find(uDerivedClassGuid) == m_pComponentBaseClassMap->end());
     (*m_pComponentBaseClassMap)[uDerivedClassGuid] = uBaseClassGuid;
 }
@@ -759,7 +763,7 @@ bool CComponentProxyManager::IsParent(uint32_t uParentGuid, uint32_t uChildGuid)
     }
     else
     {
-        std::vector<uint32_t> subClassGuids;
+        std::set<uint32_t> subClassGuids;
         QueryDerivedClass(uParentGuid, subClassGuids, true);
         if(std::find(subClassGuids.begin(), subClassGuids.end(), uChildGuid) != subClassGuids.end())
         {

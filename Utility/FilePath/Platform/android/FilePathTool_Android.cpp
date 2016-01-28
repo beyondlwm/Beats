@@ -50,7 +50,7 @@ bool CFilePathTool::Exists(const TCHAR* pszPath)
 
 bool CFilePathTool::IsAbsolute(const TCHAR* pszPath)
 {
-    BEATS_ASSERT(pszPath != NULL && _tcslen(pszPath) > 0);
+    BEATS_ASSERT(pszPath != NULL && _tcslen(pszPath) > 0, "File path can't be empty in CFilePathTool::IsAbsolute");
     // On Android, there are two situations for full path.
     // 1) Files in APK, e.g. assets/path/path/file.png
     // 2) Files not in APK, e.g. /data/data/org.cocos2dx.hellocpp/cache/path/path/file.png, or /sdcard/path/path/file.png.

@@ -277,16 +277,9 @@ bool CDependencyDescription::IsMatch( CComponentProxy* pDependencyComponent )
     bool bMatch = uCurGuid == m_uDependencyGuid;
     if (!bMatch)
     {
-        std::vector<uint32_t> result;
+        std::set<uint32_t> result;
         CComponentProxyManager::GetInstance()->QueryDerivedClass(m_uDependencyGuid, result, true);
-        for (uint32_t i = 0; i < result.size(); ++i)
-        {
-            if (result[i] == uCurGuid)
-            {
-                bMatch = true;
-                break;
-            }
-        }
+        bMatch = result.find(uCurGuid) != result.end();
     }
     return bMatch;
 }
