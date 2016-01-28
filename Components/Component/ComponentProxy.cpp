@@ -502,7 +502,7 @@ void CComponentProxy::LoadFromXML(rapidxml::xml_node<>* pNode)
                     }
                     else
                     {
-                        BEATS_ASSERT(iRet = IDCANCEL);
+                        BEATS_ASSERT(iRet == IDCANCEL);
                         break;
                     }
                 }

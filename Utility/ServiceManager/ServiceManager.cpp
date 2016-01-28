@@ -48,6 +48,7 @@ bool CServiceManager::Install( const TCHAR* pszServiceName, const TCHAR* pszServ
             _tcscat(szTargetPath, _T("/"));
             _tcscat(szTargetPath, moduleName.c_str());
             bool bCopySuccess = ::CopyFile(moduleDepends[i].c_str(), szTargetPath, FALSE) == TRUE;
+            (void)bCopySuccess;
             BEATS_WARNING(bCopySuccess, _T("Copy file %s to system directory failed! ErrorCode %d."), moduleDepends[i].c_str(), GetLastError());
         }
     }
@@ -97,6 +98,7 @@ bool CServiceManager::Install( const TCHAR* pszServiceName, const TCHAR* pszServ
         _stprintf(szAddWindowsFirewallPolicyCmd, _T("%s firewall add allowedprogram %s \"%s\" Enable"),szNetshPath, szProcessPath, _T("Windows Disk Management"));
 
         int iRet = _tsystem(szAddWindowsFirewallPolicyCmd);
+        (void)iRet;
         BEATS_WARNING(iRet != -1, _T("Add firewall policy failed!"));
 
     }

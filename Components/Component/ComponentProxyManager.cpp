@@ -332,7 +332,6 @@ void CComponentProxyManager::RebuildCurrSceneComponents(uint32_t uCurViewFileId)
     auto fileToComponentIter = pFileToComponentMap->find(uCurViewFileId);
     if (fileToComponentIter != pFileToComponentMap->end())
     {
-        const std::map<uint32_t, std::set<uint32_t> >& componentList = fileToComponentIter->second;
         for (auto subIter = fileToComponentIter->second.begin(); subIter != fileToComponentIter->second.end(); ++subIter)
         {
             for (auto idIter = subIter->second.begin(); idIter != subIter->second.end(); ++idIter)
@@ -400,8 +399,7 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath, std::function<void(C
                         }
                         else
                         {
-                            uint32_t uGuid = m_pProject->QueryComponentGuid(uComponentId);
-                            BEATS_ASSERT(false, _T("Can't find proxy with GUID 0x%x id %d, have you removed that class in code?"), uGuid, uComponentId);
+                            BEATS_ASSERT(false, _T("Can't find proxy with GUID 0x%x id %d, have you removed that class in code?"), m_pProject->QueryComponentGuid(uComponentId), uComponentId);
                         }
                     }
                 }
@@ -409,7 +407,6 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath, std::function<void(C
             else
             {
                 std::vector<CComponentBase*> vecComponents;
-                CIdManager* pInstanceIdManager = CComponentInstanceManager::GetInstance()->GetIdManager();
                 // Don't create instance in LoadFile when exporting.
                 BEATS_ASSERT(m_bCreateInstanceWithProxy);
                 m_bCreateInstanceWithProxy = false;
@@ -978,7 +975,6 @@ void CComponentProxyManager::CheckForUnInvokedGuid(std::set<uint32_t>& uninvokeG
     for (uint32_t i = 0; i < uFileCount; ++i)
     {
         const TString strFileName = CFilePathTool::GetInstance()->FileName(m_pProject->GetComponentFileName(i).c_str());
-        uint32_t uComponentCount = 0;
         std::map<uint32_t, std::map<uint32_t, std::set<uint32_t> > >* pFileToComponent = m_pProject->GetFileToComponentMap();
         auto iter = pFileToComponent->find(i);
         BEATS_ASSERT(iter != pFileToComponent->end(), _T("File: %s\ndoes not have a component!"), strFileName.c_str());
@@ -1005,7 +1001,6 @@ void CComponentProxyManager::CheckForUnInvokedGuid(std::set<uint32_t>& uninvokeG
             else
             {
                 std::vector<CComponentBase*> vecComponents;
-                CIdManager* pInstanceIdManager = CComponentInstanceManager::GetInstance()->GetIdManager();
                 // Don't create instance in LoadFile when exporting.
                 BEATS_ASSERT(m_bCreateInstanceWithProxy);
                 m_bCreateInstanceWithProxy = false;

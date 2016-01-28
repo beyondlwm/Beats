@@ -104,12 +104,11 @@ void CComponentReference::LoadFromXML(rapidxml::xml_node<>* pNode)
 void CComponentReference::Initialize()
 {
     CComponentBase::Initialize();
-    // ComponentReference's host proxy could(maybe must) be NULL in exporting phase.
-    bool bIsExporting = CComponentProxyManager::GetInstance()->IsExporting();
     if (m_pHostProxy == NULL)
     {
         m_pHostProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(m_uReferenceId, m_uReferenceGuid));
-        BEATS_ASSERT(m_pHostProxy != NULL || bIsExporting);
+        // ComponentReference's host proxy could(maybe must) be NULL in exporting phase.
+        BEATS_ASSERT(m_pHostProxy != NULL || CComponentProxyManager::GetInstance()->IsExporting());
     }
 #ifdef _DEBUG
     else

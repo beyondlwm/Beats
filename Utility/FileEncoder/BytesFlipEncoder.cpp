@@ -49,7 +49,7 @@ bool CBytesFlipEncoder::EncodeImpl(CSerializer* pSourceSerializer, CSerializer* 
             while (pSourceSerializer->GetReadPos() < pSourceSerializer->GetWritePos())
             {
                 unsigned short uFlipCount = (unsigned short)(((double)rand() / RAND_MAX) * uFlipDeltaValue + m_header.m_iFlipCountMin);
-                unsigned short uFlipSizeEachTime = std::min<unsigned short>(uFlipCount, pSourceSerializer->GetWritePos() - pSourceSerializer->GetReadPos());
+                unsigned short uFlipSizeEachTime = std::min<unsigned short>(uFlipCount, (unsigned short)(pSourceSerializer->GetWritePos() - pSourceSerializer->GetReadPos()));
                 unsigned char* pSourceData = (unsigned char*)pSourceSerializer->GetReadPtr();
                 unsigned char* pEncodeData = (unsigned char*)pEncodeSerializer->GetWritePtr();
                 for (uint32_t i = 0; i < uFlipSizeEachTime; ++i)
