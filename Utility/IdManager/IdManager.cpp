@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "IdManager.h"
+#include "time.h"
 
 CIdManager::CIdManager()
 : uLockCount(0)
@@ -15,6 +16,7 @@ CIdManager::~CIdManager()
 uint32_t CIdManager::GenerateId()
 {
     BEATS_ASSERT(0 == uLockCount, _T("can't Generate id when it is locked!"));
+    srand((unsigned int)time(nullptr));
     uint32_t uRet = rand();
     while (!IsIdFree(uRet))
     {
