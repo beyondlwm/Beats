@@ -54,12 +54,12 @@ bool CComponentBase::IsInitialized() const
 
 void CComponentBase::Initialize()
 {
-    BEATS_ASSERT(!m_bInitialize, _T("Can't initialize a component twice!"));
-    m_bInitialize = true;
-    if(!m_bLoaded)
+    if (!m_bLoaded)
     {
         Load();
     }
+    BEATS_ASSERT(!m_bInitialize, _T("Can't initialize a component twice!"));
+    m_bInitialize = true;
 }
 
 void CComponentBase::Uninitialize()
