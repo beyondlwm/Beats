@@ -42,14 +42,16 @@ public:
     void AddProperty(CPropertyDescriptionBase* pProperty);
     void ClearProperty();
     const std::vector<CPropertyDescriptionBase*>* GetPropertyPool() const;
-    CPropertyDescriptionBase* GetPropertyDescription(const TCHAR* pszVariableName) const;
+    CPropertyDescriptionBase* GetProperty(const TCHAR* pszVariableName) const;
 
     CDependencyDescription* GetDependency(uint32_t uIndex);
+    CDependencyDescription* GetDependency(const TString& strName);
     const std::vector<CDependencyDescription*>* GetDependencies();
     void AddDependencyDescription(CDependencyDescription* pDependencyDesc);
     void AddBeConnectedDependencyDescriptionLine(CDependencyDescriptionLine* pDependencyDescLine);
     void RemoveBeConnectedDependencyDescriptionLine(CDependencyDescriptionLine* pDependencyDescLine);
     const std::vector<CDependencyDescriptionLine*>* GetBeConnectedDependencyLines();
+    std::vector<char>* GetSerializerOrderList() const;
 
     //Simulate the real component.
     static const uint32_t REFLECT_GUID = 1;
@@ -71,7 +73,6 @@ public:
     virtual void SaveToXML(rapidxml::xml_node<>* pNode, bool bSaveOnlyNoneNativePart = false);
     virtual void LoadFromXML(rapidxml::xml_node<>* pNode);
     virtual void ExportDataToHost(CSerializer& serializer, EValueType eValueType);
-    virtual void ImportDataFromEDS(CSerializer& serializer);
 
     virtual void Initialize() override;
     virtual void Uninitialize() override;

@@ -49,8 +49,9 @@ CComponentProxyManager::~CComponentProxyManager()
     BEATS_SAFE_DELETE(m_pRemoveChildInfo);
 }
 
-void CComponentProxyManager::InitializeAllTemplate()
+void CComponentProxyManager::InitializeAllTemplate(const TString& strXMLPatch)
 {
+    LoadTemplateDataFromXML(strXMLPatch.c_str());
     std::map<uint32_t, CComponentBase*>::iterator iter = m_pComponentTemplateMap->begin();
     for (; iter != m_pComponentTemplateMap->end(); ++iter)
     {
@@ -521,6 +522,12 @@ TString CComponentProxyManager::QueryComponentName(uint32_t uGuid) const
     return strRet;
 }
 
+void CComponentProxyManager::RegisterAbstractComponent(uint32_t uGuid, const TString& strName)
+{
+    BEATS_ASSERT(m_abstractComponentNameMap.find(uGuid) == m_abstractComponentNameMap.end());
+    m_abstractComponentNameMap[uGuid] = strName;
+}
+
 void CComponentProxyManager::SaveTemplate(const TCHAR* pszFilePath)
 {
     rapidxml::xml_document<> doc;
@@ -638,45 +645,6 @@ CPropertyDescriptionBase* CComponentProxyManager::CreateProperty( uint32_t prope
 {
     CPropertyDescriptionBase* pPropertyBase = (*(*m_pPropertyCreatorMap)[propertyType])(serializer);
     return pPropertyBase;
-}
-
-void CComponentProxyManager::DeserializeTemplateData(const TCHAR* pszPath,
-                                                     const TCHAR* pszEDSFileName,
-                                                     const TCHAR* pPatchXMLFileName,
-                                                     TCreateComponentEditorProxyFunc func,
-                                                     TCreateGraphicFunc pGraphicFunc)
-{
-    TString szFilePath(pszPath);
-    if (szFilePath.back() != _T('\\') && szFilePath.back() != _T('/'))
-    {
-        szFilePath.append(_T("\\"));
-    }
-    szFilePath.append(pszEDSFileName);
-    bool bFileExists = CFilePathTool::GetInstance()->Exists(szFilePath.c_str());
-    BEATS_ASSERT(bFileExists, _T("Can't find %s!\nInitialize failed!"), szFilePath.c_str());
-    if (bFileExists)
-    {
-        // Step 1: Load Info from serialize data comes from our code.
-        CSerializer componentsSerializer(szFilePath.c_str());
-        const TCHAR* pHeaderStr = COMPONENT_FILE_HEADERSTR;
-        TCHAR* pbuff = NULL;
-        TCHAR** buff = &pbuff;
-        componentsSerializer.Read(buff);
-        bool bExamFileHeader = _tcsicmp(pHeaderStr, *buff) == 0;
-        BEATS_ASSERT(bExamFileHeader, _T("File format error!"));
-        if (bExamFileHeader)
-        {
-            LoadTemplateDataFromSerializer(componentsSerializer, func, pGraphicFunc);
-            // Step 2: Fix the value from XML.
-            szFilePath.assign(pszPath);
-            if (szFilePath.back() != _T('\\') || szFilePath.back() != _T('/'))
-            {
-                szFilePath.append(_T("\\"));
-            }
-            szFilePath.append(pPatchXMLFileName);
-            LoadTemplateDataFromXML(szFilePath.c_str());
-        }
-    }
 }
 
 void CComponentProxyManager::ResolveDependency()
@@ -1100,54 +1068,6 @@ void CComponentProxyManager::LoadTemplateDataFromXML(const TCHAR* pszPath)
                 pComponentElement = pComponentElement->next_sibling("Component");
             }
         }
-    }
-}
-
-void CComponentProxyManager::LoadTemplateDataFromSerializer(CSerializer& serializer, TCreateComponentEditorProxyFunc func, TCreateGraphicFunc pGraphicFunc)
-{
-    uint32_t version = 0;
-    serializer >> version;
-    BEATS_ASSERT(version <= COMPONENT_SYSTEM_VERSION);
-    uint32_t componentCount = 0;
-    serializer >> componentCount;
-    for (uint32_t i = 0; i < componentCount; ++i)
-    {
-        bool bIsAbstractClass = false;
-        serializer >> bIsAbstractClass;
-        uint32_t curReadPos = serializer.GetReadPos();
-        curReadPos;
-        uint32_t totalSize = 0;
-        serializer >> totalSize;
-        uint32_t guid = 0;
-        serializer >> guid;
-        uint32_t parentGuid = 0;
-        serializer >> parentGuid;
-        BEATS_ASSERT(guid != 0);
-        TCHAR* pStrHolder = NULL;
-        TCHAR** ppStrHolder = &pStrHolder;
-        serializer.Read(ppStrHolder);
-        RegisterClassInheritInfo(guid, parentGuid);
-        if (!bIsAbstractClass)
-        {
-            CComponentProxy* pComponentEditorProxy = func(pGraphicFunc(), guid, parentGuid, pStrHolder);
-            serializer.Read(ppStrHolder);
-            pComponentEditorProxy->SetDisplayName(pStrHolder);
-            serializer.Read(ppStrHolder);
-            pComponentEditorProxy->SetCatalogName(pStrHolder);
-            BEATS_ASSERT(m_pComponentTemplateMap->find(guid) == m_pComponentTemplateMap->end(), _T("Template component proxy already exists!GUID:0x%x, id:%d"), guid, pComponentEditorProxy->GetId());
-            RegisterTemplate(pComponentEditorProxy);
-            CComponentInstance* pInstance = (CComponentInstance*)CComponentInstanceManager::GetInstance()->GetComponentTemplate(guid);
-            BEATS_ASSERT(pInstance != NULL, _T("Cant find a template instance for a proxy to be its host!GUID:0x%x, id:%d"), guid, pComponentEditorProxy->GetId());
-            pComponentEditorProxy->SetTemplateFlag(true);
-            pComponentEditorProxy->SetHostComponent(pInstance);
-            pComponentEditorProxy->ImportDataFromEDS(serializer);
-        }
-        else
-        {
-            BEATS_ASSERT(pStrHolder != NULL);
-            m_abstractComponentNameMap[guid] = TString(pStrHolder);
-        }
-        BEATS_ASSERT(serializer.GetReadPos() == curReadPos + totalSize);
     }
 }
 

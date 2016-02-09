@@ -9,9 +9,6 @@ class CComponentGraphic;
 class CComponentReference;
 class CComponentProjectDirectory;
 
-typedef CComponentProxy* (*TCreateComponentEditorProxyFunc)(CComponentGraphic* pGraphics, uint32_t guid, uint32_t parentGuid, TCHAR* className);
-typedef CComponentGraphic* (*TCreateGraphicFunc)();
-
 enum class EReflectOperationType
 {
     ChangeValue,
@@ -26,7 +23,7 @@ class CComponentProxyManager : public CComponentManagerBase
     BEATS_DECLARE_SINGLETON(CComponentProxyManager);
     typedef CPropertyDescriptionBase* (*TCreatePropertyFunc)(CSerializer* serializer);
 public:
-    void InitializeAllTemplate();
+    void InitializeAllTemplate(const TString& strXMLPatch);
     void UninitializeAllTemplate();
 
     // param bCloseLoadedFile means if current working file include pFilePath, shall we close those loaded sub file.
@@ -45,18 +42,13 @@ public:
     void RegisterClassInheritInfo(uint32_t uDerivedClassGuid, uint32_t uBaseClassGuid);
     TString QueryComponentName(uint32_t uGuid) const;
 
+    void RegisterAbstractComponent(uint32_t uGuid, const TString& strName);
     void SaveTemplate(const TCHAR* pszFilePath);
     void SaveCurFile();
     void SaveToFile(const TCHAR* pszFileName, std::map<uint32_t, std::vector<CComponentProxy*>>& components);
 
     void RegisterPropertyCreator(uint32_t enumType, TCreatePropertyFunc func);
     CPropertyDescriptionBase* CreateProperty(uint32_t propertyType, CSerializer* serializer);
-
-    void DeserializeTemplateData(const TCHAR* pszPath,
-                                 const TCHAR* pszEDSFileName,
-                                 const TCHAR* pszPatchXMLFileName,
-                                TCreateComponentEditorProxyFunc func,
-                                TCreateGraphicFunc pGraphicFunc);
     virtual void ResolveDependency() override;
 
     CPropertyDescriptionBase* GetCurrReflectProperty(EReflectOperationType* pOperateType = nullptr) const;
@@ -97,7 +89,6 @@ public:
 
 private:
     void LoadTemplateDataFromXML(const TCHAR* pWorkingPath);
-    void LoadTemplateDataFromSerializer(CSerializer& serializer, TCreateComponentEditorProxyFunc func, TCreateGraphicFunc pGraphicFunc);
     void ReSaveFreshFile();
     bool ExportComponentProxy(CComponentProxy* pProxy, CSerializer& serializer, std::function<void(CComponentProxy*)> exportCallback);
 

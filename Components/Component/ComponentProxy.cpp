@@ -89,59 +89,6 @@ CComponentProxy::~CComponentProxy()
     }
 }
 
-void CComponentProxy::ImportDataFromEDS( CSerializer& serializer )
-{
-    uint32_t nPropertyCount = 0;
-    uint32_t nDependencyCount = 0;
-    serializer >> nPropertyCount;
-    serializer >> nDependencyCount;
-    uint32_t uPropertyCounter = 0;
-    uint32_t uDependencyCounter = 0;
-    while (uPropertyCounter + uDependencyCounter < nPropertyCount + nDependencyCount)
-    {
-        bool bIsPropertyOrDependencyData;
-        serializer >> bIsPropertyOrDependencyData;
-        m_pSerializeOrder->push_back(bIsPropertyOrDependencyData);
-        if (bIsPropertyOrDependencyData)
-        {
-            EReflectPropertyType ePropertyType;
-            serializer >> ePropertyType;
-            CPropertyDescriptionBase* pPropertyBase = CComponentProxyManager::GetInstance()->CreateProperty(ePropertyType, &serializer);
-            this->AddProperty(pPropertyBase);
-            uint32_t startPos = serializer.GetReadPos();
-            uint32_t dataLenghth = 0;
-            serializer >> dataLenghth;
-            pPropertyBase->DeserializeBasicInfo(serializer);
-            TCHAR* pParameter = NULL;
-            TCHAR** pParameterHolder = &pParameter;
-            serializer.Read(pParameterHolder);
-            pPropertyBase->AnalyseUIParameter(pParameter);
-            BEATS_ASSERT(dataLenghth == serializer.GetReadPos() - startPos, _T("Read data of property: %s in component GUID:0x%x %s Failed, Data Length :%d while require %d"), pPropertyBase->GetBasicInfo()->m_variableName.c_str(), this->GetGuid(), this->GetClassStr(), dataLenghth, serializer.GetReadPos() - startPos);
-            serializer.SetReadPos(startPos + dataLenghth);
-            ++uPropertyCounter;
-            BEATS_ASSERT(uPropertyCounter <= uPropertyCounter);
-        }
-        else
-        {
-            bool bIsList = false;
-            serializer >> bIsList;
-            EDependencyType type;
-            serializer >> type;
-            uint32_t uGuid;
-            serializer >> uGuid;
-            CDependencyDescription* pNewDependency = new CDependencyDescription(type, uGuid, this, (uint32_t)m_pDependenciesDescription->size(), bIsList);
-            TCHAR* pName = NULL;
-            TCHAR** pNameHolder = &pName;
-            serializer.Read(pNameHolder);
-            pNewDependency->SetDisplayName(pName);
-            serializer.Read(pNameHolder);
-            pNewDependency->SetVariableName(pName);
-            ++uDependencyCounter;
-            BEATS_ASSERT(uDependencyCounter <= nDependencyCount);
-        }
-    }
-}
-
 CComponentBase* CComponentProxy::Clone(bool bCloneValue, CSerializer* /*pSerializer*/, uint32_t id, bool bCallInitFunc /*= true*/)
 {
     bool bOriginClonePhase = CComponentInstanceManager::GetInstance()->IsInClonePhase();
@@ -523,6 +470,21 @@ CDependencyDescription* CComponentProxy::GetDependency(uint32_t index)
     return (*m_pDependenciesDescription)[index];
 }
 
+CDependencyDescription* CComponentProxy::GetDependency(const TString& strName)
+{
+    CDependencyDescription* pRet = nullptr;
+    for (size_t i = 0; i < m_pDependenciesDescription->size(); ++i)
+    {
+        if ((*m_pDependenciesDescription)[i]->GetVariableName() == strName)
+        {
+            pRet = (*m_pDependenciesDescription)[i];
+            break;
+        }
+    }
+
+    return pRet;
+}
+
 const std::vector<CDependencyDescription*>* CComponentProxy::GetDependencies()
 {
     return m_pDependenciesDescription;
@@ -586,6 +548,11 @@ const std::vector<CDependencyDescriptionLine*>* CComponentProxy::GetBeConnectedD
     return m_pBeConnectedDependencyLines;
 }
 
+std::vector<char>* CComponentProxy::GetSerializerOrderList() const
+{
+    return m_pSerializeOrder;
+}
+
 void CComponentProxy::AddProperty(CPropertyDescriptionBase* pProperty)
 {
     if (pProperty != NULL)
@@ -613,7 +580,7 @@ const std::vector<CPropertyDescriptionBase*>* CComponentProxy::GetPropertyPool()
     return m_pProperties;
 }
 
-CPropertyDescriptionBase* CComponentProxy::GetPropertyDescription(const TCHAR* pszVariableName) const
+CPropertyDescriptionBase* CComponentProxy::GetProperty(const TCHAR* pszVariableName) const
 {
     CPropertyDescriptionBase* pProperty = NULL;
     for (uint32_t i = 0; i < m_pProperties->size(); ++i)
