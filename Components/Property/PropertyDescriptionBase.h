@@ -69,6 +69,7 @@ public:
     void* GetValue(EValueType type) const;
     bool CanSyncToHost() const;
     void SetValueWithType(void* pValue, EValueType type, bool bForceUpdateHostComponent = false);
+    void RawSetValueByString(const TCHAR* pszStr, EValueType type = eVT_CurrentValue);
     bool DeserializeBasicInfo(CSerializer& serializer);
 
     virtual void Initialize();

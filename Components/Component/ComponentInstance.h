@@ -42,6 +42,7 @@ public:
     virtual bool OnDependencyChange(void* pComponentAddr, CComponentBase* pComponent);
     virtual bool OnDependencyListChange(void* pComponentAddr, EDependencyChangeAction action, CComponentBase* pComponent);
     virtual void OnSave();
+    virtual void OnPropertyImport(const TString& strPropertyName, const TString& strFile);
 
 private:
     uint32_t m_uDataPos;
