@@ -59,12 +59,7 @@ bool CStringHelper::SplitString(const char* pParameter, const char* pSpliter, st
         pReader = pFindStr + strlen(pSpliter);
         pFindStr = strstr(pReader, pSpliter);
     }
-    const uint32_t restCount = (const uint32_t)(strlen(pReader));
-    if (restCount > 0)
-    {
-        result.push_back(pReader);
-    }
-
+    result.push_back(pReader);
     return true;
 }
 
