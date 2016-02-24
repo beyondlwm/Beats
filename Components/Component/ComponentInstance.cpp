@@ -203,6 +203,15 @@ const std::set<CComponentInstance*>& CComponentInstance::GetReflectComponents() 
     return m_reflectComponents;
 }
 
+void CComponentInstance::ClearReflectComponents()
+{
+    for (auto iter = m_reflectComponents.begin(); iter != m_reflectComponents.end(); ++iter)
+    {
+        (*iter)->SetReflectOwner(nullptr);
+    }
+    m_reflectComponents.clear();
+}
+
 void CComponentInstance::RegisterReflectComponent(CComponentInstance* pComponent)
 {
     BEATS_ASSERT(m_reflectComponents.find(pComponent) == m_reflectComponents.end());

@@ -33,6 +33,7 @@ public:
     void SetReflectOwner(CComponentInstance* pReflectOwner);
     CComponentInstance* GetReflectOwner() const;
     const std::set<CComponentInstance*>& GetReflectComponents() const;
+    void ClearReflectComponents();
     void RegisterReflectComponent(CComponentInstance* pComponent);
     void UnregisterReflectComponent(CComponentInstance* pComponent);
 

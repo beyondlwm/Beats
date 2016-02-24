@@ -270,6 +270,7 @@ void CComponentProxy::UpdateHostComponent()
         serializer >> uTotalSize;
         serializer >> uGuid;
         serializer >> uId;
+        m_pHostComponent->ClearReflectComponents();// Clear all reflected components, since we will rebuild it in ReflectData.
         m_pHostComponent->ReflectData(serializer);
         CComponentInstanceManager::GetInstance()->ResolveDependency();
         CComponentProxyManager::GetInstance()->SetCurrUpdateProxy(pOriginValue);
