@@ -376,9 +376,13 @@ void CPropertyDescriptionBase::SetValueWithType(void* pValue, EValueType type, b
     }
 }
 
-void CPropertyDescriptionBase::RawSetValueByString(const TCHAR* pszStr, EValueType type)
+void CPropertyDescriptionBase::SetValueByString(const TCHAR* pszStr, EValueType type, bool bUpdateHost)
 {
     GetValueByTChar(pszStr, GetValue(type));
+    if (bUpdateHost)
+    {
+        SetValueWithType(GetValue(type), type, true);
+    }
 }
 
 void CPropertyDescriptionBase::SetNoSyncHost(bool bValue)
