@@ -258,6 +258,10 @@ void CComponentManagerBase::CalcSwitchFile(uint32_t uFileId, std::vector<uint32_
         if (pDirectory != pCurDirectory)
         {
             TString strLogicPath = pDirectory->MakeRelativeLogicPath(pCurDirectory);
+            if (*strLogicPath.rbegin() == '/')
+            {
+                strLogicPath.resize(strLogicPath.size() - 1);
+            }
             std::vector<TString> logicPaths;
             CStringHelper::GetInstance()->SplitString(strLogicPath.c_str(), _T("/"), logicPaths);
             BEATS_ASSERT(logicPaths.size() > 0);
@@ -332,6 +336,10 @@ void CComponentManagerBase::CalcSwitchFile(uint32_t uFileId, std::vector<uint32_
             }
             else
             {
+                if (*strLogicPath.rbegin() == '/')
+                {
+                    strLogicPath.resize(strLogicPath.size() - 1);
+                }
                 std::vector<TString> logicPaths;
                 CStringHelper::GetInstance()->SplitString(strLogicPath.c_str(), _T("/"), logicPaths);
                 BEATS_ASSERT(logicPaths.size() > 0);
