@@ -159,27 +159,36 @@ CPropertyDescriptionBase* CPropertyDescriptionBase::InsertChild(CPropertyDescrip
 bool CPropertyDescriptionBase::RemoveChild(CPropertyDescriptionBase* pProperty, bool bDelete)
 {
     auto iter = std::find(m_pChildren->begin(), m_pChildren->end(), pProperty);
-    BEATS_ASSERT(iter != m_pChildren->end());
-    m_pChildren->erase(iter);
+    bool bRet = iter != m_pChildren->end();
     if (bDelete)
     {
         pProperty->Uninitialize();
         BEATS_SAFE_DELETE(pProperty);
     }
-    return true;
+    else
+    {
+        m_pChildren->erase(iter);
+    }
+    BEATS_ASSERT(bRet);
+    return bRet;
 }
 
 void CPropertyDescriptionBase::RemoveAllChild(bool bDelete)
 {
     if (bDelete)
     {
-        for (uint32_t i = 0; i < m_pChildren->size(); ++i)
+        std::vector<CPropertyDescriptionBase*> bak = *m_pChildren;
+        for (uint32_t i = 0; i < bak.size(); ++i)
         {
-            (*m_pChildren)[i]->Uninitialize();
-            BEATS_SAFE_DELETE((*m_pChildren)[i]);
+            bak[i]->Uninitialize();
+            BEATS_SAFE_DELETE(bak[i]);
         }
     }
-    m_pChildren->clear();
+    else
+    {
+        m_pChildren->clear();
+    }
+    BEATS_ASSERT(m_pChildren->size() == 0);
 }
 
 const std::vector<CPropertyDescriptionBase*>& CPropertyDescriptionBase::GetChildren() const
