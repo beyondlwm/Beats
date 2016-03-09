@@ -39,19 +39,23 @@ CPropertyDescriptionBase::CPropertyDescriptionBase(const CPropertyDescriptionBas
 
 CPropertyDescriptionBase::~CPropertyDescriptionBase()
 {
-    BEATS_ASSERT(!IsInitialized(), _T("Call uninitialize before delete a CPropertyDescriptionBase"));
-    BEATS_SAFE_DELETE(m_pBasicInfo);
-    std::vector<CPropertyDescriptionBase*> childrenbak = *m_pChildren;
-    for (uint32_t i = 0; i < childrenbak.size(); ++i)
+    if (m_pParent != nullptr)
     {
-        if (childrenbak[i]->IsInitialized())
+        m_pParent->RemoveChild(this, false);
+    }
+    BEATS_SAFE_DELETE(m_pBasicInfo);
+    std::vector<CPropertyDescriptionBase*> childrenBak = *m_pChildren;
+    for (uint32_t i = 0; i < childrenBak.size(); ++i)
+    {
+        if (childrenBak[i]->IsInitialized())
         {
-            childrenbak[i]->Uninitialize();
+            childrenBak[i]->Uninitialize();
         }
-        BEATS_SAFE_DELETE(childrenbak[i]);
+        BEATS_SAFE_DELETE(childrenBak[i]);
     }
     BEATS_ASSERT(m_pChildren->size() == 0);
     BEATS_SAFE_DELETE(m_pChildren);
+    BEATS_ASSERT(!IsInitialized(), _T("Call uninitialize before delete a CPropertyDescriptionBase"));
 }
 
 EReflectPropertyType CPropertyDescriptionBase::GetType() const
@@ -118,7 +122,7 @@ bool CPropertyDescriptionBase::DeserializeBasicInfo(CSerializer& serializer)
     serializer >> (*m_pBasicInfo)->m_color;
     serializer.Read(pbuff);
     (*m_pBasicInfo)->m_displayName.assign(*pbuff);
-    serializer.Read(pbuff); 
+    serializer.Read(pbuff);
     (*m_pBasicInfo)->m_catalog.assign(*pbuff);
     serializer.Read(pbuff);
     (*m_pBasicInfo)->m_tip.assign(*pbuff);
@@ -158,8 +162,6 @@ CPropertyDescriptionBase* CPropertyDescriptionBase::InsertChild(CPropertyDescrip
 
 bool CPropertyDescriptionBase::RemoveChild(CPropertyDescriptionBase* pProperty, bool bDelete)
 {
-    auto iter = std::find(m_pChildren->begin(), m_pChildren->end(), pProperty);
-    bool bRet = iter != m_pChildren->end();
     if (bDelete)
     {
         pProperty->Uninitialize();
@@ -167,21 +169,22 @@ bool CPropertyDescriptionBase::RemoveChild(CPropertyDescriptionBase* pProperty, 
     }
     else
     {
+        auto iter = std::find(m_pChildren->begin(), m_pChildren->end(), pProperty);
+        BEATS_ASSERT(iter != m_pChildren->end());
         m_pChildren->erase(iter);
     }
-    BEATS_ASSERT(bRet);
-    return bRet;
+    return true;
 }
 
 void CPropertyDescriptionBase::RemoveAllChild(bool bDelete)
 {
     if (bDelete)
     {
-        std::vector<CPropertyDescriptionBase*> bak = *m_pChildren;
-        for (uint32_t i = 0; i < bak.size(); ++i)
+        std::vector<CPropertyDescriptionBase*> childrenBak = *m_pChildren;
+        for (uint32_t i = 0; i < childrenBak.size(); ++i)
         {
-            bak[i]->Uninitialize();
-            BEATS_SAFE_DELETE(bak[i]);
+            childrenBak[i]->Uninitialize();
+            BEATS_SAFE_DELETE(childrenBak[i]);
         }
     }
     else
@@ -205,7 +208,7 @@ CPropertyDescriptionBase* CPropertyDescriptionBase::Clone(bool bCloneValue)
     return pNewProperty;
 }
 
-void* CPropertyDescriptionBase::GetValue( EValueType type ) const
+void* CPropertyDescriptionBase::GetValue(EValueType type) const
 {
     return m_valueArray[type];
 }
@@ -235,11 +238,6 @@ void CPropertyDescriptionBase::Uninitialize()
 {
     BEATS_ASSERT(m_bInitialized, _T("Can't Uninitialize a property twice!"));
     m_bInitialized = false;
-    if (m_pParent != nullptr)
-    {
-        SetOwner(nullptr);
-        m_pParent->RemoveChild(this, false);
-    }
 }
 
 bool CPropertyDescriptionBase::IsInitialized() const
