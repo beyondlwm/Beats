@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "StringHelper.h"
 
-static const uint32_t MAX_CACH_SIZE = 10240;
-static char szStringHelperCacheBuffer[MAX_CACH_SIZE] = { 0 };
 static const unsigned char masksUtf8[6] = {
     (unsigned char)0x80, //10000000
     (unsigned char)0xE0, //11100000
@@ -39,7 +37,7 @@ CStringHelper::~CStringHelper()
 
 bool CStringHelper::SplitString(const char* pParameter, const char* pSpliter, std::vector<std::string>& result, bool bIgnoreSpace /*= true*/)
 {
-    static std::string strIgnoreSpaceParam;
+    std::string strIgnoreSpaceParam;
     if (bIgnoreSpace)
     {
         std::set<std::string> filter;
@@ -49,13 +47,12 @@ bool CStringHelper::SplitString(const char* pParameter, const char* pSpliter, st
     }
     const char* pFindStr = strstr(pParameter, pSpliter);
     const char* pReader = pParameter;
+    TString strTmp;
     while (pFindStr != NULL)
     {
-        BEATS_ASSERT((uint32_t)pFindStr - uint32_t(pReader) < MAX_CACH_SIZE);
         uint32_t uCount = (ptrdiff_t)pFindStr - (ptrdiff_t)pReader;
-        memcpy(szStringHelperCacheBuffer, pReader, uCount);
-        szStringHelperCacheBuffer[uCount] = 0;
-        result.push_back(szStringHelperCacheBuffer);
+        strTmp.assign(pReader, uCount);
+        result.push_back(strTmp);
         pReader = pFindStr + strlen(pSpliter);
         pFindStr = strstr(pReader, pSpliter);
     }
