@@ -28,9 +28,20 @@ TString CFilePathTool::ParentPath(const TCHAR* pszPath)
 {
     BEATS_ASSERT(pszPath != NULL && _tcslen(pszPath) > 0);
     TCHAR szBuffer[MAX_PATH];
-    _tcscpy(szBuffer, pszPath);
-    PathRemoveFileSpec(szBuffer);
-    return szBuffer;
+    Canonical(szBuffer, pszPath);
+    TString strPath(szBuffer);
+    int pos = strPath.rfind(_T('/'));
+    if (pos == 0)
+    {
+        BEATS_ASSERT(strPath.back() == _T('/'));
+        strPath.pop_back();
+        pos = strPath.rfind(_T('/'));
+    }
+    if (pos != TString::npos)
+    {
+        strPath.resize(pos);
+    }
+    return strPath;
 }
 
 TString CFilePathTool::Extension(const TCHAR* pszPath)
