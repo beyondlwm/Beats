@@ -122,5 +122,8 @@ TString CFilePathTool::FileFullPath(const TCHAR* pszFilePath)
         strRet.assign(strRootPath);
         strRet.append(_T("/")).append(pszFilePath);
     }
+    TCHAR szBuffer[MAX_PATH];
+    Canonical(szBuffer, strRet.c_str());
+    strRet = szBuffer;
     return strRet;
 }
