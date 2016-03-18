@@ -636,9 +636,10 @@ uint32_t CComponentProject::GetComponentFileId(const TString& strFileName) const
     uint32_t uRet = 0xFFFFFFFF;
     if (strFileName.length() > 0)
     {
+        TString strLowerFileName = CStringHelper::GetInstance()->ToLower(strFileName);
         for (uint32_t i = 0; i < m_pComponentFiles->size(); ++i)
         {
-            if (m_pComponentFiles->at(i).compare(strFileName) == 0)
+            if (m_pComponentFiles->at(i) == strLowerFileName)
             {
                 uRet = i;
                 break;

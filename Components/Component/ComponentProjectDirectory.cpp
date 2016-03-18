@@ -25,7 +25,7 @@ CComponentProjectDirectory::~CComponentProjectDirectory()
 bool CComponentProjectDirectory::AddFile(const TString& strFileName, std::map<uint32_t, std::vector<uint32_t> >& conflictMap)
 {
     CComponentProject* pProject = CComponentProxyManager::GetInstance()->GetProject();
-    uint32_t uFileId = pProject->RegisterFile(this, strFileName, conflictMap);
+    uint32_t uFileId = pProject->RegisterFile(this, CStringHelper::GetInstance()->ToLower(strFileName), conflictMap);
 #ifdef _DEBUG
     bool bFind = false;
     for (uint32_t i = 0; i < m_pFilesList->size(); ++i)
@@ -45,12 +45,13 @@ bool CComponentProjectDirectory::AddFile(const TString& strFileName, std::map<ui
 
 CComponentProjectDirectory* CComponentProjectDirectory::AddDirectory(const TString& strDirectoryName)
 {
+    TString strLowerName = CStringHelper::GetInstance()->ToLower(strDirectoryName);
     CComponentProjectDirectory* pRet = NULL;
     bool bAlreadyExists = false;
     std::vector<CComponentProjectDirectory*>::iterator iter = m_pChildrenVec->begin();
     for (; iter != m_pChildrenVec->end(); ++iter)
     {
-        if ((*iter)->m_strName.compare(strDirectoryName) == 0)
+        if ((*iter)->m_strName.compare(strLowerName) == 0)
         {
             bAlreadyExists = true;
             break;
@@ -58,7 +59,7 @@ CComponentProjectDirectory* CComponentProjectDirectory::AddDirectory(const TStri
     }
     if (!bAlreadyExists)
     {
-        pRet = new CComponentProjectDirectory(this, strDirectoryName);
+        pRet = new CComponentProjectDirectory(this, strLowerName);
     }
     return pRet;
 }
