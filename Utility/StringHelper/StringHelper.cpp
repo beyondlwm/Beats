@@ -350,3 +350,17 @@ uint32_t CStringHelper::BKDRHash(const char* str) const
 
     return (hash & 0x7FFFFFFF);
 }
+
+TString CStringHelper::ToLower(const TString& strIn) const
+{
+    TString strRet = strIn;
+    std::transform(strRet.begin(), strRet.end(), strRet.begin(), tolower);
+    return strRet;
+}
+
+TString CStringHelper::ToUpper(const TString& strIn) const
+{
+    TString strRet = strIn;
+    std::transform(strRet.begin(), strRet.end(), strRet.begin(), toupper);
+    return strRet;
+}
