@@ -41,6 +41,8 @@ public:
     std::wstring Utf8ToWString(const char* utf8str);
     std::string WStringToUtf8(const wchar_t* wstr);
     uint32_t BKDRHash(const char* strData) const;
+    TString ToLower(const TString& strIn) const;
+    TString ToUpper(const TString& strIn) const;
 
     // Check character.
 #if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)

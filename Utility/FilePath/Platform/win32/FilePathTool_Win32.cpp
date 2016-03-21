@@ -29,19 +29,9 @@ TString CFilePathTool::ParentPath(const TCHAR* pszPath)
     BEATS_ASSERT(pszPath != NULL && _tcslen(pszPath) > 0);
     TCHAR szBuffer[MAX_PATH];
     Canonical(szBuffer, pszPath);
-    TString strPath(szBuffer);
-    int pos = strPath.rfind(_T('/'));
-    if (pos == 0)
-    {
-        BEATS_ASSERT(strPath.back() == _T('/'));
-        strPath.pop_back();
-        pos = strPath.rfind(_T('/'));
-    }
-    if (pos != TString::npos)
-    {
-        strPath.resize(pos);
-    }
-    return strPath;
+    PathRemoveFileSpec(szBuffer);
+    TString ret = szBuffer;
+    return ret;
 }
 
 TString CFilePathTool::Extension(const TCHAR* pszPath)
@@ -97,8 +87,6 @@ bool CFilePathTool::Canonical(TCHAR* pszOutBuffer, const TCHAR* pszOriginPath)
     TString strWndPath = CFilePathTool::GetInstance()->ConvertToWindowsPath(pszOriginPath);
     bool bRet = PathCanonicalize(pszOutBuffer, strWndPath.c_str()) != FALSE;
     BEATS_ASSERT(bRet, _T("Path canonicalize failed!"));
-    strWndPath = CFilePathTool::GetInstance()->ConvertToUnixPath(pszOutBuffer);
-    _tcscpy(pszOutBuffer, strWndPath.c_str());
     return bRet;
 }
 
@@ -117,10 +105,9 @@ TString CFilePathTool::FileFullPath(const TCHAR* pszFilePath)
             TCHAR curWorkingPath[MAX_PATH];
             ::GetModuleFileName(NULL, curWorkingPath, MAX_PATH);
             strRootPath = ParentPath(curWorkingPath);
-            strRootPath = ConvertToUnixPath(strRootPath.c_str());
         }
         strRet.assign(strRootPath);
-        strRet.append(_T("/")).append(pszFilePath);
+        strRet.append(_T("\\")).append(pszFilePath);
     }
     TCHAR szBuffer[MAX_PATH];
     Canonical(szBuffer, strRet.c_str());
