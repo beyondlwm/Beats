@@ -297,18 +297,19 @@ void CComponentProxy::SaveToXML(rapidxml::xml_node<>* pNode, bool bSaveOnlyNoneN
     BEATS_ASSERT(pDoc);
     rapidxml::xml_node<>* pInstanceElement = pDoc->allocate_node(rapidxml::node_element, "Instance");
     pNode->append_node(pInstanceElement);
-    _stprintf(szBeatsDialogBuffer, "%d", GetId());
-    pInstanceElement->append_attribute(pDoc->allocate_attribute("Id", pDoc->allocate_string(szBeatsDialogBuffer)));
+    TCHAR szBuffer[256];
+    _stprintf(szBuffer, "%d", GetId());
+    pInstanceElement->append_attribute(pDoc->allocate_attribute("Id", pDoc->allocate_string(szBuffer)));
     int posX = 0;
     int posY = 0;
     if (m_pGraphics)
     {
         m_pGraphics->GetPosition(&posX, &posY);
     }
-    _stprintf(szBeatsDialogBuffer, "%d", posX);
-    pInstanceElement->append_attribute(pDoc->allocate_attribute("PosX", pDoc->allocate_string(szBeatsDialogBuffer)));
-    _stprintf(szBeatsDialogBuffer, "%d", posY);
-    pInstanceElement->append_attribute(pDoc->allocate_attribute("PosY", pDoc->allocate_string(szBeatsDialogBuffer)));
+    _stprintf(szBuffer, "%d", posX);
+    pInstanceElement->append_attribute(pDoc->allocate_attribute("PosX", pDoc->allocate_string(szBuffer)));
+    _stprintf(szBuffer, "%d", posY);
+    pInstanceElement->append_attribute(pDoc->allocate_attribute("PosY", pDoc->allocate_string(szBuffer)));
     if (m_strUserDefineDisplayName.length() > 0)
     {
         pInstanceElement->append_attribute(pDoc->allocate_attribute("UserDefineName", pDoc->allocate_string(m_strUserDefineDisplayName.c_str())));

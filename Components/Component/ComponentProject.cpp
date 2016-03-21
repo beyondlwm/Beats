@@ -215,6 +215,7 @@ void CComponentProject::ResolveIdForFile(uint32_t uFileId, uint32_t idToResolve,
                     uint32_t uComponentGuid = strtoul(pszGuidStr, &pStopPos, 16);
                     BEATS_ASSERT(*pStopPos == 0, _T("Guid value %s is not a 0x value at file %s."), pszGuidStr, strFileName.c_str());
                     RegisterComponent(uFileId, uComponentGuid, iNewID);
+                    TCHAR szBuffer[256];
                     while (pComponentElement != NULL)
                     {
                         rapidxml::xml_node<>* pInstanceElement = pComponentElement->first_node("Instance");
@@ -227,8 +228,8 @@ void CComponentProject::ResolveIdForFile(uint32_t uFileId, uint32_t idToResolve,
                             BEATS_ASSERT(id != -1);
                             if (id == (int)idToResolve)
                             {
-                                _stprintf(szBeatsDialogBuffer, "%d", iNewID);
-                                pIdAttribute->value(doc.allocate_string(szBeatsDialogBuffer));
+                                _stprintf(szBuffer, "%d", iNewID);
+                                pIdAttribute->value(doc.allocate_string(szBuffer));
                             }
                             rapidxml::xml_node<>* pDependency = pInstanceElement->first_node("Dependency");
                             while (pDependency != NULL)
@@ -241,8 +242,8 @@ void CComponentProject::ResolveIdForFile(uint32_t uFileId, uint32_t idToResolve,
                                     id = atoi(pIdAttribute->value());
                                     if (id == (int)idToResolve)
                                     {
-                                        _stprintf(szBeatsDialogBuffer, "%d", iNewID);
-                                        pIdAttribute->value(doc.allocate_string(szBeatsDialogBuffer));
+                                        _stprintf(szBuffer, "%d", iNewID);
+                                        pIdAttribute->value(doc.allocate_string(szBuffer));
                                     }
                                     pDependencyNode = pDependencyNode->next_sibling("DependencyNode");
                                 }

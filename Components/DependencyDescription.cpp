@@ -145,15 +145,15 @@ void CDependencyDescription::SaveToXML(rapidxml::xml_node<>* pParentNode)
         rapidxml::xml_document<>* pDoc = pParentNode->document();
         rapidxml::xml_node<>* pDependencyElement = pDoc->allocate_node(rapidxml::node_element, "Dependency");
         pDependencyElement->append_attribute(pDoc->allocate_attribute("VariableName", pDoc->allocate_string(m_variableName.c_str())));
-
+        TCHAR szBuffer[64];
         for (uint32_t i = 0; i < m_dependencyLine.size(); ++i)
         {
             // Most of the time, we need to get the real connected component of the reference, as if the reference doesn't exists.
             // However, we need the reference info when we save the component info.
             rapidxml::xml_node<>* pDependencyNodeElement = pDoc->allocate_node(rapidxml::node_element, "DependencyNode");
             CComponentProxy* pProxy = m_dependencyLine[i]->GetConnectedComponent(false);
-            _stprintf(szBeatsDialogBuffer, "%d", pProxy->GetId());
-            pDependencyNodeElement->append_attribute(pDoc->allocate_attribute("Id", pDoc->allocate_string(szBeatsDialogBuffer)));
+            _stprintf(szBuffer, "%d", pProxy->GetId());
+            pDependencyNodeElement->append_attribute(pDoc->allocate_attribute("Id", pDoc->allocate_string(szBuffer)));
             char szGUIDHexStr[32] = { 0 };
             sprintf(szGUIDHexStr, "0x%lx", pProxy->GetGuid());
             pDependencyNodeElement->append_attribute(pDoc->allocate_attribute("Guid", pDoc->allocate_string(szGUIDHexStr)));
@@ -290,15 +290,16 @@ void CDependencyDescription::Serialize(CSerializer& serializer)
     serializer << uLineCount;
     if (CComponentProxyManager::GetInstance()->IsExporting())
     {
+        TCHAR szBuffer[1024];
         if (uLineCount == 0 && m_type == eDT_Strong)
         {
-            _stprintf(szBeatsDialogBuffer, "Strong Dependency of component %d %s is not connected!", m_pOwner->GetId(), m_pOwner->GetClassStr());
-            MessageBox(BEYONDENGINE_HWND, szBeatsDialogBuffer, "Dependency Error", MB_OK);
+            _stprintf(szBuffer, "Strong Dependency of component %d %s is not connected!", m_pOwner->GetId(), m_pOwner->GetClassStr());
+            MessageBox(BEYONDENGINE_HWND, szBuffer, "Dependency Error", MB_OK);
         }
         if (uLineCount > 1 && !m_bIsListType)
         {
-            _stprintf(szBeatsDialogBuffer, "none-list dependency can only get one conection in component %d %s.", m_pOwner->GetId(), m_pOwner->GetClassStr());
-            MessageBox(BEYONDENGINE_HWND, szBeatsDialogBuffer, "Dependency Error", MB_OK);
+            _stprintf(szBuffer, "none-list dependency can only get one conection in component %d %s.", m_pOwner->GetId(), m_pOwner->GetClassStr());
+            MessageBox(BEYONDENGINE_HWND, szBuffer, "Dependency Error", MB_OK);
         }
     }
     for (uint32_t j = 0; j < uLineCount; ++j)
