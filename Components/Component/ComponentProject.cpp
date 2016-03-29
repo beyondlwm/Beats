@@ -183,7 +183,6 @@ void CComponentProject::AnalyseForTypeRef(rapidxml::xml_node<>* pVariableNode, u
     if (pVariableNode != nullptr)
     {
         bool bIsProperty = strcmp(pVariableNode->name(), "VariableNode") == 0;
-        bool bIsDependency = strcmp(pVariableNode->name(), "Dependency") == 0;
         if (bIsProperty)
         {
             EReflectPropertyType propertyType = (EReflectPropertyType)atoi(pVariableNode->first_attribute("Type")->value());
@@ -199,15 +198,6 @@ void CComponentProject::AnalyseForTypeRef(rapidxml::xml_node<>* pVariableNode, u
                 BEATS_ASSERT(errno == 0, _T("Call _tcstoul failed! string %s radix: 16"), strValue.c_str());
                 (*m_pTypeRefInComponentMap)[uGuid].insert(uComponentId);
             }
-        }
-        else if (bIsDependency)
-        {
-            const char* pszGuid = pVariableNode->first_attribute("Guid")->value();
-            TCHAR* pEndChar = NULL;
-            uint32_t uGuid = _tcstoul(pszGuid, &pEndChar, 16);
-            BEATS_ASSERT(_tcslen(pEndChar) == 0, _T("Read uint from string %s error, stop at %s"), pszGuid, pEndChar);
-            BEATS_ASSERT(errno == 0, _T("Call _tcstoul failed! string %s radix: 16"), pszGuid);
-            (*m_pTypeRefInComponentMap)[uGuid].insert(uComponentId);
         }
     }
 }
