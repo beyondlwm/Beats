@@ -20,8 +20,6 @@ CComponentProject::CComponentProject()
     , m_pTypeToComponentMap(new std::map<uint32_t, std::vector<uint32_t> >)
     , m_pPropertyMaintainMap(new std::map<uint32_t, std::map<TString, TString> >)
     , m_pFileDataLayout(new std::map<uint32_t, SFileDataLayout>)
-    , m_pIdToReferenceMap(new std::map<uint32_t, std::set<uint32_t> >)
-    , m_pReferenceToIdMap(new std::map<uint32_t, uint32_t>)
 {
 
 }
@@ -37,8 +35,6 @@ CComponentProject::~CComponentProject()
     BEATS_SAFE_DELETE(m_pTypeToComponentMap);
     BEATS_SAFE_DELETE(m_pPropertyMaintainMap);
     BEATS_SAFE_DELETE(m_pFileDataLayout);
-    BEATS_SAFE_DELETE(m_pIdToReferenceMap);
-    BEATS_SAFE_DELETE(m_pReferenceToIdMap);
 }
 
 CComponentProjectDirectory* CComponentProject::LoadProject(const TCHAR* pszProjectFile, std::map<uint32_t, std::vector<uint32_t> >& conflictIdMap)
@@ -382,16 +378,6 @@ std::map<uint32_t, std::map<uint32_t, std::set<uint32_t> > >* CComponentProject:
     return m_pFileToComponentMap;
 }
 
-std::map<uint32_t, std::set<uint32_t>>* CComponentProject::GetIdToReferenceMap() const
-{
-    return m_pIdToReferenceMap;
-}
-
-std::map<uint32_t, uint32_t>* CComponentProject::GetReferenceMap()
-{
-    return m_pReferenceToIdMap;
-}
-
 std::map<uint32_t, CComponentProjectDirectory*>* CComponentProject::GetFileToDirectoryMap() const
 {
     return m_pFileToDirectoryMap;
@@ -499,8 +485,7 @@ bool CComponentProject::AnalyseFile(const TString& strFileName, std::map<uint32_
                     rapidxml::xml_node<>* pInstanceElement = pComponentElement->first_node();
                     while (pInstanceElement != NULL)
                     {
-                        bool bIsReference = strcmp(pInstanceElement->name(), "Reference") == 0;
-                        bool bFindProxy = strcmp(pInstanceElement->name(), "Instance") == 0 || bIsReference;
+                        bool bFindProxy = strcmp(pInstanceElement->name(), "Instance") == 0;
                         BEATS_ASSERT(bFindProxy, _T("Read invalid data!"));
                         if (bFindProxy)
                         {
@@ -508,20 +493,6 @@ bool CComponentProject::AnalyseFile(const TString& strFileName, std::map<uint32_
                             id = atoi(pInstanceElement->first_attribute("Id")->value());
                             BEATS_ASSERT(id != -1);
                             idList.push_back(id);
-                            if (bIsReference)
-                            {
-                                int proxyId = -1;
-                                proxyId = atoi(pInstanceElement->first_attribute("ReferenceId")->value());
-                                BEATS_ASSERT(proxyId != -1);
-                                if (m_pIdToReferenceMap->find(proxyId) == m_pIdToReferenceMap->end())
-                                {
-                                    (*m_pIdToReferenceMap)[proxyId] = std::set<uint32_t>();
-                                }
-                                BEATS_ASSERT((*m_pIdToReferenceMap)[proxyId].find(id) == (*m_pIdToReferenceMap)[proxyId].end(), _T("Get repeat reference id %d"), id);
-                                (*m_pIdToReferenceMap)[proxyId].insert(id);
-                                BEATS_ASSERT(m_pReferenceToIdMap->find(id) == m_pReferenceToIdMap->end(), _T("Get repeat reference id %d"), id);
-                                (*m_pReferenceToIdMap)[id] = proxyId;
-                            }
                         }
                         pInstanceElement = pInstanceElement->next_sibling();
                     }
@@ -568,20 +539,6 @@ bool CComponentProject::UnregisterFile(uint32_t uFileId)
                     componentIdsOfType.pop_back();
                     break;
                 }
-            }
-            auto refIter = m_pReferenceToIdMap->find(uComponentId);
-            bool bIsReferenceComponent = refIter != m_pReferenceToIdMap->end();
-            if (bIsReferenceComponent)
-            {
-                uint32_t uProxyId = refIter->second;
-                auto refListIter = m_pIdToReferenceMap->find(uProxyId);
-                BEATS_ASSERT(refListIter != m_pIdToReferenceMap->end() && refListIter->second.find(uComponentId) != refListIter->second.end());
-                refListIter->second.erase(uComponentId);
-                if (refListIter->second.size() == 0)
-                {
-                    m_pIdToReferenceMap->erase(uProxyId);
-                }
-                m_pReferenceToIdMap->erase(uComponentId);
             }
         }
     }

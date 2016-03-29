@@ -14,7 +14,6 @@
 #include "ComponentInstance.h"
 #include "FilePath/FilePathTool.h"
 #include "ComponentProjectDirectory.h"
-#include "ComponentReference.h"
 #include <algorithm>
 
 CComponentProxyManager* CComponentProxyManager::m_pInstance = NULL;
@@ -127,12 +126,7 @@ void CComponentProxyManager::OpenFile(const TCHAR* pFilePath, bool bCloseLoadedF
         // use 10% for initialize all loaded components.
         for (uint32_t i = 0; i < loadedComponents.size(); ++i)
         {
-            uint32_t uComponentId = loadedComponents[i]->GetId();
-            bool bIsReference = m_referenceMap.find(uComponentId) != m_referenceMap.end();
-            if (!bIsReference)
-            {
-                static_cast<CComponentProxy*>(loadedComponents[i])->GetHostComponent()->Initialize();
-            }
+            static_cast<CComponentProxy*>(loadedComponents[i])->GetHostComponent()->Initialize();
             m_uOperateProgress += (uint32_t)(10.f / loadedComponents.size());
         }
         m_uOperateProgress = 100;
@@ -196,12 +190,6 @@ void CComponentProxyManager::LoadFile(uint32_t uFileId, std::vector<CComponentBa
                         {
                             pComponentProxy = (CComponentProxy*)(CreateComponent(guid, false, false, id, false, NULL, false));
                         }
-                        else if (strcmp(pInstanceElement->name(), "Reference") == 0)
-                        {
-                            int nReferenceId = -1;
-                            nReferenceId = atoi(pInstanceElement->first_attribute("ReferenceId")->value());
-                            pComponentProxy = CreateReference(nReferenceId, guid, id);
-                        }
                         pComponentProxy->LoadFromXML(pInstanceElement);
                         loadedProxyList.push_back(pComponentProxy);
                         if (pComponentContainer != nullptr)
@@ -222,18 +210,14 @@ void CComponentProxyManager::LoadFile(uint32_t uFileId, std::vector<CComponentBa
             }
             for (size_t i = 0; i < loadedProxyList.size(); ++i)
             {
-                bool bIsReference = m_referenceMap.find(loadedProxyList[i]->GetId()) != m_referenceMap.end();
-                if (!bIsReference)
+                CComponentInstance* pHostComponent = static_cast<CComponentProxy*>(loadedProxyList[i])->GetHostComponent();
+                if (pHostComponent != nullptr)
                 {
-                    CComponentInstance* pHostComponent = static_cast<CComponentProxy*>(loadedProxyList[i])->GetHostComponent();
-                    if (pHostComponent != nullptr)
-                    {
-                        pHostComponent->Load();
-                    }
-                    else
-                    {
-                        BEATS_ASSERT(m_bCreateInstanceWithProxy == false, "Only when m_bCreateInstanceWithProxy is set to false, we can't get the host component");
-                    }
+                    pHostComponent->Load();
+                }
+                else
+                {
+                    BEATS_ASSERT(m_bCreateInstanceWithProxy == false, "Only when m_bCreateInstanceWithProxy is set to false, we can't get the host component");
                 }
             }
         }
@@ -260,10 +244,7 @@ void CComponentProxyManager::UnloadFile(uint32_t uFileId, std::vector<CComponent
                     CComponentProxy* pComponentProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(uComponentId));
                     BEATS_ASSERT(pComponentProxy != NULL && pComponentProxy->IsLoaded());
                     pComponentProxy->Unload();
-                    if (pComponentProxy->GetProxyId() == pComponentProxy->GetId()) // it is not a reference
-                    {
-                        pComponentProxy->GetHostComponent()->Unload();
-                    }
+                    pComponentProxy->GetHostComponent()->Unload();
                     pUnloadComponents->push_back(pComponentProxy);
                 }
             }
@@ -289,21 +270,11 @@ void CComponentProxyManager::CloseFile(uint32_t uFileId)
     m_pIdManager->Lock();
     std::vector<CComponentBase*> unloadProxyList;
     UnloadFile(uFileId, &unloadProxyList);
-    // unloadProxyList contain two types of proxy: CComponentProxy and CComponentReference
-    // 1. If it is a CComponentProxy, we need to un-initialize and delete its host component. because CComponentInstance will un-initialize and delete its proxyComponent.
-    // 2. If it is a ComponentReference, we need to un-initialize and delete it directly, because it should not bind to any CComponentInstance.
     std::vector<CComponentBase*> componentToDelete;
     for (size_t i = 0; i < unloadProxyList.size(); ++i)
     {
         CComponentProxy* pProxy = static_cast<CComponentProxy*>(unloadProxyList[i]);
-        if (pProxy->GetProxyId() == pProxy->GetId())//for those not reference
-        {
-            componentToDelete.push_back(pProxy->GetHostComponent());
-        }
-        else
-        {
-            componentToDelete.push_back(pProxy);
-        }
+        componentToDelete.push_back(pProxy->GetHostComponent());
     }
     for (uint32_t i = 0; i < componentToDelete.size(); ++i)
     {
@@ -738,68 +709,6 @@ bool CComponentProxyManager::IsParent(uint32_t uParentGuid, uint32_t uChildGuid)
     return bRet;
 }
 
-void CComponentProxyManager::RegisterComponentReference(CComponentReference* pReference)
-{
-    uint32_t uId = pReference->GetProxyId();
-    if (m_referenceIdMap.find(uId) == m_referenceIdMap.end())
-    {
-        m_referenceIdMap[uId] = std::vector<CComponentReference*>();
-    }
-    m_referenceIdMap[uId].push_back(pReference);
-    BEATS_ASSERT(m_referenceMap.find(pReference->GetId()) == m_referenceMap.end());
-    m_referenceMap[pReference->GetId()] = pReference;
-}
-
-void CComponentProxyManager::UnregisterComponentReference(CComponentReference* pReference)
-{
-    uint32_t uId = pReference->GetProxyId();
-    BEATS_ASSERT(m_referenceIdMap.find(uId) != m_referenceIdMap.end());
-    std::vector<CComponentReference*>& referenceList = m_referenceIdMap[uId];
-    for (auto iter = referenceList.begin(); iter != referenceList.end(); ++iter)
-    {
-        if (*iter == pReference)
-        {
-            referenceList.erase(iter);
-            break;
-        }
-    }
-    if (referenceList.size() == 0)
-    {
-        m_referenceIdMap.erase(uId);
-    }
-    BEATS_ASSERT(m_referenceMap.find(pReference->GetId()) != m_referenceMap.end());
-    m_referenceMap.erase(pReference->GetId());
-}
-
-const std::map<uint32_t, std::vector<CComponentReference*>>& CComponentProxyManager::GetReferenceIdMap() const
-{
-    return m_referenceIdMap;
-}
-
-const std::map<uint32_t, CComponentReference*>& CComponentProxyManager::GetReferenceMap() const
-{
-    return m_referenceMap;
-}
-
-CComponentReference* CComponentProxyManager::CreateReference(uint32_t uProxyId, uint32_t uReferenceGuid, uint32_t uId)
-{
-    CComponentProxy* pTemplate = static_cast<CComponentProxy*>(GetComponentTemplate(uReferenceGuid));
-    BEATS_ASSERT(pTemplate != NULL);
-    CComponentReference* pRet = new CComponentReference(uProxyId, uReferenceGuid, pTemplate->GetGraphics()->Clone());
-    if (uId == 0xFFFFFFFF)
-    {
-        uId = m_pIdManager->GenerateId();
-    }
-    else
-    {
-        m_pIdManager->ReserveId(uId, false);
-    }
-    pRet->SetId(uId);
-    RegisterComponentReference(pRet);
-    RegisterInstance(pRet);
-    return pRet;
-}
-
 std::map<uint32_t, CComponentProxy*>& CComponentProxyManager::GetComponentsInCurScene() 
 {
     return m_proxyInCurScene;
@@ -814,64 +723,13 @@ void CComponentProxyManager::OnCreateComponentInScene(CComponentProxy* pProxy)
 void CComponentProxyManager::OnDeleteComponentInScene(CComponentProxy* pProxy)
 {
     BEATS_ASSERT(m_proxyInCurScene.find(pProxy->GetId()) != m_proxyInCurScene.end());
-    bool bIsReference = pProxy->GetId() != pProxy->GetProxyId();
-    if (bIsReference)
+    CComponentInstance* pHostComponent = pProxy->GetHostComponent();
+    if (pHostComponent != NULL)
     {
-        CComponentReference* pReference = dynamic_cast<CComponentReference*>(pProxy);
-        BEATS_ASSERT(pReference != NULL);
-        m_proxyInCurScene.erase(pProxy->GetId());
-        pReference->Uninitialize();
-        BEATS_SAFE_DELETE(pReference);
-    }
-    else
-    {
-        uint32_t uProxyId = pProxy->GetId();
-        // Get the static info of reference.
-        std::map<uint32_t, std::set<uint32_t>>* pIdToReferenceMap = m_pProject->GetIdToReferenceMap();
-        std::map<uint32_t, std::set<uint32_t>>::iterator idToRefIter = pIdToReferenceMap->find(uProxyId);
-        std::set<uint32_t> allReferenceIdSet;
-        if (idToRefIter != pIdToReferenceMap->end())
-        {
-            allReferenceIdSet = idToRefIter->second;
-        }
-        // Add the dynamic info of reference.
-        std::map<uint32_t, std::vector<CComponentReference*>>::iterator iter = m_referenceIdMap.find(uProxyId);
-        if (iter != m_referenceIdMap.end())
-        {
-            for (uint32_t i = 0; i < iter->second.size(); ++i)
-            {
-                BEATS_ASSERT(allReferenceIdSet.find(iter->second.at(i)->GetId()) == allReferenceIdSet.end());
-                allReferenceIdSet.insert(iter->second.at(i)->GetId());
-            }
-        }
-        if (allReferenceIdSet.size() > 0)
-        {
-            TCHAR szBuffer[10240];
-            _stprintf(szBuffer, _T("无法删除该组件，请先删除位于以下位置的%d个引用：\n"), allReferenceIdSet.size());
-            TString strInfo;
-            strInfo.append(szBuffer);
-            int nCounter = 0;
-            for (auto iter = allReferenceIdSet.begin(); iter != allReferenceIdSet.end(); ++iter)
-            {
-                uint32_t uRefId = *iter;
-                uint32_t uFileId = m_pProject->QueryFileId(uRefId, false);
-                const TString& strFilePath = m_pProject->GetComponentFileName(uFileId);
-                _stprintf(szBuffer, _T("%d. %s\n"), nCounter++, strFilePath.c_str());
-                strInfo.append(szBuffer);
-            }
-            MessageBox(BEYONDENGINE_HWND, strInfo.c_str(), _T("无法删除"), MB_OK);
-        }
-        else
-        {
-            CComponentInstance* pHostComponent = pProxy->GetHostComponent();
-            if (pHostComponent != NULL)
-            {
-                BEATS_ASSERT(m_proxyInCurScene.find(pProxy->GetId()) != m_proxyInCurScene.end())
-                    m_proxyInCurScene.erase(pProxy->GetId());
-                pHostComponent->Uninitialize();
-                BEATS_SAFE_DELETE(pHostComponent);
-            }
-        }
+        BEATS_ASSERT(m_proxyInCurScene.find(pProxy->GetId()) != m_proxyInCurScene.end())
+            m_proxyInCurScene.erase(pProxy->GetId());
+        pHostComponent->Uninitialize();
+        BEATS_SAFE_DELETE(pHostComponent);
     }
 }
 
@@ -918,19 +776,16 @@ static void CollectPropertyInvokeGuid(CPropertyDescriptionBase* pPropertyDescrip
 static void CollectInvokeGuid(CComponentProxy* pProxy, std::set<uint32_t>& invokedGuidList)
 {
     BEATS_ASSERT(pProxy != nullptr);
-    if (pProxy->GetProxyId() == pProxy->GetId())//It's not a reference.
+    invokedGuidList.insert(pProxy->GetGuid());
+    for (size_t k = 0; k < pProxy->GetPropertyPool()->size(); ++k)
     {
-        invokedGuidList.insert(pProxy->GetGuid());
-        for (size_t k = 0; k < pProxy->GetPropertyPool()->size(); ++k)
-        {
-            CPropertyDescriptionBase* pProperty = pProxy->GetPropertyPool()->at(k);
-            CollectPropertyInvokeGuid(pProperty, invokedGuidList);
-        }
-        for (size_t k = 0; k < pProxy->GetDependencies()->size(); ++k)
-        {
-            CDependencyDescription* pDependency = pProxy->GetDependency(k);
-            invokedGuidList.insert(pDependency->GetDependencyGuid());
-        }
+        CPropertyDescriptionBase* pProperty = pProxy->GetPropertyPool()->at(k);
+        CollectPropertyInvokeGuid(pProperty, invokedGuidList);
+    }
+    for (size_t k = 0; k < pProxy->GetDependencies()->size(); ++k)
+    {
+        CDependencyDescription* pDependency = pProxy->GetDependency(k);
+        invokedGuidList.insert(pDependency->GetDependencyGuid());
     }
 }
 
@@ -1108,15 +963,10 @@ void CComponentProxyManager::ReSaveFreshFile()
 bool CComponentProxyManager::ExportComponentProxy(CComponentProxy* pProxy, CSerializer& serializer, std::function<void(CComponentProxy*)> exportCallback)
 {
     BEATS_ASSERT(pProxy->IsInitialized());
-    // Don't export component reference
-    bool bRet = pProxy->GetProxyId() == pProxy->GetId();
-    if (bRet)
+    if (exportCallback != nullptr)
     {
-        if (exportCallback != nullptr)
-        {
-            exportCallback(pProxy);
-        }
-        pProxy->ExportDataToHost(serializer, eVT_SavedValue);
+        exportCallback(pProxy);
     }
-    return bRet;
+    pProxy->ExportDataToHost(serializer, eVT_SavedValue);
+    return true;
 }

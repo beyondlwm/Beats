@@ -7,7 +7,6 @@
 #include "Utility/StringHelper/StringHelper.h"
 #include "Utility/Serializer/Serializer.h"
 #include "Component/ComponentInstance.h"
-#include "Component/ComponentReference.h"
 #include "Component/ComponentProject.h"
 
 CDependencyDescription::CDependencyDescription(EDependencyType type, uint32_t dependencyGuid, CComponentProxy* pOwner, uint32_t uIndex, bool bIsList)
@@ -121,8 +120,8 @@ void CDependencyDescription::SwapLineOrder(uint32_t uSourceIndex, uint32_t uTarg
     CDependencyDescriptionLine* pSourceLine = m_dependencyLine[uSourceIndex];
     CDependencyDescriptionLine* pTargetLine = m_dependencyLine[uTargetIndex];
     BEATS_ASSERT(pSourceLine != pTargetLine);
-    CComponentProxy* pSourceProxy = pSourceLine->GetConnectedComponent(false);
-    pSourceLine->SetConnectComponent(pTargetLine->GetConnectedComponent(false));
+    CComponentProxy* pSourceProxy = pSourceLine->GetConnectedComponent();
+    pSourceLine->SetConnectComponent(pTargetLine->GetConnectedComponent());
     pTargetLine->SetConnectComponent(pSourceProxy);
     m_changeAction = eDCA_Ordered;
     m_pChangeActionProxy = pSourceProxy;
@@ -148,10 +147,8 @@ void CDependencyDescription::SaveToXML(rapidxml::xml_node<>* pParentNode)
         TCHAR szBuffer[64];
         for (uint32_t i = 0; i < m_dependencyLine.size(); ++i)
         {
-            // Most of the time, we need to get the real connected component of the reference, as if the reference doesn't exists.
-            // However, we need the reference info when we save the component info.
             rapidxml::xml_node<>* pDependencyNodeElement = pDoc->allocate_node(rapidxml::node_element, "DependencyNode");
-            CComponentProxy* pProxy = m_dependencyLine[i]->GetConnectedComponent(false);
+            CComponentProxy* pProxy = m_dependencyLine[i]->GetConnectedComponent();
             _stprintf(szBuffer, "%d", pProxy->GetId());
             pDependencyNodeElement->append_attribute(pDoc->allocate_attribute("Id", pDoc->allocate_string(szBuffer)));
             char szGUIDHexStr[32] = { 0 };
@@ -304,8 +301,7 @@ void CDependencyDescription::Serialize(CSerializer& serializer)
     }
     for (uint32_t j = 0; j < uLineCount; ++j)
     {
-        // No matter if we get proxy or reference, it doesn't matter, so we get the proxy exactly.
-        CComponentProxy* pConnectedComponent = this->GetDependencyLine(j)->GetConnectedComponent(false);
+        CComponentProxy* pConnectedComponent = this->GetDependencyLine(j)->GetConnectedComponent();
         BEATS_ASSERT(pConnectedComponent != NULL);
         serializer << pConnectedComponent->GetProxyId();
         serializer << pConnectedComponent->GetGuid();

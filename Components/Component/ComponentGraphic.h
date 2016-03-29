@@ -108,9 +108,6 @@ public:
     CComponentProxy* GetOwner() const;
     void CaculateSize();
 
-    bool IsReference() const;
-    void SetReferenceFlag(bool bReferenceFlag);
-
     virtual void GetDependencyPosition(uint32_t uDependencyIndex, int* pOutX, int* pOutY);
     virtual EComponentAeraRectType HitTestForAreaType(int x, int y, void** pReturnData);
     virtual CComponentGraphic* Clone() = 0;
@@ -122,7 +119,6 @@ protected:
     virtual void DrawSelectedRect(float cellSize) = 0;
 
 protected:
-    bool m_bIsReference;
     CComponentProxy* m_pOwner;
     uint32_t m_width;
     uint32_t m_height;

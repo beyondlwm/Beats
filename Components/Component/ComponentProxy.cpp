@@ -13,21 +13,6 @@
 #include <string>
 #include <algorithm>
 #include "ComponentInstance.h"
-#include "ComponentReference.h"
-
-CComponentProxy::CComponentProxy()
-    : m_bIsTemplate(false)
-    , m_uGuid(0)
-    , m_uParentGuid(0)
-    , m_pGraphics(NULL)
-    , m_pHostComponent(NULL)
-    , m_pDependenciesDescription(NULL)
-    , m_pBeConnectedDependencyLines(NULL)
-    , m_pSerializeOrder(NULL)
-    , m_pProperties(NULL)
-{
-    m_pBeConnectedDependencyLines = new std::vector<CDependencyDescriptionLine*>();
-}
 
 CComponentProxy::CComponentProxy(CComponentGraphic* pGraphics)
 : m_bIsTemplate(false)
@@ -629,21 +614,6 @@ void CComponentProxy::Initialize()
 void CComponentProxy::Uninitialize()
 {
     uint32_t uComponentId = GetId();
-    if (uComponentId != GetProxyId()) // If this is not a CComponentReference, we will try to find all reference to it, and delete them
-    {
-        const std::map<uint32_t, std::vector<CComponentReference*>>& referenceMap = CComponentProxyManager::GetInstance()->GetReferenceIdMap();
-        auto referenceIter = referenceMap.find(uComponentId);
-        if (referenceIter != referenceMap.end())
-        {
-            std::vector<CComponentReference*> backup = referenceIter->second;
-            for (uint32_t i = 0; i < backup.size(); ++i)
-            {
-                CComponentReference* pRef = backup.at(i);
-                pRef->Uninitialize();
-                BEATS_SAFE_DELETE(pRef);
-            }
-        }
-    }
     super::Uninitialize();
     if (uComponentId != 0xFFFFFFFF)
     {

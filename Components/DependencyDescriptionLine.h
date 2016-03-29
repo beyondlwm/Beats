@@ -17,7 +17,7 @@ public:
     const SVertex* GetRectArray();
     const SVertex* GetArrowRectArray();
     CDependencyDescription* GetOwnerDependency();
-    CComponentProxy* GetConnectedComponent(bool bNeedReference = true);
+    CComponentProxy* GetConnectedComponent();
     void SetConnectComponent(CComponentProxy* pComponentTo);
     bool IsSelected();
     void SetSelected(bool bFlag);

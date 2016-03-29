@@ -18,7 +18,6 @@ class COMPONENTS_DLL_DECL CComponentProxy : public CComponentBase
     typedef CComponentBase super;
     friend class CComponentInstance;
 public:
-    CComponentProxy();//Only ComponentReference should use this constructor.
     CComponentProxy(CComponentGraphic* pGraphics);
     CComponentProxy(CComponentGraphic* pGraphics, uint32_t uGuid, uint32_t uParentGuid, const TCHAR* pszClassName);
     virtual ~CComponentProxy();

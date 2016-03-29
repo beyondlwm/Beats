@@ -75,8 +75,6 @@ public:
     uint32_t QueryComponentGuid(uint32_t uId);
 
     std::map<uint32_t, std::map<uint32_t, std::set<uint32_t> > >* GetFileToComponentMap() const;
-    std::map<uint32_t, std::set<uint32_t>>* GetIdToReferenceMap() const;
-    std::map<uint32_t, uint32_t>* GetReferenceMap();
     std::map<uint32_t, CComponentProjectDirectory*>* GetFileToDirectoryMap() const;
     std::map<uint32_t, uint32_t>* GetComponentToFileMap() const;
     std::map<uint32_t, std::vector<uint32_t> >* GetTypeToComponentMap() const;
@@ -103,10 +101,6 @@ private:
     std::map<uint32_t, std::map<TString, TString> >* m_pPropertyMaintainMap;
     // This member only available in game mode, to save the info about file data layout in the export file.
     std::map<uint32_t, SFileDataLayout>* m_pFileDataLayout;
-    // Key is the proxy id of the real component, and the value is the reference ids, this data collect from XML, it is static info.
-    std::map<uint32_t, std::set<uint32_t>>* m_pIdToReferenceMap;
-    // Key is the reference id, and the value is the proxy of real component.
-    std::map<uint32_t, uint32_t>* m_pReferenceToIdMap;
 
     TString m_strProjectFilePath;
     TString m_strProjectFileName;

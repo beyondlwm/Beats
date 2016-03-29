@@ -6,7 +6,6 @@
 class CComponentProxy;
 class CPropertyDescriptionBase;
 class CComponentGraphic;
-class CComponentReference;
 class CComponentProjectDirectory;
 
 enum class EReflectOperationType
@@ -65,13 +64,6 @@ public:
 
     bool IsParent(uint32_t uParentGuid, uint32_t uChildGuid) const;
 
-    void RegisterComponentReference(CComponentReference* pReference);
-    void UnregisterComponentReference(CComponentReference* pReference);
-    const std::map<uint32_t, std::vector<CComponentReference*>>& GetReferenceIdMap() const;
-    const std::map<uint32_t, CComponentReference*>& GetReferenceMap() const;
-
-    CComponentReference* CreateReference(uint32_t uProxyId, uint32_t uReferenceGuid, uint32_t uId = 0xFFFFFFFF);
-
     std::map<uint32_t, CComponentProxy*>& GetComponentsInCurScene();
     void OnCreateComponentInScene(CComponentProxy* pProxy);
     void OnDeleteComponentInScene(CComponentProxy* pProxy);
@@ -110,11 +102,6 @@ private:
     std::map<uint32_t, std::set<uint32_t> >* m_pComponentInheritMap;
     // key is the class guid to query, value is it's base class.
     std::map<uint32_t, uint32_t>* m_pComponentBaseClassMap;
-
-    // This map store all reference info, key value is the real component id. 
-    // This data is dynamic register and unregistered. while static data is CComponentProject::m_pReferenceIdMap
-    std::map<uint32_t, std::vector<CComponentReference*>> m_referenceIdMap;
-    std::map<uint32_t, CComponentReference*> m_referenceMap;
 
     std::map<uint32_t, CComponentProxy*> m_proxyInCurScene;
 
