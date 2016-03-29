@@ -141,10 +141,12 @@ void CDependencyDescription::SaveToXML(rapidxml::xml_node<>* pParentNode)
     }
     else
     {
+        TCHAR szBuffer[64];
+        _stprintf(szBuffer, "0x%x", m_uDependencyGuid);
         rapidxml::xml_document<>* pDoc = pParentNode->document();
         rapidxml::xml_node<>* pDependencyElement = pDoc->allocate_node(rapidxml::node_element, "Dependency");
         pDependencyElement->append_attribute(pDoc->allocate_attribute("VariableName", pDoc->allocate_string(m_variableName.c_str())));
-        TCHAR szBuffer[64];
+        pDependencyElement->append_attribute(pDoc->allocate_attribute("Guid", pDoc->allocate_string(szBuffer)));
         for (uint32_t i = 0; i < m_dependencyLine.size(); ++i)
         {
             rapidxml::xml_node<>* pDependencyNodeElement = pDoc->allocate_node(rapidxml::node_element, "DependencyNode");

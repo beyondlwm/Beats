@@ -12,6 +12,7 @@ CComponentProject::CComponentProject()
     , m_uLoadedFileCount(0)
     , m_uTotalFileCount(0)
     , m_uStartFileId(0)
+    , m_pTypeRefInComponentMap(new std::map<uint32_t, std::set<uint32_t> >)
     , m_pComponentFiles(new std::vector<TString>)
     , m_pComponentToTypeMap(new std::map<uint32_t, uint32_t>)
     , m_pComponentToFileMap(new std::map<uint32_t, uint32_t>)
@@ -26,6 +27,7 @@ CComponentProject::CComponentProject()
 
 CComponentProject::~CComponentProject()
 {
+    BEATS_SAFE_DELETE(m_pTypeRefInComponentMap);
     BEATS_SAFE_DELETE(m_pProjectDirectory);
     BEATS_SAFE_DELETE(m_pComponentFiles);
     BEATS_SAFE_DELETE(m_pComponentToTypeMap);
@@ -173,6 +175,40 @@ void CComponentProject::SaveProjectFile(rapidxml::xml_node<>* pParentNode, const
         TString strRelativePath = CFilePathTool::GetInstance()->MakeRelative(m_strProjectFilePath.c_str(), GetComponentFileName(uFileNameId).c_str());
         pNewFileElement->append_attribute(doc->allocate_attribute("Path", doc->allocate_string(strRelativePath.c_str())));
         pNewDirectoryElement->append_node(pNewFileElement);
+    }
+}
+
+void CComponentProject::AnalyseForTypeRef(rapidxml::xml_node<>* pVariableNode, uint32_t uComponentId)
+{
+    if (pVariableNode != nullptr)
+    {
+        bool bIsProperty = strcmp(pVariableNode->name(), "VariableNode") == 0;
+        bool bIsDependency = strcmp(pVariableNode->name(), "Dependency") == 0;
+        if (bIsProperty)
+        {
+            EReflectPropertyType propertyType = (EReflectPropertyType)atoi(pVariableNode->first_attribute("Type")->value());
+            if (propertyType == eRPT_Ptr)
+            {
+                TString strValue = pVariableNode->first_attribute("SavedValue")->value();
+                size_t uPos = strValue.rfind('@');
+                BEATS_ASSERT(uPos != std::string::npos);
+                strValue = strValue.substr(uPos + 1);
+                TCHAR* pEndChar = NULL;
+                uint32_t uGuid = _tcstoul(strValue.c_str(), &pEndChar, 16);
+                BEATS_ASSERT(_tcslen(pEndChar) == 0, _T("Read uint from string %s error, stop at %s"), strValue.c_str(), pEndChar);
+                BEATS_ASSERT(errno == 0, _T("Call _tcstoul failed! string %s radix: 16"), strValue.c_str());
+                (*m_pTypeRefInComponentMap)[uGuid].insert(uComponentId);
+            }
+        }
+        else if (bIsDependency)
+        {
+            const char* pszGuid = pVariableNode->first_attribute("Guid")->value();
+            TCHAR* pEndChar = NULL;
+            uint32_t uGuid = _tcstoul(pszGuid, &pEndChar, 16);
+            BEATS_ASSERT(_tcslen(pEndChar) == 0, _T("Read uint from string %s error, stop at %s"), pszGuid, pEndChar);
+            BEATS_ASSERT(errno == 0, _T("Call _tcstoul failed! string %s radix: 16"), pszGuid);
+            (*m_pTypeRefInComponentMap)[uGuid].insert(uComponentId);
+        }
     }
 }
 
@@ -393,6 +429,11 @@ std::map<uint32_t, std::vector<uint32_t> >* CComponentProject::GetTypeToComponen
     return m_pTypeToComponentMap;
 }
 
+std::map<uint32_t, std::set<uint32_t> >* CComponentProject::GetTypeRefInComponentMap() const
+{
+    return m_pTypeRefInComponentMap;
+}
+
 uint32_t CComponentProject::RegisterFile(CComponentProjectDirectory* pDirectory, const TString& strFileName, std::map<uint32_t, std::vector<uint32_t> >& failedId, uint32_t uSpecifyFileId/* = 0xFFFFFFFF*/)
 {
     uint32_t uFileID = 0xFFFFFFFF;
@@ -493,6 +534,47 @@ bool CComponentProject::AnalyseFile(const TString& strFileName, std::map<uint32_
                             id = atoi(pInstanceElement->first_attribute("Id")->value());
                             BEATS_ASSERT(id != -1);
                             idList.push_back(id);
+                            rapidxml::xml_node<>* pCurrNode = pInstanceElement->first_node();
+                            if (pCurrNode != nullptr)
+                            {
+                                while (true)
+                                {
+                                    AnalyseForTypeRef(pCurrNode, id);
+                                    if (pCurrNode->first_node())
+                                    {
+                                        pCurrNode = pCurrNode->first_node();
+                                    }
+                                    else if (pCurrNode->next_sibling())
+                                    {
+                                        pCurrNode = pCurrNode->next_sibling();
+                                    }
+                                    else
+                                    {
+                                        rapidxml::xml_node<>* pNextNode = pCurrNode->parent();
+                                        bool bFinished = pNextNode == pInstanceElement;
+                                        if (!bFinished)
+                                        {
+                                            while (pNextNode->next_sibling() == nullptr)
+                                            {
+                                                pNextNode = pNextNode->parent();
+                                                if (pNextNode == pInstanceElement)
+                                                {
+                                                    bFinished = true;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        if (bFinished)
+                                        {
+                                            break;
+                                        }
+                                        else
+                                        {
+                                            pCurrNode = pNextNode->next_sibling();
+                                        }
+                                    }
+                                }
+                            }
                         }
                         pInstanceElement = pInstanceElement->next_sibling();
                     }

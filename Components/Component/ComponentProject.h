@@ -78,12 +78,13 @@ public:
     std::map<uint32_t, CComponentProjectDirectory*>* GetFileToDirectoryMap() const;
     std::map<uint32_t, uint32_t>* GetComponentToFileMap() const;
     std::map<uint32_t, std::vector<uint32_t> >* GetTypeToComponentMap() const;
+    std::map<uint32_t, std::set<uint32_t> >* GetTypeRefInComponentMap() const;
 
 private:
     uint32_t GetTotalFileCount(rapidxml::xml_node<>* pNode) const;
     void LoadXMLProject(rapidxml::xml_node<>* pNode, CComponentProjectDirectory* pProjectDirectory, TString& strStartFilePath, std::map<uint32_t, std::vector<uint32_t> >& conflictIdMap);
     void SaveProjectFile(rapidxml::xml_node<>* pParentNode, const CComponentProjectDirectory* p);
-
+    void AnalyseForTypeRef(rapidxml::xml_node<>* pVariableNode, uint32_t uComponentId);
 private:
     uint32_t m_uLoadedFileCount; // For progress
     uint32_t m_uTotalFileCount; //For progress
@@ -97,6 +98,7 @@ private:
     std::map<uint32_t, std::map<uint32_t, std::set<uint32_t> > >* m_pFileToComponentMap;
     std::map<uint32_t, CComponentProjectDirectory*>* m_pFileToDirectoryMap;
     std::map<uint32_t, std::vector<uint32_t> >* m_pTypeToComponentMap;
+    std::map<uint32_t, std::set<uint32_t> >* m_pTypeRefInComponentMap;
     // Store property replace info, uint32_t is the guid of component, map is the old property name and new property name.
     std::map<uint32_t, std::map<TString, TString> >* m_pPropertyMaintainMap;
     // This member only available in game mode, to save the info about file data layout in the export file.

@@ -34,7 +34,7 @@ public:
     const uint32_t GetCurrentViewFileId() const;
     void RebuildCurrSceneComponents(uint32_t uCurViewFileId);
 
-    void Export(const TCHAR* pSavePath, std::function<void(CComponentProxy*)> exportCallback = nullptr);
+    void Export(const TCHAR* pSavePath, std::function<bool(CComponentProxy*)> exportCallback = nullptr);
 
     void QueryDerivedClass(uint32_t uBaseClassGuid, std::set<uint32_t>& result, bool bRecurse) const;
     uint32_t QueryBaseClase(uint32_t uGuid) const;
@@ -82,7 +82,7 @@ public:
 private:
     void LoadTemplateDataFromXML(const TCHAR* pWorkingPath);
     void ReSaveFreshFile();
-    bool ExportComponentProxy(CComponentProxy* pProxy, CSerializer& serializer, std::function<void(CComponentProxy*)> exportCallback);
+    bool ExportComponentProxy(CComponentProxy* pProxy, CSerializer& serializer, std::function<bool(CComponentProxy*)> exportCallback);
 
 private:
     bool m_bCreateInstanceWithProxy;
