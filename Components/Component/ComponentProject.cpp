@@ -188,6 +188,7 @@ void CComponentProject::AnalyseForTypeRef(rapidxml::xml_node<>* pVariableNode, u
             EReflectPropertyType propertyType = (EReflectPropertyType)atoi(pVariableNode->first_attribute("Type")->value());
             if (propertyType == eRPT_Ptr)
             {
+                _set_errno(0);
                 TString strValue = pVariableNode->first_attribute("SavedValue")->value();
                 size_t uPos = strValue.rfind('@');
                 BEATS_ASSERT(uPos != std::string::npos);
