@@ -8,7 +8,7 @@
 #define DECLARE_REFLECT_GUID(className, guid, parentClassName)\
     DECLARE_REFLECT_GUID_ABSTRACT(className, guid, parentClassName)\
     public:\
-    virtual CComponentBase* Clone(bool /*bCloneFromTemplate*/, CSerializer* pSerializer, uint32_t id, bool bCallInitFunc = true)\
+    virtual CComponentBase* Clone(bool /*bCloneFromTemplate*/, CSerializer* pSerializer, uint32_t id, bool bCallInitFunc = true) const\
     {\
         bool bOriginClonePhase = CComponentInstanceManager::GetInstance()->IsInClonePhase(); \
         CComponentInstanceManager::GetInstance()->SetClonePhaseFlag(true); \

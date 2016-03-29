@@ -74,7 +74,7 @@ CComponentProxy::~CComponentProxy()
     }
 }
 
-CComponentBase* CComponentProxy::Clone(bool bCloneValue, CSerializer* /*pSerializer*/, uint32_t id, bool bCallInitFunc /*= true*/)
+CComponentBase* CComponentProxy::Clone(bool bCloneValue, CSerializer* /*pSerializer*/, uint32_t id, bool bCallInitFunc /*= true*/) const
 {
     bool bOriginClonePhase = CComponentInstanceManager::GetInstance()->IsInClonePhase();
     CComponentInstanceManager::GetInstance()->SetClonePhaseFlag(true);

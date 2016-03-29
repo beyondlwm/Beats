@@ -155,7 +155,7 @@ void CComponentInstance::SetSyncProxyComponent(CComponentProxy* pProxy)
     }
 }
 
-CComponentInstance* CComponentInstance::CloneInstance()
+CComponentInstance* CComponentInstance::CloneInstance() const
 {
     bool bOriginalValue = CComponentInstanceManager::GetInstance()->IsInClonePhase();
     CComponentInstanceManager::GetInstance()->SetClonePhaseFlag(true);

@@ -28,7 +28,7 @@ public:
 
     virtual void SetSyncProxyComponent(CComponentProxy* pProxy);
 
-    CComponentInstance* CloneInstance();
+    virtual CComponentInstance* CloneInstance() const;
 
     void SetReflectOwner(CComponentInstance* pReflectOwner);
     CComponentInstance* GetReflectOwner() const;

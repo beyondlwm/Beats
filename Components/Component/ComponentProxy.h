@@ -59,7 +59,7 @@ public:
     virtual uint32_t GetParentGuid() const override;
     virtual const TCHAR* GetClassStr() const;
     virtual void Save();
-    virtual CComponentBase* Clone(bool bCloneValue, CSerializer* pSerializer, uint32_t id, bool bCallInitFunc = true) override;
+    virtual CComponentBase* Clone(bool bCloneValue, CSerializer* pSerializer, uint32_t id, bool bCallInitFunc = true) const override;
 
     ///*
     //    We have two ways for interaction:
