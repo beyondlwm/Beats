@@ -303,7 +303,7 @@ void CDependencyDescription::Serialize(CSerializer& serializer)
     {
         CComponentProxy* pConnectedComponent = this->GetDependencyLine(j)->GetConnectedComponent();
         BEATS_ASSERT(pConnectedComponent != NULL);
-        serializer << pConnectedComponent->GetProxyId();
+        serializer << pConnectedComponent->GetId();
         serializer << pConnectedComponent->GetGuid();
     }
 }

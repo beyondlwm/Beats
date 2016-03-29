@@ -590,11 +590,6 @@ void CComponentProxy::Save()
     }
 }
 
-uint32_t CComponentProxy::GetProxyId()
-{
-    return GetId();
-}
-
 void CComponentProxy::Initialize()
 {
     super::Initialize();

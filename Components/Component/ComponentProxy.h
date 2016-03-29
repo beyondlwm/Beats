@@ -59,7 +59,6 @@ public:
     virtual uint32_t GetParentGuid() const override;
     virtual const TCHAR* GetClassStr() const;
     virtual void Save();
-    virtual uint32_t GetProxyId();
     virtual CComponentBase* Clone(bool bCloneValue, CSerializer* pSerializer, uint32_t id, bool bCallInitFunc = true) override;
 
     ///*
