@@ -188,7 +188,6 @@ void CComponentProject::AnalyseForTypeRef(rapidxml::xml_node<>* pVariableNode, u
             EReflectPropertyType propertyType = (EReflectPropertyType)atoi(pVariableNode->first_attribute("Type")->value());
             if (propertyType == eRPT_Ptr)
             {
-                _set_errno(0);
                 TString strValue = pVariableNode->first_attribute("SavedValue")->value();
                 size_t uPos = strValue.rfind('@');
                 BEATS_ASSERT(uPos != std::string::npos);
@@ -196,7 +195,6 @@ void CComponentProject::AnalyseForTypeRef(rapidxml::xml_node<>* pVariableNode, u
                 TCHAR* pEndChar = NULL;
                 uint32_t uGuid = _tcstoul(strValue.c_str(), &pEndChar, 16);
                 BEATS_ASSERT(_tcslen(pEndChar) == 0, _T("Read uint from string %s error, stop at %s"), strValue.c_str(), pEndChar);
-                BEATS_ASSERT(errno == 0, _T("Call _tcstoul failed! string %s radix: 16"), strValue.c_str());
                 (*m_pTypeRefInComponentMap)[uGuid].insert(uComponentId);
             }
         }
