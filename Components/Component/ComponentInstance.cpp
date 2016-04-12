@@ -248,7 +248,8 @@ void CComponentInstance::OnSave()
     // Do nothing
 }
 
-void CComponentInstance::OnPropertyImport(const TString& strPropertyName, const TString& strFile)
+bool CComponentInstance::OnPropertyImport(const TString& /*strPropertyName*/, const TString& /*strFile*/)
 {
     // Do nothing
+    return false;
 }
