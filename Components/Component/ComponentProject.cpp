@@ -440,8 +440,12 @@ uint32_t CComponentProject::RegisterFile(CComponentProjectDirectory* pDirectory,
     }
     else
     {
-        m_pComponentFiles->push_back(strFileName);
-        uFileID = (uint32_t)m_pComponentFiles->size() - 1;
+        bool bFileNameExist = GetComponentFileId(strFileName) == 0xFFFFFFFF;
+        if (!bFileNameExist)
+        {
+            m_pComponentFiles->push_back(strFileName);
+            uFileID = (uint32_t)m_pComponentFiles->size() - 1;
+        }
     }
 
     std::map<uint32_t, std::vector<uint32_t> > result;
@@ -665,10 +669,10 @@ uint32_t CComponentProject::GetComponentFileId(const TString& strFileName) const
     uint32_t uRet = 0xFFFFFFFF;
     if (strFileName.length() > 0)
     {
-        TString strLowerFileName = CStringHelper::GetInstance()->ToLower(strFileName);
+        TString strLowerFileName = CStringHelper::GetInstance()->ToLower(CFilePathTool::GetInstance()->FileName(strFileName.c_str()));
         for (uint32_t i = 0; i < m_pComponentFiles->size(); ++i)
         {
-            if (m_pComponentFiles->at(i) == strLowerFileName)
+            if (CFilePathTool::GetInstance()->FileName(m_pComponentFiles->at(i).c_str()) == strLowerFileName)
             {
                 uRet = i;
                 break;
