@@ -440,7 +440,7 @@ uint32_t CComponentProject::RegisterFile(CComponentProjectDirectory* pDirectory,
     }
     else
     {
-        bool bFileNameExist = GetComponentFileId(strFileName) == 0xFFFFFFFF;
+        bool bFileNameExist = GetComponentFileId(strFileName) != 0xFFFFFFFF;
         if (!bFileNameExist)
         {
             m_pComponentFiles->push_back(strFileName);
