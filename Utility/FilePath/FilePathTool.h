@@ -23,6 +23,7 @@ public:
     TString FileFullPath(const TCHAR* pszFilePath);
     TString ConvertToUnixPath(const TCHAR* pszFilePath) const;
     TString ConvertToWindowsPath(const TCHAR* pszFilePath) const;
+    bool MakeDirectory(const TCHAR* pszDirectoryPath) const;
 
 #if (BEATS_PLATFORM == BEATS_PLATFORM_ANDROID)
     void SetAssetManager(class AAssetManager* pMgr);

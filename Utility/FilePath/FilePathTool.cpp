@@ -4,6 +4,8 @@
 #if (BEATS_PLATFORM == BEATS_PLATFORM_ANDROID)
 #include <android/asset_manager.h>
 #endif
+#include "StringHelper/StringHelper.h"
+#include <direct.h>
 CFilePathTool* CFilePathTool::m_pInstance = NULL;
 CFilePathTool::CFilePathTool()
 #if (BEATS_PLATFORM == BEATS_PLATFORM_ANDROID)
@@ -100,5 +102,27 @@ TString CFilePathTool::ConvertToWindowsPath(const TCHAR* pszFilePath) const
         pReader = _tcsstr(pReader, _T("/"));
     }
     return szBuffer;
+}
 
+bool CFilePathTool::MakeDirectory(const TCHAR* pszDirectoryPath) const
+{
+    TString strPath = ConvertToUnixPath(pszDirectoryPath);
+    char lastCharacter = *strPath.rbegin();
+    if (lastCharacter == '/' || lastCharacter == '\\')
+    {
+        strPath.resize(strPath.size() - 1);
+    }
+    std::vector<TString> directoryList;
+    CStringHelper::GetInstance()->SplitString(strPath.c_str(), "/", directoryList, false);
+    BEATS_ASSERT(directoryList.size() > 1);
+    TString strCurrPath;
+    strCurrPath.append(directoryList[0]).append("/");
+    size_t i = 1;
+    for (; i < directoryList.size(); ++i)
+    {
+        strCurrPath.append(directoryList[i]);
+        _mkdir(strCurrPath.c_str());
+        strCurrPath.append("/");
+    }
+    return i == directoryList.size();
 }
