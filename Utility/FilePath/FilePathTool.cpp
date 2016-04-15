@@ -4,8 +4,12 @@
 #if (BEATS_PLATFORM == BEATS_PLATFORM_ANDROID)
 #include <android/asset_manager.h>
 #endif
-#include "StringHelper/StringHelper.h"
+#if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
 #include <direct.h>
+#else 
+#include <sys/stat.h>
+#endif
+#include "StringHelper/StringHelper.h"
 CFilePathTool* CFilePathTool::m_pInstance = NULL;
 CFilePathTool::CFilePathTool()
 #if (BEATS_PLATFORM == BEATS_PLATFORM_ANDROID)
@@ -121,7 +125,11 @@ bool CFilePathTool::MakeDirectory(const TCHAR* pszDirectoryPath) const
     for (; i < directoryList.size(); ++i)
     {
         strCurrPath.append(directoryList[i]);
+#if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
         _mkdir(strCurrPath.c_str());
+#else
+        mkdir(strCurrPath.c_str(), S_IRWXO | S_IRWXG | S_IRWXU);
+#endif
         strCurrPath.append("/");
     }
     return i == directoryList.size();
