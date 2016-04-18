@@ -853,33 +853,38 @@ void CComponentProxyManager::LoadTemplateDataFromXML(const TCHAR* pszPath)
 
 void CComponentProxyManager::ReSaveFreshFile()
 {
+    const std::vector<uint32_t>& loadedFiles = GetLoadedFiles();
     for (auto iter = m_refreshFileList.begin(); iter != m_refreshFileList.end(); ++iter)
     {
-        std::map<uint32_t, std::map<uint32_t, std::set<uint32_t> > >* pFileToComponentMap = m_pProject->GetFileToComponentMap();
-        auto subIter = pFileToComponentMap->find(*iter);
-        if (subIter != pFileToComponentMap->end())
+        bool bIsLoaded = std::find(loadedFiles.begin(), loadedFiles.end(), *iter) == loadedFiles.end();
+        if (bIsLoaded)
         {
-            std::map<uint32_t, std::vector<CComponentProxy*>> guidGroup;
-            for (auto componentMapIter = subIter->second.begin(); componentMapIter != subIter->second.end(); ++componentMapIter)
+            std::map<uint32_t, std::map<uint32_t, std::set<uint32_t> > >* pFileToComponentMap = m_pProject->GetFileToComponentMap();
+            auto subIter = pFileToComponentMap->find(*iter);
+            if (subIter != pFileToComponentMap->end())
             {
-                for (auto idIter = componentMapIter->second.begin(); idIter != componentMapIter->second.end(); ++idIter)
+                std::map<uint32_t, std::vector<CComponentProxy*>> guidGroup;
+                for (auto componentMapIter = subIter->second.begin(); componentMapIter != subIter->second.end(); ++componentMapIter)
                 {
-                    uint32_t uComponentId = *idIter;
-                    CComponentProxy* pProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(uComponentId));
-                    if (pProxy != NULL) // The proxy may be null when you remove some components in code.
+                    for (auto idIter = componentMapIter->second.begin(); idIter != componentMapIter->second.end(); ++idIter)
                     {
-                        std::map<uint32_t, std::vector<CComponentProxy*>>::iterator guidGroupIter = guidGroup.find(pProxy->GetGuid());
-                        if (guidGroupIter == guidGroup.end())
+                        uint32_t uComponentId = *idIter;
+                        CComponentProxy* pProxy = static_cast<CComponentProxy*>(CComponentProxyManager::GetInstance()->GetComponentInstance(uComponentId));
+                        if (pProxy != NULL) // The proxy may be null when you remove some components in code.
                         {
-                            guidGroup[pProxy->GetGuid()] = std::vector<CComponentProxy*>();
-                            guidGroupIter = guidGroup.find(pProxy->GetGuid());
+                            std::map<uint32_t, std::vector<CComponentProxy*>>::iterator guidGroupIter = guidGroup.find(pProxy->GetGuid());
+                            if (guidGroupIter == guidGroup.end())
+                            {
+                                guidGroup[pProxy->GetGuid()] = std::vector<CComponentProxy*>();
+                                guidGroupIter = guidGroup.find(pProxy->GetGuid());
+                            }
+                            guidGroupIter->second.push_back(pProxy);
                         }
-                        guidGroupIter->second.push_back(pProxy);
                     }
                 }
+                const TString& strFileName = m_pProject->GetComponentFileName(*iter);
+                SaveToFile(strFileName.c_str(), guidGroup);
             }
-            const TString& strFileName = m_pProject->GetComponentFileName(*iter);
-            SaveToFile(strFileName.c_str(), guidGroup);
         }
     }
     m_refreshFileList.clear();

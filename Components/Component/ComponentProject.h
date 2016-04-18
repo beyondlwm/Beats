@@ -37,7 +37,7 @@ public:
     // Register file only when: 1. Load Project. 2.Add File. 3. Reload the file when close file(No matter save or not).
     // Unregister file only when: 1. Delete file. 2. Reset the id when close file.
     uint32_t RegisterFile(CComponentProjectDirectory* pDirectory, const TString& strFileName, std::map<uint32_t, std::vector<uint32_t> >& failedId, uint32_t uSpecifyFileId = 0xFFFFFFFF);
-    bool AnalyseFile(const TString& strFileName, std::map<uint32_t, std::vector<uint32_t> >& outResult);
+    bool AnalyseFile(const TString& strFileName, uint32_t uFileID, std::map<uint32_t, std::vector<uint32_t> >& outResult);
     bool UnregisterFile(uint32_t uFileID);
     void ReloadFile(uint32_t uFileID);
 

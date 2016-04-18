@@ -449,7 +449,7 @@ uint32_t CComponentProject::RegisterFile(CComponentProjectDirectory* pDirectory,
     }
 
     std::map<uint32_t, std::vector<uint32_t> > result;
-    AnalyseFile(strFileName, result);
+    AnalyseFile(strFileName, uFileID, result);
 
     CIdManager* pIdManager = CComponentProxyManager::GetInstance()->GetIdManager();
 
@@ -490,7 +490,7 @@ uint32_t CComponentProject::RegisterFile(CComponentProjectDirectory* pDirectory,
     return uFileID;
 }
 
-bool CComponentProject::AnalyseFile(const TString& strFileName, std::map<uint32_t, std::vector<uint32_t> >& outResult)
+bool CComponentProject::AnalyseFile(const TString& strFileName, uint32_t uFileID, std::map<uint32_t, std::vector<uint32_t> >& outResult)
 {
     outResult.clear();
     if (CFilePathTool::GetInstance()->Exists(strFileName.c_str()))
@@ -511,65 +511,73 @@ bool CComponentProject::AnalyseFile(const TString& strFileName, std::map<uint32_
                     char* pStopPos = NULL;
                     uint32_t uComponentGuid = strtoul(pszGuidStr, &pStopPos, 16);
                     BEATS_ASSERT(*pStopPos == 0, _T("Guid value %s is not a 0x value at file %s."), pszGuidStr, strFileName.c_str());
-                    if (outResult.find(uComponentGuid) == outResult.end())
+                    if (CComponentProxyManager::GetInstance()->GetComponentTemplate(uComponentGuid) == nullptr)
                     {
-                        outResult[uComponentGuid] = std::vector<uint32_t>();
+                        TCHAR szInfo[MAX_PATH];
+                        _stprintf(szInfo, "Can't find component template with GUID: %s Name:%s\nInFile:%s\nHave you removed this component?", 
+                            pszGuidStr, 
+                            pComponentElement->first_attribute("Name")->value(),
+                            strFileName.c_str());
+                        MessageBox(BEYONDENGINE_HWND, szInfo, _T("Load component failed"), MB_OK | MB_ICONERROR);
                     }
-                    std::vector<uint32_t>& idList = outResult[uComponentGuid];
-                    rapidxml::xml_node<>* pInstanceElement = pComponentElement->first_node();
-                    while (pInstanceElement != NULL)
+                    else
                     {
-                        bool bFindProxy = strcmp(pInstanceElement->name(), "Instance") == 0;
-                        BEATS_ASSERT(bFindProxy, _T("Read invalid data!"));
-                        if (bFindProxy)
+                        std::vector<uint32_t>& idList = outResult[uComponentGuid];
+                        rapidxml::xml_node<>* pInstanceElement = pComponentElement->first_node();
+                        while (pInstanceElement != NULL)
                         {
-                            int id = -1;
-                            id = atoi(pInstanceElement->first_attribute("Id")->value());
-                            BEATS_ASSERT(id != -1);
-                            idList.push_back(id);
-                            rapidxml::xml_node<>* pCurrNode = pInstanceElement->first_node();
-                            if (pCurrNode != nullptr)
+                            bool bFindProxy = strcmp(pInstanceElement->name(), "Instance") == 0;
+                            BEATS_ASSERT(bFindProxy, _T("Read invalid data!"));
+                            if (bFindProxy)
                             {
-                                while (true)
+                                int id = -1;
+                                id = atoi(pInstanceElement->first_attribute("Id")->value());
+                                BEATS_ASSERT(id != -1);
+                                idList.push_back(id);
+                                rapidxml::xml_node<>* pCurrNode = pInstanceElement->first_node();
+                                if (pCurrNode != nullptr)
                                 {
-                                    AnalyseForTypeRef(pCurrNode, id);
-                                    if (pCurrNode->first_node())
+                                    while (true)
                                     {
-                                        pCurrNode = pCurrNode->first_node();
-                                    }
-                                    else if (pCurrNode->next_sibling())
-                                    {
-                                        pCurrNode = pCurrNode->next_sibling();
-                                    }
-                                    else
-                                    {
-                                        rapidxml::xml_node<>* pNextNode = pCurrNode->parent();
-                                        bool bFinished = pNextNode == pInstanceElement;
-                                        if (!bFinished)
+                                        AnalyseForTypeRef(pCurrNode, id);
+                                        if (pCurrNode->first_node())
                                         {
-                                            while (pNextNode->next_sibling() == nullptr)
-                                            {
-                                                pNextNode = pNextNode->parent();
-                                                if (pNextNode == pInstanceElement)
-                                                {
-                                                    bFinished = true;
-                                                    break;
-                                                }
-                                            }
+                                            pCurrNode = pCurrNode->first_node();
                                         }
-                                        if (bFinished)
+                                        else if (pCurrNode->next_sibling())
                                         {
-                                            break;
+                                            pCurrNode = pCurrNode->next_sibling();
                                         }
                                         else
                                         {
-                                            pCurrNode = pNextNode->next_sibling();
+                                            rapidxml::xml_node<>* pNextNode = pCurrNode->parent();
+                                            bool bFinished = pNextNode == pInstanceElement;
+                                            if (!bFinished)
+                                            {
+                                                while (pNextNode->next_sibling() == nullptr)
+                                                {
+                                                    pNextNode = pNextNode->parent();
+                                                    if (pNextNode == pInstanceElement)
+                                                    {
+                                                        bFinished = true;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                            if (bFinished)
+                                            {
+                                                break;
+                                            }
+                                            else
+                                            {
+                                                pCurrNode = pNextNode->next_sibling();
+                                            }
                                         }
                                     }
                                 }
                             }
+                            pInstanceElement = pInstanceElement->next_sibling();
                         }
-                        pInstanceElement = pInstanceElement->next_sibling();
                     }
                     pComponentElement = pComponentElement->next_sibling("Component");
                 }
@@ -580,7 +588,6 @@ bool CComponentProject::AnalyseFile(const TString& strFileName, std::map<uint32_
             (void)e;
             BEATS_ASSERT(false, _T("Load File :%s Failed!Reason: %s "), strFileName.c_str(), e.what());
         }
-        
     }
     return true;
 }
