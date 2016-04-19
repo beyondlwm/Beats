@@ -32,7 +32,19 @@ CComponentInstance::~CComponentInstance()
     SetSyncProxyComponent(NULL);
     if (m_pProxyComponent != NULL)
     {
-        BEATS_SAFE_DELETE(m_pProxyComponent);
+        // If this component is an instance of ptr property, we need to inform ptr to refresh the m_pInstance.
+        if (m_pProxyComponent->GetPtrPropertyOwner() != nullptr)
+        {
+            m_pProxyComponent->GetPtrPropertyOwner()->HACK_InformPtrPropertyToDeleteInstance();
+        }
+        else
+        {
+            if (m_pProxyComponent->IsInitialized())
+            {
+                m_pProxyComponent->Uninitialize();
+            }
+            BEATS_SAFE_DELETE(m_pProxyComponent);
+        }
     }
 }
 

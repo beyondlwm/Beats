@@ -278,6 +278,11 @@ uint32_t CPropertyDescriptionBase::HACK_GetPtrReflectGuid() const
     return 0;
 }
 
+void CPropertyDescriptionBase::HACK_InformPtrPropertyToDeleteInstance()
+{
+
+}
+
 void CPropertyDescriptionBase::SetValueWithType(void* pValue, EValueType type, bool bForceUpdateHostComponent/* = false*/)
 {
     if (CopyValue(pValue, m_valueArray[type]) || bForceUpdateHostComponent)

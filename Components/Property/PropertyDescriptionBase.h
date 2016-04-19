@@ -84,6 +84,8 @@ public:
     virtual void SetValueList(const std::vector<TString>& valueList);
     virtual CComponentProxy* GetInstanceComponent() const;
     virtual uint32_t HACK_GetPtrReflectGuid() const;
+    // When we delete a component instance, it may be one instance of ptrproperty, so we need to inform the ptr property not to delete its instance again.
+    virtual void HACK_InformPtrPropertyToDeleteInstance();
 
     virtual CPropertyDescriptionBase* Clone(bool bCloneValue);
     virtual CPropertyDescriptionBase* CreateNewInstance() = 0;

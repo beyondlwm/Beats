@@ -76,6 +76,9 @@ public:
     virtual void Uninitialize() override;
     const std::vector<CComponentInstance*>& GetSyncComponents() const;
 
+    void SetPtrPropertyOwner(CPropertyDescriptionBase* pProperty);
+    CPropertyDescriptionBase* GetPtrPropertyOwner() const;
+
 private:
     void AddSyncComponent(CComponentInstance* pInstance);
     void RemoveSyncComponent(CComponentInstance* pInstance);
@@ -93,6 +96,7 @@ private:
     uint32_t m_uParentGuid;
     CComponentGraphic* m_pGraphics;
     std::vector<char>* m_pSerializeOrder; // this variable save the order of property/dependency data comes in when deserialize. we have to keep the order when serialize.
+    CPropertyDescriptionBase* m_pPtrPropertyOwner = nullptr; //If this member is not nullptr, it means this is an instance of CPtrPropertyDescription::m_pInstance.
     TString m_strClassName;
     TString m_strDisplayName;
     TString m_strUserDefineDisplayName;

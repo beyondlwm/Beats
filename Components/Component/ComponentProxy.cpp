@@ -652,3 +652,13 @@ const std::vector<CComponentInstance*>& CComponentProxy::GetSyncComponents() con
     return m_syncComponents;
 }
 
+void CComponentProxy::SetPtrPropertyOwner(CPropertyDescriptionBase* pProperty)
+{
+    m_pPtrPropertyOwner = pProperty;
+}
+
+CPropertyDescriptionBase* CComponentProxy::GetPtrPropertyOwner() const
+{
+    return m_pPtrPropertyOwner;
+}
+
