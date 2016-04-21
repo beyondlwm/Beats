@@ -203,21 +203,24 @@ void CComponentProxyManager::LoadFile(uint32_t uFileId, std::vector<CComponentBa
             }
             ResolveDependency();
             CComponentInstanceManager::GetInstance()->SetLoadPhaseFlag(bRestoreLoadingPhase);
-            // Call component proxy's initialize means we have sync all value to host component, so we call host component's load function.
-            for (size_t i = 0; i < loadedProxyList.size(); ++i)
+            if (!CComponentProxyManager::GetInstance()->IsExporting())
             {
-                loadedProxyList[i]->Initialize();
-            }
-            for (size_t i = 0; i < loadedProxyList.size(); ++i)
-            {
-                CComponentInstance* pHostComponent = static_cast<CComponentProxy*>(loadedProxyList[i])->GetHostComponent();
-                if (pHostComponent != nullptr)
+                // Call component proxy's initialize means we have sync all value to host component, so we call host component's load function.
+                for (size_t i = 0; i < loadedProxyList.size(); ++i)
                 {
-                    pHostComponent->Load();
+                    loadedProxyList[i]->Initialize();
                 }
-                else
+                for (size_t i = 0; i < loadedProxyList.size(); ++i)
                 {
-                    BEATS_ASSERT(m_bCreateInstanceWithProxy == false, "Only when m_bCreateInstanceWithProxy is set to false, we can't get the host component");
+                    CComponentInstance* pHostComponent = static_cast<CComponentProxy*>(loadedProxyList[i])->GetHostComponent();
+                    if (pHostComponent != nullptr)
+                    {
+                        pHostComponent->Load();
+                    }
+                    else
+                    {
+                        BEATS_ASSERT(m_bCreateInstanceWithProxy == false, "Only when m_bCreateInstanceWithProxy is set to false, we can't get the host component");
+                    }
                 }
             }
         }
@@ -400,10 +403,11 @@ void CComponentProxyManager::Export(const TCHAR* pSavePath, std::function<bool(C
                 // Don't call CloseFile, because we have nothing to do with proxy's host component.
                 for (uint32_t j = 0; j < vecComponents.size(); ++j)
                 {
-                    vecComponents[j]->Uninitialize();
-                }
-                for (uint32_t j = 0; j < vecComponents.size(); ++j)
-                {
+                    if (vecComponents[j]->GetId() != 0xFFFFFFFF)
+                    {
+                        CComponentProxyManager::GetInstance()->UnregisterInstance(vecComponents[j]);
+                        CComponentProxyManager::GetInstance()->GetIdManager()->RecycleId(vecComponents[j]->GetId());
+                    }
                     BEATS_SAFE_DELETE(vecComponents[j]);
                 }
                 m_loadedFiles.erase(iterFile);
@@ -893,7 +897,7 @@ void CComponentProxyManager::ReSaveFreshFile()
 bool CComponentProxyManager::ExportComponentProxy(CComponentProxy* pProxy, CSerializer& serializer, std::function<bool(CComponentProxy*)> exportCallback)
 {
     bool bNeedRefreshFile = false;
-    BEATS_ASSERT(pProxy->IsInitialized());
+    BEATS_ASSERT(!pProxy->IsInitialized());
     if (exportCallback != nullptr)
     {
         bNeedRefreshFile = exportCallback(pProxy);
