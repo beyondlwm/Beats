@@ -860,7 +860,7 @@ void CComponentProxyManager::ReSaveFreshFile()
     const std::vector<uint32_t>& loadedFiles = GetLoadedFiles();
     for (auto iter = m_refreshFileList.begin(); iter != m_refreshFileList.end(); ++iter)
     {
-        bool bIsLoaded = std::find(loadedFiles.begin(), loadedFiles.end(), *iter) == loadedFiles.end();
+        bool bIsLoaded = std::find(loadedFiles.begin(), loadedFiles.end(), *iter) != loadedFiles.end();
         if (bIsLoaded)
         {
             std::map<uint32_t, std::map<uint32_t, std::set<uint32_t> > >* pFileToComponentMap = m_pProject->GetFileToComponentMap();
