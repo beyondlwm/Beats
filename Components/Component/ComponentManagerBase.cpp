@@ -33,8 +33,7 @@ void CComponentManagerBase::Release()
     BEATS_SAFE_DELETE(m_pProject);
     BEATS_SAFE_DELETE(m_pComponentInstanceMap);
     
-    typedef std::map<uint32_t, CComponentBase*> TComponentMap;
-    BEATS_SAFE_DELETE_MAP((*m_pComponentTemplateMap), TComponentMap);
+    BEATS_SAFE_DELETE_MAP(*m_pComponentTemplateMap);
     BEATS_SAFE_DELETE(m_pComponentTemplateMap);
     BEATS_SAFE_DELETE(m_pDependencyResolver);
 }
