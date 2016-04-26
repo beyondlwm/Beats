@@ -27,6 +27,7 @@ CComponentInstanceManager::~CComponentInstanceManager()
 
 CSerializer* CComponentInstanceManager::Import(const TCHAR* pszFilePath)
 {
+    m_pSerializer->Reset();
     m_pSerializer->Serialize(pszFilePath);
     CSerializer& serializer = *m_pSerializer;
     uint32_t uVersion = 0;

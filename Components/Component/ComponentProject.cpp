@@ -119,6 +119,9 @@ bool CComponentProject::CloseProject()
     m_pPropertyMaintainMap->clear();
     m_strProjectFilePath.clear();
     m_strProjectFileName.clear();
+    m_pTypeRefInComponentMap->clear();
+    m_pFileDataLayout->clear();
+    m_pFileToDirectoryMap->clear();
     return bRet;
 }
 

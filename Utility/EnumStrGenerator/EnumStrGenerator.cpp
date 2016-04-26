@@ -19,8 +19,7 @@ CEnumStrGenerator::CEnumStrGenerator()
 
 CEnumStrGenerator::~CEnumStrGenerator()
 {
-    typedef std::map<TString, SEnumScanData*> TEnumMap;
-    BEATS_SAFE_DELETE_MAP(m_enumStrPool, TEnumMap);
+    BEATS_SAFE_DELETE_MAP(m_enumStrPool);
 }
 
 bool CEnumStrGenerator::ScanEnumInFile( const TCHAR* pFileName, const TCHAR* pSpecifyEnumName )

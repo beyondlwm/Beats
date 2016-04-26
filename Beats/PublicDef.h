@@ -142,8 +142,8 @@ if ((p) != NULL)\
     { BEATS_SAFE_DELETE((p)[i]);}\
     (p).clear();
 
-#define BEATS_SAFE_DELETE_MAP(p, type)\
-    for(type::iterator iter = (p).begin(); iter != (p).end(); ++iter)\
+#define BEATS_SAFE_DELETE_MAP(p)\
+    for(auto iter = (p).begin(); iter != (p).end(); ++iter)\
     { BEATS_SAFE_DELETE((iter)->second);}\
     (p).clear();
 

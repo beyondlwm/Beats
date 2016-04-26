@@ -73,6 +73,7 @@ public:
     virtual void LoadFile(uint32_t uFileId, std::vector<CComponentBase*>* pLoadComponents) = 0;
     virtual void UnloadFile(uint32_t uFileId, std::vector<CComponentBase*>* pUnloadComponents) = 0;
     virtual void CloseFile(uint32_t uFileId) = 0;
+    void Reset();
 
     uint32_t GetCurrLoadFileId();
     void SetCurrLoadFileId(uint32_t uId);

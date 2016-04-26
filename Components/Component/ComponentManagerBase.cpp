@@ -31,10 +31,10 @@ void CComponentManagerBase::Release()
 {
     BEATS_SAFE_DELETE(m_pIdManager);
     BEATS_SAFE_DELETE(m_pProject);
+    BEATS_ASSERT(m_pComponentInstanceMap->size() == 0);
     BEATS_SAFE_DELETE(m_pComponentInstanceMap);
-    
-    typedef std::map<uint32_t, CComponentBase*> TComponentMap;
-    BEATS_SAFE_DELETE_MAP((*m_pComponentTemplateMap), TComponentMap);
+
+    BEATS_SAFE_DELETE_MAP((*m_pComponentTemplateMap));
     BEATS_SAFE_DELETE(m_pComponentTemplateMap);
     BEATS_SAFE_DELETE(m_pDependencyResolver);
 }
@@ -196,6 +196,20 @@ CIdManager* CComponentManagerBase::GetIdManager() const
 CComponentProject* CComponentManagerBase::GetProject() const
 {
     return m_pProject;
+}
+
+void CComponentManagerBase::Reset()
+{
+    std::vector<uint32_t> bak = m_loadedFiles;
+    for (int32_t i = bak.size() - 1; i >= 0; --i)
+    {
+        CloseFile(bak[i]);
+    }
+    m_uCurrLoadFileId = 0xFFFFFFFF;
+    BEATS_ASSERT(m_loadedFiles.size() == 0);
+    BEATS_ASSERT(m_pComponentInstanceMap->size() == 0);
+    m_pIdManager->Reset();
+    m_pProject->CloseProject();
 }
 
 uint32_t CComponentManagerBase::GetCurrLoadFileId()
