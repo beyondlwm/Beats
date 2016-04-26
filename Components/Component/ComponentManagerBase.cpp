@@ -33,8 +33,7 @@ void CComponentManagerBase::Release()
     BEATS_SAFE_DELETE(m_pProject);
     BEATS_ASSERT(m_pComponentInstanceMap->size() == 0);
     BEATS_SAFE_DELETE(m_pComponentInstanceMap);
-
-    BEATS_SAFE_DELETE_MAP((*m_pComponentTemplateMap));
+    BEATS_SAFE_DELETE_MAP(*m_pComponentTemplateMap);
     BEATS_SAFE_DELETE(m_pComponentTemplateMap);
     BEATS_SAFE_DELETE(m_pDependencyResolver);
 }
