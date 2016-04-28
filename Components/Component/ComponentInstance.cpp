@@ -79,6 +79,7 @@ void CComponentInstance::Uninitialize()
 {
     for (auto iter = m_reflectComponents.begin(); iter != m_reflectComponents.end(); ++iter)
     {
+        BEATS_ASSERT((*iter)->GetId() == 0xFFFFFFFF);
         (*iter)->Uninitialize();
     }
 
