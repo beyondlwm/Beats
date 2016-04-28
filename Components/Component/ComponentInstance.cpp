@@ -52,6 +52,7 @@ void CComponentInstance::Initialize()
 {
     for (auto iter = m_reflectComponents.begin(); iter != m_reflectComponents.end(); ++iter)
     {
+        BEATS_ASSERT(*iter != nullptr);
         (*iter)->Initialize();
     }
 
@@ -79,6 +80,7 @@ void CComponentInstance::Uninitialize()
 {
     for (auto iter = m_reflectComponents.begin(); iter != m_reflectComponents.end(); ++iter)
     {
+        BEATS_ASSERT(*iter != nullptr);
         (*iter)->Uninitialize();
     }
 
@@ -100,6 +102,7 @@ bool CComponentInstance::Load()
 {
     for (auto iter = m_reflectComponents.begin(); iter != m_reflectComponents.end(); ++iter)
     {
+        BEATS_ASSERT(*iter != nullptr);
         if (!(*iter)->IsLoaded())
         {
             (*iter)->Load();
@@ -112,6 +115,7 @@ bool CComponentInstance::Unload()
 {
     for (auto iter = m_reflectComponents.begin(); iter != m_reflectComponents.end(); ++iter)
     {
+        BEATS_ASSERT(*iter != nullptr);
         if ((*iter)->IsLoaded())
         {
             (*iter)->Unload();

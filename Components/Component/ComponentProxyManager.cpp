@@ -897,7 +897,6 @@ void CComponentProxyManager::ReSaveFreshFile()
 bool CComponentProxyManager::ExportComponentProxy(CComponentProxy* pProxy, CSerializer& serializer, std::function<bool(CComponentProxy*)> exportCallback)
 {
     bool bNeedRefreshFile = false;
-    BEATS_ASSERT(!pProxy->IsInitialized());
     if (exportCallback != nullptr)
     {
         bNeedRefreshFile = exportCallback(pProxy);
