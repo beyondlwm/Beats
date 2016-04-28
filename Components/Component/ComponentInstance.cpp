@@ -19,6 +19,9 @@ CComponentInstance::~CComponentInstance()
 {
     if (m_pReflectComponentOwner != nullptr)
     {
+#ifdef _DEBUG
+        BEATS_ASSERT(m_bReflectPropertyCheck == true, "Can't delte a reflect comopnent manually!");
+#endif
         m_pReflectComponentOwner->UnregisterReflectComponent(this);
         m_pReflectComponentOwner = nullptr;
     }
@@ -27,6 +30,10 @@ CComponentInstance::~CComponentInstance()
         CComponentInstance* pReflectComponent = *m_reflectComponents.begin();
         BEATS_ASSERT(pReflectComponent->GetReflectOwner() == this);
         BEATS_ASSERT(!pReflectComponent->IsLoaded() && !pReflectComponent->IsInitialized());
+        BEATS_ASSERT(pReflectComponent->GetId() == 0xFFFFFFFF);
+#ifdef _DEBUG
+        pReflectComponent->m_bReflectPropertyCheck = true;
+#endif
         BEATS_SAFE_DELETE(pReflectComponent);
     }
     SetSyncProxyComponent(NULL);
@@ -52,7 +59,7 @@ void CComponentInstance::Initialize()
 {
     for (auto iter = m_reflectComponents.begin(); iter != m_reflectComponents.end(); ++iter)
     {
-        BEATS_ASSERT(*iter != nullptr);
+        BEATS_ASSERT((*iter) != nullptr && (*iter)->GetId() == 0xFFFFFFFF);
         (*iter)->Initialize();
     }
 
@@ -80,7 +87,7 @@ void CComponentInstance::Uninitialize()
 {
     for (auto iter = m_reflectComponents.begin(); iter != m_reflectComponents.end(); ++iter)
     {
-        BEATS_ASSERT(*iter != nullptr && (*iter)->GetId() == 0xFFFFFFFF);
+        BEATS_ASSERT((*iter) != nullptr && (*iter)->GetId() == 0xFFFFFFFF);
         (*iter)->Uninitialize();
     }
 
@@ -102,7 +109,7 @@ bool CComponentInstance::Load()
 {
     for (auto iter = m_reflectComponents.begin(); iter != m_reflectComponents.end(); ++iter)
     {
-        BEATS_ASSERT(*iter != nullptr);
+        BEATS_ASSERT((*iter) != nullptr && (*iter)->GetId() == 0xFFFFFFFF);
         if (!(*iter)->IsLoaded())
         {
             (*iter)->Load();
@@ -115,7 +122,7 @@ bool CComponentInstance::Unload()
 {
     for (auto iter = m_reflectComponents.begin(); iter != m_reflectComponents.end(); ++iter)
     {
-        BEATS_ASSERT(*iter != nullptr);
+        BEATS_ASSERT((*iter) != nullptr && (*iter)->GetId() == 0xFFFFFFFF);
         if ((*iter)->IsLoaded())
         {
             (*iter)->Unload();

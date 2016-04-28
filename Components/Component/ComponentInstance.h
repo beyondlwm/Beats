@@ -44,8 +44,10 @@ public:
     virtual bool OnDependencyListChange(void* pComponentAddr, EDependencyChangeAction action, CComponentBase* pComponent);
     virtual void OnSave();
     virtual bool OnPropertyImport(const TString& strPropertyName, const TString& strFile);
-
 private:
+#ifdef _DEBUG
+    bool m_bReflectPropertyCheck = false;
+#endif
     uint32_t m_uDataPos;
     uint32_t m_uDataSize;
     CComponentInstance* m_pReflectComponentOwner; // TODO: this is only for avoid delete reflect components manually. maybe it is not necessary.
