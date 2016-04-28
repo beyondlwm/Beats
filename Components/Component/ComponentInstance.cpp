@@ -80,7 +80,7 @@ void CComponentInstance::Uninitialize()
 {
     for (auto iter = m_reflectComponents.begin(); iter != m_reflectComponents.end(); ++iter)
     {
-        BEATS_ASSERT(*iter != nullptr);
+        BEATS_ASSERT(*iter != nullptr && (*iter)->GetId() == 0xFFFFFFFF);
         (*iter)->Uninitialize();
     }
 
