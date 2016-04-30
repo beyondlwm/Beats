@@ -25,9 +25,10 @@ CComponentInstance::~CComponentInstance()
         m_pReflectComponentOwner->UnregisterReflectComponent(this);
         m_pReflectComponentOwner = nullptr;
     }
-    while (m_reflectComponents.size() > 0)//m_reflectComponents size will reduce because when we delete the component, it will call UnregisterReflectComponent.
+    std::set<CComponentInstance*> bak = m_reflectComponents;
+    for (auto iter = bak.begin(); iter != bak.end(); ++iter)
     {
-        CComponentInstance* pReflectComponent = *m_reflectComponents.begin();
+        CComponentInstance* pReflectComponent = *iter;
         BEATS_ASSERT(pReflectComponent->GetReflectOwner() == this);
         BEATS_ASSERT(!pReflectComponent->IsLoaded() && !pReflectComponent->IsInitialized());
         BEATS_ASSERT(pReflectComponent->GetId() == 0xFFFFFFFF);
@@ -36,6 +37,7 @@ CComponentInstance::~CComponentInstance()
 #endif
         BEATS_SAFE_DELETE(pReflectComponent);
     }
+    BEATS_ASSERT(m_reflectComponents.size() == 0, "All reflect components should be deleted!");
     SetSyncProxyComponent(NULL);
     if (m_pProxyComponent != NULL)
     {
@@ -57,12 +59,18 @@ CComponentInstance::~CComponentInstance()
 
 void CComponentInstance::Initialize()
 {
+#ifdef _DEBUG
+    BEATS_ASSERT(!m_bReflectPropertyCritical);
+    m_bReflectPropertyCritical = true;
+#endif
     for (auto iter = m_reflectComponents.begin(); iter != m_reflectComponents.end(); ++iter)
     {
         BEATS_ASSERT((*iter) != nullptr && (*iter)->GetId() == 0xFFFFFFFF);
         (*iter)->Initialize();
     }
-
+#ifdef _DEBUG
+    m_bReflectPropertyCritical = false;
+#endif
     // For Editor operation, we always call proxy initialize before instance's initialize.
     // But if we call Initialize manually from code, we need to call proxy initialize.
     if (m_pProxyComponent != NULL && !m_pProxyComponent->IsInitialized())
@@ -85,11 +93,16 @@ void CComponentInstance::Initialize()
 
 void CComponentInstance::Uninitialize()
 {
+#ifdef _DEBUG
+    BEATS_ASSERT(!m_bReflectPropertyCritical);
+    m_bReflectPropertyCritical = true;
     for (auto iter = m_reflectComponents.begin(); iter != m_reflectComponents.end(); ++iter)
     {
         BEATS_ASSERT((*iter) != nullptr && (*iter)->GetId() == 0xFFFFFFFF);
         (*iter)->Uninitialize();
     }
+    m_bReflectPropertyCritical = false;
+#endif
 
     if (m_pProxyComponent != NULL)
     {
@@ -107,6 +120,10 @@ void CComponentInstance::Uninitialize()
 
 bool CComponentInstance::Load()
 {
+#ifdef _DEBUG
+    BEATS_ASSERT(!m_bReflectPropertyCritical);
+    m_bReflectPropertyCritical = true;
+#endif
     for (auto iter = m_reflectComponents.begin(); iter != m_reflectComponents.end(); ++iter)
     {
         BEATS_ASSERT((*iter) != nullptr && (*iter)->GetId() == 0xFFFFFFFF);
@@ -115,11 +132,18 @@ bool CComponentInstance::Load()
             (*iter)->Load();
         }
     }
+#ifdef _DEBUG
+    m_bReflectPropertyCritical = false;
+#endif
     return super::Load();
 }
 
 bool CComponentInstance::Unload()
 {
+#ifdef _DEBUG
+    BEATS_ASSERT(!m_bReflectPropertyCritical);
+    m_bReflectPropertyCritical = true;
+#endif
     for (auto iter = m_reflectComponents.begin(); iter != m_reflectComponents.end(); ++iter)
     {
         BEATS_ASSERT((*iter) != nullptr && (*iter)->GetId() == 0xFFFFFFFF);
@@ -128,6 +152,9 @@ bool CComponentInstance::Unload()
             (*iter)->Unload();
         }
     }
+#ifdef _DEBUG
+    m_bReflectPropertyCritical = false;
+#endif
     return super::Unload();
 }
 
@@ -228,15 +255,23 @@ const std::set<CComponentInstance*>& CComponentInstance::GetReflectComponents() 
 
 void CComponentInstance::ClearReflectComponents()
 {
+#ifdef _DEBUG
+    BEATS_ASSERT(!m_bReflectPropertyCritical);
+    m_bReflectPropertyCritical = true;
+#endif
     for (auto iter = m_reflectComponents.begin(); iter != m_reflectComponents.end(); ++iter)
     {
         (*iter)->SetReflectOwner(nullptr);
     }
+#ifdef _DEBUG
+    m_bReflectPropertyCritical = false;
+#endif
     m_reflectComponents.clear();
 }
 
 void CComponentInstance::RegisterReflectComponent(CComponentInstance* pComponent)
 {
+    BEATS_ASSERT(!m_bReflectPropertyCritical);
     BEATS_ASSERT(m_reflectComponents.find(pComponent) == m_reflectComponents.end());
     m_reflectComponents.insert(pComponent);
     BEATS_ASSERT(pComponent->GetReflectOwner() == nullptr && pComponent->GetId() == 0xFFFFFFFF);
@@ -245,6 +280,7 @@ void CComponentInstance::RegisterReflectComponent(CComponentInstance* pComponent
 
 void CComponentInstance::UnregisterReflectComponent(CComponentInstance* pComponent)
 {
+    BEATS_ASSERT(!m_bReflectPropertyCritical);
     BEATS_ASSERT(m_reflectComponents.find(pComponent) != m_reflectComponents.end());
     m_reflectComponents.erase(pComponent);
     BEATS_ASSERT(pComponent->GetReflectOwner() == this && pComponent->GetId() == 0xFFFFFFFF);

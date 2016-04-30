@@ -258,13 +258,17 @@ if ((p) != NULL)\
     #define BEATS_ASSI_GET_EIP__(intVariable, LineNum) _asm call label##LineNum _asm label##LineNum: _asm pop intVariable __asm{}
     #define BEATS_ASSI_GET_EIP_(intVariable, LineNum) BEATS_ASSI_GET_EIP__(intVariable, LineNum)
     #define BEATS_ASSI_GET_EIP(intVariable) BEATS_ASSI_GET_EIP_(intVariable, __LINE__)
-
     #define BEATS_ASSI_GET_EBP(intVariable) __asm{mov intVariable, Ebp}
-
+    #ifdef _DEBUG
+        #define BEYONDENGINE_CHECK_HEAP BEATS_ASSERT(_CrtCheckMemory() != FALSE, "_CrtCheckMemory Failed!\nFile:%s Line:%d", __FILE__, __LINE__)
+    #else
+        #define BEYONDENGINE_CHECK_HEAP
+    #endif
 #else
 
     #define BEATS_ASSI_GET_EIP(intVariable) 
     #define BEATS_ASSI_GET_EBP(intVariable) 
+    #define BEYONDENGINE_CHECK_HEAP
 #endif
 
 #define BEYONDENGINE_HOST_IS_BIG_ENDIAN (bool)(*(unsigned short *)"\0\xff" < 0x100) 

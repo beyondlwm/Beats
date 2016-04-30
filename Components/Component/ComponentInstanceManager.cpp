@@ -115,6 +115,7 @@ void CComponentInstanceManager::SwitchFile(uint32_t uFileId)
     {
         loadedComponents[i]->Initialize();
     }
+    BEYONDENGINE_CHECK_HEAP;
 }
 
 void CComponentInstanceManager::LoadFile(uint32_t uFileId, std::vector<CComponentBase*>* pLoadComponents)
@@ -162,6 +163,7 @@ void CComponentInstanceManager::LoadFile(uint32_t uFileId, std::vector<CComponen
             loadComponents[i]->Load();
         }
         m_loadedFiles.push_back(uFileId);
+        BEYONDENGINE_CHECK_HEAP;
     }
 }
 
@@ -201,16 +203,19 @@ void CComponentInstanceManager::CloseFile(uint32_t uFileId)
 {
     std::vector<CComponentBase*> componentToDelete;
     UnloadFile(uFileId, &componentToDelete);
+    BEYONDENGINE_CHECK_HEAP;
     for (size_t i = 0; i < componentToDelete.size(); ++i)
     {
         CComponentBase* pComponentBase = componentToDelete[i];
         BEATS_ASSERT(pComponentBase->IsInitialized());
         pComponentBase->Uninitialize();
     }
+    BEYONDENGINE_CHECK_HEAP;
     for (uint32_t i = 0; i < componentToDelete.size(); ++i)
     {
         BEATS_SAFE_DELETE(componentToDelete[i]);
     }
+    BEYONDENGINE_CHECK_HEAP;
 }
 
 CSerializer* CComponentInstanceManager::GetFileSerializer() const

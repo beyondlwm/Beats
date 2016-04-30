@@ -46,6 +46,7 @@ public:
     virtual bool OnPropertyImport(const TString& strPropertyName, const TString& strFile);
 #ifdef _DEBUG
     bool m_bReflectPropertyCheck = false;
+    bool m_bReflectPropertyCritical = false;
 #endif
 
 private:

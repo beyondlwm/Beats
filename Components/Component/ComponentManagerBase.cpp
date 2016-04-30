@@ -209,6 +209,7 @@ void CComponentManagerBase::Reset()
     BEATS_ASSERT(m_pComponentInstanceMap->size() == 0);
     m_pIdManager->Reset();
     m_pProject->CloseProject();
+    BEYONDENGINE_CHECK_HEAP;
 }
 
 uint32_t CComponentManagerBase::GetCurrLoadFileId()
