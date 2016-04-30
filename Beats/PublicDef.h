@@ -254,7 +254,7 @@ if ((p) != NULL)\
 
 //////////////////////////////////////////////////////////////////////////
 ///Assimbly
-#if BEYONDENGINE_PLATFORM == PLATFORM_WIN32
+#if BEATS_PLATFORM == BEATS_PLATFORM_WIN32
     #define BEATS_ASSI_GET_EIP__(intVariable, LineNum) _asm call label##LineNum _asm label##LineNum: _asm pop intVariable __asm{}
     #define BEATS_ASSI_GET_EIP_(intVariable, LineNum) BEATS_ASSI_GET_EIP__(intVariable, LineNum)
     #define BEATS_ASSI_GET_EIP(intVariable) BEATS_ASSI_GET_EIP_(intVariable, __LINE__)
