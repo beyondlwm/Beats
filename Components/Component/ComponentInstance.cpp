@@ -271,7 +271,9 @@ void CComponentInstance::ClearReflectComponents()
 
 void CComponentInstance::RegisterReflectComponent(CComponentInstance* pComponent)
 {
+#ifdef _DEBUG
     BEATS_ASSERT(!m_bReflectPropertyCritical);
+#endif
     BEATS_ASSERT(m_reflectComponents.find(pComponent) == m_reflectComponents.end());
     m_reflectComponents.insert(pComponent);
     BEATS_ASSERT(pComponent->GetReflectOwner() == nullptr && pComponent->GetId() == 0xFFFFFFFF);
@@ -280,7 +282,9 @@ void CComponentInstance::RegisterReflectComponent(CComponentInstance* pComponent
 
 void CComponentInstance::UnregisterReflectComponent(CComponentInstance* pComponent)
 {
+#ifdef _DEBUG
     BEATS_ASSERT(!m_bReflectPropertyCritical);
+#endif
     BEATS_ASSERT(m_reflectComponents.find(pComponent) != m_reflectComponents.end());
     m_reflectComponents.erase(pComponent);
     BEATS_ASSERT(pComponent->GetReflectOwner() == this && pComponent->GetId() == 0xFFFFFFFF);
