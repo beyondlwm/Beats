@@ -343,6 +343,7 @@ void CComponentProxy::LoadFromXML(rapidxml::xml_node<>* pNode)
     rapidxml::xml_node<>* pVarElement = pNode->first_node("VariableNode");
     std::vector<rapidxml::xml_node<>*> unUsedXMLVariableNode;
     CComponentProject* pProject = CComponentProxyManager::GetInstance()->GetProject();
+    bool bNeedResaveFile = false;
     while (pVarElement != NULL)
     {
         EReflectPropertyType propertyType = (EReflectPropertyType)atoi(pVarElement->first_attribute("Type")->value());
@@ -354,12 +355,16 @@ void CComponentProxy::LoadFromXML(rapidxml::xml_node<>* pNode)
         if (iter == unInitializedproperties.end() || iter->second->GetType() != propertyType)
         {
             TString strReplacePropertyName;
-            bNeedMaintain = !pProject->GetReplacePropertyName(this->GetGuid(), szVariableName, strReplacePropertyName);
+            bNeedMaintain = !pProject->GetReplacePropertyName(GetGuid(), szVariableName, strReplacePropertyName);
             if (!bNeedMaintain && 
                 strReplacePropertyName.length() > 0)
             {
-                iter = unInitializedproperties.find(strReplacePropertyName);
-                BEATS_ASSERT(iter != unInitializedproperties.end());
+                bNeedResaveFile = true;
+                if (strReplacePropertyName != "BEATS_PROPERTY_IGNORE")
+                {
+                    iter = unInitializedproperties.find(strReplacePropertyName);
+                    BEATS_ASSERT(iter != unInitializedproperties.end());
+                }
             }
         }
 
@@ -370,11 +375,13 @@ void CComponentProxy::LoadFromXML(rapidxml::xml_node<>* pNode)
         }
         else if(bNeedMaintain)
         {
+            bNeedResaveFile = true;
             unUsedXMLVariableNode.push_back(pVarElement);
         }
         pVarElement = pVarElement->next_sibling("VariableNode");
     }
-    if (unUsedXMLVariableNode.size() > 0)
+
+    if (bNeedResaveFile)
     {
         // Save the XML file to overwrite the old property data.
         BEATS_ASSERT(pNode->document()->m_pszFilePath != nullptr);
@@ -408,7 +415,7 @@ void CComponentProxy::LoadFromXML(rapidxml::xml_node<>* pNode)
             int iRet = MessageBox(BEYONDENGINE_HWND, szInform, _T("Maintain data"), MB_YESNO);
             if (iRet == IDYES)
             {
-                pProject->RegisterPropertyMaintainInfo(this->GetGuid(), szVariableName, _T(""));
+                pProject->RegisterPropertyMaintainInfo(GetGuid(), szVariableName, _T("BEATS_PROPERTY_IGNORE"));
             }
             else
             {
