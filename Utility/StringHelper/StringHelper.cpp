@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "StringHelper.h"
+#include <algorithm>
 
 static const unsigned char masksUtf8[6] = {
     (unsigned char)0x80, //10000000
@@ -27,7 +28,6 @@ CStringHelper* CStringHelper::m_pInstance = NULL;
 
 CStringHelper::CStringHelper()
 {
-
 }
 
 CStringHelper::~CStringHelper()
@@ -362,5 +362,57 @@ TString CStringHelper::ToUpper(const TString& strIn) const
 {
     TString strRet = strIn;
     std::transform(strRet.begin(), strRet.end(), strRet.begin(), toupper);
+    return strRet;
+}
+
+TString CStringHelper::InsertString(const TString& strSourceStr, const TString& strInsertStr, bool bReverse, int32_t nStartPos, uint32_t uInterval)
+{
+    TString strRet = strSourceStr;
+    int32_t currInsertPos = nStartPos;
+    if (!strInsertStr.empty() && currInsertPos <= (int32_t)strSourceStr.length())
+    {
+        if (bReverse)
+        {
+            currInsertPos = (int32_t)strSourceStr.length() - currInsertPos;
+        }
+        strRet.insert(currInsertPos, strInsertStr);
+        if (uInterval != 0xFFFFFFFF)
+        {
+            if (bReverse)
+            {
+                currInsertPos -= uInterval;
+            }
+            else
+            {
+                currInsertPos += uInterval;
+                currInsertPos += (int32_t)strInsertStr.length();
+            }
+            while (currInsertPos < (int32_t)strRet.length() && currInsertPos >= 0 && (!bReverse || currInsertPos > 0))
+            {
+                strRet.insert(currInsertPos, strInsertStr);
+                if (bReverse)
+                {
+                    currInsertPos -= uInterval;
+                }
+                else
+                {
+                    currInsertPos += uInterval;
+                    currInsertPos += (int32_t)strInsertStr.length();
+                }
+            }
+        }
+    }
+    return strRet;
+}
+
+TString CStringHelper::ReplaceString(const TString& strSourceStr, const TString& strToReplace, const TString& newStr)
+{
+    TString strRet = strSourceStr;
+    TString::size_type pos = 0;
+    while ((pos = strRet.find(strToReplace, pos)) != TString::npos)
+    {
+        strRet.replace(pos, strToReplace.size(), newStr);
+        pos += newStr.size();
+    }
     return strRet;
 }
