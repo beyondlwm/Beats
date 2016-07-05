@@ -43,6 +43,8 @@ public:
     uint32_t BKDRHash(const char* strData) const;
     TString ToLower(const TString& strIn) const;
     TString ToUpper(const TString& strIn) const;
+    TString InsertString(const TString& strSourceStr, const TString& strInsertStr, bool bReverse, int32_t nStartPos = 0, uint32_t uInterval = 0xFFFFFFFF);
+    TString ReplaceString(const TString& strSourceStr, const TString& strToReplace, const TString& newStr);
 
     // Check character.
 #if (BEATS_PLATFORM == BEATS_PLATFORM_WIN32)
